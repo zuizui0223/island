@@ -1,0 +1,42 @@
+name: Three-level filter evolution audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "data/v2/curation/within_lineage_literature_triangulation_20261005.csv"
+      - "docs/chapter1_three_level_filter_evolution_design_20261005.md"
+      - "src/island_v2/chapter1_three_level_filter_evolution.py"
+      - "tests/test_chapter1_three_level_filter_evolution.py"
+      - ".github/workflows/chapter1-three-level-filter-evolution.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install and test
+        run: |
+          pip install -e ".[dev]"
+          pytest -q tests/test_chapter1_three_level_filter_evolution.py
+          ruff check src/island_v2/chapter1_three_level_filter_evolution.py tests/test_chapter1_three_level_filter_evolution.py
+      - name: Audit evidence ledger
+        run: |
+          python -m island_v2.chapter1_three_level_filter_evolution \
+            --ledger-csv data/v2/curation/within_lineage_literature_triangulation_20261005.csv \
+            --output-dir artifacts/three-level-filter-evolution
+          cat artifacts/three-level-filter-evolution/RESULT.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-level-filter-evolution-${{ github.run_id }}
+          path: artifacts/three-level-filter-evolution/
+          if-no-files-found: error
+          retention-days: 30
