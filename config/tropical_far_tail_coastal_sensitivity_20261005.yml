@@ -1,0 +1,78 @@
+contract: tropical_far_tail_coastal_dispersal_sensitivity_v1
+role: post_hoc_diagnostic_not_submission_inference
+context: tropical
+combination: yellow_orange__butterfly_deep_tube_given_colour
+evidence_scope: direct
+
+exclusion_sets:
+  none: []
+
+  strict_nakanishi_maritime:
+    source_note: >
+      Species listed as dominant/characteristic maritime plants in Nakanishi's
+      Ryukyu dispersal study; historical names and current/common accepted-name
+      variants are included only to make the filter name-stable.
+    species:
+      - Calophyllum inophyllum
+      - Canavalia maritima
+      - Canavalia rosea
+      - Clerodendrum inerme
+      - Clerodendron inerme
+      - Guettarda speciosa
+      - Hernandia sonora
+      - Hernandia nymphaeifolia
+      - Hibiscus tiliaceus
+      - Ipomoea gracilis
+      - Ipomoea pes-caprae
+      - Messerschmidia argentea
+      - Heliotropium foertherianum
+      - Pandanus odoratissimus
+      - Pandanus tectorius
+      - Pongamia pinnata
+      - Scaevola frutescens
+      - Scaevola taccada
+      - Sophora tomentosa
+      - Terminalia catappa
+      - Thespesia populnea
+      - Vigna marina
+      - Wedelia biflora
+      - Sphagneticola biflora
+
+  expanded_pacific_strand:
+    source_note: >
+      Strict maritime set plus repeatedly listed Pacific/coral-island strand
+      trees and shrubs from coastal-strand floras. This is an ecological
+      sensitivity set, not a claim that every propagule is obligately
+      thalassochorous.
+    inherits: strict_nakanishi_maritime
+    species:
+      - Cordia subcordata
+      - Barringtonia asiatica
+      - Pemphis acidula
+      - Suriana maritima
+      - Pisonia grandis
+      - Casuarina equisetifolia
+
+  expanded_plus_data_quality:
+    source_note: >
+      Expanded strand exclusion plus species flagged independently in the
+      current audit for trait/status interpretation. This is a data-quality
+      stress test, not an ecological coastal filter.
+    inherits: expanded_pacific_strand
+    species:
+      - Crescentia cujete
+
+strata:
+  - all_native
+  - native_nonendemic
+
+small_cluster_inference:
+  report_normal_cluster_robust_p: true
+  report_student_t_with_tail_block_df: true
+  leave_one_far_tail_block_out: true
+
+coding_audit:
+  tube_depth_review:
+    - Thespesia populnea
+    - Hibiscus tiliaceus
+    - Crescentia cujete
