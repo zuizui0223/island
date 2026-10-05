@@ -1,0 +1,19 @@
+{
+  "contract": "chapter1_pollination_syndrome_far_tail_pair_v1",
+  "role": "post_hoc_diagnostic_not_submission_inference",
+  "parent_nonlinearity_contract": "chapter1_pollination_syndrome_hinge_diagnostic_v1",
+  "combination": "yellow_orange__butterfly_deep_tube_given_colour",
+  "contexts": ["northern_midlatitude", "tropical"],
+  "hinge_km": 783.0170567911987,
+  "contrast_method": "difference of converged disjoint region-specific slopes; variance equals sum of regional variances",
+  "workflow_run": 37294802802,
+  "artifact_id": 11338470536,
+  "main_findings": {
+    "pre_hinge_regional_difference": "unsupported in All and Direct",
+    "post_hinge_northern_midlatitude_slope": "positive and nominally supported in All and Direct",
+    "post_hinge_tropical_slope": "positive; supported in Direct",
+    "post_hinge_regional_difference": "unsupported in All and Direct",
+    "interpretation": "remote-island scale effect is more defensible than tropical-specific response"
+  },
+  "submission_boundary": "do_not_promote_20261005_diagnostic_coefficients"
+}
