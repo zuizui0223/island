@@ -190,6 +190,61 @@ def _far_tail_removed_summary(
     }
 
 
+def _residual_far_tail_tables(
+    status_flora: pd.DataFrame,
+    eligible: pd.DataFrame,
+    work: pd.DataFrame,
+    *,
+    stratum: str,
+    excluded: set[str],
+    variant: str,
+    knot_km: float,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    flora = status_flora.loc[
+        stratum_mask(status_flora, stratum),
+        ["island_id", "accepted_species"],
+    ].drop_duplicates().copy()
+    flora["island_id"] = flora["island_id"].astype(str)
+    flora["accepted_species"] = flora["accepted_species"].astype(str)
+    joined = flora.merge(
+        eligible, on="accepted_species", how="inner", validate="many_to_one"
+    )
+    ids = work.loc[
+        work["distance_to_continent_km"].gt(knot_km),
+        ["island_id"],
+    ].drop_duplicates()
+    joined = joined.merge(ids, on="island_id", how="inner", validate="many_to_one")
+    joined = joined.loc[~joined["accepted_species"].isin(excluded)].copy()
+    deep = joined.loc[joined["success"].eq(1)].copy()
+    if deep.empty:
+        return pd.DataFrame(), pd.DataFrame()
+
+    deep["genus"] = deep["accepted_species"].str.split().str[0]
+    species = (
+        deep.groupby("accepted_species", as_index=False)
+        .agg(n_far_tail_islands=("island_id", "nunique"))
+        .sort_values("n_far_tail_islands", ascending=False)
+    )
+    species.insert(0, "stratum", stratum)
+    species.insert(0, "variant", variant)
+
+    genus = (
+        deep.groupby("genus", as_index=False)
+        .agg(
+            n_deep_occurrences=("success", "sum"),
+            n_deep_species=("accepted_species", "nunique"),
+            n_far_tail_islands=("island_id", "nunique"),
+        )
+        .sort_values(
+            ["n_deep_occurrences", "n_far_tail_islands"],
+            ascending=False,
+        )
+    )
+    genus.insert(0, "stratum", stratum)
+    genus.insert(0, "variant", variant)
+    return species, genus
+
+
 def _fit_one(
     work: pd.DataFrame,
     cfg: dict,
@@ -280,6 +335,8 @@ def main() -> None:
     headline_rows = []
     jackknife_parts = []
     removed_species_rows = []
+    residual_species_parts = []
+    residual_genus_parts = []
 
     for stratum in strata:
         for variant, excluded in exclusion_sets.items():
@@ -341,6 +398,20 @@ def main() -> None:
                     **removed,
                 }
             )
+            residual_species, residual_genus = _residual_far_tail_tables(
+                status_flora,
+                eligible,
+                work,
+                stratum=stratum,
+                excluded=excluded,
+                variant=variant,
+                knot_km=knot_km,
+            )
+            if not residual_species.empty:
+                residual_species_parts.append(residual_species)
+            if not residual_genus.empty:
+                residual_genus_parts.append(residual_genus)
+
             jackknife = _block_leaveout(
                 work,
                 pattern_cfg,
@@ -377,6 +448,16 @@ def main() -> None:
         else pd.DataFrame()
     )
     removed_species = pd.DataFrame(removed_species_rows)
+    residual_species = (
+        pd.concat(residual_species_parts, ignore_index=True)
+        if residual_species_parts
+        else pd.DataFrame()
+    )
+    residual_genus = (
+        pd.concat(residual_genus_parts, ignore_index=True)
+        if residual_genus_parts
+        else pd.DataFrame()
+    )
 
     jack_summary_rows = []
     if not jackknife.empty:
@@ -411,11 +492,23 @@ def main() -> None:
     removed_species.to_csv(
         args.output / "coastal_exclusion_species_present.csv", index=False
     )
+    residual_species.to_csv(
+        args.output / "coastal_exclusion_residual_species.csv", index=False
+    )
+    residual_genus.to_csv(
+        args.output / "coastal_exclusion_residual_genera.csv", index=False
+    )
 
     print("=== headline ===")
     print(headline.to_string(index=False))
     print("\n=== block leaveout summary ===")
     print(jack_summary.to_string(index=False))
+    if not residual_genus.empty:
+        print("\n=== residual genera after expanded Pacific strand exclusion ===")
+        focus = residual_genus.loc[
+            residual_genus["variant"].eq("expanded_pacific_strand")
+        ].copy()
+        print(focus.groupby("stratum", group_keys=False).head(15).to_string(index=False))
 
 
 if __name__ == "__main__":
