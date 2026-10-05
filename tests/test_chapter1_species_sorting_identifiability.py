@@ -54,6 +54,33 @@ def test_source_unavailable_observed_species_is_not_silently_used() -> None:
 
 
 
+def test_unsorted_sparse_prevalence_fails_closed() -> None:
+    states = pd.Series([0.0, 1.0, 1.0]).to_numpy()
+    prevalence = sparse.csr_matrix(
+        ([2, 1], [2, 0], [0, 2]),
+        shape=(1, 3),
+    )
+    assert prevalence.has_sorted_indices is False
+    observed = sparse.csr_matrix([[1, 0, 1]])
+    with pytest.raises(RuntimeError, match="sorted CSR indices"):
+        _decompose_row(
+            prevalence_row=prevalence,
+            observed_row=observed,
+            states=states,
+            genus_codes=pd.Series([0, 0, 1]).to_numpy(),
+        )
+
+    prevalence.sort_indices()
+    result = _decompose_row(
+        prevalence_row=prevalence,
+        observed_row=observed,
+        states=states,
+        genus_codes=pd.Series([0, 0, 1]).to_numpy(),
+    )
+    assert result is not None
+    assert result["n_observed_source_candidate_species"] == 2
+
+
 def test_genus_structure_and_within_genus_sorting_are_separate() -> None:
     # Two equally prevalent source species in different genera. The island contains
     # only the positive species from genus 1. The shift is genus structure, not
