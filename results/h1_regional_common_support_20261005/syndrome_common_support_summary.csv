@@ -1,0 +1,9 @@
+evidence_scope,context,n_confirmatory_combinations_full,n_confirmatory_combinations_common,n_fdr_supported_full,n_fdr_supported_common,n_same_sign_among_both_fit,n_both_fit,median_abs_estimate_change
+all,northern_high_latitude,14,14,6,6,10,14,0.1225786038435418
+all,northern_midlatitude,14,14,1,1,13,14,0.005114213517141079
+all,southern_extratropical,14,14,6,0,9,14,0.09323609681413585
+all,tropical,14,14,0,0,9,14,0.02791570675916788
+direct,northern_high_latitude,14,14,5,5,11,14,0.11742517185134704
+direct,northern_midlatitude,14,14,1,0,14,14,0.00562126834347193
+direct,southern_extratropical,14,14,1,1,8,14,0.09291508849676887
+direct,tropical,14,14,1,0,8,14,0.05357135377279393
