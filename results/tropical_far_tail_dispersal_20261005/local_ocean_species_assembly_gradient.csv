@@ -1,0 +1,2 @@
+stratum,n_islands,n_blocks,strict_ocean_occurrences,total_flora_occurrences,distance_slope_log_odds_per_sd,cluster_robust_se,normal_p,cluster_t_p
+native_nonendemic,120,41,289,41561,0.6668818852,0.1239094581,7.36589e-08,3.48144e-06
