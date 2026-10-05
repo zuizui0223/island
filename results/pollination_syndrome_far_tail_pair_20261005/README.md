@@ -2,6 +2,18 @@
 
 Status: **post-hoc diagnostic; not part of the frozen Chapter 1 submission inference.**
 
+> **Superseded biological interpretation (2026-10-05; PR #313).**  
+> The coefficients below are retained as a historical post-hoc diagnostic trail. Later
+> species/status attribution showed that the northern mid-latitude positive far tail
+> disappears in confirmed native flora. In tropical native flora, the positive tail
+> disappears after removing literature-qualified ocean-dispersed coastal species
+> (native-nonendemic **+0.9844 → -0.2330**; **-0.2294** after recomputing
+> `selfing_core`), whereas tube-depth coding flags alone do not remove it. These
+> outputs therefore should **not** be interpreted as a pollination-syndrome mechanism
+> or as a shared very-remote-island biological response across regions. Current
+> follow-up: `results/tropical_far_tail_dispersal_20261005/README.md`.
+
+
 This diagnostic resolves the remaining comparison left open by the pooled region × hinge model for the
 `yellow/orange × butterfly-associated deep-tube` response. The pooled deep-tube hinge model did not
 converge, although the region-specific hinge models did. We therefore compare the converged northern
