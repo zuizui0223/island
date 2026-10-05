@@ -619,8 +619,8 @@ def main(
     if tuple(source_modes) != tuple(SOURCE_MODES):
         raise typer.BadParameter("null contract source modes differ from frozen modes")
 
-    n_permutations = int(config["null"]["n_permutations"])
-    base_seed = int(config["null"]["seed"])
+    n_permutations = int(config["permutation_null"]["n_permutations"])
+    base_seed = int(config["permutation_null"]["seed"])
     minimum_islands = int(config["model"]["minimum_islands_per_outcome"])
 
     result_rows: list[dict[str, Any]] = []
