@@ -52,4 +52,4 @@ No historical causal mediation is claimed.
 
 ## Submission state
 
-The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 145 words; main text 4,811 words; six display items). Submission is blocked only by the external data-policy gate and final author/release metadata.
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 145 words; main text 4,864 words; six display items). Submission is blocked only by the external data-policy gate and final author/release metadata.

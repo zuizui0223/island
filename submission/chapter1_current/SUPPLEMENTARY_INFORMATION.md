@@ -90,7 +90,7 @@ Supporting documentation:
 
 ### H1: seven separate trait responses
 
-The primary analysis is broad contemporary island flora with All evidence. Each of seven binary traits is fitted separately in each of four regions by beta-binomial logit regression, adjusting for standardized corrected log isolation, log island area and climate PC1–4. Reproduction, colour and structure are labels, not aggregate scores. Spatial-block sandwich standard errors use a finite-cluster t reference with G−1 degrees of freedom and pointwise 95% intervals. All individual p values are two-sided and unadjusted; no Holm correction is applied. The final rule was selected after comparison of alternatives on 4 October 2026 and is retrospective, not preregistered. Individual significance does not establish family-wise significance or formal differences between regional slopes.
+The primary analysis is broad contemporary island flora with All evidence. Each of seven binary traits is fitted separately in each of four regions by beta-binomial logit regression, adjusting for standardized corrected log isolation, log island area and climate PC1–4. Reproduction, colour and structure are labels, not aggregate scores. Spatial-block sandwich standard errors use a finite-cluster t reference with G−1 degrees of freedom and pointwise 95% intervals. All individual p values are two-sided and unadjusted; no Holm correction is applied. The final rule was user-approved after comparison of alternatives on 4 October 2026 and is retrospective, not preregistered. Individual significance does not establish family-wise significance or formal differences between regional slopes.
 
 WCVP regional-native-compatible flora is the sole active origin sensitivity; Direct-only is a separate evidence-quality sensitivity. Both use the identical model and inference rule. WCVP compatibility retains existing source-native records and upgrades unresolved records only under accepted TDWG-L3 native-range compatibility; introduced records are not overwritten. This establishes regional compatibility rather than exact focal-island nativity. H2–H4 and their previously defined functional covariates are unchanged.
 
@@ -107,28 +107,6 @@ It contains all 112 final fits (All/Direct-only × broad/WCVP × four regions ×
 All 112 fits converged. Primary All evidence supports 17 of 28 individual associations at nominal two-sided P < 0.05, the same set of significant traits as the original poster's normal approximation. Self-compatibility increases with isolation in all four regions (P = 0.00569, 0.00671, 0.01812 and 0.01123 in northern mid-latitude, northern high-latitude, tropical and southern extratropical floras, respectively). Selfing mating system increases in the first three regions. Autonomous selfing increases in northern high latitudes and the tropics. Generalized form increases in northern mid-latitudes, the tropics and southern extratropics; actinomorphy increases in northern high latitudes and the tropics. Shallow/open tubes increase in northern high latitudes but decrease in southern extratropics. Plain colour increases in southern extratropics.
 
 In WCVP All, 10 of 28 individual associations meet the same nominal threshold. Increasing self-compatibility remains supported in all four regions. Northern-high autonomous selfing, actinomorphy and shallow/open tubes remain positive and supported; tropical actinomorphy remains supported. Plain colour increases in both tropical and southern extratropical WCVP floras. Several broad-flora associations, including the southern shallow/open-tube decrease, no longer meet the threshold. This can reflect changed composition, precision and coverage, rather than proving an introduced-species mechanism. Direct-only yields 15/28 supported associations in broad flora and 11/28 in WCVP flora. Complete coefficients, intervals and unadjusted p values are reported in results/h1_final_traitwise_t_20261004/traitwise_results.csv.
-
-## S3.1 Post-baseline source-matched assembly decomposition
-
-A separate diagnostic asks whether the source-evaluable H1 response is already present in the mainland species pool, is added by which genera represent island assemblages, or is added by species sorting within represented genera. The analysis is restricted to source-backed native non-endemics and reuses four frozen GIFT source-assignment modes. The exact row identity is:
-
-raw H1 mean = source-species expectation + genus-structure enrichment + within-genus species-sorting enrichment.
-
-The identity closes to machine precision. Northern high latitudes and southern extratropics fail the retained minimum-50-islands-per-outcome gate and are not interpreted.
-
-Northern mid-latitudes show a consistent compositional route. Genus-structure enrichment is positive and FDR-supported in all four source modes (All mean slope +0.01627 to +0.02214, maximum q = 1.49 × 10^-5; Direct-only +0.01842 to +0.02333, maximum q = 5.54 × 10^-6). Additional within-genus species sorting is not supported across all four modes (All maximum q = 0.136; Direct-only maximum q = 0.130).
-
-In the tropics, the source-species expectation is positive in the All scope (+0.01853 to +0.01949; maximum q = 0.00266), whereas genus structure is negative in all four source modes (-0.02018 to -0.01474; maximum q = 0.00722). Direct-only genus structure is likewise negative (-0.01836 to -0.01466; maximum q = 0.0498). Within-genus species sorting is not supported. Thus source availability and realized genus composition form an antagonistic counter-gradient.
-
-This diagnostic supports assemblage filtering at the level of genus composition in the testable source-matched contexts. It does not distinguish colonization, establishment, persistence or extinction and does not estimate within-species evolution.
-
-Validated provenance:
-- workflow run 37254767442;
-- commit a5a76ed0052c71eee1f719af3601e4af7b387efd;
-- artifact 11322366778;
-- committed summary: results/species_sorting_identifiability_20261005/README.md.
-
-The same workflow audits the recoverable population-level mating-system bridge from Whitehead et al. (2018). Of 10,751 repeated-lineage candidates, 36 overlap that source and contribute 255 population rows with numeric multilocus outcrossing rate. The Whitehead population table contains no explicit locality or coordinates, so these rows are candidates for source-paper locality recovery rather than a completed island-versus-source within-lineage analysis.
 
 # Appendix S4. H2 conditional decomposition and raw floral patterns
 
