@@ -16,7 +16,7 @@ GEB is a strong fallback because the paper tests broad-scale geographic variatio
 ## Format conversion
 
 - Article type: Research Article.
-- Main text: current repository Markdown count 4,956 words.
+- Main text: current repository Markdown count 4,954 words.
 - Display pieces: six figures.
 - Abstract: convert to the required structured format.
 - Review model: double anonymous.
