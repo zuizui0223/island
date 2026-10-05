@@ -1,0 +1,19 @@
+accepted_species,study,doi,site_name,region,latitude,longitude,tm,tm_sd,island_status,island_basis
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Peekskill South,NY,41.30,-73.98,0.934,0.023,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Peekskill North,NY,41.32,-73.99,0.881,0.036,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Dover Plains,NY,41.73,-73.56,0.827,0.118,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Helderberg,NY,42.66,-74.02,0.957,0.032,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Friedensville,PA,40.57,-75.40,0.870,0.090,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Erie,PA,42.17,-80.07,0.934,0.058,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Long Point,ON,42.58,-80.39,0.056,0.040,non_island,peninsula/mainland shoreline
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Rondeau,ON,42.26,-81.85,0.215,0.192,non_island,peninsula/mainland shoreline
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Toledo,OH,41.62,-83.79,0.075,0.124,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Portage,IN,41.61,-87.19,0.907,0.040,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Zion,IL,42.42,-87.80,0.974,0.045,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Saugatuck,MI,42.70,-86.20,0.966,0.021,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Ludington,MI,44.01,-86.48,1.030,0.055,non_island,site not named as island
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Beaver Island,MI,45.75,-85.50,0.878,0.037,island,freshwater island named explicitly in source
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Pictured Rocks,MI,46.67,-86.02,0.961,0.035,non_island,mainland Lake Superior shoreline
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Keweenaw,MI,47.38,-87.96,0.574,0.065,non_island,mainland peninsula
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Isle Royale,MI,48.16,-88.45,0.134,0.045,island,freshwater island named explicitly in source
+Arabidopsis lyrata,Willi & Määttänen 2010,10.1111/j.1420-9101.2010.02073.x,Apostle Islands,WI,46.73,-90.81,0.903,0.034,island,freshwater island group named explicitly in source
