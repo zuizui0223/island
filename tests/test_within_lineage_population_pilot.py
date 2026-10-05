@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from scripts.analyze_within_lineage_population_pilot import exact_island_permutation
+from island_v2.within_lineage_population_pilot import exact_island_permutation
 
 
 def test_arabidopsis_exact_island_permutation() -> None:
