@@ -444,6 +444,10 @@ def build_species_sorting_scores(
             if assignment is None:
                 continue
             prevalence = (assignment @ source_presence).tocsr()
+            # CSR matrix products do not guarantee sorted column indices.
+            # _decompose_row uses np.searchsorted for sparse membership, so sort
+            # once here; otherwise source overlap can collapse spuriously.
+            prevalence.sort_indices()
             rows: list[dict[str, Any]] = []
             for i, island in enumerate(islands):
                 result = _decompose_row(
