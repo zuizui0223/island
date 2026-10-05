@@ -321,7 +321,6 @@ def _decompose_row(
     observed_row: sparse.csr_matrix,
     states: np.ndarray,
     genus_codes: np.ndarray,
-    n_species: int,
 ) -> dict[str, float | int] | None:
     if prevalence_row.nnz == 0 or observed_row.nnz == 0:
         return None
@@ -329,14 +328,17 @@ def _decompose_row(
     prevalence = prevalence_row.data.astype(int)
     obs_idx = observed_row.indices
 
-    buffer = np.zeros(n_species, dtype=np.int16)
-    buffer[candidate_idx] = prevalence
-    obs_prev = buffer[obs_idx]
-    keep = obs_prev > 0
-    if not np.any(keep):
+    # CSR column indices are sorted. Match observed species directly to the
+    # source-candidate index rather than allocating an O(n_species) buffer for
+    # every island row.
+    positions = np.searchsorted(candidate_idx, obs_idx)
+    keep = positions < len(candidate_idx)
+    matched = np.zeros(len(obs_idx), dtype=bool)
+    matched[keep] = candidate_idx[positions[keep]] == obs_idx[keep]
+    if not np.any(matched):
         return None
-    obs_source_idx = obs_idx[keep]
-    obs_prev = obs_prev[keep]
+    obs_source_idx = obs_idx[matched]
+    obs_prev = prevalence[positions[matched]]
 
     raw = float(np.mean(states[obs_source_idx]))
     max_prev = int(prevalence.max())
@@ -449,7 +451,6 @@ def build_species_sorting_scores(
                     observed_row=observed.getrow(i),
                     states=state_array,
                     genus_codes=genus_codes,
-                    n_species=len(species),
                 )
                 if result is None:
                     continue
