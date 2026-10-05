@@ -24,7 +24,6 @@ def test_species_sorting_identity_and_prevalence_matching() -> None:
         observed_row=observed,
         states=states,
         genus_codes=pd.Series([0, 0, 1]).to_numpy(),
-        n_species=3,
     )
     assert result is not None
     assert result["raw_h1_mean"] == pytest.approx(1.0)
@@ -46,7 +45,6 @@ def test_source_unavailable_observed_species_is_not_silently_used() -> None:
         observed_row=observed,
         states=states,
         genus_codes=pd.Series([0, 0, 1]).to_numpy(),
-        n_species=3,
     )
     assert result is not None
     assert result["n_observed_trait_species"] == 2
@@ -68,7 +66,6 @@ def test_genus_structure_and_within_genus_sorting_are_separate() -> None:
         observed_row=observed,
         states=states,
         genus_codes=pd.Series([0, 1]).to_numpy(),
-        n_species=2,
     )
     assert result is not None
     assert result["raw_h1_mean"] == pytest.approx(1.0)
