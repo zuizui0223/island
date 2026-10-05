@@ -1,0 +1,18 @@
+{
+  "contract": "chapter1_pollination_syndrome_far_tail_block_leaveout_v1",
+  "role": "post_hoc_diagnostic_not_submission_inference",
+  "combination": "yellow_orange__butterfly_deep_tube_given_colour",
+  "contexts": ["northern_midlatitude", "tropical"],
+  "hinge_km": 783.0170567911987,
+  "leaveout_unit": "spatial blocks containing at least one >hinge observation",
+  "workflow_run": 37295699203,
+  "artifact_id": 11337988422,
+  "main_findings": {
+    "north_mid_all_sign_preserved": "17/17",
+    "north_mid_direct_sign_preserved": "17/17",
+    "tropical_all_sign_preserved": "54/54",
+    "tropical_direct_sign_preserved": "53/53",
+    "interpretation": "distributed remote-island pattern; not one-spatial-block leverage"
+  },
+  "submission_boundary": "do_not_promote_20261005_diagnostic_coefficients"
+}
