@@ -1,0 +1,3 @@
+accepted_species,study,doi,pair_id,island_site,mainland_site,comparison,outcome,source_result,role
+Phormium tenax,Howell & Jesson 2013,10.1080/0028825X.2013.772904,1,Little Barrier Island,Tāwharanui Regional Park,island_vs_mainland,multilocus_outcrossing_rate_seedlings,no_significant_difference,independent_within_species_pair
+Phormium tenax,Howell & Jesson 2013,10.1080/0028825X.2013.772904,2,Tiritiri Matangi Island,Shakespear Regional Park,island_vs_mainland,multilocus_outcrossing_rate_seedlings,no_significant_difference,independent_within_species_pair
