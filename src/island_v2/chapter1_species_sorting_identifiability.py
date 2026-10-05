@@ -258,7 +258,10 @@ def _outcome_matrices(
             [],
         )
 
-    species = sorted(source["accepted_species"].astype(str).unique())
+    # Keep every trait-resolved focal species in the island observation universe.
+    # Species absent from the matched mainland source pool then retain zero source
+    # prevalence and are excluded only at the explicit source-evaluable gate below.
+    species = sorted(focal["accepted_species"].astype(str).unique())
     species_index = {sp: i for i, sp in enumerate(species)}
     state_map = focal.set_index("accepted_species")["state"]
     states_array = np.array([float(state_map.loc[sp]) for sp in species], dtype=float)
