@@ -1,0 +1,42 @@
+name: Within-lineage population pilot
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "data/v2/curation/within_lineage_population_pilot_*"
+      - "scripts/analyze_within_lineage_population_pilot.py"
+      - "tests/test_within_lineage_population_pilot.py"
+      - ".github/workflows/within-lineage-population-pilot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install and test
+        run: |
+          pip install -e ".[dev]"
+          pytest -q tests/test_within_lineage_population_pilot.py
+          ruff check scripts/analyze_within_lineage_population_pilot.py tests/test_within_lineage_population_pilot.py
+      - name: Run pilot
+        run: |
+          python scripts/analyze_within_lineage_population_pilot.py \
+            --arabidopsis-csv data/v2/curation/within_lineage_population_pilot_arabidopsis_lyrata_20261005.csv \
+            --phormium-csv data/v2/curation/within_lineage_population_pilot_phormium_pairs_20261005.csv \
+            --output-dir artifacts/within-lineage-population-pilot
+          cat artifacts/within-lineage-population-pilot/RESULT.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: within-lineage-population-pilot-${{ github.run_id }}
+          path: artifacts/within-lineage-population-pilot/
+          if-no-files-found: error
+          retention-days: 30
