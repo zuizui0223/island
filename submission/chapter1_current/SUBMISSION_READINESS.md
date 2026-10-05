@@ -26,7 +26,7 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 
 - title rewritten around recurrent reproductive function and contingent floral phenotype;
 - abstract: **145 words**;
-- main text: **4,956 words** by repository Markdown count;
+- main text: **4,954 words** by repository Markdown count;
 - six main figures;
 - cover letter and novelty statement synchronized to traitwise H1;
 - current interpretation no longer relies on a pooled H1 score.
