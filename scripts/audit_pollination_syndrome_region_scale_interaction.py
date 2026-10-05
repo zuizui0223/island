@@ -277,14 +277,26 @@ def _fit(
 ) -> tuple[pd.DataFrame, dict[str, object], np.ndarray, list[str]]:
     cluster = str(cfg["cluster_column"])
     X, names = _design(work, cfg, hinge_km=hinge_km)
-    coef, fit, covariance = _fit_grouped_binomial_design(
+    args = (
         work["successes"].to_numpy(float),
         work["trials"].to_numpy(float),
         X,
         names,
         work[cluster].astype(str).to_numpy(),
+    )
+    coef, fit, covariance = _fit_grouped_binomial_design(
+        *args,
         max_iter=500,
     )
+    if fit["status"] != "fit":
+        coef, fit, covariance = _fit_grouped_binomial_design(
+            *args,
+            max_iter=5000,
+            tolerance=1e-10,
+        )
+        fit = {**fit, "retry_used": True}
+    else:
+        fit = {**fit, "retry_used": False}
     return coef, fit, covariance, names
 
 
