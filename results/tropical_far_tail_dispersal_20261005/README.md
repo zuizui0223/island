@@ -18,8 +18,11 @@ the corrected spherical coastline distances:
 
 ## Strict ocean-dispersal exclusion
 
-The strict species list is frozen independently from the response coefficient and is
-limited to species with direct literature support for coastal/ocean-current dispersal.
+The strict species list is a **post-hoc qualified set**: candidate lineages were visible
+in the genus/species attribution audit, then species were admitted only when external
+literature directly supported coastal/ocean-current dispersal. The membership list was
+frozen before the exclusion refit; it is not presented as prospectively preregistered or
+outcome-blind.
 The main contributing species include `Cordia subcordata`, `Thespesia populnea`,
 `Decalobanthus peltatus`, `Ipomoea violacea`, `Ipomoea imperati`,
 `Operculina turpethum`, `Ipomoea alba`, and `Hibiscus tiliaceus`.
