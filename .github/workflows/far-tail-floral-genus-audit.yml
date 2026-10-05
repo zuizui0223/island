@@ -1,0 +1,74 @@
+name: Far-tail floral genus audit
+
+on:
+  push:
+    branches:
+      - analysis/far-tail-genus-audit-20261005
+    paths:
+      - "scripts/audit_pollination_syndrome_far_tail_genera.py"
+      - ".github/workflows/far-tail-floral-genus-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: \${{ github.token }}
+      TRAIT_RUN_ID: "34191508045"
+      TRAIT_ARTIFACT: "source-scale-batch-integration-34191508045"
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
+      RAW_RUN_ID: "35216672430"
+      RAW_ARTIFACT: "chapter1-v13-raw-colour-audit-35216672430"
+      ALL_DATA_RUN_ID: "35100991898"
+      ALL_DATA_ARTIFACT: "chapter1-all-data-primary-35100991898"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/far-tail/{trait,canonical,raw,all-data,out}
+          gh run download "$TRAIT_RUN_ID" -n "$TRAIT_ARTIFACT" -D /tmp/far-tail/trait
+          gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/far-tail/canonical
+          gh run download "$RAW_RUN_ID" -n "$RAW_ARTIFACT" -D /tmp/far-tail/raw
+          gh run download "$ALL_DATA_RUN_ID" -n "$ALL_DATA_ARTIFACT" -D /tmp/far-tail/all-data
+
+      - name: Validate
+        run: |
+          ruff check scripts/audit_pollination_syndrome_far_tail_genera.py
+          python -m py_compile scripts/audit_pollination_syndrome_far_tail_genera.py
+
+      - name: Run genus decomposition
+        run: |
+          python scripts/audit_pollination_syndrome_far_tail_genera.py \
+            --species-axis /tmp/far-tail/trait/species_axis_coverage.csv.gz \
+            --status-flora /tmp/far-tail/canonical/input/chapter1_status_flora.csv.gz \
+            --all-counts /tmp/far-tail/raw/results/all/coupling/raw_colour_conditioned_architecture_counts.csv.gz \
+            --direct-counts /tmp/far-tail/raw/results/direct/coupling/raw_colour_conditioned_architecture_counts.csv.gz \
+            --all-scores /tmp/far-tail/all-data/syndrome/all/island_syndrome_scores.csv.gz \
+            --direct-scores /tmp/far-tail/all-data/syndrome/direct/island_syndrome_scores.csv.gz \
+            --covariates results/geography_20260924/corrected_geography_covariates.csv \
+            --windows results/h1_regional_common_support_20261005/common_support_windows.csv \
+            --output /tmp/far-tail/out
+          cat /tmp/far-tail/out/README.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: far-tail-floral-genus-audit-\${{ github.run_id }}
+          path: /tmp/far-tail/out
+          if-no-files-found: error
+          retention-days: 30
