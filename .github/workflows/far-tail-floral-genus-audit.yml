@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      GH_TOKEN: \${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
       TRAIT_RUN_ID: "34191508045"
       TRAIT_ARTIFACT: "source-scale-batch-integration-34191508045"
       CANONICAL_RUN_ID: "32845980788"
@@ -68,7 +68,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: far-tail-floral-genus-audit-\${{ github.run_id }}
+          name: far-tail-floral-genus-audit-${{ github.run_id }}
           path: /tmp/far-tail/out
           if-no-files-found: error
           retention-days: 30
