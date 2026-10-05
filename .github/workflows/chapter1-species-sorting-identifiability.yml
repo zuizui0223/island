@@ -1,0 +1,140 @@
+name: Chapter 1 species sorting identifiability
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/chapter1_species_sorting_identifiability.yml"
+      - "src/island_v2/chapter1_species_sorting_identifiability.py"
+      - "tests/test_chapter1_species_sorting_identifiability.py"
+      - "scripts/audit_whitehead_population_bridge.py"
+      - ".github/workflows/chapter1-species-sorting-identifiability.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: chapter1-species-sorting-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install and test
+        run: |
+          pip install -e ".[dev]"
+          pytest -q tests/test_chapter1_species_sorting_identifiability.py
+          ruff check src/island_v2/chapter1_species_sorting_identifiability.py tests/test_chapter1_species_sorting_identifiability.py scripts/audit_whitehead_population_bridge.py
+
+      - name: Download frozen Chapter 1 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/species-sorting/source /tmp/species-sorting/result
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/species-sorting/source
+          test -s /tmp/species-sorting/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/species-sorting/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/species-sorting/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s /tmp/species-sorting/source/snapshot/chapter1_trait_ledger_all_analysis.csv.gz
+          test -s /tmp/species-sorting/source/snapshot/chapter1_trait_ledger_direct_only.csv.gz
+          test -s /tmp/species-sorting/source/fixed/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/species-sorting/source/fixed/source/result/island_source_assignments.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Run species-level sorting decomposition
+        run: |
+          python -m island_v2.chapter1_species_sorting_identifiability \
+            --state-audit-all-csv /tmp/species-sorting/source/snapshot/chapter1_trait_state_audit_all.csv.gz \
+            --state-audit-direct-csv /tmp/species-sorting/source/snapshot/chapter1_trait_state_audit_direct.csv.gz \
+            --trait-ledger-all-csv /tmp/species-sorting/source/snapshot/chapter1_trait_ledger_all_analysis.csv.gz \
+            --trait-ledger-direct-csv /tmp/species-sorting/source/snapshot/chapter1_trait_ledger_direct_only.csv.gz \
+            --status-flora-csv /tmp/species-sorting/source/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/species-sorting/source/fixed/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/species-sorting/source/fixed/source/result/island_source_assignments.csv.gz \
+            --corrected-covariates-csv results/geography_20260924/corrected_geography_covariates.csv \
+            --probability-config-path config/chapter1_v14_all_data_probability.yml \
+            --analysis-config-path config/chapter1_species_sorting_identifiability.yml \
+            --output-dir /tmp/species-sorting/result
+
+      - name: Audit recoverable population-level mating data
+        run: |
+          set -euo pipefail
+          WHITEHEAD_ZIP=data/v2/staging/traits/open_web_pilot/goal_reproduction_checkpoint_20260811/whitehead_2018_supplementary_data.zip
+          test -s "$WHITEHEAD_ZIP"
+          python scripts/audit_whitehead_population_bridge.py \
+            --source-zip "$WHITEHEAD_ZIP" \
+            --candidate-lineages /tmp/species-sorting/result/candidate_repeated_lineages.csv \
+            --output-dir /tmp/species-sorting/result/whitehead_population_bridge
+
+      - name: Validate gates and summarize
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path("/tmp/species-sorting/result")
+          result = json.loads((root / "RESULT.json").read_text())
+          ident = json.loads((root / "identifiability_audit.json").read_text())
+          scores = pd.read_csv(root / "species_sorting_scores.csv")
+          routes = pd.read_csv(root / "route_summary.csv")
+          omnibus = pd.read_csv(root / "omnibus.csv")
+          candidates = pd.read_csv(root / "candidate_repeated_lineages.csv")
+          whitehead = json.loads((root / "whitehead_population_bridge" / "whitehead_population_bridge_summary.json").read_text())
+          whitehead_species = pd.read_csv(root / "whitehead_population_bridge" / "whitehead_chapter1_overlap_species.csv")
+
+          assert result["max_identity_error"] <= 1e-12
+          assert ident["within_species_change_estimable"] is False
+          assert ident["within_species_change_zero"] is False
+          assert len(scores) > 0
+          assert len(routes) > 0
+          assert whitehead["overlap_species"] > 0
+          assert whitehead["overlap_population_rows_with_numeric_tm"] > 0
+
+          print("=== IDENTIFIABILITY ===")
+          print(json.dumps(ident, indent=2))
+          print("\n=== ROUTE SUMMARY ===")
+          print(routes.to_string(index=False))
+          print("\n=== ASSEMBLAGE SORTING OMNIBUS ===")
+          print(omnibus.loc[omnibus["component"].isin(["genus_species_structure_enrichment", "within_genus_species_sorting_enrichment", "total_species_sorting_enrichment"])].to_string(index=False))
+          print("\n=== TOP FUTURE WITHIN-LINEAGE CANDIDATES ===")
+          print(candidates.head(30).to_string(index=False))
+          print("\n=== WHITEHEAD POPULATION BRIDGE ===")
+          print(json.dumps(whitehead, indent=2))
+          print("\n=== TOP WHITEHEAD OVERLAPS ===")
+          print(whitehead_species.head(30).to_string(index=False))
+
+          with open(Path.home() / "summary.md", "w") as handle:
+              handle.write("## Within-lineage identifiability\n\n")
+              handle.write(json.dumps(ident, indent=2) + "\n\n")
+              handle.write("## Route summary\n\n")
+              handle.write(routes.to_csv(index=False))
+              handle.write("\n## Assemblage sorting omnibus\n\n")
+              handle.write(omnibus.loc[omnibus["component"].isin(["genus_species_structure_enrichment", "within_genus_species_sorting_enrichment", "total_species_sorting_enrichment"])].to_csv(index=False))
+              handle.write("\n## Whitehead population bridge\n\n")
+              handle.write(json.dumps(whitehead, indent=2) + "\n")
+          PY
+          cat ~/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-species-sorting-identifiability-${{ github.run_id }}
+          path: /tmp/species-sorting/result
+          if-no-files-found: error
+          retention-days: 30
