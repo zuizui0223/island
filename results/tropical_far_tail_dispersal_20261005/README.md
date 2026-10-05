@@ -33,6 +33,12 @@ Among direct native-nonendemic target occurrences:
 
 Thus the strict dispersal set is strongly enriched in the remote tail.
 
+An independent assemblage check does not use the focal floral response at all. Within
+the same 120-island tropical support cohort, the share of these strict ocean-dispersed
+species among the entire native-nonendemic flora increases with corrected isolation
+(adjusted log-odds slope per SD = **+0.667**, 41 spatial blocks; cluster-t P =
+**3.5e-6**). This directly supports dispersal sorting as an upstream assemblage process.
+
 After removing those species:
 
 - native-nonendemic slope: **+0.9844 → -0.2330**;
