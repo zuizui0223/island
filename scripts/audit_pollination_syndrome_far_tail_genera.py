@@ -207,6 +207,49 @@ def _status_summary(
     return pd.DataFrame(rows)
 
 
+def _genus_status_summary(
+    occ: pd.DataFrame,
+    model_islands: pd.DataFrame,
+    *,
+    context: str,
+    scope: str,
+    knot_km: float,
+) -> pd.DataFrame:
+    ids = model_islands[["island_id", "distance_to_continent_km"]].drop_duplicates(
+        "island_id"
+    )
+    part = occ.merge(ids, on="island_id", how="inner", validate="many_to_one")
+    part = part.loc[part["distance_to_continent_km"].gt(knot_km)].copy()
+    if part.empty:
+        return pd.DataFrame()
+    rows = []
+    for (origin, floristic, genus), group in part.groupby(
+        ["origin_status", "floristic_status", "genus"],
+        dropna=False,
+        sort=False,
+    ):
+        rows.append(
+            {
+                "evidence_scope": scope,
+                "context": context,
+                "origin_status": origin,
+                "floristic_status": floristic,
+                "genus": genus,
+                "n_trial_occurrences": int(len(group)),
+                "n_deep_occurrences": int(group["success"].sum()),
+                "n_trial_species": int(group["accepted_species"].nunique()),
+                "n_deep_species": int(
+                    group.loc[group["success"].eq(1), "accepted_species"].nunique()
+                ),
+                "n_trial_islands": int(group["island_id"].nunique()),
+                "n_deep_islands": int(
+                    group.loc[group["success"].eq(1), "island_id"].nunique()
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def _stratum_hinge_sensitivity(
     coupling_counts: pd.DataFrame,
     scores: pd.DataFrame,
@@ -304,6 +347,7 @@ def main() -> None:
     logo_rows = []
     headline_rows = []
     status_tables = []
+    genus_status_tables = []
     stratum_rows = []
 
     for scope, counts_path, scores_path in [
@@ -352,6 +396,15 @@ def main() -> None:
             pooled_tables.append(pooled)
             status_tables.append(
                 _status_summary(
+                    occ,
+                    work,
+                    context=context,
+                    scope=scope,
+                    knot_km=knot_km,
+                )
+            )
+            genus_status_tables.append(
+                _genus_status_summary(
                     occ,
                     work,
                     context=context,
@@ -415,6 +468,11 @@ def main() -> None:
         if status_tables
         else pd.DataFrame()
     )
+    genus_status = (
+        pd.concat(genus_status_tables, ignore_index=True)
+        if genus_status_tables
+        else pd.DataFrame()
+    )
     stratum_sensitivity = pd.DataFrame(stratum_rows)
 
     segment.to_csv(args.output / "far_tail_genus_segment_counts.csv", index=False)
@@ -423,6 +481,9 @@ def main() -> None:
     logo.to_csv(args.output / "far_tail_genus_leave_one_out.csv", index=False)
     headline.to_csv(args.output / "far_tail_genus_headline.csv", index=False)
     status.to_csv(args.output / "far_tail_status_composition.csv", index=False)
+    genus_status.to_csv(
+        args.output / "far_tail_genus_by_floristic_status.csv", index=False
+    )
     stratum_sensitivity.to_csv(
         args.output / "far_tail_native_stratum_hinge.csv", index=False
     )
