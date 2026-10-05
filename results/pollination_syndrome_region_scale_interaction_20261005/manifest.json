@@ -1,0 +1,17 @@
+{
+  "contract": "chapter1_pollination_syndrome_region_scale_interaction_v1",
+  "role": "post_hoc_diagnostic_not_submission_inference",
+  "common_support_km": [
+    0.2514927916276341,
+    783.0170567911987
+  ],
+  "hinge_km": 783.0170567911987,
+  "workflow_run": 37290669484,
+  "artifact_id": 11335824172,
+  "main_findings": {
+    "north_mid_vs_tropical_common_support_butterfly_deep": "no pairwise slope difference",
+    "north_mid_vs_north_high_common_support_specialized_architecture": "nominal pairwise differences persist in All and Direct",
+    "tropical_far_tail_formal_pooled_contrast": "unresolved_due_to_nonconvergence"
+  },
+  "submission_boundary": "do_not_promote_20261005_diagnostic_coefficients"
+}
