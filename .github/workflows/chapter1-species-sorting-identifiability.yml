@@ -91,8 +91,8 @@ jobs:
           print(json.dumps(ident, indent=2))
           print("\n=== ROUTE SUMMARY ===")
           print(routes.to_string(index=False))
-          print("\n=== SPECIES SORTING OMNIBUS ===")
-          print(omnibus.loc[omnibus["component"].eq("species_sorting_enrichment")].to_string(index=False))
+          print("\n=== ASSEMBLAGE SORTING OMNIBUS ===")
+          print(omnibus.loc[omnibus["component"].isin(["genus_species_structure_enrichment", "within_genus_species_sorting_enrichment", "total_species_sorting_enrichment"])].to_string(index=False))
           print("\n=== TOP FUTURE WITHIN-LINEAGE CANDIDATES ===")
           print(candidates.head(30).to_string(index=False))
 
@@ -101,8 +101,8 @@ jobs:
               handle.write(json.dumps(ident, indent=2) + "\n\n")
               handle.write("## Route summary\n\n")
               handle.write(routes.to_csv(index=False))
-              handle.write("\n## Species sorting omnibus\n\n")
-              handle.write(omnibus.loc[omnibus["component"].eq("species_sorting_enrichment")].to_csv(index=False))
+              handle.write("\n## Assemblage sorting omnibus\n\n")
+              handle.write(omnibus.loc[omnibus["component"].isin(["genus_species_structure_enrichment", "within_genus_species_sorting_enrichment", "total_species_sorting_enrichment"])].to_csv(index=False))
           PY
           cat ~/summary.md >> "$GITHUB_STEP_SUMMARY"
 
