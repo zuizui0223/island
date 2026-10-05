@@ -23,7 +23,10 @@
 3. **It measures the ecological constraint independently.**  
    In 2,969 pollen-supplementation experiments, pollen limitation increases with geographic isolation.
 
-4. **It closes the functional triangle without overclaiming causality.**  
+4. **It localizes the testable assemblage response.**  
+   In source-matched native non-endemics, the northern-midlatitude isolation response is concentrated in genus composition rather than additional sorting among species within represented genera. In the tropics, a source pool increasingly enriched for H1-oriented states is opposed by realized genus composition.
+
+5. **It closes the functional triangle without overclaiming causality.**  
    In exact-species post-hoc overlap, reproductive-assurance and accessibility scores are each associated with lower current pollen limitation.
 
 ## Conceptual synthesis
@@ -32,4 +35,4 @@ The paper replaces the idea of a universal floral checklist with **functional re
 
 ## Claim boundary
 
-The study does not identify historical pollen limitation as a causal mediator of to present-day island assemblages, realized pollinator identity from floral traits, or within-lineage evolution rather than species sorting and colonization filtering.
+The study does not identify historical pollen limitation as a causal mediator of present-day island assemblages or realized pollinator identity from floral traits. The source-matched diagnostic supports a compositional route in the contexts where it is testable, but it does not distinguish colonization, establishment, persistence or extinction and does not identify within-species evolution.

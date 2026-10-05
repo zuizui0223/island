@@ -20,20 +20,22 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 - H2 reproductive-assurance / accessibility conditional decomposition completed;
 - H3 independent GloPL pollen-limitation gradient completed;
 - H4 exact-species functional triangulation completed;
+- post-baseline source-matched assembly decomposition completed: northern-midlatitude response localized to genus composition; tropical source and realized-genus components oppose one another; within-genus species sorting unsupported;
+- within-species evolution remains unidentifiable from the active species-level trait state; Whitehead population bridge yields 36 overlapping species / 255 population tm rows awaiting locality recovery;
 - causal and claim boundaries fixed.
 
 ### Manuscript package
 
 - title rewritten around recurrent reproductive function and contingent floral phenotype;
 - abstract: **145 words**;
-- main text: **4,864 words** by repository Markdown count;
+- main text: **4,811 words** by repository Markdown count;
 - six main figures;
 - cover letter and novelty statement synchronized to traitwise H1;
 - current interpretation no longer relies on a pooled H1 score.
 
 ### Current scientific claim
 
-> **Island isolation is associated with recurrent reproductive assurance but not a universal floral phenotype; the same geographic gradient is independently associated with stronger pollen limitation, and the island-associated reproductive and accessibility states are functionally aligned with lower current limitation.**
+> **Island isolation is associated with recurrent reproductive assurance but not a universal floral phenotype; where source support is adequate, the assemblage response is concentrated in genus composition rather than within-genus species sorting, while the same geographic gradient independently carries stronger pollen limitation.**
 
 ## Blocking external or author inputs
 
@@ -56,11 +58,13 @@ May claim:
 - regionally contingent selfing, colour and structural responses;
 - selected selfing-adjusted accessibility responses;
 - increasing experimental pollen limitation with isolation;
-- exact-species functional compatibility of reproductive assurance/accessibility with lower current pollen limitation.
+- exact-species functional compatibility of reproductive assurance/accessibility with lower current pollen limitation;
+- source-matched assemblage filtering localized principally to genus composition in the testable northern-midlatitude and tropical diagnostics.
 
 Must not claim:
 - family-wise proof of a universal syndrome;
 - historical causal mediation;
 - global pollinator decline;
 - a universal named pollinator mechanism;
-- within-lineage evolution rather than assemblage filtering.
+- within-species or within-lineage evolution from the current species-level trait state;
+- colonization, establishment, persistence or extinction as the specific demographic cause of the genus-composition signal.
