@@ -20,12 +20,14 @@ from island_v2.chapter1_v13_raw_colour_coupling_audit import (
     _species_raw_states,
     build_colour_conditioned_architecture_counts,
 )
+from island_v2.chapter1_context_analysis import _fit_grouped_binomial_design
 from island_v2.flora_status_support import stratum_mask
 
 from audit_pollination_syndrome_nonlinearity import (
     _fit_models,
     _load_windows,
     _prepare_focus,
+    _z,
 )
 
 COMBINATION = "yellow_orange__butterfly_deep_tube_given_colour"
@@ -297,6 +299,80 @@ def _far_tail_species_table(
     return out
 
 
+def _ocean_assembly_gradient(
+    status_flora: pd.DataFrame,
+    covariates: pd.DataFrame,
+    cfg: dict,
+    *,
+    strict_species: set[str],
+    support_islands: set[str],
+    stratum: str,
+) -> pd.DataFrame:
+    flora = status_flora.loc[stratum_mask(status_flora, stratum)].copy()
+    flora["island_id"] = flora["island_id"].astype(str)
+    flora["accepted_species"] = flora["accepted_species"].astype(str)
+    flora = flora.loc[flora["island_id"].isin(support_islands)].drop_duplicates(
+        ["island_id", "accepted_species"]
+    )
+    flora["strict_ocean_species"] = flora["accepted_species"].isin(strict_species).astype(int)
+    counts = (
+        flora.groupby("island_id", as_index=False)
+        .agg(
+            trials=("accepted_species", "size"),
+            successes=("strict_ocean_species", "sum"),
+        )
+    )
+
+    geography = str(cfg["geography_column"])
+    cluster = str(cfg["cluster_column"])
+    baseline = [str(x) for x in cfg["baseline_covariates"]]
+    context_col = str(cfg["context_column"])
+    needed = ["island_id", geography, context_col, cluster, *baseline]
+    work = counts.merge(
+        covariates[needed].drop_duplicates("island_id"),
+        on="island_id",
+        how="left",
+        validate="one_to_one",
+    )
+    work = work.loc[work[context_col].eq(CONTEXT)].dropna(
+        subset=["successes", "trials", geography, cluster, *baseline]
+    )
+    names = ["intercept", f"z_{geography}", *[f"z_{x}" for x in baseline]]
+    columns = [np.ones(len(work), dtype=float), _z(work[geography])]
+    columns.extend(_z(work[x]) for x in baseline)
+    coef, fit, _cov = _fit_grouped_binomial_design(
+        work["successes"].to_numpy(float),
+        work["trials"].to_numpy(float),
+        np.column_stack(columns),
+        names,
+        work[cluster].astype(str).to_numpy(),
+    )
+    row = coef.loc[coef["predictor"].eq(f"z_{geography}")].iloc[0]
+    estimate = float(row["estimate_log_odds"])
+    se = float(row["cluster_robust_se"])
+    g = int(fit["n_clusters"])
+    t_p = (
+        float(2.0 * student_t.sf(abs(estimate / se), df=max(g - 1, 1)))
+        if se > 0
+        else float("nan")
+    )
+    return pd.DataFrame(
+        [
+            {
+                "stratum": stratum,
+                "n_islands": int(fit["n_islands"]),
+                "n_blocks": g,
+                "strict_ocean_occurrences": int(work["successes"].sum()),
+                "total_flora_occurrences": int(work["trials"].sum()),
+                "distance_slope_log_odds_per_sd": estimate,
+                "cluster_robust_se": se,
+                "normal_p": float(row["p_value"]),
+                "cluster_t_p": t_p,
+            }
+        ]
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument("--species-axis", type=Path, required=True)
@@ -421,9 +497,32 @@ def main() -> None:
         else pd.DataFrame()
     )
 
+    direct_scores = pd.read_csv(args.direct_scores, dtype={"island_id": str})
+    baseline_support = _prepare_stratum_work(
+        species_axis,
+        status_flora,
+        direct_scores,
+        cov,
+        cfg,
+        evidence_scope="direct",
+        stratum="native_nonendemic",
+        excluded_species=set(),
+        excluded_genera=set(),
+        lower_km=lower_km,
+    )
+    assembly = _ocean_assembly_gradient(
+        status_flora,
+        cov,
+        cfg,
+        strict_species=scenarios["strict_ocean_species"]["species"],
+        support_islands=set(baseline_support["island_id"].astype(str)),
+        stratum="native_nonendemic",
+    )
+
     result.to_csv(args.output / "tropical_far_tail_dispersal_sensitivity.csv", index=False)
     support.to_csv(args.output / "tropical_far_tail_scenario_manifest.csv", index=False)
     species.to_csv(args.output / "tropical_far_tail_native_species.csv", index=False)
+    assembly.to_csv(args.output / "tropical_ocean_species_assembly_gradient.csv", index=False)
 
     primary = result.loc[
         result["evidence_scope"].eq("direct")
@@ -434,7 +533,9 @@ def main() -> None:
         index=False,
     )
 
-    print("=== direct native-nonendemic sensitivity ===")
+    print("=== ocean-dispersed species assembly gradient ===")
+    print(assembly.to_string(index=False))
+    print("\n=== direct native-nonendemic sensitivity ===")
     show = [
         "scenario",
         "n_prehinge_islands",
