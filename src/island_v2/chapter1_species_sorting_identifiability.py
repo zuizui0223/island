@@ -233,6 +233,7 @@ def _outcome_matrices(
     assignments: pd.DataFrame,
 ) -> tuple[
     np.ndarray,
+    np.ndarray,
     sparse.csr_matrix,
     sparse.csr_matrix,
     dict[str, sparse.csr_matrix],
@@ -250,6 +251,7 @@ def _outcome_matrices(
     if source.empty:
         return (
             np.array([], dtype=float),
+            np.array([], dtype=np.int32),
             sparse.csr_matrix((0, 0)),
             sparse.csr_matrix((0, 0)),
             {},
@@ -260,6 +262,9 @@ def _outcome_matrices(
     species_index = {sp: i for i, sp in enumerate(species)}
     state_map = focal.set_index("accepted_species")["state"]
     states_array = np.array([float(state_map.loc[sp]) for sp in species], dtype=float)
+    genera = [_genus(sp) for sp in species]
+    genus_levels = {genus: i for i, genus in enumerate(sorted(set(genera)))}
+    genus_codes = np.array([genus_levels[g] for g in genera], dtype=np.int32)
 
     assigned_entities = pd.to_numeric(
         assignments.loc[
@@ -274,7 +279,7 @@ def _outcome_matrices(
     srows = src["entity_ID"].astype(int).map(entity_index).to_numpy(int)
     scols = src["accepted_species"].astype(str).map(species_index).to_numpy(int)
     source_presence = sparse.csr_matrix(
-        (np.ones(len(src), dtype=np.int8), (srows, scols)),
+        (np.ones(len(src), dtype=np.int16), (srows, scols)),
         shape=(len(entities), len(species)),
     )
 
@@ -297,7 +302,14 @@ def _outcome_matrices(
         islands=islands,
         entities=entities,
     )
-    return states_array, source_presence, observed, assignment_matrices, species
+    return (
+        states_array,
+        genus_codes,
+        source_presence,
+        observed,
+        assignment_matrices,
+        species,
+    )
 
 
 def _decompose_row(
@@ -305,6 +317,7 @@ def _decompose_row(
     prevalence_row: sparse.csr_matrix,
     observed_row: sparse.csr_matrix,
     states: np.ndarray,
+    genus_codes: np.ndarray,
     n_species: int,
 ) -> dict[str, float | int] | None:
     if prevalence_row.nnz == 0 or observed_row.nnz == 0:
@@ -324,6 +337,8 @@ def _decompose_row(
 
     raw = float(np.mean(states[obs_source_idx]))
     max_prev = int(prevalence.max())
+
+    # Source expectation preserving only source prevalence.
     source_count = np.bincount(prevalence, minlength=max_prev + 1)
     source_positive = np.bincount(
         prevalence,
@@ -336,18 +351,47 @@ def _decompose_row(
         out=np.zeros_like(source_positive, dtype=float),
         where=source_count > 0,
     )
-    expected = float(np.mean(class_mean[obs_prev]))
-    sorting = raw - expected
+    source_expected = float(np.mean(class_mean[obs_prev]))
+
+    # A stricter expectation additionally fixes each observed species slot's genus.
+    # The observed species itself guarantees a non-empty source genus × prevalence
+    # class, so no fallback/imputation is needed.
+    key_width = max_prev + 1
+    source_keys = genus_codes[candidate_idx] * key_width + prevalence
+    key_count = np.bincount(source_keys)
+    key_positive = np.bincount(
+        source_keys,
+        weights=states[candidate_idx],
+        minlength=len(key_count),
+    )
+    key_mean = np.divide(
+        key_positive,
+        key_count,
+        out=np.zeros_like(key_positive, dtype=float),
+        where=key_count > 0,
+    )
+    observed_keys = genus_codes[obs_source_idx] * key_width + obs_prev
+    genus_expected = float(np.mean(key_mean[observed_keys]))
+
+    genus_structure = genus_expected - source_expected
+    within_genus_sorting = raw - genus_expected
+    total_sorting = raw - source_expected
     total_observed = int(observed_row.nnz)
+    identity_error = raw - (
+        source_expected + genus_structure + within_genus_sorting
+    )
     return {
         "n_source_candidate_species": int(len(candidate_idx)),
         "n_observed_trait_species": total_observed,
         "n_observed_source_candidate_species": int(len(obs_source_idx)),
         "source_overlap_fraction": float(len(obs_source_idx) / total_observed),
         "raw_h1_mean": raw,
-        "source_species_expectation": expected,
-        "species_sorting_enrichment": sorting,
-        "identity_error": float(raw - expected - sorting),
+        "source_species_expectation": source_expected,
+        "represented_genus_species_expectation": genus_expected,
+        "genus_species_structure_enrichment": genus_structure,
+        "within_genus_species_sorting_enrichment": within_genus_sorting,
+        "total_species_sorting_enrichment": total_sorting,
+        "identity_error": float(identity_error),
     }
 
 
