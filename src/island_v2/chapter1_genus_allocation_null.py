@@ -253,13 +253,20 @@ def _linear_slope_coefficients(
         minlength=n_species,
     ).astype(float)
 
-    source_candidate_weight = (
+    candidate_observed_denominator = n_observed[candidate_island]
+    source_numerator = (
         slope_weights[candidate_island]
         * observed_source_count[source_inverse]
-        / (
-            n_observed[candidate_island]
-            * source_count[source_inverse]
-        )
+    )
+    source_denominator = (
+        candidate_observed_denominator
+        * source_count[source_inverse]
+    )
+    source_candidate_weight = np.divide(
+        source_numerator,
+        source_denominator,
+        out=np.zeros_like(source_numerator, dtype=float),
+        where=source_denominator > 0,
     )
     source_coef = np.bincount(
         candidate_species,
@@ -267,13 +274,19 @@ def _linear_slope_coefficients(
         minlength=n_species,
     ).astype(float)
 
-    genus_candidate_weight = (
+    genus_numerator = (
         slope_weights[candidate_island]
         * observed_genus_count[genus_inverse]
-        / (
-            n_observed[candidate_island]
-            * genus_count[genus_inverse]
-        )
+    )
+    genus_denominator = (
+        candidate_observed_denominator
+        * genus_count[genus_inverse]
+    )
+    genus_candidate_weight = np.divide(
+        genus_numerator,
+        genus_denominator,
+        out=np.zeros_like(genus_numerator, dtype=float),
+        where=genus_denominator > 0,
     )
     genus_coef = np.bincount(
         candidate_species,
