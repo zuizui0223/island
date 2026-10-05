@@ -324,6 +324,10 @@ def _decompose_row(
 ) -> dict[str, float | int] | None:
     if prevalence_row.nnz == 0 or observed_row.nnz == 0:
         return None
+    if not prevalence_row.has_sorted_indices:
+        raise RuntimeError(
+            "prevalence_row must have sorted CSR indices before sparse membership matching"
+        )
     candidate_idx = prevalence_row.indices
     prevalence = prevalence_row.data.astype(int)
     obs_idx = observed_row.indices
