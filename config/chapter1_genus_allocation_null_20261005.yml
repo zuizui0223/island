@@ -22,7 +22,7 @@ atomic_outcomes:
   - actinomorphic_symmetry
   - shallow_open_tube
 
-null:
+permutation_null:
   method: shuffle_binary_trait_states_within_genus_on_source_evaluable_union
   n_permutations: 499
   seed: 20261005
