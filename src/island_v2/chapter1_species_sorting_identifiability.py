@@ -328,13 +328,22 @@ def _decompose_row(
         raise RuntimeError(
             "prevalence_row must have sorted CSR indices before sparse membership matching"
         )
+    # Sparse matrix multiplication does not guarantee sorted CSR column
+    # indices.  searchsorted requires sorted input, so sort candidate indices
+    # and their prevalence values explicitly.  The earlier implementation
+    # assumed sorted multiplication output and silently discarded almost all
+    # source-overlap rows on some runs.
     candidate_idx = prevalence_row.indices
     prevalence = prevalence_row.data.astype(int)
+    order = np.argsort(candidate_idx)
+    candidate_idx = candidate_idx[order]
+    prevalence = prevalence[order]
     obs_idx = observed_row.indices
+    if len(obs_idx) > 1 and np.any(obs_idx[1:] < obs_idx[:-1]):
+        obs_idx = np.sort(obs_idx)
 
-    # CSR column indices are sorted. Match observed species directly to the
-    # source-candidate index rather than allocating an O(n_species) buffer for
-    # every island row.
+    # Match observed species directly to the sorted source-candidate index
+    # rather than allocating an O(n_species) buffer for every island row.
     positions = np.searchsorted(candidate_idx, obs_idx)
     keep = positions < len(candidate_idx)
     matched = np.zeros(len(obs_idx), dtype=bool)
