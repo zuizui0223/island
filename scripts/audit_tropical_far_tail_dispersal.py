@@ -16,10 +16,7 @@ import pandas as pd
 import yaml
 from scipy.stats import t as student_t
 
-from island_v2.chapter1_v13_raw_colour_coupling_audit import (
-    _species_raw_states,
-    build_colour_conditioned_architecture_counts,
-)
+from island_v2.chapter1_v13_raw_colour_coupling_audit import _species_raw_states
 from island_v2.chapter1_context_analysis import _fit_grouped_binomial_design
 from island_v2.flora_status_support import stratum_mask
 
@@ -100,37 +97,162 @@ def _filter_flora(
     return frame.loc[keep].copy()
 
 
-def _prepare_stratum_work(
+def _target_occurrences(
     species_axis: pd.DataFrame,
     status_flora: pd.DataFrame,
+    *,
+    evidence_scope: str,
+) -> pd.DataFrame:
+    """Species-level rows exactly equivalent to the focal coupling denominator."""
+    states = _species_raw_states(species_axis, evidence_scope=evidence_scope)
+    eligible = states.loc[
+        states["colour_states"].map(lambda values: "yellow_orange" in values)
+        & states["tube_depth_class"].map(bool)
+    ].copy()
+    eligible["success"] = eligible["tube_depth_class"].map(
+        lambda values: "deep" in values
+    ).astype(int)
+    eligible["accepted_species"] = eligible["accepted_species"].astype(str)
+    eligible["genus"] = eligible["accepted_species"].map(_genus)
+
+    flora = status_flora.copy()
+    flora["island_id"] = flora["island_id"].astype(str)
+    flora["accepted_species"] = flora["accepted_species"].astype(str)
+    joined = flora.merge(
+        eligible[["accepted_species", "genus", "success"]],
+        on="accepted_species",
+        how="inner",
+        validate="many_to_one",
+    )
+    return joined.drop_duplicates(["island_id", "accepted_species"])
+
+
+def _fast_target_counts(
+    occurrences: pd.DataFrame,
+    *,
+    stratum: str,
+    excluded_species: set[str],
+    excluded_genera: set[str],
+) -> pd.DataFrame:
+    subset = occurrences.loc[stratum_mask(occurrences, stratum)].copy()
+    keep = ~subset["accepted_species"].isin(excluded_species)
+    if excluded_genera:
+        keep &= ~subset["genus"].isin(excluded_genera)
+    subset = subset.loc[keep].copy()
+    if subset.empty:
+        return pd.DataFrame(
+            columns=[
+                "island_id",
+                "stratum",
+                "combination",
+                "successes",
+                "trials",
+                "share",
+            ]
+        )
+    counts = (
+        subset.groupby("island_id", as_index=False)
+        .agg(
+            successes=("success", "sum"),
+            trials=("accepted_species", "size"),
+        )
+    )
+    counts["stratum"] = "all_observed"
+    counts["combination"] = COMBINATION
+    counts["share"] = counts["successes"] / counts["trials"]
+    return counts
+
+
+def _selfing_occurrences(
+    status_flora: pd.DataFrame,
+    species_scores: pd.DataFrame,
+    *,
+    stratum: str,
+) -> pd.DataFrame:
+    required = {"accepted_species", "syndrome", "syndrome_concordance"}
+    missing = required - set(species_scores.columns)
+    if missing:
+        raise ValueError(f"species syndrome table missing columns: {sorted(missing)}")
+    selfing = species_scores.loc[
+        species_scores["syndrome"].astype(str).eq("selfing_core"),
+        ["accepted_species", "syndrome_concordance"],
+    ].drop_duplicates("accepted_species")
+    selfing["accepted_species"] = selfing["accepted_species"].astype(str)
+
+    flora = status_flora.loc[stratum_mask(status_flora, stratum)].copy()
+    flora["island_id"] = flora["island_id"].astype(str)
+    flora["accepted_species"] = flora["accepted_species"].astype(str)
+    flora["genus"] = flora["accepted_species"].map(_genus)
+    return (
+        flora[["island_id", "accepted_species", "genus"]]
+        .drop_duplicates(["island_id", "accepted_species"])
+        .merge(selfing, on="accepted_species", how="inner", validate="many_to_one")
+    )
+
+
+def _recomputed_selfing_view(
+    selfing_occurrences: pd.DataFrame,
+    *,
+    excluded_species: set[str],
+    excluded_genera: set[str],
+) -> pd.DataFrame:
+    work = selfing_occurrences.copy()
+    keep = ~work["accepted_species"].isin(excluded_species)
+    if excluded_genera:
+        keep &= ~work["genus"].isin(excluded_genera)
+    work = work.loc[keep].copy()
+    if work.empty:
+        return pd.DataFrame(
+            columns=["island_id", "stratum", "syndrome", "syndrome_score"]
+        )
+    score = (
+        work.groupby("island_id", as_index=False)
+        .agg(syndrome_score=("syndrome_concordance", "mean"))
+    )
+    score["stratum"] = "all_observed"
+    score["syndrome"] = "selfing_core"
+    return score
+
+
+def _frozen_selfing_view(
+    scores: pd.DataFrame,
+    *,
+    stratum: str,
+) -> pd.DataFrame:
+    view = scores.loc[
+        scores["stratum"].astype(str).eq(stratum)
+        & scores["syndrome"].astype(str).eq("selfing_core")
+    ].copy()
+    view["stratum"] = "all_observed"
+    return view
+
+
+def _prepare_stratum_work(
+    occurrences: pd.DataFrame,
     scores: pd.DataFrame,
     covariates: pd.DataFrame,
     cfg: dict,
     *,
-    evidence_scope: str,
     stratum: str,
     excluded_species: set[str],
     excluded_genera: set[str],
     lower_km: float,
+    selfing_view: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
-    flora = _filter_flora(
-        status_flora,
-        species=excluded_species,
-        genera=excluded_genera,
+    counts = _fast_target_counts(
+        occurrences,
+        stratum=stratum,
+        excluded_species=excluded_species,
+        excluded_genera=excluded_genera,
     )
-    counts = build_colour_conditioned_architecture_counts(
-        species_axis,
-        flora,
-        evidence_scope=evidence_scope,
-        strata=[stratum],
+    score_view = (
+        selfing_view.copy()
+        if selfing_view is not None
+        else _frozen_selfing_view(scores, stratum=stratum)
     )
-    counts = counts.loc[counts["combination"].eq(COMBINATION)].copy()
-    score_view = scores.loc[scores["stratum"].astype(str).eq(stratum)].copy()
     if counts.empty or score_view.empty:
         return pd.DataFrame()
 
-    counts["stratum"] = "all_observed"
-    score_view["stratum"] = "all_observed"
     return _prepare_focus(
         counts,
         score_view,
@@ -379,6 +501,8 @@ def main() -> None:
     parser.add_argument("--status-flora", type=Path, required=True)
     parser.add_argument("--all-scores", type=Path, required=True)
     parser.add_argument("--direct-scores", type=Path, required=True)
+    parser.add_argument("--all-species-scores", type=Path, required=True)
+    parser.add_argument("--direct-species-scores", type=Path, required=True)
     parser.add_argument("--covariates", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--windows", type=Path, required=True)
@@ -400,11 +524,65 @@ def main() -> None:
     species_tables: list[pd.DataFrame] = []
 
     score_paths = {
-        "all": args.all_scores,
-        "direct": args.direct_scores,
+        "all": (args.all_scores, args.all_species_scores),
+        "direct": (args.direct_scores, args.direct_species_scores),
     }
-    for scope, score_path in score_paths.items():
+    occurrence_by_scope = {
+        scope: _target_occurrences(
+            species_axis,
+            status_flora,
+            evidence_scope=scope,
+        )
+        for scope in score_paths
+    }
+    recomputed_rows: list[dict[str, object]] = []
+    recompute_manifest: list[dict[str, object]] = []
+
+    for scope, (score_path, species_score_path) in score_paths.items():
         scores = pd.read_csv(score_path, dtype={"island_id": str})
+        species_scores = pd.read_csv(species_score_path)
+        occurrences = occurrence_by_scope[scope]
+
+        selfing_occ_by_stratum: dict[str, pd.DataFrame] = {}
+        if scope == "direct":
+            for stratum in STRATA:
+                selfing_occ_by_stratum[stratum] = _selfing_occurrences(
+                    status_flora,
+                    species_scores,
+                    stratum=stratum,
+                )
+                baseline_recomputed = _recomputed_selfing_view(
+                    selfing_occ_by_stratum[stratum],
+                    excluded_species=set(),
+                    excluded_genera=set(),
+                )
+                frozen = _frozen_selfing_view(scores, stratum=stratum)[
+                    ["island_id", "syndrome_score"]
+                ].rename(columns={"syndrome_score": "frozen_score"})
+                check = frozen.merge(
+                    baseline_recomputed[
+                        ["island_id", "syndrome_score"]
+                    ].rename(columns={"syndrome_score": "recomputed_score"}),
+                    on="island_id",
+                    how="inner",
+                    validate="one_to_one",
+                )
+                max_delta = float(
+                    (check["frozen_score"] - check["recomputed_score"]).abs().max()
+                )
+                if not math.isfinite(max_delta) or max_delta > 1e-10:
+                    raise RuntimeError(
+                        f"{stratum}: recomputed selfing baseline mismatch {max_delta}"
+                    )
+                recompute_manifest.append(
+                    {
+                        "evidence_scope": scope,
+                        "stratum": stratum,
+                        "n_selfing_islands_checked": int(len(check)),
+                        "max_abs_frozen_vs_recomputed_selfing": max_delta,
+                    }
+                )
+
         for stratum in STRATA:
             species_tables.append(
                 _far_tail_species_table(
@@ -418,12 +596,10 @@ def main() -> None:
             )
             for scenario, exclusion in scenarios.items():
                 work = _prepare_stratum_work(
-                    species_axis,
-                    status_flora,
+                    occurrences,
                     scores,
                     cov,
                     cfg,
-                    evidence_scope=scope,
                     stratum=stratum,
                     excluded_species=exclusion["species"],
                     excluded_genera=exclusion["genera"],
@@ -489,8 +665,73 @@ def main() -> None:
                     }
                 )
 
+                if (
+                    scope == "direct"
+                    and scenario
+                    in {
+                        "baseline",
+                        "strict_ocean_species",
+                        "strict_ocean_plus_coding",
+                    }
+                ):
+                    recomputed_view = _recomputed_selfing_view(
+                        selfing_occ_by_stratum[stratum],
+                        excluded_species=exclusion["species"],
+                        excluded_genera=exclusion["genera"],
+                    )
+                    work_recomputed = _prepare_stratum_work(
+                        occurrences,
+                        scores,
+                        cov,
+                        cfg,
+                        stratum=stratum,
+                        excluded_species=exclusion["species"],
+                        excluded_genera=exclusion["genera"],
+                        lower_km=lower_km,
+                        selfing_view=recomputed_view,
+                    )
+                    if work_recomputed["island_id"].nunique() >= 50:
+                        fit_r = _fit_models(
+                            work_recomputed,
+                            cfg,
+                            knot_km=knot_km,
+                        )
+                        t_r = _cluster_t_p(
+                            float(fit_r["above_slope_per_log1p_km"]),
+                            float(fit_r["above_se"]),
+                            int(fit_r["n_blocks_above_knot"]),
+                        )
+                        jack_r = _tail_block_jackknife(
+                            work_recomputed,
+                            cfg,
+                            knot_km=knot_km,
+                            baseline_slope=float(
+                                fit_r["above_slope_per_log1p_km"]
+                            ),
+                        )
+                        recomputed_rows.append(
+                            {
+                                "evidence_scope": scope,
+                                "stratum": stratum,
+                                "scenario": scenario,
+                                "selfing_mode": "recomputed_after_exclusion",
+                                "n_model_islands": fit_r["n_islands"],
+                                "n_far_tail_islands": fit_r["n_above_knot"],
+                                "n_far_tail_blocks": fit_r["n_blocks_above_knot"],
+                                "post_hinge_slope": fit_r[
+                                    "above_slope_per_log1p_km"
+                                ],
+                                "post_hinge_se": fit_r["above_se"],
+                                "post_hinge_normal_p": fit_r["above_p"],
+                                "post_hinge_tailblock_t_p": t_r,
+                                **jack_r,
+                            }
+                        )
+
     result = pd.DataFrame(rows)
     support = pd.DataFrame(support_rows)
+    recomputed = pd.DataFrame(recomputed_rows)
+    recompute_check = pd.DataFrame(recompute_manifest)
     species = (
         pd.concat([x for x in species_tables if not x.empty], ignore_index=True)
         if any(not x.empty for x in species_tables)
@@ -499,12 +740,10 @@ def main() -> None:
 
     direct_scores = pd.read_csv(args.direct_scores, dtype={"island_id": str})
     baseline_support = _prepare_stratum_work(
-        species_axis,
-        status_flora,
+        occurrence_by_scope["direct"],
         direct_scores,
         cov,
         cfg,
-        evidence_scope="direct",
         stratum="native_nonendemic",
         excluded_species=set(),
         excluded_genera=set(),
@@ -523,6 +762,14 @@ def main() -> None:
     support.to_csv(args.output / "tropical_far_tail_scenario_manifest.csv", index=False)
     species.to_csv(args.output / "tropical_far_tail_native_species.csv", index=False)
     assembly.to_csv(args.output / "tropical_ocean_species_assembly_gradient.csv", index=False)
+    recomputed.to_csv(
+        args.output / "tropical_far_tail_recomputed_selfing_sensitivity.csv",
+        index=False,
+    )
+    recompute_check.to_csv(
+        args.output / "tropical_far_tail_recomputed_selfing_validation.csv",
+        index=False,
+    )
 
     primary = result.loc[
         result["evidence_scope"].eq("direct")
@@ -535,6 +782,10 @@ def main() -> None:
 
     print("=== ocean-dispersed species assembly gradient ===")
     print(assembly.to_string(index=False))
+    print("\n=== recomputed-selfing validation ===")
+    print(recompute_check.to_string(index=False))
+    print("\n=== recomputed-selfing sensitivity ===")
+    print(recomputed.to_string(index=False))
     print("\n=== direct native-nonendemic sensitivity ===")
     show = [
         "scenario",
