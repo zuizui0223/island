@@ -1,5 +1,5 @@
 contract: chapter1_species_sorting_identifiability_v1
-status: frozen_before_result_inspection
+status: design_refined_before_formal_result_inspection
 inferential_role: species_level_source_pool_sorting_and_within_lineage_identifiability_audit
 
 question: >-
@@ -41,9 +41,19 @@ additive_decomposition:
   raw_h1_mean: mean_binary_state_among_observed_source_candidate_species
   source_species_expectation: >-
     Mean source-pool trait state expected after preserving the observed number of
-    island species in each source-prevalence class.
-  species_sorting_enrichment: raw_h1_mean_minus_source_species_expectation
-  identity: raw_h1_mean = source_species_expectation + species_sorting_enrichment
+    island species in each source-prevalence class, without fixing genus identity.
+  represented_genus_species_expectation: >-
+    Mean source-pool trait state expected after preserving, for every observed
+    species slot, both its represented genus and source-prevalence class.
+  genus_species_structure_enrichment: >-
+    represented_genus_species_expectation_minus_source_species_expectation
+  within_genus_species_sorting_enrichment: >-
+    raw_h1_mean_minus_represented_genus_species_expectation
+  total_species_sorting_enrichment: raw_h1_mean_minus_source_species_expectation
+  identity: >-
+    raw_h1_mean = source_species_expectation +
+    genus_species_structure_enrichment +
+    within_genus_species_sorting_enrichment
   identity_tolerance: 1.0e-12
 
 model:
@@ -76,7 +86,9 @@ identifiability:
     unidentifiable and must not be set to zero or interpreted as no evolution.
 
 claim_ceiling:
-  species_sorting_is_assemblage_filtering: true
+  genus_species_structure_is_assemblage_filtering: true
+  within_genus_species_sorting_is_assemblage_filtering: true
+  total_species_sorting_is_assemblage_filtering: true
   species_sorting_identifies_colonisation_vs_extinction: false
   within_species_change_estimable_from_current_H1: false
   within_species_change_zero: false
