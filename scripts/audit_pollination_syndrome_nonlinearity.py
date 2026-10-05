@@ -30,6 +30,10 @@ FOCUS = {
         "northern_midlatitude",
         "yellow_orange__large_bee_form_given_colour",
     ),
+    "north_mid_yellow_butterfly_deep": (
+        "northern_midlatitude",
+        "yellow_orange__butterfly_deep_tube_given_colour",
+    ),
     "north_high_blue_butterfly_form": (
         "northern_high_latitude",
         "blue_purple__butterfly_form_given_colour",
@@ -487,6 +491,72 @@ def main() -> None:
     summary = pd.DataFrame(summary_rows)
     summary.to_csv(args.output / "syndrome_hinge_summary.csv", index=False)
 
+    pair_rows = []
+    for scope in ("all", "direct"):
+        nm = out.loc[
+            out["status"].eq("fit")
+            & out["evidence_scope"].eq(scope)
+            & out["context"].eq("northern_midlatitude")
+            & out["combination"].eq("yellow_orange__butterfly_deep_tube_given_colour")
+        ]
+        tr = out.loc[
+            out["status"].eq("fit")
+            & out["evidence_scope"].eq(scope)
+            & out["context"].eq("tropical")
+            & out["combination"].eq("yellow_orange__butterfly_deep_tube_given_colour")
+        ]
+        if len(nm) == 1 and len(tr) == 1:
+            a = nm.iloc[0]
+            b = tr.iloc[0]
+            for contrast, est_a, se_a, est_b, se_b in (
+                (
+                    "pre_hinge_slope_north_mid_minus_tropical",
+                    a["below_slope_per_log1p_km"],
+                    a["below_se"],
+                    b["below_slope_per_log1p_km"],
+                    b["below_se"],
+                ),
+                (
+                    "post_hinge_slope_north_mid_minus_tropical",
+                    a["above_slope_per_log1p_km"],
+                    a["above_se"],
+                    b["above_slope_per_log1p_km"],
+                    b["above_se"],
+                ),
+                (
+                    "hinge_change_north_mid_minus_tropical",
+                    a["hinge_change"],
+                    a["hinge_change_se"],
+                    b["hinge_change"],
+                    b["hinge_change_se"],
+                ),
+            ):
+                estimate = float(est_a - est_b)
+                se = float(np.sqrt(float(se_a) ** 2 + float(se_b) ** 2))
+                z = estimate / se if se > 0 else float("nan")
+                pair_rows.append(
+                    {
+                        "evidence_scope": scope,
+                        "combination": "yellow_orange__butterfly_deep_tube_given_colour",
+                        "contrast": contrast,
+                        "estimate": estimate,
+                        "se": se,
+                        "p_two_sided": _normal_two_sided_p(z),
+                        "north_mid_estimate": float(est_a),
+                        "north_mid_se": float(se_a),
+                        "tropical_estimate": float(est_b),
+                        "tropical_se": float(se_b),
+                        "north_mid_tail_islands": int(a["n_above_knot"]),
+                        "north_mid_tail_blocks": int(a["n_blocks_above_knot"]),
+                        "tropical_tail_islands": int(b["n_above_knot"]),
+                        "tropical_tail_blocks": int(b["n_blocks_above_knot"]),
+                    }
+                )
+    pair_contrasts = pd.DataFrame(pair_rows)
+    pair_contrasts.to_csv(
+        args.output / "syndrome_far_tail_pair_contrasts.csv", index=False
+    )
+
     manifest = {
         "contract": "chapter1_pollination_syndrome_hinge_diagnostic_v1",
         "role": "post_hoc_diagnostic_not_submission_inference",
@@ -513,6 +583,8 @@ def main() -> None:
 
     print("=== POLLINATION-SYNDROME HINGE SUMMARY ===")
     print(summary.to_string(index=False))
+    print("\n=== NORTH-MID VS TROPICAL BUTTERFLY-DEEP CONTRASTS ===")
+    print(pair_contrasts.to_string(index=False))
 
 
 if __name__ == "__main__":
