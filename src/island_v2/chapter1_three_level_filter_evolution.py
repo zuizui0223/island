@@ -67,10 +67,16 @@ def audit_ledger(table: pd.DataFrame) -> dict[str, Any]:
             )
 
     direction = table["observed_direction"].astype(str).str.lower()
-    same_species_shift = ~direction.str.contains(
-        "no significant|no_uniform|counter-gradient|genus composition"
+    mechanism_all = table["mechanism_identified"].astype(str).str.lower()
+    systems = table["system"].astype(str)
+    null_or_nonuniform = (
+        direction.str.contains("no significant")
+        | mechanism_all.str.contains("no_uniform")
     )
-    null_or_nonuniform = direction.str.contains("no significant|no_uniform")
+    same_species_shift = (
+        systems.ne("current_repo")
+        & ~null_or_nonuniform
+    )
 
     persistent = table[
         "persistent_under_common_environment_or_genetic_marker"
