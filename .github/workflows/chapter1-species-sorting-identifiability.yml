@@ -7,6 +7,7 @@ on:
       - "config/chapter1_species_sorting_identifiability.yml"
       - "src/island_v2/chapter1_species_sorting_identifiability.py"
       - "tests/test_chapter1_species_sorting_identifiability.py"
+      - "scripts/audit_whitehead_population_bridge.py"
       - ".github/workflows/chapter1-species-sorting-identifiability.yml"
   workflow_dispatch:
 
@@ -39,7 +40,7 @@ jobs:
         run: |
           pip install -e ".[dev]"
           pytest -q tests/test_chapter1_species_sorting_identifiability.py
-          ruff check src/island_v2/chapter1_species_sorting_identifiability.py tests/test_chapter1_species_sorting_identifiability.py
+          ruff check src/island_v2/chapter1_species_sorting_identifiability.py tests/test_chapter1_species_sorting_identifiability.py scripts/audit_whitehead_population_bridge.py
 
       - name: Download frozen Chapter 1 inputs
         run: |
@@ -70,6 +71,16 @@ jobs:
             --analysis-config-path config/chapter1_species_sorting_identifiability.yml \
             --output-dir /tmp/species-sorting/result
 
+      - name: Audit recoverable population-level mating data
+        run: |
+          set -euo pipefail
+          WHITEHEAD_ZIP=data/v2/staging/traits/open_web_pilot/goal_reproduction_checkpoint_20260811/whitehead_2018_supplementary_data.zip
+          test -s "$WHITEHEAD_ZIP"
+          python scripts/audit_whitehead_population_bridge.py \
+            --source-zip "$WHITEHEAD_ZIP" \
+            --candidate-lineages /tmp/species-sorting/result/candidate_repeated_lineages.csv \
+            --output-dir /tmp/species-sorting/result/whitehead_population_bridge
+
       - name: Validate gates and summarize
         run: |
           python - <<'PY'
@@ -84,12 +95,16 @@ jobs:
           routes = pd.read_csv(root / "route_summary.csv")
           omnibus = pd.read_csv(root / "omnibus.csv")
           candidates = pd.read_csv(root / "candidate_repeated_lineages.csv")
+          whitehead = json.loads((root / "whitehead_population_bridge" / "whitehead_population_bridge_summary.json").read_text())
+          whitehead_species = pd.read_csv(root / "whitehead_population_bridge" / "whitehead_chapter1_overlap_species.csv")
 
           assert result["max_identity_error"] <= 1e-12
           assert ident["within_species_change_estimable"] is False
           assert ident["within_species_change_zero"] is False
           assert len(scores) > 0
           assert len(routes) > 0
+          assert whitehead["overlap_species"] > 0
+          assert whitehead["overlap_population_rows_with_numeric_tm"] > 0
 
           print("=== IDENTIFIABILITY ===")
           print(json.dumps(ident, indent=2))
@@ -99,6 +114,10 @@ jobs:
           print(omnibus.loc[omnibus["component"].isin(["genus_species_structure_enrichment", "within_genus_species_sorting_enrichment", "total_species_sorting_enrichment"])].to_string(index=False))
           print("\n=== TOP FUTURE WITHIN-LINEAGE CANDIDATES ===")
           print(candidates.head(30).to_string(index=False))
+          print("\n=== WHITEHEAD POPULATION BRIDGE ===")
+          print(json.dumps(whitehead, indent=2))
+          print("\n=== TOP WHITEHEAD OVERLAPS ===")
+          print(whitehead_species.head(30).to_string(index=False))
 
           with open(Path.home() / "summary.md", "w") as handle:
               handle.write("## Within-lineage identifiability\n\n")
@@ -107,6 +126,8 @@ jobs:
               handle.write(routes.to_csv(index=False))
               handle.write("\n## Assemblage sorting omnibus\n\n")
               handle.write(omnibus.loc[omnibus["component"].isin(["genus_species_structure_enrichment", "within_genus_species_sorting_enrichment", "total_species_sorting_enrichment"])].to_csv(index=False))
+              handle.write("\n## Whitehead population bridge\n\n")
+              handle.write(json.dumps(whitehead, indent=2) + "\n")
           PY
           cat ~/summary.md >> "$GITHUB_STEP_SUMMARY"
 
