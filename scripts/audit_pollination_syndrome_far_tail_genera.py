@@ -14,7 +14,10 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from island_v2.chapter1_v13_raw_colour_coupling_audit import _species_raw_states
+from island_v2.chapter1_v13_raw_colour_coupling_audit import (
+    _species_raw_states,
+    build_colour_conditioned_architecture_counts,
+)
 
 # Import the exact support/model helpers used by the parent diagnostic.
 from audit_pollination_syndrome_nonlinearity import _fit_models, _load_windows, _prepare_focus
@@ -45,7 +48,15 @@ def _species_occurrences(
     ].copy()
     eligible["success"] = eligible["tube_depth_class"].map(lambda x: "deep" in x).astype(int)
     eligible["genus"] = eligible["accepted_species"].map(_genus)
-    flora = status_flora[["island_id", "accepted_species"]].copy()
+    flora = status_flora[
+        [
+            "island_id",
+            "accepted_species",
+            "origin_status",
+            "endemic_status",
+            "floristic_status",
+        ]
+    ].copy()
     flora["island_id"] = flora["island_id"].astype(str)
     flora["accepted_species"] = flora["accepted_species"].astype(str)
     flora = flora.drop_duplicates(["island_id", "accepted_species"])
@@ -150,6 +161,111 @@ def _summarize_occurrences(
     return genus_segment, species, pooled
 
 
+def _status_summary(
+    occ: pd.DataFrame,
+    model_islands: pd.DataFrame,
+    *,
+    context: str,
+    scope: str,
+    knot_km: float,
+) -> pd.DataFrame:
+    ids = model_islands[["island_id", "distance_to_continent_km"]].drop_duplicates(
+        "island_id"
+    )
+    part = occ.merge(ids, on="island_id", how="inner", validate="many_to_one")
+    part = part.loc[part["distance_to_continent_km"].gt(knot_km)].copy()
+    if part.empty:
+        return pd.DataFrame()
+    total_trials = int(len(part))
+    total_deep = int(part["success"].sum())
+    rows = []
+    for (origin, floristic), group in part.groupby(
+        ["origin_status", "floristic_status"], dropna=False, sort=False
+    ):
+        rows.append(
+            {
+                "evidence_scope": scope,
+                "context": context,
+                "origin_status": origin,
+                "floristic_status": floristic,
+                "n_trial_occurrences": int(len(group)),
+                "n_deep_occurrences": int(group["success"].sum()),
+                "n_trial_species": int(group["accepted_species"].nunique()),
+                "n_deep_species": int(
+                    group.loc[group["success"].eq(1), "accepted_species"].nunique()
+                ),
+                "n_trial_islands": int(group["island_id"].nunique()),
+                "n_deep_islands": int(
+                    group.loc[group["success"].eq(1), "island_id"].nunique()
+                ),
+                "share_of_all_trials": len(group) / total_trials if total_trials else np.nan,
+                "share_of_all_deep_occurrences": (
+                    group["success"].sum() / total_deep if total_deep else np.nan
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _stratum_hinge_sensitivity(
+    coupling_counts: pd.DataFrame,
+    scores: pd.DataFrame,
+    covariates: pd.DataFrame,
+    cfg: dict,
+    *,
+    stratum: str,
+    context: str,
+    lower_km: float,
+    knot_km: float,
+) -> dict | None:
+    counts_local = coupling_counts.loc[
+        coupling_counts["stratum"].astype(str).eq(stratum)
+    ].copy()
+    scores_local = scores.loc[scores["stratum"].astype(str).eq(stratum)].copy()
+    if counts_local.empty or scores_local.empty:
+        return None
+
+    # _prepare_focus is the frozen parent helper and expects the all_observed label.
+    # Relabel only inside this temporary view so the same model code can be reused
+    # while retaining the stratum-specific counts and selfing score.
+    counts_local["stratum"] = "all_observed"
+    scores_local["stratum"] = "all_observed"
+    work = _prepare_focus(
+        counts_local,
+        scores_local,
+        covariates,
+        cfg,
+        context=context,
+        combination=COMBINATION,
+        lower_km=lower_km,
+    )
+    if work["island_id"].nunique() < 50:
+        return {
+            "stratum": stratum,
+            "context": context,
+            "status": "fewer_than_50_complete_islands",
+            "n_model_islands": int(work["island_id"].nunique()),
+            "n_far_tail_islands": int(
+                work.loc[
+                    work["distance_to_continent_km"].gt(knot_km), "island_id"
+                ].nunique()
+            ),
+        }
+    fit = _fit_models(work, cfg, knot_km=knot_km)
+    return {
+        "stratum": stratum,
+        "context": context,
+        "status": "fit",
+        "n_model_islands": int(work["island_id"].nunique()),
+        "n_far_tail_islands": fit["n_above_knot"],
+        "n_far_tail_blocks": fit["n_blocks_above_knot"],
+        "post_hinge_slope": fit["above_slope_per_log1p_km"],
+        "post_hinge_p": fit["above_p"],
+        "hinge_change": fit["hinge_change"],
+        "hinge_change_p": fit["hinge_change_p"],
+    }
+
+
 def _genus_island_counts(occ: pd.DataFrame, genus: str) -> pd.DataFrame:
     g = occ.loc[occ["genus"].eq(genus)].copy()
     if g.empty:
@@ -187,6 +303,8 @@ def main() -> None:
     pooled_tables = []
     logo_rows = []
     headline_rows = []
+    status_tables = []
+    stratum_rows = []
 
     for scope, counts_path, scores_path in [
         ("all", args.all_counts, args.all_scores),
@@ -195,6 +313,12 @@ def main() -> None:
         counts = pd.read_csv(counts_path, dtype={"island_id": str})
         scores = pd.read_csv(scores_path, dtype={"island_id": str})
         occ = _species_occurrences(species_axis, status_flora, evidence_scope=scope)
+        stratified_counts = build_colour_conditioned_architecture_counts(
+            species_axis,
+            status_flora,
+            evidence_scope=scope,
+            strata=["all_native", "native_nonendemic", "endemic"],
+        )
 
         for context in CONTEXTS:
             work = _prepare_focus(
@@ -226,6 +350,29 @@ def main() -> None:
             segment_tables.append(seg)
             species_tables.append(sp)
             pooled_tables.append(pooled)
+            status_tables.append(
+                _status_summary(
+                    occ,
+                    work,
+                    context=context,
+                    scope=scope,
+                    knot_km=knot_km,
+                )
+            )
+
+            for stratum in ("all_native", "native_nonendemic", "endemic"):
+                sensitivity = _stratum_hinge_sensitivity(
+                    stratified_counts,
+                    scores,
+                    cov,
+                    cfg,
+                    stratum=stratum,
+                    context=context,
+                    lower_km=lower_km,
+                    knot_km=knot_km,
+                )
+                if sensitivity is not None:
+                    stratum_rows.append({"evidence_scope": scope, **sensitivity})
 
             far = seg.loc[seg["segment"].eq("far_tail")].copy()
             candidates = far.loc[
@@ -263,12 +410,22 @@ def main() -> None:
     pooled = pd.concat(pooled_tables, ignore_index=True) if pooled_tables else pd.DataFrame()
     logo = pd.DataFrame(logo_rows)
     headline = pd.DataFrame(headline_rows)
+    status = (
+        pd.concat(status_tables, ignore_index=True)
+        if status_tables
+        else pd.DataFrame()
+    )
+    stratum_sensitivity = pd.DataFrame(stratum_rows)
 
     segment.to_csv(args.output / "far_tail_genus_segment_counts.csv", index=False)
     species.to_csv(args.output / "far_tail_species_counts.csv", index=False)
     pooled.to_csv(args.output / "far_tail_genus_pooled_contribution.csv", index=False)
     logo.to_csv(args.output / "far_tail_genus_leave_one_out.csv", index=False)
     headline.to_csv(args.output / "far_tail_genus_headline.csv", index=False)
+    status.to_csv(args.output / "far_tail_status_composition.csv", index=False)
+    stratum_sensitivity.to_csv(
+        args.output / "far_tail_native_stratum_hinge.csv", index=False
+    )
 
     direct_far = segment.loc[
         segment["evidence_scope"].eq("direct") & segment["segment"].eq("far_tail")
@@ -280,6 +437,10 @@ def main() -> None:
     direct_far.to_csv(args.output / "far_tail_genus_ranked_direct.csv", index=False)
 
     print(headline.to_string(index=False))
+    print("\n=== far-tail floristic-status composition ===")
+    print(status.to_string(index=False))
+    print("\n=== native-stratum hinge sensitivity ===")
+    print(stratum_sensitivity.to_string(index=False))
     for context in CONTEXTS:
         top = direct_far.loc[direct_far["context"].eq(context)].head(20)
         print(f"\n=== direct top genera: {context} ===")
