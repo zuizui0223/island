@@ -130,6 +130,9 @@ jobs:
             echo "## Tropical dispersal sensitivity"
             cat /tmp/far-tail-leaveout/results/tropical_far_tail_primary_direct_native_nonendemic.csv
             echo
+            echo "## Ocean-dispersed species assembly gradient"
+            cat /tmp/far-tail-leaveout/results/tropical_ocean_species_assembly_gradient.csv
+            echo
             echo "## Direct far-tail top genera"
             python - <<'PY'
           import pandas as pd
