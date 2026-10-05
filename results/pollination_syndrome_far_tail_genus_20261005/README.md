@@ -110,9 +110,17 @@ This diagnostic changes the earlier post-hoc reading.
 1. The northern far-tail positive response cannot currently be used as evidence that the
    tropical signal is a generic >783 km isolation phenomenon. It is highly dependent on
    the all-observed/status-unresolved layer and disappears in the confirmed-native flora.
-2. The tropical far-tail response is more biologically credible because it remains
-   positive in the native and native-nonendemic strata.
+2. The tropical far-tail response remains positive after restricting to native and
+   native-nonendemic strata, but its biological interpretation is unresolved. Several
+   leading genera are characteristic pantropical/coastal lineages, so dispersal filtering
+   (including coastal/ocean-dispersed floras) is a live alternative explanation that must
+   be tested before attributing the pattern to pollination.
 3. The tropical response is not attributable to the proposed classic Macaronesian/Hawaiian
    bird-pollination genera. Any pollinator interpretation must be made genus/species by
    genus/species and remain secondary to the raw floral-architecture result.
-4. This entire hinge family remains post-hoc and outside frozen Chapter 1 inference.
+4. Native-stratum P values should not be treated as strong inferential evidence: only 26
+   far-tail spatial blocks contribute to the tropical native fits, and the current
+   cluster-robust normal approximation can be anticonservative with few clusters. The
+   native samples are also support-imbalanced around the 783 km knot, so pre-hinge slope
+   estimation is weak.
+5. This entire hinge family remains post-hoc and outside frozen Chapter 1 inference.
