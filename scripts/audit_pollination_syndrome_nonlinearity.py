@@ -70,12 +70,17 @@ def _normal_two_sided_p(z_value: float) -> float:
     return float(math.erfc(abs(z_value) / math.sqrt(2.0)))
 
 
-def _load_window(path: Path) -> tuple[float, float]:
+def _load_windows(path: Path) -> tuple[float, float, float]:
     table = pd.read_csv(path)
-    row = table.loc[table["window"].eq("common_05_95")]
-    if len(row) != 1:
-        raise RuntimeError("expected one common_05_95 row")
-    return float(row.iloc[0]["lower_km"]), float(row.iloc[0]["upper_km"])
+    common = table.loc[table["window"].eq("common_05_95")]
+    iqr = table.loc[table["window"].eq("common_iqr")]
+    if len(common) != 1 or len(iqr) != 1:
+        raise RuntimeError("expected one common_05_95 row and one common_iqr row")
+    return (
+        float(common.iloc[0]["lower_km"]),
+        float(iqr.iloc[0]["upper_km"]),
+        float(common.iloc[0]["upper_km"]),
+    )
 
 
 def _verify_full_replay(
@@ -264,6 +269,92 @@ def _fit_models(
     }
 
 
+def _fit_three_segment(
+    work: pd.DataFrame,
+    cfg: dict,
+    *,
+    first_knot_km: float,
+    second_knot_km: float,
+) -> dict:
+    geography = str(cfg["geography_column"])
+    cluster = str(cfg["cluster_column"])
+    baseline = [str(x) for x in cfg["baseline_covariates"]]
+
+    log_first = float(np.log1p(first_knot_km))
+    log_second = float(np.log1p(second_knot_km))
+    x = pd.to_numeric(work[geography], errors="coerce").to_numpy(float)
+    x_centered = x - log_first
+    hinge_first = np.maximum(x - log_first, 0.0)
+    hinge_second = np.maximum(x - log_second, 0.0)
+
+    names = ["intercept", "log_distance_centered"]
+    cols = [np.ones(len(work), dtype=float), x_centered]
+    for predictor in ["selfing_core", *baseline]:
+        names.append(f"z_{predictor}")
+        cols.append(_z(work[predictor]))
+    names.extend(["hinge_above_iqr", "hinge_above_common_upper"])
+    cols.extend([hinge_first, hinge_second])
+
+    coef, fit, covariance = _fit_grouped_binomial_design(
+        work["successes"].to_numpy(float),
+        work["trials"].to_numpy(float),
+        np.column_stack(cols),
+        names,
+        work[cluster].astype(str).to_numpy(),
+    )
+    indexed = coef.set_index("predictor")
+
+    b = float(indexed.loc["log_distance_centered", "estimate_log_odds"])
+    h1 = float(indexed.loc["hinge_above_iqr", "estimate_log_odds"])
+    h2 = float(indexed.loc["hinge_above_common_upper", "estimate_log_odds"])
+    i_b = names.index("log_distance_centered")
+    i_h1 = names.index("hinge_above_iqr")
+    i_h2 = names.index("hinge_above_common_upper")
+
+    middle = b + h1
+    middle_var = (
+        covariance[i_b, i_b]
+        + covariance[i_h1, i_h1]
+        + 2.0 * covariance[i_b, i_h1]
+    )
+    middle_se = float(np.sqrt(max(float(middle_var), 0.0)))
+    middle_p = _normal_two_sided_p(middle / middle_se if middle_se > 0 else float("nan"))
+
+    far = b + h1 + h2
+    idx = [i_b, i_h1, i_h2]
+    far_var = float(covariance[np.ix_(idx, idx)].sum())
+    far_se = float(np.sqrt(max(far_var, 0.0)))
+    far_p = _normal_two_sided_p(far / far_se if far_se > 0 else float("nan"))
+
+    d = work["distance_to_continent_km"]
+    seg1 = d.le(first_knot_km)
+    seg2 = d.gt(first_knot_km) & d.le(second_knot_km)
+    seg3 = d.gt(second_knot_km)
+
+    return {
+        "three_segment_status": fit["status"],
+        "three_segment_aic": float(fit["aic"]),
+        "n_segment_le_iqr": int(work.loc[seg1, "island_id"].nunique()),
+        "n_segment_iqr_to_common_upper": int(work.loc[seg2, "island_id"].nunique()),
+        "n_segment_above_common_upper": int(work.loc[seg3, "island_id"].nunique()),
+        "n_blocks_segment_le_iqr": int(work.loc[seg1, cluster].nunique()),
+        "n_blocks_segment_iqr_to_common_upper": int(work.loc[seg2, cluster].nunique()),
+        "n_blocks_segment_above_common_upper": int(work.loc[seg3, cluster].nunique()),
+        "segment1_slope": b,
+        "segment1_p": float(indexed.loc["log_distance_centered", "p_value"]),
+        "change_at_iqr": h1,
+        "change_at_iqr_p": float(indexed.loc["hinge_above_iqr", "p_value"]),
+        "segment2_slope": middle,
+        "segment2_p": middle_p,
+        "change_at_common_upper": h2,
+        "change_at_common_upper_p": float(
+            indexed.loc["hinge_above_common_upper", "p_value"]
+        ),
+        "segment3_slope": far,
+        "segment3_p": far_p,
+    }
+
+
 def _reference_focus(reference: pd.DataFrame, context: str, combination: str) -> dict:
     row = reference.loc[
         reference["stratum"].astype(str).eq("all_observed")
@@ -300,7 +391,7 @@ def main() -> None:
 
     cfg = yaml.safe_load(args.config.read_text(encoding="utf-8"))
     cov = pd.read_csv(args.covariates, dtype={"island_id": str})
-    lower_km, knot_km = _load_window(args.windows)
+    lower_km, iqr_upper_km, knot_km = _load_windows(args.windows)
 
     rows = []
     for scope, count_path, score_path, reference_path in [
@@ -335,6 +426,12 @@ def main() -> None:
                 )
                 continue
             result = _fit_models(work, cfg, knot_km=knot_km)
+            three = _fit_three_segment(
+                work,
+                cfg,
+                first_knot_km=iqr_upper_km,
+                second_knot_km=knot_km,
+            )
             ref = _reference_focus(reference, context, combination)
             rows.append(
                 {
@@ -344,9 +441,11 @@ def main() -> None:
                     "combination": combination,
                     "status": "fit",
                     "common_lower_km": lower_km,
+                    "first_knot_iqr_upper_km": iqr_upper_km,
                     "hinge_knot_km": knot_km,
                     **ref,
                     **result,
+                    **three,
                 }
             )
 
@@ -372,6 +471,17 @@ def main() -> None:
                     "above_slope": row.above_slope_per_log1p_km,
                     "above_p": row.above_p,
                     "delta_aic_hinge_minus_linear": row.delta_aic_hinge_minus_linear,
+                    "delta_aic_three_segment_minus_linear": row.three_segment_aic - row.linear_aic,
+                    "segment1_slope": row.segment1_slope,
+                    "segment1_p": row.segment1_p,
+                    "change_at_iqr": row.change_at_iqr,
+                    "change_at_iqr_p": row.change_at_iqr_p,
+                    "segment2_slope": row.segment2_slope,
+                    "segment2_p": row.segment2_p,
+                    "change_at_common_upper": row.change_at_common_upper,
+                    "change_at_common_upper_p": row.change_at_common_upper_p,
+                    "segment3_slope": row.segment3_slope,
+                    "segment3_p": row.segment3_p,
                 }
             )
     summary = pd.DataFrame(summary_rows)
@@ -381,8 +491,12 @@ def main() -> None:
         "contract": "chapter1_pollination_syndrome_hinge_diagnostic_v1",
         "role": "post_hoc_diagnostic_not_submission_inference",
         "lower_bound_km": lower_km,
+        "first_knot_iqr_upper_km": iqr_upper_km,
         "hinge_knot_km": knot_km,
-        "knot_definition": "upper bound of four-region common 5-95% isolation support",
+        "knot_definition": (
+            "support-derived knots: upper bound of four-region common IQR and "
+            "upper bound of four-region common 5-95% isolation support"
+        ),
         "full_corrected_replay_verified": True,
         "model": (
             "grouped-binomial logit with cluster-robust covariance; selfing_core + "
