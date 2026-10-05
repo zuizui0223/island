@@ -418,6 +418,7 @@ def build_species_sorting_scores(
     for outcome in outcomes:
         (
             state_array,
+            genus_codes,
             source_presence,
             observed,
             assignment_matrices,
@@ -444,6 +445,7 @@ def build_species_sorting_scores(
                     prevalence_row=prevalence.getrow(i),
                     observed_row=observed.getrow(i),
                     states=state_array,
+                    genus_codes=genus_codes,
                     n_species=len(species),
                 )
                 if result is None:
