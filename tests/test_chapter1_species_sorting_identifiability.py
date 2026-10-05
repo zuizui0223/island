@@ -23,12 +23,16 @@ def test_species_sorting_identity_and_prevalence_matching() -> None:
         prevalence_row=prevalence,
         observed_row=observed,
         states=states,
+        genus_codes=pd.Series([0, 0, 1]).to_numpy(),
         n_species=3,
     )
     assert result is not None
     assert result["raw_h1_mean"] == pytest.approx(1.0)
     assert result["source_species_expectation"] == pytest.approx(0.75)
-    assert result["species_sorting_enrichment"] == pytest.approx(0.25)
+    assert result["represented_genus_species_expectation"] == pytest.approx(0.75)
+    assert result["genus_species_structure_enrichment"] == pytest.approx(0.0)
+    assert result["within_genus_species_sorting_enrichment"] == pytest.approx(0.25)
+    assert result["total_species_sorting_enrichment"] == pytest.approx(0.25)
     assert result["identity_error"] == pytest.approx(0.0)
     assert result["source_overlap_fraction"] == pytest.approx(1.0)
 
@@ -41,6 +45,7 @@ def test_source_unavailable_observed_species_is_not_silently_used() -> None:
         prevalence_row=prevalence,
         observed_row=observed,
         states=states,
+        genus_codes=pd.Series([0, 0, 1]).to_numpy(),
         n_species=3,
     )
     assert result is not None
@@ -49,6 +54,30 @@ def test_source_unavailable_observed_species_is_not_silently_used() -> None:
     assert result["source_overlap_fraction"] == pytest.approx(0.5)
     assert result["raw_h1_mean"] == pytest.approx(1.0)
 
+
+
+def test_genus_structure_and_within_genus_sorting_are_separate() -> None:
+    # Two equally prevalent source species in different genera. The island contains
+    # only the positive species from genus 1. The shift is genus structure, not
+    # within-genus species sorting.
+    states = pd.Series([0.0, 1.0]).to_numpy()
+    prevalence = sparse.csr_matrix([[1, 1]])
+    observed = sparse.csr_matrix([[0, 1]])
+    result = _decompose_row(
+        prevalence_row=prevalence,
+        observed_row=observed,
+        states=states,
+        genus_codes=pd.Series([0, 1]).to_numpy(),
+        n_species=2,
+    )
+    assert result is not None
+    assert result["raw_h1_mean"] == pytest.approx(1.0)
+    assert result["source_species_expectation"] == pytest.approx(0.5)
+    assert result["represented_genus_species_expectation"] == pytest.approx(1.0)
+    assert result["genus_species_structure_enrichment"] == pytest.approx(0.5)
+    assert result["within_genus_species_sorting_enrichment"] == pytest.approx(0.0)
+    assert result["total_species_sorting_enrichment"] == pytest.approx(0.5)
+    assert result["identity_error"] == pytest.approx(0.0)
 
 def test_identifiability_fails_closed_without_population_trait_axis() -> None:
     audit = pd.DataFrame(
