@@ -1,0 +1,4 @@
+window,lower_km,upper_km,definition
+full,,,full regional support
+common_05_95,0.25149279162763416,783.0170567911987,intersection of regional 5th-95th percentile distance ranges
+common_iqr,10.84452258993567,127.55590917234709,intersection of regional interquartile distance ranges
