@@ -8,6 +8,12 @@ coastal / ocean-dispersed lineages rather than pollination filtering.
 
 ## Exact replay
 
+GitHub Actions run **37318292705** completed successfully; artifact
+**11349432091** (digest
+`sha256:22864e0aae72cfea1f462333d4a3390450d0d27db913757efb700254c9050294`).
+The dedicated CI also verifies that the optimized target-cell implementation exactly
+reproduces the stored fixed-selfing replay before evaluating new sensitivities.
+
 The direct native baseline is exactly reproduced from the frozen inputs after applying
 the corrected spherical coastline distances:
 
@@ -37,10 +43,12 @@ Among direct native-nonendemic target occurrences:
 Thus the strict dispersal set is strongly enriched in the remote tail.
 
 An independent assemblage check does not use the focal floral response at all. Within
-the same 120-island tropical support cohort, the share of these strict ocean-dispersed
-species among the entire native-nonendemic flora increases with corrected isolation
-(adjusted log-odds slope per SD = **+0.667**, 41 spatial blocks; cluster-t P =
-**3.5e-6**). This directly supports dispersal sorting as an upstream assemblage process.
+the same **119-island complete-support cohort**, the share of these strict
+ocean-dispersed species among the entire native-nonendemic flora increases with
+corrected isolation (289 strict-ocean occurrences among 41,551 flora occurrences;
+adjusted log-odds slope per SD = **+0.6670**, 41 spatial blocks; cluster-t
+P = **3.56e-6**). This directly supports dispersal sorting as an upstream assemblage
+process.
 
 After removing those species:
 
@@ -63,6 +71,33 @@ A deliberately broader genus-level exclusion is an upper-bound sensitivity, not 
 primary test. It also reverses the slope (native-nonendemic **-0.6625**), but this
 over-removes non-coastal congeners and should not be interpreted as a separate
 confirmatory result.
+
+## Selfing-core reaggregation audit
+
+The first exclusion implementation held the frozen island-level `selfing_core`
+covariate fixed while removing coastal species from the focal floral count. Because that
+changes the assemblage being analysed, the CI now independently rebuilds
+`selfing_core` from the frozen species-level concordance table after each exclusion.
+
+As a validation, the no-exclusion reconstruction reproduces the frozen island score to
+machine precision:
+
+- all-native maximum absolute difference = **8.33e-17**;
+- native-nonendemic maximum absolute difference = **9.71e-17**.
+
+After strict ocean-dispersed species are removed and `selfing_core` is recomputed from
+the remaining flora, the result is essentially unchanged:
+
+- native-nonendemic: post-hinge slope **-0.2294**, tail-block t P = **0.476**,
+  leave-one-tail-block range **-0.497 to -0.005**, jackknife P = **0.540**;
+- all-native: post-hinge slope **-0.4035**, tail-block t P = **0.267**,
+  jackknife P = **0.353**.
+
+Removing the strict ocean-dispersed species plus the tube-coding flags with recomputed
+selfing also remains negative (native-nonendemic **-0.3453**, jackknife P = **0.522**).
+
+Therefore the loss of the positive far-tail slope is not an artefact of conditioning on a
+stale pre-exclusion selfing covariate.
 
 ## Tube-depth coding audit
 
@@ -100,8 +135,8 @@ native range (Mexico to Venezuela and the Caribbean), so the old status layer co
 least one clear false-native record for this species. Seven other far-tail records are in
 the Caribbean and are compatible with the listed native range.
 
-Within the 120-island tropical target-support cohort, the overall floristic-status
-resolution fraction does **not** increase with corrected isolation; it decreases
+Within the tropical target-support cohort, the overall floristic-status resolution
+fraction does **not** increase with corrected isolation; it decreases
 (Spearman rho approximately **-0.342**). Thus the support imbalance around 783 km is
 real, but it is not explained by a simple increase in status-resolution rate with
 distance in this cohort.
@@ -119,7 +154,7 @@ The strongest current explanation is:
 This is a **dispersal / assemblage-filtering result**, not a pollination result. The
 hinge remains outside Chapter 1's frozen inferential claims.
 
-The diagnostic workflow and frozen exclusion tables are in PR #313. GitHub Actions was
-queued at the time of this local exact replay; the values above were obtained by
-reconstructing the same frozen species, status, syndrome, area/climate, block and
-corrected-distance inputs used by the workflow.
+The diagnostic workflow and frozen exclusion tables are in PR #313. The dedicated
+GitHub Actions replay is green and reproduces the stored fixed-selfing results before
+running the recomputed-selfing extension. All interpretation remains post-hoc and does
+not alter the frozen Chapter 1 submission inference.
