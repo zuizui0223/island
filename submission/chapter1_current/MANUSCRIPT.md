@@ -154,7 +154,7 @@ The regional colour–architecture results show partial rather than uniform conc
 
 The plant trait data alone cannot show that pollen delivery becomes more difficult with island isolation. H3 addresses that gap with an independent experimental dataset. Across 2,969 pollen-supplementation experiments, pollen limitation increased with corrected geographic isolation. The offshore-only analysis remained positive, while a simple mainland-versus-offshore indicator was unsupported, indicating that the primary association was not generated solely by contrasting continental zero-distance sites with islands. The supplemental-only sensitivity was weaker and unsupported, so the result should be read as a positive primary gradient with measurement sensitivity rather than as an invariant law.
 
-This independent result changes the interpretation of the trait patterns. Geographic isolation is not only associated with reproductive-assurance and accessibility traits; it is also associated with a contemporary experimental shortfall in natural pollen receipt. That does not imply a global decline in pollinator abundance. Pollen limitation can arise from pollen quantity, pollen quality, mate availability, visitor effectiveness or temporal unreliability, and the present data do not separate those processes. The appropriate inference is broader: increasing isolation is associated with a stronger reproductive-service constraint.
+This isolation gradient is consistent with spatial impoverishment or reorganization of effective pollination, not necessarily a decline in pollinator numbers. Oceanic-island interaction networks are often smaller and less interaction-rich than mainland networks (Traveset et al. 2016). On Japanese islands, low relative abundance of long-tongued visitors coincided with compensatory visits by other guilds, without a comparable reduction in overall visitation, but fruit set declined in a focal plant (Hiraiwa & Ushimaru 2017). In 40 coastal networks, lower pollinator functional diversity—rather than species richness—was associated with poorer flower–proboscis matching and pollination success (Hiraiwa & Ushimaru 2024). Incomplete functional replacement could therefore link isolation to pollen limitation and geographically contingent floral-access responses. Yet H3 measures neither pollinator guilds nor visit effectiveness; compatible mates and pollen quality may also limit reproduction. Spatial contrasts cannot establish temporal pollinator decline.
 
 This geographic signal is also distinct from a generic range-margin effect. Previous global work found little evidence that pollen limitation rises systematically towards species' range edges (Dawson-Glass & Hargreaves 2022). Here the relevant axis is distance from continental source geography, and the positive offshore gradient suggests that island isolation captures a different ecological process from position within a species' mainland range.
 
@@ -220,6 +220,10 @@ Harder, L.D. & Aizen, M.A. (2010). Floral adaptation and diversification under p
 
 Hetherington-Rauth, M.C. & Johnson, M.T.J. (2020). Floral trait evolution of angiosperms on Pacific islands. *Am. Nat.*, 196, 87–100.
 
+Hiraiwa, M.K. & Ushimaru, A. (2017). Low functional diversity promotes niche changes in natural island pollinator communities. *Proc. R. Soc. B*, 284, 20162218.
+
+Hiraiwa, M.K. & Ushimaru, A. (2024). Loss of functional diversity rather than species diversity of pollinators decreases community-wide trait matching and pollination function. *Funct. Ecol.*, 38, 1296–1308.
+
 Knight, T.M., Steets, J.A., Vamosi, J.C., Mazer, S.J., Burd, M., Campbell, D.R. et al. (2005). Pollen limitation of plant reproduction: pattern and process. *Annu. Rev. Ecol. Evol. Syst.*, 36, 467–497.
 
 Pannell, J.R., Auld, J.R., Brandvain, Y., Burd, M., Busch, J.W., Cheptou, P.-O. et al. (2015). The scope of Baker's law. *New Phytol.*, 208, 656–667.
@@ -231,5 +235,7 @@ Rosas-Guerrero, V., Aguilar, R., Martén-Rodríguez, S., Ashworth, L., Lopezarai
 Schrader, J., Wright, I.J., Kreft, H. & Westoby, M. (2021). A roadmap to plant functional island biogeography. *Biol. Rev.*, 96, 2851–2870.
 
 Sicard, A. & Lenhard, M. (2011). The selfing syndrome: a model for studying the genetic and evolutionary basis of morphological adaptation in plants. *Ann. Bot.*, 107, 1433–1443.
+
+Traveset, A., Tur, C., Trøjelsgaard, K., Heleno, R., Castro-Urgal, R. & Olesen, J.M. (2016). Global patterns of mainland and insular pollination networks. *Glob. Ecol. Biogeogr.*, 25, 880–890.
 
 Zell, A.N., Miranda, C.H., Grady, E.L., Grossenbacher, D.L. & Igić, B. (2025). Island colonization in flowering plants is determined by the interplay of breeding system, lifespan, floral symmetry, and arrival opportunity. *New Phytol.*, 245, 420–432.
