@@ -1,6 +1,6 @@
 # Ecology Letters first-shot target — conditional on data-policy clearance
 
-Checked: 4 October 2026.
+Checked: 8 October 2026 (journal data policy rechecked; scientific H1 baseline remains 4 October).
 
 ## First-shot argument
 
@@ -13,8 +13,8 @@ The conceptual advance is **functional recurrence without phenotypic uniformity*
 1. self-compatibility is the most geographically recurrent individual response to isolation;
 2. other reproductive, colour and structural traits vary among regions;
 3. generalized accessibility is only partly explained by measured reproductive assurance;
-4. independent pollen-supplementation experiments show stronger pollen limitation with isolation;
-5. the island-associated reproductive-assurance and accessibility states are associated with lower current pollen limitation in exact-species overlap.
+4. published GloPL pollen-supplementation data, independent of the island-flora observations, show stronger pollen limitation with isolation;
+5. island-associated reproductive-assurance and accessibility states are associated with lower current pollen limitation in exact-species overlap; H3 and H4 reuse GloPL and are not independent experimental replications.
 
 The historical causal edge from pollen limitation through selection/sorting to contemporary trait composition remains unresolved.
 
@@ -36,8 +36,8 @@ Official journal instructions remain the authority at submission.
 - Main figures: **6**
 - Tables: **0**
 - Text boxes: **0**
-- Main text: **4,937 / 5,000 words** by repository Markdown count
-- Abstract: **145 / 150 words**
+- Main text: **4,916 / 5,000 words** by repository Markdown count
+- Abstract: **147 / 150 words**
 - Running-title candidate: **Recurrent function, contingent flowers**
 - Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; functional island biogeography; pollination
 

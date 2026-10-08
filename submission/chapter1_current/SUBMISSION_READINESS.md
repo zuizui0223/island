@@ -1,4 +1,4 @@
-# Chapter 1 submission readiness — 2026-10-04
+# Chapter 1 submission readiness — 2026-10-08
 
 ## Current decision
 
@@ -25,15 +25,22 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 ### Manuscript package
 
 - title rewritten around recurrent reproductive function and contingent floral phenotype;
-- abstract: **145 words**;
-- main text: **4,937 words** by repository Markdown count;
+- abstract: **147 words**;
+- main text: **4,916 words** by repository Markdown count;
 - six main figures;
-- cover letter and novelty statement synchronized to traitwise H1;
+- cover letter, novelty statement, comparative study-scale audit and prior literature placement synchronized to traitwise H1 (PR #315 merged);
 - current interpretation no longer relies on a pooled H1 score.
 
 ### Current scientific claim
 
 > **Island isolation is associated with recurrent reproductive assurance but not a universal floral phenotype; the same geographic gradient is independently associated with stronger pollen limitation, and the island-associated reproductive and accessibility states are functionally aligned with lower current limitation.**
+
+## Status of post-PR #315 verification
+
+- Main branch contains the 8 October literature/scale clarification (squash commit `33ceede43a551a5e89df35905047fa405bf066a5`), with H1–H4 methods/results and frozen numerical tables unchanged.
+- Final H1 and corrected-geography workflows triggered by the final PR head (`37726796591`, `37726796582`) were **queued, not passed** when checked on 8 October 2026. Do not describe these checks as green unless their completed status is independently confirmed.
+- Official Ecology Letters data/code policy was rechecked on 8 October 2026 and still requires complete analysis-used data access at submission. The 46,274-cell redistribution-approved derivative does not replace the full 222,688 resolved-cell analysis ledger.
+- Pre-submission data-policy inquiry is prepared; editorial permission is not documented in the repository.
 
 ## Blocking external or author inputs
 
@@ -41,7 +48,7 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
    The complete analysis ledger is not wholly redistributable. Do not submit until rights are closed or the editors explicitly approve the proposed restricted-data arrangement.
 
 2. **Author metadata.**  
-   Final author order, affiliations, emails, ORCIDs, corresponding-author details, funding, acknowledgements, conflicts and contributions remain author-confirmed inputs.
+   Final author order, affiliations, emails, ORCIDs, corresponding-author details, funding, acknowledgements, conflicts, contributions and final approval remain author-confirmed inputs. The cover letter now holds the approval statement as an explicit confirmation placeholder.
 
 3. **Final software/results DOI and tag.**  
    Freeze the final submission commit, mint the release DOI, then insert it into the final data-accessibility text.
