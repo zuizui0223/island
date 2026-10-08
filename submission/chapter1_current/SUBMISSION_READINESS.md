@@ -26,9 +26,10 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 
 - title rewritten around recurrent reproductive function and contingent floral phenotype;
 - abstract: **147 words**;
-- main text: **4,916 words** by repository Markdown count;
+- main text: **4,947 words** by repository Markdown count;
 - six main figures;
 - cover letter, novelty statement, comparative study-scale audit and prior literature placement synchronized to traitwise H1 (PR #315 merged);
+- discussion now identifies reduced *functional pollinator service* as a literature-supported, **unmeasured** possible explanation for H3; no pollinator declines, guild turnover or historical mediation are inferred from the Chapter 1 results;
 - current interpretation no longer relies on a pooled H1 score.
 
 ### Current scientific claim

@@ -28,9 +28,9 @@
 
 **Abstract word count:** 147 [final journal count to verify; must remain <=150]
 
-**Main-text word count:** 4,916 [repository Markdown count; final journal count to verify; must remain <=5,000]
+**Main-text word count:** 4,947 [repository Markdown count; final journal count to verify; must remain <=5,000]
 
-**References:** 21
+**References:** 24
 
 **Figures:** 6
 
