@@ -17,6 +17,7 @@
 - submission/chapter1_current/SUPPLEMENTARY_INFORMATION.md
 - submission/chapter1_current/SUBMISSION_CHECKLIST.md
 - submission/chapter1_current/SUBMISSION_READINESS.md
+- docs/chapter1_prior_art_novelty_audit_20261008.md — prior-study denominators and inferential boundaries
 
 ## Primary scientific sources of truth
 
@@ -52,4 +53,4 @@ No historical causal mediation is claimed.
 
 ## Submission state
 
-The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 145 words; main text 4,937 words; six display items). Submission is blocked only by the external data-policy gate and final author/release metadata.
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 147 words; main text 4,916 words; six display items). Submission remains blocked by the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
