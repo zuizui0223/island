@@ -194,28 +194,27 @@ Island isolation is associated with a recurrent shift in reproductive function w
 
 Abe, T. (2006). Threatened pollination systems in native flora of the Ogasawara (Bonin) Islands. *Ann. Bot.*, 98, 317–334.
 
-
 Baker, H.G. (1955). Self-compatibility and establishment after ‘long-distance’ dispersal. *Evolution*, 9, 347–349.
+
+Bennett, J.M., Steets, J.A., Burns, J.H., Burkle, L.A., Vamosi, J.C., Wolowski, M. et al. (2020). Land use and pollinator dependency drives global patterns of pollen limitation in the Anthropocene. *Nat. Commun.*, 11, 3999.
 
 Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018a). Data from: GloPL, a global data base on pollen limitation of plant reproduction. Dryad Digital Repository. Available at: https://doi.org/10.5061/dryad.dt437.
 
 Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018b). GloPL, a global data base on pollen limitation of plant reproduction. *Sci. Data*, 5, 180249.
 
-Bennett, J.M., Steets, J.A., Burns, J.H., Burkle, L.A., Vamosi, J.C., Wolowski, M. et al. (2020). Land use and pollinator dependency drives global patterns of pollen limitation in the Anthropocene. *Nat. Commun.*, 11, 3999.
+Burns, J.H., Bennett, J.M., Li, J., Xia, J., Arceo-Gómez, G., Burd, M. et al. (2019). Plant traits moderate pollen limitation of introduced and native plants: a phylogenetic meta-analysis of global scale. *New Phytol.*, 223, 2063–2075.
 
 Cheptou, P.-O. (2012). Clarifying Baker's Law. *Ann. Bot.*, 109, 633–641.
 
-Delavaux, C.S., Crowther, T.W., Bever, J.D., Weigelt, P. & Gora, E.M. (2024). Mutualisms weaken the latitudinal diversity gradient among oceanic islands. *Nature*, 627, 335–339.
-
 Dawson-Glass, E. & Hargreaves, A.L. (2022). Does pollen limitation limit plant ranges? Evidence and implications. *Philos. Trans. R. Soc. B*, 377, 20210014.
+
+Delavaux, C.S., Crowther, T.W., Bever, J.D., Weigelt, P. & Gora, E.M. (2024). Mutualisms weaken the latitudinal diversity gradient among oceanic islands. *Nature*, 627, 335–339.
 
 Fenster, C.B., Armbruster, W.S., Wilson, P., Dudash, M.R. & Thomson, J.D. (2004). Pollination syndromes and floral specialization. *Annu. Rev. Ecol. Evol. Syst.*, 35, 375–403.
 
 Govaerts, R., Nic Lughadha, E., Black, N., Turner, R. & Paton, A. (2021). The World Checklist of Vascular Plants, a continuously updated resource for exploring global plant diversity. *Sci. Data*, 8, 215.
 
 Grossenbacher, D.L., Brandvain, Y., Auld, J.R., Burd, M., Cheptou, P.-O., Conner, J.K. et al. (2017). Self-compatibility is over-represented on islands. *New Phytol.*, 215, 469–478.
-
-Burns, J.H., Bennett, J.M., Li, J., Xia, J., Arceo-Gómez, G., Burd, M. et al. (2019). Plant traits moderate pollen limitation of introduced and native plants: a phylogenetic meta-analysis of global scale. *New Phytol.*, 223, 2063–2075.
 
 Harder, L.D. & Aizen, M.A. (2010). Floral adaptation and diversification under pollen limitation. *Philos. Trans. R. Soc. B*, 365, 529–543.
 
