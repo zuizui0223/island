@@ -192,12 +192,6 @@ Island isolation is associated with a recurrent shift in reproductive function w
 
 ## References
 
-Burns, J.H., Bennett, J.M., Li, J., Xia, J., Arceo-Gómez, G., Burd, M. et al. (2019). Plant traits moderate pollen limitation of introduced and native plants: a phylogenetic meta-analysis of global scale. *New Phytol.*, 223, 2063–2075.
-
-Delavaux, C.S., Crowther, T.W., Bever, J.D., Weigelt, P. & Gora, E.M. (2024). Mutualisms weaken the latitudinal diversity gradient among oceanic islands. *Nature*, 627, 335–339.
-
-Razanajatovo, M., van Kleunen, M., Kreft, H., Dawson, W., Essl, F., Pergl, J., Pyšek, P., Winter, M. & Weigelt, P. (2019). Autofertility and self-compatibility moderately benefit island colonization of plants. *Glob. Ecol. Biogeogr.*, 28, 341–352.
-
 Abe, T. (2006). Threatened pollination systems in native flora of the Ogasawara (Bonin) Islands. *Ann. Bot.*, 98, 317–334.
 
 
@@ -211,6 +205,8 @@ Bennett, J.M., Steets, J.A., Burns, J.H., Burkle, L.A., Vamosi, J.C., Wolowski, 
 
 Cheptou, P.-O. (2012). Clarifying Baker's Law. *Ann. Bot.*, 109, 633–641.
 
+Delavaux, C.S., Crowther, T.W., Bever, J.D., Weigelt, P. & Gora, E.M. (2024). Mutualisms weaken the latitudinal diversity gradient among oceanic islands. *Nature*, 627, 335–339.
+
 Dawson-Glass, E. & Hargreaves, A.L. (2022). Does pollen limitation limit plant ranges? Evidence and implications. *Philos. Trans. R. Soc. B*, 377, 20210014.
 
 Fenster, C.B., Armbruster, W.S., Wilson, P., Dudash, M.R. & Thomson, J.D. (2004). Pollination syndromes and floral specialization. *Annu. Rev. Ecol. Evol. Syst.*, 35, 375–403.
@@ -219,6 +215,8 @@ Govaerts, R., Nic Lughadha, E., Black, N., Turner, R. & Paton, A. (2021). The Wo
 
 Grossenbacher, D.L., Brandvain, Y., Auld, J.R., Burd, M., Cheptou, P.-O., Conner, J.K. et al. (2017). Self-compatibility is over-represented on islands. *New Phytol.*, 215, 469–478.
 
+Burns, J.H., Bennett, J.M., Li, J., Xia, J., Arceo-Gómez, G., Burd, M. et al. (2019). Plant traits moderate pollen limitation of introduced and native plants: a phylogenetic meta-analysis of global scale. *New Phytol.*, 223, 2063–2075.
+
 Harder, L.D. & Aizen, M.A. (2010). Floral adaptation and diversification under pollen limitation. *Philos. Trans. R. Soc. B*, 365, 529–543.
 
 Hetherington-Rauth, M.C. & Johnson, M.T.J. (2020). Floral trait evolution of angiosperms on Pacific islands. *Am. Nat.*, 196, 87–100.
@@ -226,6 +224,8 @@ Hetherington-Rauth, M.C. & Johnson, M.T.J. (2020). Floral trait evolution of ang
 Knight, T.M., Steets, J.A., Vamosi, J.C., Mazer, S.J., Burd, M., Campbell, D.R. et al. (2005). Pollen limitation of plant reproduction: pattern and process. *Annu. Rev. Ecol. Evol. Syst.*, 36, 467–497.
 
 Pannell, J.R., Auld, J.R., Brandvain, Y., Burd, M., Busch, J.W., Cheptou, P.-O. et al. (2015). The scope of Baker's law. *New Phytol.*, 208, 656–667.
+
+Razanajatovo, M., van Kleunen, M., Kreft, H., Dawson, W., Essl, F., Pergl, J., Pyšek, P., Winter, M. & Weigelt, P. (2019). Autofertility and self-compatibility moderately benefit island colonization of plants. *Glob. Ecol. Biogeogr.*, 28, 341–352.
 
 Rosas-Guerrero, V., Aguilar, R., Martén-Rodríguez, S., Ashworth, L., Lopezaraiza-Mikel, M., Bastida, J.M. et al. (2014). A quantitative review of pollination syndromes: do floral traits predict effective pollinators? *Ecol. Lett.*, 17, 388–400.
 
