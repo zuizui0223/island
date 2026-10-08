@@ -16,7 +16,7 @@ GEB is a strong fallback because the paper tests broad-scale geographic variatio
 ## Format conversion
 
 - Article type: Research Article.
-- Main text: current repository Markdown count 4,937 words.
+- Main text: current repository Markdown count 4,916 words.
 - Display pieces: six figures.
 - Abstract: convert to the required structured format.
 - Review model: double anonymous.
@@ -32,11 +32,18 @@ GEB is a strong fallback because the paper tests broad-scale geographic variatio
 
 **Major taxa studied:** Angiosperms.
 
-**Methods:** We analysed seven reproductive, colour and structural traits separately across 106,295 angiosperm species and a corrected universe of 8,264 island units in four geographic regions. Models controlled for island area and climate and used spatial-cluster finite-sample inference. We separately tested floral responses after conditioning on reproductive assurance. Independent GloPL analyses used 2,969 pollen-supplementation experiments, and exact species matches linked the island-response trait scores to current pollen limitation.
+**Methods:** Using a trait database of 106,295 angiosperms within an 8,264-island geographic universe, we analysed seven reproductive, colour and structural responses separately across a broad fitted union of 4,379 islands and four geographic regions. Models controlled for island area and climate and used spatial-cluster finite-sample inference. We separately tested floral responses after conditioning on reproductive assurance. We separately reanalysed 2,969 previously published GloPL pollen-supplementation experiments, and exact species matches linked the island-response trait scores to current pollen limitation.
 
 **Results:** Self-compatibility increased with isolation in all four regions in both broad All and WCVP regional-native-compatible analyses. Other selfing, colour and structural responses varied geographically. Generalized accessibility remained positively associated with isolation after conditioning on reproductive assurance, with strongest FDR support in northern high latitudes and tropical all-analysis. Experimental pollen limitation increased with isolation (β = 0.0919, finite-publication P = 0.01594). In exact-species post-hoc overlap, stronger reproductive-assurance and generalized-accessibility scores were associated with lower current pollen limitation.
 
 **Main conclusions:** Island isolation is associated with a recurrent reproductive function rather than a universal floral phenotype. Reproductive assurance is the most repeatable response, while detailed floral expression is region dependent. Independent pollen-limitation data and exact-species functional associations support a constraint–response interpretation without identifying historical causal mediation.
+
+## Current format and ethics checks
+
+- The seven abstract headings match the journal's Research Article requirements; limit 300 words.
+- GEB requires double-anonymous review: the main text, file metadata and reviewer-facing repository link must not identify the authors.
+- Use six to ten alphabetically arranged keywords in a final GEB conversion.
+- A legal-restrictions exception remains **editorial discretion**, not guaranteed approval; seek prior confirmation if EL clearance fails.
 
 ## Data-policy advantage
 
