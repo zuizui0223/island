@@ -1,5 +1,7 @@
 # Cover letter draft — Ecology Letters first shot
 
+**Draft only. Do not send before all authors approve the final manuscript and the data-policy gate is resolved.**
+
 Dear Editors,
 
 Please consider our Letter, **“Island isolation is associated with recurrent reproductive assurance but regionally contingent floral change,”** for publication in *Ecology Letters*.
@@ -18,7 +20,7 @@ We believe this fits *Ecology Letters* because it reframes a classic island-synd
 
 The manuscript contains six main display items and remains within the Letter text and abstract limits. Submission remains conditional on closing the journal's data-policy gate for third-party trait records, as documented in the accompanying package.
 
-All authors have approved the manuscript and its submission. The work is not under consideration elsewhere.
+[CONFIRM BEFORE SENDING: All authors have approved the final manuscript and its submission; the work is not under consideration elsewhere.]
 
 Thank you for your consideration.
 
