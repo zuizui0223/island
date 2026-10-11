@@ -1,0 +1,93 @@
+contract: chapter1_genus_allocation_null_v1
+status: frozen_before_result_inspection
+inferential_role: post_baseline_mechanical_allocation_null_not_submission_inference
+
+question: >-
+  Does the observed allocation of source-matched total sorting to the genus-structure
+  component exceed the allocation expected from the real source-pool architecture,
+  genus-level trait conservation and sparse genus-by-prevalence cells?
+
+scope:
+  contexts: [northern_midlatitude, tropical]
+  floristic_status: native_nonendemic
+  evidence_scopes: [all_analysis_eligible, direct_only]
+  source_modes: [geo_k5, geo_k10, geo_k20, geo50_climate10]
+
+atomic_outcomes:
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+  - plain_colour
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+
+permutation_null:
+  method: shuffle_binary_trait_states_within_genus_on_source_evaluable_union
+  n_permutations: 499
+  seed: 20261005
+  preserves:
+    - real_island_membership
+    - real_source_assignment
+    - real_species_source_occurrence
+    - real_source_prevalence
+    - real_genus_membership
+    - number_of_positive_trait_states_per_genus_in_source_evaluable_union
+  breaks:
+    - species_identity_to_trait_state_mapping_within_genus
+    - trait_state_to_source_prevalence_mapping_within_genus
+  note: >-
+    This is a mechanical-allocation null. It does not simulate a causal colonization
+    process and does not turn the decomposition into evidence for a genus-level mechanism.
+
+statistic:
+  primary: absolute_genus_allocation_share
+  definition: abs(beta_genus_structure)/(abs(beta_genus_structure)+abs(beta_within_genus))
+  secondary:
+    - signed_genus_fraction_beta_genus_over_beta_total
+    - absolute_genus_slope
+  monte_carlo_p: one_sided_observed_share_greater_than_or_equal_to_null
+  multiplicity: BH_across_seven_traits_within_each_context_evidence_scope_source_mode
+  source_modes: correlated_sensitivity_definitions_not_independent_replications
+
+estimability:
+  slot_estimable_when:
+    minimum_source_species_same_genus_prevalence: 2
+    trait_states_must_vary_within_cell: true
+  report:
+    - observed_source_candidate_slots
+    - slots_with_cell_n_ge_2
+    - slots_with_state_variation
+    - estimable_slot_fraction
+    - observed_genus_prevalence_cells
+    - estimable_cell_fraction
+
+model:
+  response_components:
+    - total_species_sorting_enrichment
+    - genus_species_structure_enrichment
+    - within_genus_species_sorting_enrichment
+  predictors:
+    - log_distance_to_continent_km
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  minimum_islands_per_outcome: 50
+  slope_rule: equal_island_OLS_same_standardization_as_source_matched_decomposition
+
+claim_ceiling:
+  genus_level_process_identified: false
+  assemblage_filtering_identified: false
+  within_species_evolution_tested: false
+  submission_inference: false
+
+rules:
+  - do_not_modify_H1_rules
+  - do_not_modify_submission_package
+  - no_joint_direction_free_Wald_for_null_inference
+  - trait_specific_slopes_only
+  - four_source_modes_are_not_independent_replications
+  - report_null_even_if_it_explains_observed_genus_allocation
+  - report_estimability_before_interpreting_within_genus_component
