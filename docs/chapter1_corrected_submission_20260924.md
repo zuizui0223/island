@@ -1,8 +1,8 @@
-> **H1 updated 4 October 2026:** the geometry audit below remains valid; H1 score/omnibus conclusions are superseded by [traitwise replay](../results/h1_traitwise_20261004/README.md). Only WCVP remains an active origin sensitivity.
+> **Geography provenance / historical September replay, not the current H1–H4 inferential table (14 October 2026).** The GSHHG measurement repair below remains the active geographic baseline. H1 joint-score/omnibus estimates below are **superseded** by the [final seven-trait finite-cluster-t H1 analysis](../results/h1_final_traitwise_t_20261004/README.md). The final H2–H4 p-values and claim ceilings are in the [current manuscript](../submission/chapter1_current/MANUSCRIPT.md) and [H1–H4 evidence map](../submission/chapter1_current/H1_H4_EVIDENCE_MAP.md). WCVP regional-native compatibility is the sole active origin sensitivity.
 
 # Chapter 1 corrected submission baseline — 24 September 2026
 
-This is the **primary submission baseline**, replacing the uncorrected v14 geographic exposure. The user explicitly selected this role after the geometry audit; the correction is not relegated to a sensitivity analysis. The frozen v14 locks remain unchanged as superseded provenance. This measurement repair does not create a new prospective confirmation and does not change the post-hoc role of H4.
+This document records the **adopted corrected geographic exposure** and the immediate 24 September statistical replay, replacing uncorrected v14 coastline measurements. **Only the geography remains the current baseline here**; the joint/directional H1 presentation and older p-value references in this note are preserved for audit, not as the final 4 October traitwise inference. Current numerical and submission claims are selected by `config/chapter1_submission_current.json`. Frozen v14 locks remain unchanged provenance. The repair is post-hoc, not new prospective confirmation, and H4 remains post-hoc.
 
 ## Geography and analysis population
 
@@ -18,7 +18,7 @@ GloPL exposure uses each site's coordinates, not an island-level proxy. Of 1,248
 
 All original trait values, model families, controls, geographic strata, spatial/publication clusters, evidence scopes and multiplicity families are retained. Both all-analysis and direct-only results, native and native-nonendemic H1 strata, and full raw-colour/architecture tables are included. No sign or significance threshold was tuned after correction.
 
-### H1 — recurrent, region-dependent floral responses
+### H1 — September joint-fit replay (superseded for current traitwise inference)
 
 The seven-trait joint isolation response remains supported in all four broad strata: northern midlatitude q = 3.216e-10 (2,173 islands), northern high latitude q = 2.433e-5 (411), tropical q = 3.498e-7 (1,493), southern extratropical q = 2.504e-18 (302). These counts sum to the analytic union; individual-trait and native and native-nonendemic fits have their own denominators. Direct-only joint support also remains in all four regions. One frozen Direct-only northern-high-latitude component (`shallow_open_tube`) carried `optimizer_success=false` even though the joint q-value was supported. A dedicated audit re-fitted that component from the frozen v14 counts and corrected covariates: the enhanced fit converged with an absolute coefficient change of 2.93e-06, the fully converged seven-response vector retained q = 3.793e-08, and a six-response sensitivity excluding the warned component retained q = 1.430e-08. The claim therefore does not depend on the original optimizer termination flag. See `results/geography_20260924/h1_direct_northern_high_convergence_audit.json`.
 
