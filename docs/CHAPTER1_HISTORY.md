@@ -3,6 +3,7 @@
 This index separates the current submission from preserved replay/provenance surfaces.
 
 ## Current
+- editorial H1–H4 evidence map: `submission/chapter1_current/H1_H4_EVIDENCE_MAP.md` (not a result lock)
 - selector: `config/chapter1_submission_current.json`
 - manuscript: `submission/chapter1_current/MANUSCRIPT.md`
 - methods/results: `docs/chapter1_corrected_submission_20260924.md`
