@@ -3,6 +3,7 @@
 ## Scientific package
 
 - [x] Corrected 8,264-island geography baseline fixed
+- [x] H1–H4 source/claim/figure route reconciled in `H1_H4_EVIDENCE_MAP.md` (editorial only)
 - [x] Final H1 uses seven separate traits; no pooled/domain score
 - [x] All 112 H1 fits converged
 - [x] Broad All primary, Direct-only evidence sensitivity and WCVP regional-native-compatible origin sensitivity synchronized
@@ -13,6 +14,7 @@
 - [x] Figure captions synchronized to traitwise H1
 - [x] Ecology Letters cover letter and novelty statement synchronized
 - [x] Thesis positioning synchronized
+- [x] Historic H1–H5, pooled-composite H1 and October post-hoc regional hinge/genus findings kept outside the active submission claims
 
 ## Journal-specific items
 
