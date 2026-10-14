@@ -15,9 +15,9 @@ The paper's distinctive contribution is the **joint evidence structure**—conti
 | Paper step | Estimand and comparison | Current defensible result | Status and key restriction | Primary figure |
 |---|---|---|---|---|
 | **H1 — Traitwise island responses** | Seven independent binary-trait slopes against corrected isolation, separately in four geographic strata; beta-binomial logit with area, climate and spatial-block inference | **Self-compatibility (SC) increases in all four regions** in broad All and WCVP regional-native-compatible analyses. The other six trait directions/support vary | The 17/28 broad All nominal associations are **two-sided unadjusted, pointwise**; no global pooled H1 score, no universal seven-trait effect or formal between-region slope test | 4 |
-| **H2 — Conditional floral response** | \`generalized_accessible\` and colour responses against isolation **after \`selfing_core\` adjustment**; area/climate included | The accessibility-distance effect remains FDR-supported in northern high latitude and tropical **All**, but not northern midlatitude or southern extratropical; tropical Direct-only loses FDR support | **Conditional statistical decomposition**, not mediation, direct selection, or universal causal pathway independence | 5 |
-| **H3 — Independent ecological pressure** | Experimental pollen-limitation log-response-ratio against corrected continental-isolation distance in published GloPL data | Corrected primary \`beta = +0.09191\`, \`SE = 0.03806\`, two-sided finite-publication \`p = 0.01594\`; offshore-only gradient also positive | Publication-weighted, adjusted **association**; supplemental-only measurement sensitivity unsupported; neither pollinator abundance loss nor historical cause identified | 6A |
-| **H4 — Functional compatibility** | GloPL pollen limitation against the **frozen Direct-only H2 trait scores** on exact-matched species, adjusting for distance, context and study conditions | \`selfing_core\`: \`beta = -0.29830\`, \`p = 0.00417\`; \`generalized_accessible\`: \`beta = -0.29566\`, \`p = 0.02334\` | **Explicitly post-hoc functional triangulation**. Present-day trait/limitation covariance does not prove historical selection or cross-dataset mediation | 6B–C |
+| **H2 — Conditional floral response** | `generalized_accessible` and colour responses against isolation **after `selfing_core` adjustment**; area/climate included | The accessibility-distance effect remains FDR-supported in northern high latitude and tropical **All**, but not northern midlatitude or southern extratropical; tropical Direct-only loses FDR support | **Conditional statistical decomposition**, not mediation, direct selection, or universal causal pathway independence | 5 |
+| **H3 — Independent ecological pressure** | Experimental pollen-limitation log-response-ratio against corrected continental-isolation distance in published GloPL data | Corrected primary `beta = +0.09191`, `SE = 0.03806`, two-sided finite-publication `p = 0.01594`; offshore-only gradient also positive | Publication-weighted, adjusted **association**; supplemental-only measurement sensitivity unsupported; neither pollinator abundance loss nor historical cause identified | 6A |
+| **H4 — Functional compatibility** | GloPL pollen limitation against the **frozen Direct-only H2 trait scores** on exact-matched species, adjusting for distance, context and study conditions | `selfing_core`: `beta = -0.29830`, `p = 0.00417`; `generalized_accessible`: `beta = -0.29566`, `p = 0.02334` | **Explicitly post-hoc functional triangulation**. Present-day trait/limitation covariance does not prove historical selection or cross-dataset mediation | 6B–C |
 
 The causal bridge **from earlier pollen limitation to the current trait composition** remains unobserved. H1/H2 and H3 are associations from different data domains; H4 tests current functional compatibility on exact-species overlap, not historical time-ordering.
 
@@ -27,7 +27,7 @@ The causal bridge **from earlier pollen limitation to the current trait composit
 - Plant trait cells resolved: **222,688 / 318,885 (69.83%)** across three raw evidence axes. The current H1 outcomes are **seven atomics**, not three aggregate response scores.
 - Floristic-origin uncertainty is large: among **1,039,757** island-by-species records, **869,784 (83.65%)** have unresolved origin status. The primary All results concern **contemporary GBIF-observed floras**, not demonstrated native colonization or within-lineage evolution. WCVP TDWG-L3 regional-native compatibility does not establish exact focal-island nativeness.
 - Independent GloPL: **2,969 experiments**, **1,408 measurement cells**, **1,248 sites**, **919 publications**; **996** sites are true continental zero-distance observations. The corrected coastline distance repaired **1,113** spurious H1 zero distances and excluded one continental fragment. This was a **post-hoc measurement repair**, not prospective replication.
-- H4 exact-score support differs: \`selfing_core\` matches **455 species / 409 publications**, whereas \`generalized_accessible\` matches **143 species / 143 publications**. These are not matched island-plant manipulations.
+- H4 exact-score support differs: `selfing_core` matches **455 species / 409 publications**, whereas `generalized_accessible` matches **143 species / 143 publications**. These are not matched island-plant manipulations.
 
 ## H1: what actually differs among the four regions
 
@@ -40,13 +40,13 @@ A plus/minus below means a **direction with nominal two-sided p < 0.05 in the pr
 | **Tropical** | SC **+**, selfing mating system **+**, autonomous selfing **+** | Generalized form **+**, actinomorphy **+** | WCVP retains SC and actinomorphy and supports plain colour, but other patterns change with floristic origin and trait-evidence scope |
 | **Southern extratropical** | SC **+** | Plain colour **+**, generalized form **+**, shallow/open tube **−** | WCVP retains SC and plain colour; a single direction of floral simplification **does not** describe deeper tubes and generalized form together |
 
-**Only the SC association is supported by the pointwise trait tests in both primary broad All and WCVP All in all four regions.** The other six atomic traits are not a jointly proven universal phenotype, and \`p < 0.05\` is not a family-wise significance guarantee.
+**Only the SC association is supported by the pointwise trait tests in both primary broad All and WCVP All in all four regions.** The other six atomic traits are not a jointly proven universal phenotype, and `p < 0.05` is not a family-wise significance guarantee.
 
 Secondary reported raw flower-colour states (white, red/pink, yellow/orange, blue/purple, green/brown/inconspicuous) and **architecture conditional on focal colour** can describe display–form coupling. They must be presented as secondary, geographically context-dependent associations rather than identifying realized bird, butterfly, or large-bee pollinators. Use the **corrected** tables in [results/geography_20260924](../../results/geography_20260924/), not pre-geography-correction numeric summaries.
 
 ## H2: what the selfing-adjustment test can and cannot establish
 
-\`selfing_core\` is constructed from self-compatibility/incompatibility, mating system and autonomous selfing; **it excludes colour and floral form**. The current conditional accessibility result is:
+`selfing_core` is constructed from self-compatibility/incompatibility, mating system and autonomous selfing; **it excludes colour and floral form**. The current conditional accessibility result is:
 
 | Region | Broad All, finite-cluster FDR q | Interpretation |
 |---|---:|---|
@@ -55,7 +55,7 @@ Secondary reported raw flower-colour states (white, red/pink, yellow/orange, blu
 | Tropical | **0.01913** | Retained in All; **Direct-only q = 0.1267**, not supported after correction |
 | Southern extratropical | 0.2977 | Not FDR-supported after measured reproductive assurance |
 
-This challenges the compulsory **\`isolation → selfing → all floral change\`** statistical account. It does **not** establish a direct pollinator-mediated selection route, because source pools, species sorting, unmeasured traits and measurement error remain alternatives. The within-species evolutionary origin of the differences is unresolved.
+This challenges the compulsory **`isolation → selfing → all floral change`** statistical account. It does **not** establish a direct pollinator-mediated selection route, because source pools, species sorting, unmeasured traits and measurement error remain alternatives. The within-species evolutionary origin of the differences is unresolved.
 
 ## H3 and H4: independent pressure, then a functional check
 
