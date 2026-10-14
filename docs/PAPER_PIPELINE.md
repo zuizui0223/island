@@ -7,6 +7,19 @@ Submission-facing prose lives in `submission/chapter1_current/`.
 Corrected H2-H4 tables live in `results/geography_20260924/`; final H1 inference lives in `results/h1_final_traitwise_t_20261004/`.
 The H1 replay entry point is `docs/REPLAY_H1_FINAL_TRAITWISE_T_20261004.md`; geography/H2–H4 replay remains documented in `scripts/geography_correction/README.md`.
 
+## Active H1–H4 manuscript spine
+
+Use the [H1–H4 publication evidence map](../submission/chapter1_current/H1_H4_EVIDENCE_MAP.md) alongside the [current manuscript](../submission/chapter1_current/MANUSCRIPT.md). The current labels **must not** be read from the historical H1–H5 progressive contract or older v13/v14 H1 composite-score documents.
+
+| Hypothesis | What the paper tests | What it may claim |
+|---|---|---|
+| **H1 — Traitwise pattern** | Seven individual traits × four geographic regions | SC is positive across all four regions in broad All and WCVP-compatible analyses; other floral traits vary; **no pooled score** and no 28-test family-wise claim |
+| **H2 — Conditional response** | Accessibility/colour vs isolation **holding measured selfing core constant** | Independent-of-*measured*-selfing association in northern high latitudes and tropical All; **not causal mediation** and tropical Direct-only not FDR-supported |
+| **H3 — Pollen-limitation pressure** | Corrected geographic isolation vs independent experimental pollen limitation | Positive publication-adjusted GloPL association, with a weaker unsupported supplemental-only sensitivity; **not observed global pollinator loss** |
+| **H4 — Exact-species functional bridge** | Frozen H2 trait scores vs current GloPL pollen limitation | Reproductive-assurance and accessibility scores predict lower present-day limitation; **post-hoc compatibility, not historical causality** |
+
+**Precedence:** `config/chapter1_submission_current.json` → `submission/chapter1_current/` → final H1 and corrected H2–H4 tables. The corrected-geography September methods note contains historical joint-fit statistics; do not treat them as the 4 October formal H1 result. October common-support, nonlinear, far-tail and genus audits remain post-hoc analyses outside the submission.
+
 ## Pipeline at a glance
 
 ```text
