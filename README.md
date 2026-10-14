@@ -6,14 +6,15 @@
 
 ## Start here
 
-1. [Current submission manuscript](submission/chapter1_current/MANUSCRIPT.md)
-2. [Current submission contract](config/chapter1_submission_current.json)
-3. [Corrected methods and results](docs/chapter1_corrected_submission_20260924.md)
-4. [Final H1 + WCVP results](results/h1_final_traitwise_t_20261004/)
-5. [Corrected H2-H4 result tables](results/geography_20260924/)
-6. [H1 traitwise replay instructions](docs/REPLAY_H1_FINAL_TRAITWISE_T_20261004.md)
-7. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
-8. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
+1. [H1–H4 publication evidence map](submission/chapter1_current/H1_H4_EVIDENCE_MAP.md) — claim, estimand, regional pattern, source and inferential ceiling
+2. [Current submission manuscript](submission/chapter1_current/MANUSCRIPT.md)
+3. [Current submission contract](config/chapter1_submission_current.json)
+4. [Corrected geography audit and historical September replay](docs/chapter1_corrected_submission_20260924.md)
+5. [Final H1 + WCVP results](results/h1_final_traitwise_t_20261004/)
+6. [Corrected H2–H4 result tables](results/geography_20260924/)
+7. [H1 traitwise replay instructions](docs/REPLAY_H1_FINAL_TRAITWISE_T_20261004.md)
+8. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
+9. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
 
 ## Current baseline
 
@@ -69,6 +70,7 @@ The historical alpha1 database bundle retains its original **8,265-unit** contra
 README.md
 config/chapter1_submission_current.json
 submission/chapter1_current/
+  H1_H4_EVIDENCE_MAP.md
   MANUSCRIPT.md
   FIGURE_CAPTIONS.md
   COVER_LETTER_DRAFT.md
@@ -103,7 +105,7 @@ v13 remains immutable parent provenance beneath v14. Pre-v13 publication branche
 
 ## Claim ceiling
 
-The current submission may claim a positive but regionally heterogeneous global-average island-syndrome direction, conditional decomposition, an independent pollen-limitation gradient, and post-hoc functional compatibility.
+The current submission may claim **self-compatibility increasing with isolation in all four regional traitwise analyses** (also in WCVP regional-native-compatible sensitivity), other **region-dependent floral responses**, conditional decomposition, an independent experimental pollen-limitation gradient, and **post-hoc** functional compatibility. The selected H1 uses **no pooled global syndrome score or formal between-region slope test**; its 28 individual tests are nominal two-sided and unadjusted.
 
 It must not claim:
 
