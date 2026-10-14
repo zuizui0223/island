@@ -163,3 +163,43 @@ def test_pre_corrected_working_documents_are_visibly_historical():
         assert text.startswith("> **HISTORICAL / SUPERSEDED"), path
         assert "config/chapter1_submission_current.json" in text[:700], path
         assert "submission/chapter1_current/MANUSCRIPT.md" in text[:700], path
+
+
+def test_h1_h4_publication_map_uses_current_result_selector_and_claim_boundaries():
+    current = json.loads(CURRENT.read_text(encoding="utf-8"))
+    map_file = ROOT / "submission/chapter1_current/H1_H4_EVIDENCE_MAP.md"
+    sep_audit = ROOT / "docs/chapter1_corrected_submission_20260924.md"
+    package = ROOT / "submission/chapter1_current/PACKAGE_MANIFEST.md"
+    manuscript = ROOT / current["manuscript"]
+
+    evidence_map = map_file.read_text(encoding="utf-8")
+    sep_text = sep_audit.read_text(encoding="utf-8")
+    readme = README.read_text(encoding="utf-8")
+    pipeline = PIPELINE.read_text(encoding="utf-8")
+
+    assert current["final_H1_inference"]["results_directory"] in evidence_map
+    assert current["results_directory"] in evidence_map
+    assert "chapter1_submission_current.json" in evidence_map
+    assert "four regions" in evidence_map
+    assert "no global pooled H1 score" in evidence_map
+    assert "post-hoc functional triangulation" in evidence_map
+    assert "not causal mediation" in evidence_map
+    for name in (
+        "H1 — Traitwise island responses",
+        "H2 — Conditional floral response",
+        "H3 — Independent ecological pressure",
+        "H4 — Functional compatibility",
+    ):
+        assert name in evidence_map
+
+    assert "H1_H4_EVIDENCE_MAP.md" in readme
+    assert "H1_H4_EVIDENCE_MAP.md" in pipeline
+    assert "H1_H4_EVIDENCE_MAP.md" in package.read_text(encoding="utf-8")
+    assert "global-average island-syndrome direction" not in readme
+
+    assert manuscript.exists()
+    assert "### H1:" in manuscript.read_text(encoding="utf-8")
+    assert "### H4:" in manuscript.read_text(encoding="utf-8")
+    assert "superseded" in sep_text.lower()
+    assert "../results/h1_final_traitwise_t_20261004/README.md" in sep_text
+    assert "../results/h1_traitwise_20261004/README.md" not in sep_text

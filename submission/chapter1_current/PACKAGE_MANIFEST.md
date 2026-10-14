@@ -3,6 +3,10 @@
 > **Active scientific surface: corrected geography + final traitwise H1 (4 October 2026).**  
 > Pooled/domain H1 scores are superseded provenance.
 
+## Editorial map (not a journal upload)
+
+[H1–H4 evidence map](H1_H4_EVIDENCE_MAP.md) fixes the reading order, regional-atomic claim boundary and source links without altering the selected scientific results. It is an **editorial navigation document**, not a replacement for the manuscript, supplementary information, a result lock or the journal file set.
+
 ## Active files
 
 - submission/chapter1_current/MANUSCRIPT.md

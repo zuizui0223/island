@@ -133,8 +133,13 @@ def test_ecology_letters_supporting_submission_files_exist() -> None:
     assert "Global Ecology and Biogeography" in target
 
     novelty = NOVELTY.read_text(encoding="utf-8")
-    assert "constraint" in novelty.lower()
-    assert "historical pollen limitation" in novelty
+    for concept in (
+        "self-compatibility",
+        "floral phenotype",
+        "pollen limitation",
+        "historical pollen limitation",
+    ):
+        assert concept in novelty.lower()
 
     data_access = DATA_ACCESS.read_text(encoding="utf-8")
     assert "cannot be redistributed wholesale" in data_access
@@ -223,8 +228,10 @@ def test_ecology_letters_reference_list_and_glopl_data_citation() -> None:
         for line in refs.splitlines()
         if line.strip() and line[0].isalpha() and "(" in line and ")." in line
     ]
-    assert len(entries) == 18
-    assert "**References:** 18" in title_page
+    # References expanded after the October prior-art audit. Require a
+    # substantive bibliography and keep its stated count synchronized.
+    assert len(entries) >= 18
+    assert f"**References:** {len(entries)}" in title_page
     assert "Bennett et al. 2018a,b" in manuscript
     assert "10.5061/dryad.dt437" in refs
     assert "Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018a)." in refs
