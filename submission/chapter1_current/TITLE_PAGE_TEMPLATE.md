@@ -2,9 +2,9 @@
 
 **Article type:** Letter
 
-**Title:** Island isolation is associated with recurrent reproductive assurance but regionally contingent floral change
+**Title:** Do pollen-supply constraints underlie floral island syndromes?
 
-**Running title:** Recurrent function, contingent flowers
+**Running title:** Pollen limitation and island flowers
 
 **Authors:**  
 [AUTHOR 1]  
@@ -26,13 +26,13 @@
 
 **Keywords:** island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; functional island biogeography; pollination
 
-**Abstract word count:** 147 [final journal count to verify; must remain <=150]
+**Abstract word count:** 133 [working Markdown word count; final journal count to verify; must remain <=150]
 
-**Main-text word count:** 4,947 [repository Markdown count; final journal count to verify; must remain <=5,000]
+**Main-text word count:** 4,658 [working whitespace count including headings; final journal count to verify; must remain <=5,000]
 
 **References:** 24
 
-**Figures:** 6
+**Figures:** 6 [existing source display set; **proposed five Main figures not rendered**]
 
 **Tables:** 0
 
