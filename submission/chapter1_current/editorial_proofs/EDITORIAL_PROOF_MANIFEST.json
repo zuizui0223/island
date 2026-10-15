@@ -1,0 +1,49 @@
+{
+  "contract": "chapter1_q1_main_si_editorial_composition_v1",
+  "status": "EDITORIAL_PROOF_NOT_SUBMISSION_READY",
+  "scope": "layout_proof_only_no_numerical_reanalysis",
+  "main": {
+    "docx": "Q1_Main_EDIT_PROOF.docx",
+    "docx_sha256": "7bff2fdbe30c4f289fccc76e87e2fcd3e99ab1782241f18146f1debf22bab9cb",
+    "pdf": "Q1_Main_EDIT_PROOF.pdf",
+    "pdf_sha256": "a9d54c81e64cc84ec2632e026370c39a71dc5db004dae58147a53efd7f329197",
+    "pdf_pages": 23
+  },
+  "si": {
+    "docx": "Q1_SI_EDIT_PROOF.docx",
+    "docx_sha256": "460ea27d9ff6ee6412c8bda4b0ba858a2e5d69de464572dac6c0540cd2e470d8",
+    "pdf": "Q1_SI_EDIT_PROOF.pdf",
+    "pdf_sha256": "a75e50305ce2719f078ecfaeeebe5e9bb85b6096bdb029543eb919f76d1259e4",
+    "pdf_pages": 14
+  },
+  "main_plus_figures": {
+    "file": "Q1_Main_plus_5_figures_REVIEW.pdf",
+    "pages": 28,
+    "sha256": "1984e039c4d9629e4630fdad09005a8730d24a52d607d03b6f547f9bf1144903",
+    "figure_pages": 5
+  },
+  "si_plus_figures": {
+    "file": "Q1_SI_plus_7_figures_REVIEW.pdf",
+    "pages": 21,
+    "sha256": "2dc2d6e14a1bde4dedd066262794489701fa9b0a6e64625af4581f322a411d2c",
+    "figure_pages": 7
+  },
+  "supplement_figures_only": "Q1_Seven_SI_figures_A4.pdf",
+  "source_sha256": {
+    "MANUSCRIPT.md": "3842e1a98e6f7501c808b046e3386c8f2295161e50b825f7f8259ad95365ae16",
+    "SUPPLEMENTARY_INFORMATION.md": "9fec680f91ee76aaa3a266b1db65d0b51c7088def57132d009d175217ee2fd03",
+    "FIGURE_CAPTIONS.md": "048486f041b77b3c043ca682e8ce0c29713286f79a49632a4fb294717a737efb",
+    "TITLE_PAGE_TEMPLATE.md": "54ac3f65e58ec747602fb52e303a2fbd16dc23ab2ccaf7d674a4f8448883b2ff"
+  },
+  "author_approval": false,
+  "trait_redistribution_rights_cleared": false,
+  "final_release_doi_minted": false,
+  "submission_authorized": false,
+  "source_audit": {
+    "original_main_body_words": 4673,
+    "original_main_text_chars": 42139,
+    "original_si_chars": 24836,
+    "main_figure_captions": 5,
+    "historical_causal_mediation_claimed": false
+  }
+}
