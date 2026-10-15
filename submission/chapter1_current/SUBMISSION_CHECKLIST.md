@@ -10,6 +10,7 @@
 - [x] Assemble five-page A4 proof at 178-mm figure width, inspect all five pages, restore region-color legend and enforce 6.5-pt minimum text
 - [x] Generate **editorial-only** Main/SI DOCX and PDFs (23 Main text pages + 14 SI text pages), including five Main figures and seven SI figures in separate joined review PDFs
 - [x] Check all 37 Main/SI text pages: readable contact-sheet tiles, no blank pages or out-of-page text boxes, 4,675-word scientific Main source count
+- [x] Render both DOCX files through LibreOffice: Main 19 portrait pages and SI 12 landscape pages, nine SI tables repaired, all 31 Word-derived pages bounded and visually inspected
 - [ ] Inspect figures within the **actual target-journal-composed Main/SI** after author/data approvals; the existing A4 editorial proof is not final journal production
 - [ ] Validate the final five-figure PDF assets and journal-ready main/SI word limits after export
 

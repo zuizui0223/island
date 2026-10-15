@@ -47,8 +47,8 @@ The GitHub-reviewed [editing-only proof directory](editorial_proofs/) contains:
 - `Q1_Main_plus_5_figures_REVIEW.pdf` (28 pages; the five figures follow the text);
 - `Q1_SI_EDIT_PROOF.docx` and `Q1_SI_EDIT_PROOF.pdf` (14 SI text pages, Tables/S0–S7);
 - `Q1_SI_plus_7_figures_REVIEW.pdf` (21 pages; seven existing supplementary figure pages);
-- `EDITORIAL_PROOF_MANIFEST.json` with source SHA-256 hashes and fail-closed author/rights/DOI statuses;
-- `Q1_MAIN_PAGES_AUDIT.json`, `Q1_SI_PAGES_AUDIT.json`, and seven inspection contact tiles, covering all **37 text pages**.
+- `EDITORIAL_PROOF_MANIFEST.json` with source SHA-256 hashes, an audit of nine A4-landscape SI Word tables, and fail-closed author/rights/DOI statuses;
+- `Q1_MAIN_PAGES_AUDIT.json`, `Q1_SI_PAGES_AUDIT.json`, and seven inspection contact tiles covering all **37 portrait text-PDF pages**, plus `docx_qa/` containing LibreOffice-rendered Main (19 portrait pages) and SI (12 landscape pages), all Word-derived pages validated and inspected.
 
 The [editorial proof QA record](EDITORIAL_PROOF_QA_20261015.md) describes the verification boundaries. These files are **not** journal typeset or submission-authorized. Neither a full third-party trait ledger nor a claim of rights clearance is included.
 

@@ -25,6 +25,13 @@ Full checksum inventory: [EDIT_PROOF manifest](editorial_proofs/EDITORIAL_PROOF_
 
 ## Not verified and not authorized
 
-This is an **editorial layout proof** that still has author placeholders, not the final Ecology Letters submission package. The Word documents have passed format/ZIP checks; the PDF/contact-tile rendering is derived independently from the same Markdown source, so it does **not** assert that the Office-rendered DOCX has been visually audited page by page. Final journal typesetting, final author/affiliation/contribution declarations, legal clearance for the 176,414 restricted/review-required trait cells (or written editorial exception), and the final code/results DOI remain unconfirmed.
+This is an **editorial layout proof** that still has author placeholders, not the final Ecology Letters submission package. The Word documents passed format/ZIP checks **and were separately rendered through LibreOffice for page-level inspection** (19 Main portrait pages and 12 SI landscape pages). Their text-page boundary checks passed. The WeasyPrint PDFs remain an independently generated editorial layout, not a claim that the Word and PDF engines paginate identically. Final journal typesetting, final author/affiliation/contribution declarations, legal clearance for the 176,414 restricted/review-required trait cells (or written editorial exception), and the final code/results DOI remain unconfirmed.
 
 The pre-submission data-policy inquiry is prepared in `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` but **no editorial permission or sent response has been documented**. Do not promote the PR or submit before the external gates are closed.
+
+## Word-native table repair and independent rendering
+
+- `Q1_SI_EDIT_PROOF.docx` is now A4 **landscape** (297 × 210 mm), with 15-mm side margins, fixed width for **9** tables, 7.5–8.2 pt table-cell fonts, repeating header rows and no row splits. This changes only editable Word layout, **not** `SUPPLEMENTARY_INFORMATION.md` or the PDF's source estimates.
+- `Q1_Main_EDIT_PROOF.docx` remains portrait. In LibreOffice, Main is **19** pages and SI is **12** pages, compared with 23 and 14 pages in the independently composed portrait WeasyPrint text PDFs. The page-count differences reflect layout engines and paper orientation.
+- Word-native renderings, audit JSONs and every-page contact tiles: [docx_qa](editorial_proofs/docx_qa/), including `Q1_MAIN_PAGES_AUDIT.json` and `Q1_SI_PAGES_AUDIT.json`. All **31** Word-rendered pages passed nonempty-text and page-boundary checks. All tiles were visually inspected; the earlier narrow-cell line breaking in SI tables is substantially resolved.
+- A CI test now requires an SI landscape page declaration, at least nine Word tables and bounded Main/SI Word-rendered pages. These are editorial checks only; final journal production is not authorized.
