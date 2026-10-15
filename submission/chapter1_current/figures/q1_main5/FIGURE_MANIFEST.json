@@ -1,0 +1,47 @@
+{
+  "contract": "chapter1_q1_five_main_figures_v1",
+  "source_surface": "chapter1_submission_current_corrected_geography_final_traitwise",
+  "inferential_boundary": "observational_three_stage_not_historical_mediation",
+  "figures": [
+    {
+      "figure": 1,
+      "stem": "Q1_Fig1_distinct_data_streams",
+      "svg": "Q1_Fig1_distinct_data_streams.svg",
+      "svg_bytes": 1552225,
+      "pdf": "Q1_Fig1_distinct_data_streams.pdf",
+      "pdf_bytes": 187137
+    },
+    {
+      "figure": 2,
+      "stem": "Q1_Fig2_pollen_limitation_gradient",
+      "svg": "Q1_Fig2_pollen_limitation_gradient.svg",
+      "svg_bytes": 60639,
+      "pdf": "Q1_Fig2_pollen_limitation_gradient.pdf",
+      "pdf_bytes": 20619
+    },
+    {
+      "figure": 3,
+      "stem": "Q1_Fig3_seven_atomic_trait_responses",
+      "svg": "Q1_Fig3_seven_atomic_trait_responses.svg",
+      "svg_bytes": 137015,
+      "pdf": "Q1_Fig3_seven_atomic_trait_responses.pdf",
+      "pdf_bytes": 32905
+    },
+    {
+      "figure": 4,
+      "stem": "Q1_Fig4_selfing_adjusted_floral_response",
+      "svg": "Q1_Fig4_selfing_adjusted_floral_response.svg",
+      "svg_bytes": 97699,
+      "pdf": "Q1_Fig4_selfing_adjusted_floral_response.pdf",
+      "pdf_bytes": 25666
+    },
+    {
+      "figure": 5,
+      "stem": "Q1_Fig5_posthoc_functional_compatibility",
+      "svg": "Q1_Fig5_posthoc_functional_compatibility.svg",
+      "svg_bytes": 87655,
+      "pdf": "Q1_Fig5_posthoc_functional_compatibility.pdf",
+      "pdf_bytes": 23465
+    }
+  ]
+}
