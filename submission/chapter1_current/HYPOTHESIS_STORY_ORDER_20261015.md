@@ -1,5 +1,7 @@
 # Chapter 1: H1.1–H1.3 と H2.1–H2.3 に再編する案（2026-10-15）
 
+**読み手向けの6問別・実証結果・限界の一覧は [SIX_QUESTIONS_READER_GUIDE_20261015.md](SIX_QUESTIONS_READER_GUIDE_20261015.md) に掲載。**
+
 **暫定採用する論文編集案。** 旧H1→旧H2→旧H3→旧H4の順序変更案を置き換え、H1を「隔離と3つの応答」、H2を「その3応答の相互関係」とする。**統計的な旧H1–H4の解析ID、凍結済みデータ、図表番号、検定の事前／事後の地位はまだ変更しない。** 実装済みの [現行原稿](MANUSCRIPT.md)、[証拠地図](H1_H4_EVIDENCE_MAP.md)、[科学的な選択契約](../../config/chapter1_submission_current.json)が数値の基準である。
 
 補助文書： [izu-core：Ch1 H1/H2の6関係とCh2 Q1–Q4の対応](https://github.com/zuizui0223/izu-core/blob/codex/ch1-fourquestion-integration-20261015/docs/CHAPTER1_H1_H2_SIX_EDGE_STORY_20261015.md)（Ch2自体のQ番号は変えない）。
