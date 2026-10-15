@@ -569,6 +569,233 @@ def build_manifest(out: Path) -> None:
     )
 
 
+
+# ---- Q1-only five-figure submission display set (2026-10-15) ----
+# Original six source figures remain replayable via the default CLI path.
+# Do not reuse the source Figure numbers as Q1 Main figure numbers.
+
+Q1_FIGURE_STEMS = {
+    1: "Q1_Fig1_distinct_data_streams",
+    2: "Q1_Fig2_pollen_limitation_gradient",
+    3: "Q1_Fig3_seven_atomic_trait_responses",
+    4: "Q1_Fig4_selfing_adjusted_floral_response",
+    5: "Q1_Fig5_posthoc_functional_compatibility",
+}
+
+
+def q1_figure1(root: Path, out: Path) -> None:
+    """Show two independent geographies and a *hypothesized*, unfit causal edge."""
+    cov = pd.read_csv(root / "results/geography_20260924/corrected_geography_covariates.csv")
+    glopl = pd.read_csv(root / "results/geography_20260924/glopl_corrected_site_distances.csv")
+    lat, lon = _coord_columns(cov)
+    fig = plt.figure(figsize=(12.5, 8.0))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1.1, 0.9])
+    ax_island = fig.add_subplot(gs[0, 0])
+    for region in REGIONS:
+        part = cov.loc[cov["analysis_regime"].astype(str).eq(region)]
+        ax_island.scatter(part[lon], part[lat], s=4, alpha=0.55, label=REGION_LABELS[region])
+    ax_island.set(title="A | Island geography (plant data)", xlim=(-180, 180),
+                  ylim=(-90, 90), xlabel="Longitude", ylabel="Latitude")
+    ax_island.legend(frameon=False, fontsize=7, loc="lower left", ncol=2)
+    ax_island.grid(alpha=0.2, linewidth=0.4)
+
+    ax_glopl = fig.add_subplot(gs[0, 1])
+    continent = glopl["on_seeded_continent"].astype(str).str.lower().isin({"true", "1"})
+    for mask, name in [(continent, "Continental"), (~continent, "Non-continental")]:
+        ax_glopl.scatter(glopl.loc[mask, "longitude"], glopl.loc[mask, "latitude"],
+                         s=8, alpha=0.5, label=name)
+    ax_glopl.set(title="B | GloPL geography (published experiments)", xlim=(-180, 180),
+                 ylim=(-90, 90), xlabel="Longitude", ylabel="Latitude")
+    ax_glopl.legend(frameon=False, fontsize=8)
+    ax_glopl.grid(alpha=0.2, linewidth=0.4)
+
+    ax_counts = fig.add_subplot(gs[1, 0])
+    ax_counts.axis("off")
+    ax_counts.text(0.04, 0.98, "C | Non-paired evidence streams",
+                   va="top", fontsize=12, fontweight="bold", transform=ax_counts.transAxes)
+    ax_counts.text(
+        0.04, 0.87,
+        "Island observations\n"
+        "8,264 corrected island units\n"
+        "4,379 broad-H1 sampled islands\n"
+        "106,295 accepted species in trait universe\n"
+        "222,688 / 318,885 resolved trait-axis cells (69.83%)\n\n"
+        "GloPL (separate published experiment data)\n"
+        "2,969 experimental rows | 1,248 sites\n"
+        "919 publication clusters | 996 true mainland zeros\n\n"
+        "H4: exact-species overlap only (455 or 143 species)",
+        va="top", fontsize=9.5, linespacing=1.4, transform=ax_counts.transAxes
+    )
+
+    ax_model = fig.add_subplot(gs[1, 1])
+    ax_model.axis("off")
+    ax_model.set(xlim=(0, 1), ylim=(0, 1))
+    _box(ax_model, 0.32, 0.79, 0.36, 0.13, "Geographic isolation", "measured separately")
+    _box(ax_model, 0.03, 0.30, 0.43, 0.22, "Reproductive / floral states",
+         "observed island assemblages\nH1 + conditional H2")
+    _box(ax_model, 0.55, 0.30, 0.42, 0.22, "Current pollen limitation",
+         "GloPL pollen addition\nH3; matched H4")
+    for source, target in [((0.40, 0.79), (0.24, 0.52)),
+                           ((0.60, 0.79), (0.76, 0.52))]:
+        ax_model.annotate("", xy=target, xytext=source,
+                          arrowprops={"arrowstyle": "->", "lw": 1.5})
+    ax_model.annotate("", xy=(0.55, 0.41), xytext=(0.46, 0.41),
+                      arrowprops={"arrowstyle": "<->", "lw": 1.3})
+    ax_model.annotate("", xy=(0.22, 0.26), xytext=(0.78, 0.26),
+                      arrowprops={"arrowstyle": "->", "linestyle": "--", "lw": 1.2})
+    ax_model.text(0.50, 0.15, "Dashed historical causation is UNTESTED.",
+                  ha="center", fontsize=9, fontweight="bold")
+    ax_model.text(0.50, 0.06, "Solid links denote fitted associations, not a single SEM.",
+                  ha="center", fontsize=8.5)
+
+    fig.suptitle("Figure 1 | Study design: independent island-trait and pollen-addition data",
+                 y=0.99, fontsize=13)
+    fig.tight_layout()
+    _save(fig, out, Q1_FIGURE_STEMS[1])
+
+
+def q1_figure2(root: Path, out: Path) -> None:
+    """Coefficient display avoids inventing a pooled fitted curve from unmatched sites."""
+    h3 = pd.read_csv(
+        root / "submission/chapter1_current/supplement/Table_S5_H3_pollen_limitation.csv"
+    ).set_index("analysis")
+    order = ["primary", "no_zero_constant", "supplemental_only"]
+    labels = ["Primary", "Exclude zero-constant", "Supplemental-only"]
+    work = h3.loc[order]
+    b = work["estimate"].to_numpy(float)
+    se = work["se"].to_numpy(float)
+    n_pubs = work["n_publications"].to_numpy(int)
+    halfwidth = student_t.ppf(0.975, df=n_pubs - 1) * se
+    fig, ax = plt.subplots(figsize=(9.2, 4.9))
+    y = np.arange(len(order))
+    ax.errorbar(b, y, xerr=halfwidth, fmt="o", capsize=4, markersize=7)
+    ax.axvline(0, color="black", linewidth=0.8, alpha=0.8)
+    ax.set_yticks(y, [f"{name} (n={n:,} studies)" for name, n in zip(labels, n_pubs, strict=True)])
+    ax.invert_yaxis()
+    for yi, be, p in zip(y, b, work["finite_publication_t_two_sided_p"].to_numpy(float), strict=True):
+        ax.annotate(f"beta={be:+.3f}, p={p:.3f}", xy=(be, yi),
+                    xytext=(8, -13), textcoords="offset points", fontsize=8)
+    ax.set(xlabel="Standardized isolation coefficient in GloPL log response ratio",
+           title="Figure 2 | Isolation and experimental pollen limitation")
+    ax.grid(axis="x", linewidth=0.4, alpha=0.3)
+    fig.text(0.09, 0.02,
+             "Pointwise 95% t intervals by publication count. Measurement-sensitive;\n"
+             "published pollen additions do not measure historical pollinator decline.",
+             fontsize=9)
+    fig.tight_layout(rect=(0, 0.11, 1, 1))
+    _save(fig, out, Q1_FIGURE_STEMS[2])
+
+
+def q1_figure3(root: Path, out: Path) -> None:
+    """Reuse the frozen H1 seven-atomic estimate artwork byte-for-byte."""
+    src = root / "results/h1_final_traitwise_t_20261004"
+    out.mkdir(parents=True, exist_ok=True)
+    for ext in ("svg", "pdf"):
+        shutil.copyfile(src / f"traitwise_H1.{ext}",
+                        out / f"{Q1_FIGURE_STEMS[3]}.{ext}")
+
+
+def q1_figure4(root: Path, out: Path) -> None:
+    """Model-specific panels: H2 selfing OLS, access OLS and plain colour logit."""
+    h2 = pd.read_csv(
+        root / "submission/chapter1_current/supplement/Table_S3a_H2_all_finite_cluster.csv"
+    ).copy()
+    rows = [
+        ("selfing_core", "A | Selfing core\n(OLS)"),
+        ("generalized_accessible", "B | Accessible architecture\n(OLS; adjusted for selfing)"),
+        ("plain_colour", "C | Plain colour\n(logit; adjusted for selfing)"),
+    ]
+    fig, axes = plt.subplots(1, 3, figsize=(14, 5), sharey=True)
+    y = np.arange(4)
+    for ax, (response, label) in zip(axes, rows, strict=True):
+        part = h2.loc[h2["response"].eq(response)].set_index("context").loc[REGIONS]
+        estimates = part["distance_estimate"].to_numpy(float)
+        se = part["distance_se"].to_numpy(float)
+        clusters = part["n_clusters"].to_numpy(int)
+        half = student_t.ppf(0.975, df=clusters - 1) * se
+        ax.errorbar(estimates, y, xerr=half, fmt="o", capsize=3)
+        ax.axvline(0, color="black", linewidth=0.8)
+        ax.grid(axis="x", alpha=0.25)
+        ax.set_title(label)
+        ax.set_xlabel("Isolation coefficient")
+        if response == "generalized_accessible":
+            for yi, q in zip(y, part["primary_H2b_q_finite_cluster_t"].to_numpy(float), strict=True):
+                ax.annotate(f"q={q:.3g}", (estimates[yi], yi),
+                            xytext=(6, -12), textcoords="offset points", fontsize=8)
+    axes[0].set_yticks(y, [REGION_LABELS[x] for x in REGIONS])
+    axes[0].invert_yaxis()
+    fig.suptitle("Figure 4 | Reproductive assurance versus additional floral associations",
+                 y=1.04, fontsize=13)
+    fig.text(0.02, 0.03,
+             "Distinct response/link scales are NOT directly comparable. H2 BH q only for the prespecified 8-test conditional family.\n"
+             "Current association after selfing adjustment is not causal mediation.",
+             fontsize=8.5)
+    fig.tight_layout(rect=(0, 0.09, 1, 0.99))
+    _save(fig, out, Q1_FIGURE_STEMS[4])
+
+
+def q1_figure5(root: Path, out: Path) -> None:
+    """Plot distinct post-hoc exact-species GloPL matches without pairing them."""
+    h4 = pd.read_csv(
+        root / "submission/chapter1_current/supplement/Table_S6a_H4_scores.csv"
+    ).copy()
+    families = [
+        ("selfing_core", "A | Reproductive assurance"),
+        ("generalized_accessible", "B | Accessible floral architecture"),
+    ]
+    order = ["primary", "no_zero_constant", "supplemental_only"]
+    fig, axes = plt.subplots(1, 2, figsize=(12.8, 4.8), sharex=True)
+    for ax, (syndrome, title) in zip(axes, families, strict=True):
+        part = h4.loc[h4["H2_syndrome"].eq(syndrome)].set_index("analysis").loc[order]
+        estimates = part["estimate"].to_numpy(float)
+        se = part["se"].to_numpy(float)
+        n_pub = part["n_publications"].to_numpy(int)
+        half = student_t.ppf(0.975, df=n_pub - 1) * se
+        yy = np.arange(len(order))
+        ax.errorbar(estimates, yy, xerr=half, fmt="o", capsize=4)
+        ax.axvline(0, color="black", lw=0.8)
+        ax.set_yticks(yy, [f"{label} ({n:,} species)" for label, n in
+                            zip(["Primary", "No-zero constant", "Supplemental-only"],
+                                part["n_species"].to_numpy(int), strict=True)])
+        ax.invert_yaxis()
+        ax.set_xlabel("Trait-score coefficient on current PL")
+        ax.set_title(title)
+        ax.grid(axis="x", alpha=0.25)
+    fig.suptitle("Figure 5 | Exact-species functional compatibility (post-hoc)",
+                 y=1.04, fontsize=13)
+    fig.text(0.05, 0.02,
+             "Two different matching populations (primary n=455 vs 143 species), not paired effects or historical mediation.\n"
+             "95% t intervals based on publication counts; negative slopes indicate lower *current* pollen limitation.",
+             fontsize=9)
+    fig.tight_layout(rect=(0, 0.11, 1, 0.98))
+    _save(fig, out, Q1_FIGURE_STEMS[5])
+
+
+def build_q1_manifest(out: Path) -> None:
+    records = []
+    for number, stem in Q1_FIGURE_STEMS.items():
+        svg, pdf = out / f"{stem}.svg", out / f"{stem}.pdf"
+        if not svg.is_file() or not pdf.is_file():
+            raise FileNotFoundError(f"Missing Q1 Main figure {number}: {svg} / {pdf}")
+        ET.parse(svg)
+        if pdf.stat().st_size < 1000:
+            raise ValueError(f"Suspiciously short Q1 PDF: {pdf}")
+        records.append({
+            "figure": number, "stem": stem,
+            "svg": svg.name, "svg_bytes": svg.stat().st_size,
+            "pdf": pdf.name, "pdf_bytes": pdf.stat().st_size,
+        })
+    (out / "FIGURE_MANIFEST.json").write_text(
+        json.dumps({
+            "contract": "chapter1_q1_five_main_figures_v1",
+            "source_surface": "chapter1_submission_current_corrected_geography_final_traitwise",
+            "inferential_boundary": "observational_three_stage_not_historical_mediation",
+            "figures": records,
+        }, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path("."))
@@ -577,10 +804,19 @@ def main() -> None:
         type=Path,
         default=Path("submission/chapter1_current/figures"),
     )
+    parser.add_argument("--q1-five", action="store_true", help="Render the five Q1 submission figures without changing the six historical source figures.")
     args = parser.parse_args()
     root = args.root.resolve()
     out = (root / args.output_dir).resolve() if not args.output_dir.is_absolute() else args.output_dir
     _style()
+    if args.q1_five:
+        q1_figure1(root, out)
+        q1_figure2(root, out)
+        q1_figure3(root, out)
+        q1_figure4(root, out)
+        q1_figure5(root, out)
+        build_q1_manifest(out)
+        return
     figure1(root, out)
     figure2(root, out)
     figure3(root, out)
