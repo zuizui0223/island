@@ -6,6 +6,7 @@ on:
       - docs/hypothesis-story-order-20261015
     paths:
       - scripts/submission/compose_ch1_editorial_proofs.py
+      - scripts/submission/audit_ch1_proof_pages.py
       - .github/workflows/q1-compose-editorial-proofs.yml
       - submission/chapter1_current/MANUSCRIPT.md
       - submission/chapter1_current/SUPPLEMENTARY_INFORMATION.md
@@ -39,9 +40,9 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq pandoc poppler-utils fonts-dejavu-core
           pip install "pypdf>=5,<7" "weasyprint>=62,<69" "pymupdf>=1.25,<2" "Pillow>=11,<14" "ruff>=0.17,<0.18"
-          ruff check --fix scripts/submission/compose_ch1_editorial_proofs.py
-          ruff check scripts/submission/compose_ch1_editorial_proofs.py
-          python -m py_compile scripts/submission/compose_ch1_editorial_proofs.py
+          ruff check --fix scripts/submission/compose_ch1_editorial_proofs.py scripts/submission/audit_ch1_proof_pages.py
+          ruff check scripts/submission/compose_ch1_editorial_proofs.py scripts/submission/audit_ch1_proof_pages.py
+          python -m py_compile scripts/submission/compose_ch1_editorial_proofs.py scripts/submission/audit_ch1_proof_pages.py
       - name: Compose manuscript, SI, and figure-inclusive editorial proofs
         run: |
           python scripts/submission/compose_ch1_editorial_proofs.py --root . --out submission/chapter1_current/editorial_proofs
@@ -111,12 +112,26 @@ jobs:
           pdftoppm -f 1 -l 1 -r 130 -png -singlefile \
             submission/chapter1_current/editorial_proofs/Q1_SI_EDIT_PROOF.pdf \
             submission/chapter1_current/editorial_proofs/Q1_SI_FIRST_PAGE
+      - name: Audit every text page and create tiled contact sheets
+        run: |
+          python scripts/submission/audit_ch1_proof_pages.py --proof-dir submission/chapter1_current/editorial_proofs
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('submission/chapter1_current/editorial_proofs')
+          for name in ('MAIN','SI'):
+              info=json.loads((root/f'Q1_{name}_PAGES_AUDIT.json').read_text())
+              assert info['every_page_nonempty_and_on_canvas']
+              assert len(info['pages'])==info['total_pages']
+              assert len(info['tiles'])>=2
+              assert all((root/p).is_file() for p in info['tiles'])
+          PY
       - name: Commit editorial proofs to open PR branch
         if: github.event_name == 'push'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add submission/chapter1_current/editorial_proofs/ scripts/submission/compose_ch1_editorial_proofs.py
+          git add submission/chapter1_current/editorial_proofs/ scripts/submission/compose_ch1_editorial_proofs.py scripts/submission/audit_ch1_proof_pages.py
           if git diff --cached --quiet; then
             echo "No editorial proof changes"
           else
