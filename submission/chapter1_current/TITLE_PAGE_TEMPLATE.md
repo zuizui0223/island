@@ -28,7 +28,7 @@
 
 **Abstract word count:** 133 [working Markdown word count; final journal count to verify; must remain <=150]
 
-**Main-text word count:** 4,658 [working whitespace count including headings; final journal count to verify; must remain <=5,000]
+**Main-text word count:** 4,664 [working whitespace count including headings; final journal count to verify; must remain <=5,000]
 
 **References:** 24
 
