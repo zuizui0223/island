@@ -25,7 +25,7 @@ FIGURE_WIDTH_PT = 178 * 72 / 25.4
 SOURCE_ROOT = Path("submission/chapter1_current")
 PROOF_BANNER = (
     '<div class="draft-banner"><strong>EDITORIAL PROOF - NOT FOR SUBMISSION</strong>'
-    "<span>Authorship, rights clearance, DOI and journal production are pending.</span></div>\n"
+    "<span>Authorship, rights clearance, DOI and journal production are pending.</span></div>\n\n"
 )
 CSS_BODY = """
 @page { size: A4; margin: 18mm 19mm 18mm 19mm;
@@ -102,7 +102,11 @@ def compose_markdown(root: Path) -> tuple[str, str, dict[str, object]]:
         raise ValueError("SI is missing its final appendix")
     if re.search(r"\bFigure 6\b", main):
         raise ValueError("Main contains superseded Figure 6 reference")
-    word_count = len(main.split("## Introduction", 1)[1].split("## References", 1)[0].strip().split())
+    start = main.index("## Introduction")
+    stop = main.index("## References", start)
+    word_count = len(main[start:stop].strip().split())
+    if f"**Main-text word count:** {word_count:,} " not in titlepage:
+        raise ValueError("Title-page word count does not match frozen Main heading-inclusive count")
     if not 4500 < word_count <= 5000:
         raise ValueError(f"Unexpected scientific Main count: {word_count}")
     # Put a physical page break before science and before legends; the source files stay unchanged.
@@ -116,6 +120,7 @@ def compose_markdown(root: Path) -> tuple[str, str, dict[str, object]]:
     si_markdown = PROOF_BANNER + si.strip() + "\n"
     return main_markdown, si_markdown, {
         "original_main_body_words": word_count,
+        "word_count_method": "whitespace_split_from_Introduction_heading_to_References_heading",
         "original_main_text_chars": len(main),
         "original_si_chars": len(si),
         "main_figure_captions": 5,
