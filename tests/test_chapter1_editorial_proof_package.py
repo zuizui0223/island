@@ -13,7 +13,6 @@ from zipfile import ZipFile
 
 from pypdf import PdfReader
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "submission/chapter1_current"
 PROOF = SOURCE / "editorial_proofs"
