@@ -126,6 +126,34 @@ jobs:
               assert len(info['tiles'])>=2
               assert all((root/p).is_file() for p in info['tiles'])
           PY
+      - name: Render both generated Word files through LibreOffice
+        run: |
+          if ! command -v libreoffice >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq libreoffice-writer
+          fi
+          mkdir -p submission/chapter1_current/editorial_proofs/docx_qa
+          libreoffice -env:UserInstallation=file:///tmp/ch1_q1_lo_profile \
+            --headless --convert-to pdf \
+            --outdir submission/chapter1_current/editorial_proofs/docx_qa \
+            submission/chapter1_current/editorial_proofs/Q1_Main_EDIT_PROOF.docx \
+            submission/chapter1_current/editorial_proofs/Q1_SI_EDIT_PROOF.docx
+          python scripts/submission/audit_ch1_proof_pages.py \
+            --proof-dir submission/chapter1_current/editorial_proofs/docx_qa
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from pypdf import PdfReader
+          root=Path("submission/chapter1_current/editorial_proofs/docx_qa")
+          for role in ("MAIN","SI"):
+              path=root/f"Q1_{'Main' if role=='MAIN' else 'SI'}_EDIT_PROOF.pdf"
+              report=json.loads((root/f"Q1_{role}_PAGES_AUDIT.json").read_text())
+              assert report["every_page_nonempty_and_on_canvas"]
+              assert len(PdfReader(path).pages)==report["total_pages"]
+              assert len(report["tiles"])>=2
+              assert report["total_pages"]>=2
+              print(role, report["total_pages"], "Word-rendered pages checked")
+          PY
       - name: Commit editorial proofs to open PR branch
         if: github.event_name == 'push'
         run: |
