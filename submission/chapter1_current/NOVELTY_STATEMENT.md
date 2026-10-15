@@ -34,7 +34,7 @@ The H3 **2,969 experiments** come from the **previously published GloPL database
 
 ## Conceptual synthesis
 
-The paper tests how far the presumed **pollen-supply constraint** aligns with globally observed island reproductive and floral composition. The source-H1 seven-trait database and source-H2 selfing-adjusted floral results are the primary plant-science contribution; previously published GloPL provides an independent reproductive-constraint check and a post-hoc functional check. Selfing syndrome, parallel pollinator-facing response and lineage/colonist sorting remain non-identifiable alternative histories.
+The paper tests how far the presumed **pollen-supply constraint** aligns with globally observed island reproductive traits and **floral phenotype**, rather than assuming a universal floral phenotype. The source-H1 seven-trait database and source-H2 selfing-adjusted floral results are the primary plant-science contribution; previously published GloPL provides an independent reproductive-constraint check and a post-hoc functional check. Selfing syndrome, parallel pollinator-facing response and lineage/colonist sorting remain non-identifiable alternative histories.
 
 ## Claim boundary
 
