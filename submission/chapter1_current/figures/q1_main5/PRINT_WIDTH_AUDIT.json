@@ -2,16 +2,16 @@
   "contract": "chapter1_q1_print_width_text_audit_v1",
   "target_width_mm": 178,
   "scaling_assumption": "uniform scaling to 178 mm; Matplotlib text path sizes",
-  "minimum_effective_text_pt": 7.457,
+  "minimum_effective_text_pt": 7.159,
   "all_pass": true,
   "figures": [
     {
       "filename": "Q1_Fig1_distinct_data_streams.svg",
       "native_width_pt": 507.479453,
       "print_width_mm": 178,
-      "text_label_count": 43,
-      "min_native_text_pt": 7.5,
-      "min_effective_text_pt": 7.457,
+      "text_label_count": 47,
+      "min_native_text_pt": 7.2,
+      "min_effective_text_pt": 7.159,
       "threshold_pt": 6.5,
       "pass": true
     },

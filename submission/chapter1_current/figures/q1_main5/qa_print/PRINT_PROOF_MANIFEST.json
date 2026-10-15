@@ -1,0 +1,67 @@
+{
+  "contract": "chapter1_q1_a4_print_width_proof_v1",
+  "status": "visual_layout_proof_not_final_journal_composition",
+  "a4_size_mm": [
+    210,
+    297
+  ],
+  "figure_width_mm": 178,
+  "proof_pdf": "Q1_Main5_178mm_A4_print_proof.pdf",
+  "figures": [
+    {
+      "figure": 1,
+      "source_pdf": "Q1_Fig1_distinct_data_streams.pdf",
+      "native_pdf_width_pt": 507.497,
+      "native_pdf_height_pt": 523.224,
+      "print_width_mm": 178,
+      "print_height_mm": 183.52,
+      "a4_left_margin_mm": 16.0,
+      "a4_bottom_margin_mm": 56.74,
+      "fits_a4_at_print_width": true
+    },
+    {
+      "figure": 2,
+      "source_pdf": "Q1_Fig2_pollen_limitation_gradient.pdf",
+      "native_pdf_width_pt": 495.914,
+      "native_pdf_height_pt": 262.881,
+      "print_width_mm": 178,
+      "print_height_mm": 94.36,
+      "a4_left_margin_mm": 16.0,
+      "a4_bottom_margin_mm": 101.32,
+      "fits_a4_at_print_width": true
+    },
+    {
+      "figure": 3,
+      "source_pdf": "Q1_Fig3_seven_atomic_trait_responses.pdf",
+      "native_pdf_width_pt": 500.094,
+      "native_pdf_height_pt": 676.731,
+      "print_width_mm": 178,
+      "print_height_mm": 240.87,
+      "a4_left_margin_mm": 16.0,
+      "a4_bottom_margin_mm": 28.06,
+      "fits_a4_at_print_width": true
+    },
+    {
+      "figure": 4,
+      "source_pdf": "Q1_Fig4_selfing_adjusted_floral_response.pdf",
+      "native_pdf_width_pt": 496.764,
+      "native_pdf_height_pt": 526.364,
+      "print_width_mm": 178,
+      "print_height_mm": 188.61,
+      "a4_left_margin_mm": 16.0,
+      "a4_bottom_margin_mm": 54.2,
+      "fits_a4_at_print_width": true
+    },
+    {
+      "figure": 5,
+      "source_pdf": "Q1_Fig5_posthoc_functional_compatibility.pdf",
+      "native_pdf_width_pt": 495.711,
+      "native_pdf_height_pt": 397.783,
+      "print_width_mm": 178,
+      "print_height_mm": 142.84,
+      "a4_left_margin_mm": 16.0,
+      "a4_bottom_margin_mm": 77.08,
+      "fits_a4_at_print_width": true
+    }
+  ]
+}
