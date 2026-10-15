@@ -2,16 +2,22 @@
 
 ## Scientific package
 
+- [x] Q1-only Ch1 empirical scope fixed; Ch2/Q2 mechanism model excluded as a separate `izu-core` paper
+- [x] Working Main reorganized into constraint → plant patterns plus original H2 → post-hoc functional consistency
+- [x] SI source-ID-to-reader-stage crosswalk and five-figure migration plan added
+- [ ] Regenerate proposed five Main figures, move excess technical panels to SI, and synchronize all captions and numerical figure citations
+- [ ] Validate the final five-figure PDF assets and journal-ready main/SI word limits after export
+
 - [x] Corrected 8,264-island geography baseline fixed
-- [x] H1–H4 source/claim/figure route reconciled in `H1_H4_EVIDENCE_MAP.md` (editorial only)
+- [x] H1–H4 frozen source/claim route preserved; working reader-facing structure is the three-stage empirical Q1 paper
 - [x] Final H1 uses seven separate traits; no pooled/domain score
 - [x] All 112 H1 fits converged
 - [x] Broad All primary, Direct-only evidence sensitivity and WCVP regional-native-compatible origin sensitivity synchronized
 - [x] H2 conditional decomposition synchronized
 - [x] H3 corrected GloPL estimate and offshore-gradient robustness integrated
 - [x] H4 exact-score and atomic estimates integrated
-- [x] Manuscript rewritten around recurrent reproductive function and regionally contingent floral phenotype
-- [x] Figure captions synchronized to traitwise H1
+- [x] Previous manuscript baseline retained in Git history; new working manuscript reframed around the pollen-supply-constraint hypothesis
+- [x] **Existing six source figure captions** synchronized to frozen traitwise H1 (five-figure migration pending)
 - [x] Ecology Letters cover letter and novelty statement synchronized
 - [x] Thesis positioning synchronized
 - [x] Historic H1–H5, pooled-composite H1 and October post-hoc regional hinge/genus findings kept outside the active submission claims
