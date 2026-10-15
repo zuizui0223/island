@@ -41,7 +41,8 @@ h3 {font-size: 10pt; margin: 0.82em 0 0.35em;}
 h4 {font-size: 9.4pt; margin: 0.65em 0 0.28em;}
 ol, ul {padding-left: 1.45em; margin: 0.25em 0 0.6em;}
 li {margin-bottom: 0.15em;}
-table {width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0.65em 0 0.85em;}
+table {width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0.65em 0 0.85em; break-inside: avoid; page-break-inside: avoid;}
+thead {display: table-header-group;}
 td, th {border: 0.55px solid #b8c2ca; padding: 0.26em 0.33em;
   vertical-align: top; overflow-wrap: anywhere; font-size: 8pt;}
 th {background: #f0f3f6; font-weight: bold;}
