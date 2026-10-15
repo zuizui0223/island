@@ -6,9 +6,9 @@ Checked: 8 October 2026 (journal data policy rechecked; scientific H1 baseline r
 
 The paper is not presented as a larger island-trait survey and no longer relies on a pooled floral-syndrome score. The central argument is:
 
-> **Island isolation is associated with recurrent reproductive assurance but not a universal floral phenotype; the same geographic gradient is independently associated with stronger pollen limitation.**
+> **We test the proposed pollen-supply constraint against independent pollen-addition experiments and the global island reproductive/floral trait database; functional compatibility is observable, but historical pollinator-loss-to-flower mediation remains unmeasured.**
 
-The conceptual advance is **functional recurrence without phenotypic uniformity**:
+The conceptual advance is **testing the constraint behind the proposed syndrome, while separating measured ecological associations from unproven historical causes**:
 
 1. self-compatibility is the most geographically recurrent individual response to isolation;
 2. other reproductive, colour and structural traits vary among regions;
@@ -38,7 +38,7 @@ Official journal instructions remain the authority at submission.
 - Text boxes: **0**
 - Main text: **4,947 / 5,000 words** by repository Markdown count
 - Abstract: **147 / 150 words**
-- Running-title candidate: **Recurrent function, contingent flowers**
+- Running-title candidate: **Pollen limitation and island flowers**
 - Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; functional island biogeography; pollination
 
 ## Data-policy submission gate
@@ -49,7 +49,7 @@ A pre-submission inquiry is drafted in ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md. D
 
 ## Editorial positioning
 
-Lead with the ecological problem, not database size:
+Lead with the ecological constraint as a testable reproductive endpoint, not as a measured history of declining pollinators:
 
 > Repeated island constraints need not produce a single phenotype. The question is which reproductive functions recur with isolation and whether that same gradient carries an independently measured reproductive constraint.
 
@@ -70,3 +70,7 @@ The desk-rejection risk is being read as a descriptive global correlation study.
 ## Fallback
 
 If the Ecology Letters data-policy gate cannot be closed, switch to *Global Ecology and Biogeography* before submission and regenerate the fallback material from the same traitwise H1 surface.
+
+## Q1-only revision in progress (15 October)
+
+Working manuscript and SI now use source H3 → H1+H2 → H4 as a **reader sequence** and keep the source inferential identities. The current six figure files and captions have not yet been migrated to the [proposed five Main figures](CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md); do not call the new layout submission-ready. The independent `izu-core` Ch2/Q2 modelling paper is out of scope.
