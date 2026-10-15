@@ -91,11 +91,12 @@ def test_word_si_tables_use_landscape_layout_and_do_not_break_letters() -> None:
     assert len(root.findall(".//w:tbl", ns)) >= 9
     sizes = root.findall(".//w:sectPr/w:pgSz", ns)
     assert sizes
+    uri = ns["w"]
     for size in sizes:
-        width = int(size.attrib["{%s}w" % ns["w"]])
-        height = int(size.attrib["{%s}h" % ns["w"]])
+        width = int(size.attrib[f"{{{uri}}}w"])
+        height = int(size.attrib[f"{{{uri}}}h"])
         assert width > height
-        assert size.attrib.get("{%s}orient" % ns["w"]) == "landscape"
+        assert size.attrib.get(f"{{{uri}}}orient") == "landscape"
 
 
 def test_libreoffice_word_rendered_main_si_pages_are_bounded() -> None:
