@@ -674,7 +674,8 @@ def q1_figure2(root: Path, out: Path) -> None:
     ax.invert_yaxis()
     for yi, be, p in zip(y, b, work["finite_publication_t_two_sided_p"].to_numpy(float), strict=True):
         ax.annotate(f"beta={be:+.3f}, p={p:.3f}", xy=(be, yi),
-                    xytext=(8, -13), textcoords="offset points", fontsize=8)
+                    xytext=(8, 11 if yi == len(y) - 1 else -13),
+                    textcoords="offset points", fontsize=8)
     ax.set(xlabel="Standardized isolation coefficient in GloPL log response ratio",
            title="Figure 2 | Isolation and experimental pollen limitation")
     ax.grid(axis="x", linewidth=0.4, alpha=0.3)
@@ -721,7 +722,8 @@ def q1_figure4(root: Path, out: Path) -> None:
         if response == "generalized_accessible":
             for yi, q in zip(y, part["primary_H2b_q_finite_cluster_t"].to_numpy(float), strict=True):
                 ax.annotate(f"q={q:.3g}", (estimates[yi], yi),
-                            xytext=(6, -12), textcoords="offset points", fontsize=8)
+                            xytext=(6, 11 if yi == len(y) - 1 else -12),
+                            textcoords="offset points", fontsize=8)
     axes[0].set_yticks(y, [REGION_LABELS[x] for x in REGIONS])
     axes[0].invert_yaxis()
     fig.suptitle("Figure 4 | Reproductive assurance versus additional floral associations",
