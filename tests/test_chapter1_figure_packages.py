@@ -69,6 +69,20 @@ def test_supplement_figure_package_is_complete() -> None:
         assert pdf.name in names
 
 
-def test_main_caption_count_matches_six_figure_manifest() -> None:
+def test_current_q1_five_main_figures_and_source_six_replay() -> None:
+    current = MAIN / "q1_main5"
+    current_manifest = json.loads((current / "FIGURE_MANIFEST.json").read_text(encoding="utf-8"))
+    assert current_manifest["contract"] == "chapter1_q1_five_main_figures_v1"
+    assert [item["figure"] for item in current_manifest["figures"]] == [1, 2, 3, 4, 5]
+    for item in current_manifest["figures"]:
+        _assert_svg(current / item["svg"])
+        _assert_pdf(current / item["pdf"])
+        assert (current / item["svg"]).stat().st_size == item["svg_bytes"]
+        assert (current / item["pdf"]).stat().st_size == item["pdf_bytes"]
+    assert (current / "Q1_Fig3_seven_atomic_trait_responses.svg").read_bytes() == (
+        ROOT / "results/h1_final_traitwise_t_20261004/traitwise_H1.svg"
+    ).read_bytes()
     captions = (PACKAGE / "FIGURE_CAPTIONS.md").read_text(encoding="utf-8")
-    assert captions.count("## Figure ") == 6
+    assert captions.count("## Figure ") == 5
+    assert (PACKAGE / "history/FIGURE_CAPTIONS_SOURCE6_20261015.md").is_file()
+    assert len(json.loads((MAIN / "FIGURE_MANIFEST.json").read_text())["figures"]) == 6

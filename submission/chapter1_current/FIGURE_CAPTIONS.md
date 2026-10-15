@@ -8,7 +8,7 @@
 ## Figure 2 | Pollen limitation versus continental isolation (source H3)
 Publication-weighted standardized isolation coefficients for the primary GloPL model and two prespecified measurement sensitivities, with pointwise finite-publication 95% t confidence intervals. Primary slope beta = +0.09191, SE = 0.03806, two-sided finite-publication p = 0.01594; the supplemental-only sensitivity is positive but unsupported (beta = +0.04410, p = 0.31082). The post-hoc offshore-only slope and mainland/offshore indicator contrast are reported in Supplement S5 rather than conflated with the primary estimate. Current experimental pollen limitation measures reproductive improvement after additional pollen, not historical pollinator disappearance.
 
-## Figure 3 | Seven reproductive and floral trait responses across four regions (source H1)
+## Figure 3 | Seven traits under final finite-cluster inference: reproductive and floral responses (source H1)
 The frozen final seven-atomic-outcome H1 artwork is promoted unchanged from `results/h1_final_traitwise_t_20261004/traitwise_H1.svg/pdf`. It displays trait-specific isolation coefficient estimates and pointwise 95% finite-spatial-cluster t intervals for four regions and reported evidence/origin scopes. Three reproductive outcomes are self-compatibility, selfing mating system and autonomous selfing; the remaining four describe plain colour, generalized form, actinomorphy and shallow/open tube. Nominal two-sided unadjusted significance is not a family-wise test of a pooled global floral syndrome; 83.65% of observed island×species records have unresolved floristic-origin status.
 
 ## Figure 4 | Floral accessibility after conditioning on reproductive assurance (source H2)

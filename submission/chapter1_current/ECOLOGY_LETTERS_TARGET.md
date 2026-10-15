@@ -36,7 +36,7 @@ Official journal instructions remain the authority at submission.
 - Main figures: **5**
 - Tables: **0**
 - Text boxes: **0**
-- Main text: **4,664 / 5,000 words** (working whitespace count including headings)
+- Main text: **4,675 / 5,000 words** (working whitespace count including headings)
 - Abstract: **133 / 150 words**
 - Running-title candidate: **Pollen limitation and island flowers**
 - Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; functional island biogeography; pollination

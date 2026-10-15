@@ -236,7 +236,7 @@ def test_q1_five_main_figures_and_text_surface_are_synchronized():
     assert "(Figure 6B-C)" not in manuscript
     assert "(Figure 5)" in manuscript
     assert "(Figure 4)" in manuscript
-    assert "(Figure 3;" in manuscript
+    assert "shown in Figure 3;" in manuscript
     for obsolete in ("HYPOTHESIS_STORY_ORDER_20261015.md", "SIX_QUESTIONS_READER_GUIDE_20261015.md"):
         assert not (ROOT / "submission/chapter1_current" / obsolete).exists()
         assert (ROOT / "submission/chapter1_current/history" / obsolete).exists()

@@ -62,4 +62,4 @@ No historical causal mediation is claimed.
 
 ## Submission state
 
-The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 133 words; working Main body 4,664 words; **five** Q1 Main display items). Five new figure PDF/SVG pairs and their manifest are committed; submission remains blocked by visual QA, the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 133 words; working Main body 4,675 words; **five** Q1 Main display items). Five new figure PDF/SVG pairs and their manifest are committed; submission remains blocked by visual QA, the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.

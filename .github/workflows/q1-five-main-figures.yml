@@ -6,7 +6,7 @@ on:
       - docs/hypothesis-story-order-20261015
     paths:
       - scripts/submission/render_chapter1_main_figures.py
-      - .github/workflows/render-chapter1-q1-five-main.yml
+      - .github/workflows/q1-five-main-figures.yml
   workflow_dispatch:
 
 permissions:

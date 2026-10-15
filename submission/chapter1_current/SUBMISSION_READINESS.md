@@ -25,7 +25,7 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 ### Manuscript package
 
 - working title and manuscript reorganized around a three-stage pollen-constraint question;
-- working abstract: **133 words**; working main body: **4,664 words** by whitespace count including headings;
+- working abstract: **133 words**; working main body: **4,675 words** by whitespace count including headings;
 - five Q1 Main PDF/SVG pairs are rendered and machine-verified; Main captions and references are now numbered 1–5, with original six-source figures archived as replay provenance; final visual QA is still required;
 - cover letter, novelty statement, comparative study-scale audit and prior literature placement synchronized to traitwise H1 (PR #315 merged);
 - discussion now identifies reduced *functional pollinator service* as a literature-supported, **unmeasured** possible explanation for H3; no pollinator declines, guild turnover or historical mediation are inferred from the Chapter 1 results;
