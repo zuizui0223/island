@@ -1,5 +1,7 @@
 # Chapter 1 — H1–H4 publication evidence map
 
+> **2026-10-15 reader-facing revision:** Chapter 1 is Q1-only (GloPL ecological constraint → global plant traits and source H2 selfing-conditioned response → post-hoc functional association). [Working Main/Supp/figures plan](CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md). The earlier proposed six-edge H1.1–H2.3 split in PR #319 is preserved as an analytical inventory **only**, not the paper's Main Results sequence. Existing H1–H4 numbers below are *frozen source IDs*.
+
 > **6問ごとの「質問→比較→結果→限界」と図の編集案：** [Six questions reader guide](SIX_QUESTIONS_READER_GUIDE_20261015.md)。
 > **2026-10-15 更新案：** [H1.1–H1.3（孤立と繁殖・花形質・花粉制限）＋H2.1–H2.3（この3指標間の関係）の6組構成](HYPOTHESIS_STORY_ORDER_20261015.md)。以前の「旧H3→H1→H2→H4」という4仮説の並べ替え案は撤回。**以下の本文・旧H1–H4ラベルは現行の解析識別子のまま**であり、6組の事前登録済み検定に変更したという意味ではない。
 
