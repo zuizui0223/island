@@ -18,6 +18,8 @@ The H3 **2,969 experiments** come from the **previously published GloPL database
 - Selfing can be accompanied by floral reduction, while floral architecture also mediates access by animal pollen vectors.
 - GloPL analyses already connected autofertility, floral generalization and pollinator dependence to pollen limitation (Burns et al. 2019; Bennett et al. 2020); separate range-edge analysis found little general pollen-limitation increase towards species' range limits.
 
+The most geographically recurrent *individual* association concerns a capacity related to **reproductive function** (self-compatibility). This does not imply that all selfing measures, attraction traits or floral phenotypes changed in the same direction.
+
 ## What this study changes
 
 1. **It separates recurrent function from visible phenotype.**  
