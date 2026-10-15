@@ -19,7 +19,7 @@ We directly measure **none of those historical arrows together in the same islan
 
 ## Proposed Main display set: **five** figures (within six-item Letter cap)
 
-The five Q1 Main figures have now been rendered and committed as PDF/SVG pairs under `figures/q1_main5/`, with source figures 1–6 preserved separately. Numeric H1–H4 source IDs remain immutable; the new Main figure numbers are 1–5. Automated file/manifest checks have passed, while manual visual QA is pending.
+The five Q1 Main figures are generated under `figures/q1_main5/`, with source figures 1–6 preserved separately. After a 178-mm print-width typography audit found undersized labels in the first five-figure version, the renderer was refactored to publication-width vertical layouts; regenerated vector/PDF pairs require CI and fresh visual checks. Numeric H1–H4 source IDs remain immutable; the new Main figure numbers are 1–5. Automated file/manifest checks have passed, while manual visual QA is pending.
 
 | Future main | Main visual / one question | Existing evidence for graphical reuse | What remains in Supp |
 | --- | --- | --- | --- |

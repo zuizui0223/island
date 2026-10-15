@@ -79,9 +79,15 @@ def test_current_q1_five_main_figures_and_source_six_replay() -> None:
         _assert_pdf(current / item["pdf"])
         assert (current / item["svg"]).stat().st_size == item["svg_bytes"]
         assert (current / item["pdf"]).stat().st_size == item["pdf_bytes"]
-    assert (current / "Q1_Fig3_seven_atomic_trait_responses.svg").read_bytes() == (
-        ROOT / "results/h1_final_traitwise_t_20261004/traitwise_H1.svg"
-    ).read_bytes()
+    # The print-facing H1 arrangement is newly faceted from the same frozen
+    # 112 source fits; the historical six-source artwork remains byte-exact.
+    q1_figure = (current / "Q1_Fig3_seven_atomic_trait_responses.svg").read_text(encoding="utf-8")
+    assert "Seven traits in four geographic regions" in q1_figure
+    assert "Self-compatibility" in q1_figure
+    print_audit = json.loads((current / "PRINT_WIDTH_AUDIT.json").read_text(encoding="utf-8"))
+    assert print_audit["contract"] == "chapter1_q1_print_width_text_audit_v1"
+    assert print_audit["all_pass"] is True
+    assert all(item["min_effective_text_pt"] >= 6.5 for item in print_audit["figures"])
     captions = (PACKAGE / "FIGURE_CAPTIONS.md").read_text(encoding="utf-8")
     assert captions.count("## Figure ") == 5
     assert (PACKAGE / "history/FIGURE_CAPTIONS_SOURCE6_20261015.md").is_file()

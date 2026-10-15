@@ -7,6 +7,7 @@ on:
     paths:
       - scripts/submission/render_chapter1_main_figures.py
       - .github/workflows/q1-five-main-figures.yml
+      - scripts/submission/audit_q1_print_width.py
   workflow_dispatch:
 
 permissions:
@@ -54,6 +55,9 @@ jobs:
               ElementTree.parse(svg)
           print('Validated five SVG/PDF pairs and manifest')
           PY
+      - name: Enforce minimum readable text at 178-mm printed width
+        run: |
+          python scripts/submission/audit_q1_print_width.py --figure-dir submission/chapter1_current/figures/q1_main5 --min-pt 6.5
       - name: Rasterize five PDFs for actual visual QA
         run: |
           if ! command -v pdftoppm >/dev/null; then
@@ -74,7 +78,7 @@ jobs:
               with Image.open(img) as f:
                   f.verify()
               with Image.open(img) as f:
-                  assert f.width >= 900 and f.height >= 350
+                  assert f.width >= 650 and f.height >= 300
               print(img.name, img.stat().st_size)
           PY
       - name: Commit checked vector figure assets to PR head
