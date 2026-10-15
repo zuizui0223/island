@@ -6,7 +6,8 @@
 - [x] Working Main reorganized into constraint → plant patterns plus original H2 → post-hoc functional consistency
 - [x] SI source-ID-to-reader-stage crosswalk and five-figure migration plan added
 - [x] Render and manifest-check five Q1 Main PDF/SVG pairs, synchronize five captions and numerical manuscript citations
-- [ ] Final visual QA of five Main figures; move any excess technical panels to SI as needed
+- [x] Inspect 120-dpi PNG previews of all five PDF figures and fix bottom-row label collisions in Figures 2 and 4
+- [ ] Verify figures at the *assembled journal PDF* page width; move excess technical panels to SI if needed
 - [ ] Validate the final five-figure PDF assets and journal-ready main/SI word limits after export
 
 - [x] Corrected 8,264-island geography baseline fixed

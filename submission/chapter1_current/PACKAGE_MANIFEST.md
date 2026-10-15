@@ -37,7 +37,7 @@ Historical directional/composite H1 files remain replay provenance only.
 
 ## Current five Q1 Main figures
 
-The committed and CI-validated Q1 display PDFs/SVGs are in `figures/q1_main5/`. Figure captions have been migrated to five numbers; frozen estimates remain unchanged. Original source-six figures and their [caption archive](history/FIGURE_CAPTIONS_SOURCE6_20261015.md) remain replay provenance. Layout/legibility requires final visual QA.
+The committed and CI-validated Q1 display PDFs/SVGs are in `figures/q1_main5/`. Figure captions have been migrated to five numbers; frozen estimates remain unchanged. Original source-six figures and their [caption archive](history/FIGURE_CAPTIONS_SOURCE6_20261015.md) remain replay provenance. All five PDFs have 120-dpi raster QA images. After direct inspection, bottom-row labels in Figures 2 and 4 were repositioned; final journal-page-size layout QA remains open.
 
 ## Historical six source figures (replay only)
 
