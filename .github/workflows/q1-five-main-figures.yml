@@ -54,6 +54,29 @@ jobs:
               ElementTree.parse(svg)
           print('Validated five SVG/PDF pairs and manifest')
           PY
+      - name: Rasterize five PDFs for actual visual QA
+        run: |
+          if ! command -v pdftoppm >/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+          fi
+          mkdir -p submission/chapter1_current/figures/q1_main5/qa_png
+          for pdf in submission/chapter1_current/figures/q1_main5/Q1_Fig*.pdf; do
+            base=$(basename "${pdf%.pdf}")
+            pdftoppm -f 1 -l 1 -r 120 -png -singlefile "$pdf" "submission/chapter1_current/figures/q1_main5/qa_png/$base"
+          done
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          root = Path('submission/chapter1_current/figures/q1_main5/qa_png')
+          images = sorted(root.glob('*.png'))
+          assert len(images) == 5, images
+          for img in images:
+              with Image.open(img) as f:
+                  f.verify()
+              with Image.open(img) as f:
+                  assert f.width >= 900 and f.height >= 350
+              print(img.name, img.stat().st_size)
+          PY
       - name: Commit checked vector figure assets to PR head
         if: github.event_name == 'push'
         run: |
