@@ -1,0 +1,52 @@
+{
+  "contract": "chapter1_q1_main_si_editorial_composition_v1",
+  "status": "EDITORIAL_PROOF_NOT_SUBMISSION_READY",
+  "scope": "layout_proof_only_no_numerical_reanalysis",
+  "main": {
+    "docx": "Q1_Main_EDIT_PROOF.docx",
+    "docx_sha256": "260460314fdb2eb6866d2d3d699c8a8fb6f7410b9ee158b180e0aadb21cd5cc0",
+    "pdf": "Q1_Main_EDIT_PROOF.pdf",
+    "pdf_sha256": "8c8893635c7d4f55b356a2019970b24fdef0c931f6ad981e934a439f6d613a02",
+    "pdf_pages": 23,
+    "si_docx_landscape_tables": 0
+  },
+  "si": {
+    "docx": "Q1_SI_EDIT_PROOF.docx",
+    "docx_sha256": "990b0a1cadebd7e3c6cfc015d1294cb89f0770242c0670f326ce0cb4c0b9de4d",
+    "pdf": "Q1_SI_EDIT_PROOF.pdf",
+    "pdf_sha256": "b731d43cf1b37c68c686458c6d87c6d8fead00da4254d3778f49ec637cfc2d9c",
+    "pdf_pages": 14,
+    "si_docx_landscape_tables": 9
+  },
+  "main_plus_figures": {
+    "file": "Q1_Main_plus_5_figures_REVIEW.pdf",
+    "pages": 28,
+    "sha256": "1c96ec9ce71fff8fa29d63d72e21abd4875b955150f0ea509c74e3976f1dd374",
+    "figure_pages": 5
+  },
+  "si_plus_figures": {
+    "file": "Q1_SI_plus_7_figures_REVIEW.pdf",
+    "pages": 21,
+    "sha256": "e08a7c1ff34426296ec90716f99339e8450b45c62f5e44bda57dcc82e613e019",
+    "figure_pages": 7
+  },
+  "supplement_figures_only": "Q1_Seven_SI_figures_A4.pdf",
+  "source_sha256": {
+    "MANUSCRIPT.md": "3842e1a98e6f7501c808b046e3386c8f2295161e50b825f7f8259ad95365ae16",
+    "SUPPLEMENTARY_INFORMATION.md": "9fec680f91ee76aaa3a266b1db65d0b51c7088def57132d009d175217ee2fd03",
+    "FIGURE_CAPTIONS.md": "048486f041b77b3c043ca682e8ce0c29713286f79a49632a4fb294717a737efb",
+    "TITLE_PAGE_TEMPLATE.md": "54ac3f65e58ec747602fb52e303a2fbd16dc23ab2ccaf7d674a4f8448883b2ff"
+  },
+  "author_approval": false,
+  "trait_redistribution_rights_cleared": false,
+  "final_release_doi_minted": false,
+  "submission_authorized": false,
+  "source_audit": {
+    "original_main_body_words": 4675,
+    "word_count_method": "whitespace_split_from_Introduction_heading_to_References_heading",
+    "original_main_text_chars": 42139,
+    "original_si_chars": 24836,
+    "main_figure_captions": 5,
+    "historical_causal_mediation_claimed": false
+  }
+}

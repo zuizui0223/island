@@ -69,6 +69,35 @@ def test_supplement_figure_package_is_complete() -> None:
         assert pdf.name in names
 
 
-def test_main_caption_count_matches_six_figure_manifest() -> None:
+def test_current_q1_five_main_figures_and_source_six_replay() -> None:
+    current = MAIN / "q1_main5"
+    current_manifest = json.loads((current / "FIGURE_MANIFEST.json").read_text(encoding="utf-8"))
+    assert current_manifest["contract"] == "chapter1_q1_five_main_figures_v1"
+    assert [item["figure"] for item in current_manifest["figures"]] == [1, 2, 3, 4, 5]
+    for item in current_manifest["figures"]:
+        _assert_svg(current / item["svg"])
+        _assert_pdf(current / item["pdf"])
+        assert (current / item["svg"]).stat().st_size == item["svg_bytes"]
+        assert (current / item["pdf"]).stat().st_size == item["pdf_bytes"]
+    # The print-facing H1 arrangement is newly faceted from the same frozen
+    # 112 source fits; the historical six-source artwork remains byte-exact.
+    q1_figure = (current / "Q1_Fig3_seven_atomic_trait_responses.svg").read_text(encoding="utf-8")
+    assert "Seven traits in four geographic regions" in q1_figure
+    assert "Self-compatibility" in q1_figure
+    print_audit = json.loads((current / "PRINT_WIDTH_AUDIT.json").read_text(encoding="utf-8"))
+    assert print_audit["contract"] == "chapter1_q1_print_width_text_audit_v1"
+    assert print_audit["all_pass"] is True
+    assert all(item["min_effective_text_pt"] >= 6.5 for item in print_audit["figures"])
     captions = (PACKAGE / "FIGURE_CAPTIONS.md").read_text(encoding="utf-8")
-    assert captions.count("## Figure ") == 6
+    assert captions.count("## Figure ") == 5
+    assert (PACKAGE / "history/FIGURE_CAPTIONS_SOURCE6_20261015.md").is_file()
+    assert len(json.loads((MAIN / "FIGURE_MANIFEST.json").read_text())["figures"]) == 6
+    proof_dir = current / "qa_print"
+    proof_manifest = json.loads((proof_dir / "PRINT_PROOF_MANIFEST.json").read_text())
+    assert proof_manifest["contract"] == "chapter1_q1_a4_print_width_proof_v1"
+    assert proof_manifest["figure_width_mm"] == 178
+    assert len(proof_manifest["figures"]) == 5
+    assert all(item["fits_a4_at_print_width"] for item in proof_manifest["figures"])
+    _assert_pdf(proof_dir / proof_manifest["proof_pdf"])
+    from pypdf import PdfReader
+    assert len(PdfReader(proof_dir / proof_manifest["proof_pdf"]).pages) == 5

@@ -41,6 +41,7 @@ on:
       - "tests/test_chapter1_supplement_package.py"
       - "tests/test_chapter1_figure_packages.py"
       - "tests/test_chapter1_submission_archive_candidate.py"
+      - "tests/test_chapter1_editorial_proof_package.py"
       - ".github/workflows/*chapter1*.yml"
       - ".github/workflows/corrected-submission-geography.yml"
   pull_request:
@@ -80,6 +81,7 @@ on:
       - "tests/test_chapter1_supplement_package.py"
       - "tests/test_chapter1_figure_packages.py"
       - "tests/test_chapter1_submission_archive_candidate.py"
+      - "tests/test_chapter1_editorial_proof_package.py"
       - ".github/workflows/corrected-submission-geography.yml"
   workflow_dispatch:
 
@@ -113,6 +115,7 @@ jobs:
           tests/test_chapter1_supplement_package.py
           tests/test_chapter1_figure_packages.py
           tests/test_chapter1_submission_archive_candidate.py
+          tests/test_chapter1_editorial_proof_package.py
       - name: Run current submission tests
         run: >-
           pytest
@@ -126,4 +129,5 @@ jobs:
           tests/test_chapter1_supplement_package.py
           tests/test_chapter1_figure_packages.py
           tests/test_chapter1_submission_archive_candidate.py
+          tests/test_chapter1_editorial_proof_package.py
           -q
