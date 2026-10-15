@@ -1,4 +1,6 @@
-# Main figure captions
+# Main figure captions — six frozen source figures (pending five-figure migration)
+
+> **15 October 2026:** The working Q1-only manuscript now reads constraint (source H3) → reproductive/floral plant responses including old H2 → post-hoc functional association (source H4). These are the **original six source figure captions and figure numbers**; the [five-figure Main plan](CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md) has *not* yet been rendered, renumbered or checked. Preserve exact source figure IDs until the graphics and all references are migrated together. Do not treat this file as captions for the proposed five figures.
 
 ## Figure 1 | Global scope and corrected geographic exposure
 (A) Global distribution of the **8,264 corrected island units** used in the plant analysis, grouped by the four predeclared geographic strata. (B) Global distribution of the 1,248 unique sites in the independent GloPL pollen-supplementation dataset. (C) Summary of data coverage across the island trait database and GloPL. (D) Geography-audit summary: 1,113 spurious island zero distances were repaired using source-matched GSHHG 2.3.7 coastlines, one Eurasian continental split component was excluded, and 996 true continental GloPL zero distances were retained.
