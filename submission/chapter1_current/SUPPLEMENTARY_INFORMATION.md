@@ -1,10 +1,23 @@
 # Supplementary Information
 
-## Island isolation is associated with recurrent reproductive assurance but regionally contingent floral change
+## Do pollen-supply constraints underlie floral island syndromes?
 
-This Supplementary Information accompanies the corrected Chapter 1 submission selected by config/chapter1_submission_current.json. All numerical results below are bound to results/geography_20260924/ and to the deterministic supplementary tables under submission/chapter1_current/supplement/.
+This Supplementary Information accompanies the Q1-only empirical Chapter 1 manuscript selected by `config/chapter1_submission_current.json`. It preserves original statistical source identifiers H1–H4 and all numerical decisions; reader-facing ordering has changed, not the models. Results are bound to `results/h1_final_traitwise_t_20261004/`, `results/geography_20260924/`, and the existing deterministic tables in `submission/chapter1_current/supplement/`.
 
-The geography correction is a post-hoc repair of a known exposure mismatch. H4 is post-hoc functional triangulation. Neither is reclassified here as prospective confirmation.
+The Chapter 1 argument has three stages: published experimental pollen limitation (ecological constraint), the original island plant database (seven trait responses **and** the source-H2 selfing-adjusted floral decomposition), and the exploratory exact-species trait–PL bridge. The GloPL samples are not the same sampled island floras; the two datasets cannot identify historical PL mediation. The separate `izu-core` Chapter 2 evolutionary simulations are **not included** in the empirical Chapter 1 analysis or this SI. The geography correction remains post-hoc measurement repair, and H4 remains post-hoc functional triangulation.
+
+### S0. Reader-facing sections versus frozen source analyses
+
+| Chapter 1 narrative stage | Existing source analysis | Main evidence; what the SI retains |
+| --- | --- | --- |
+| 1. Ecological constraint | original H3 | GloPL site-level isolation–PL coefficient; details and null sensitivities in S5 |
+| 2A. Reproductive and floral patterns | original H1 | Seven independent atomic traits × four regions; full denominators, pointwise tests and provenance scopes in S3 |
+| 2B. Selfing-conditioned floral responses | original H2 | `F ~ D + selfing_core + area + climate`, treated as conditional statistical decomposition; full direct/All and raw colour–architecture checks in S4 |
+| 3. Functional compatibility | original H4 | Separate exact-species GloPL score fits; species counts, post-hoc status and atomic alternatives in S6 |
+
+The earlier editorial six-edge D/R/F/P diagram is an index of potential *pairwise associations*, not six equally powered tests, a single joint causal graph, or an alternative source model. Selfing (R) coefficients in original H2b are exploratory readouts; the originally primary H2b estimand was the remaining isolation (D) association after R adjustment.
+
+**Adjustment is dataset-specific.** The island-trait models control island area and climate PC1–4; the full GloPL analyses control continental-isolation distance, broad geographic context and experimental measurement conditions. Mainland experimental sites have no island area. Neither approach establishes a founder effect, a pollinator decline, or the amount of island-flora change causally explained by PL.
 
 ---
 
@@ -108,7 +121,7 @@ All 112 fits converged. Primary All evidence supports 17 of 28 individual associ
 
 In WCVP All, 10 of 28 individual associations meet the same nominal threshold. Increasing self-compatibility remains supported in all four regions. Northern-high autonomous selfing, actinomorphy and shallow/open tubes remain positive and supported; tropical actinomorphy remains supported. Plain colour increases in both tropical and southern extratropical WCVP floras. Several broad-flora associations, including the southern shallow/open-tube decrease, no longer meet the threshold. This can reflect changed composition, precision and coverage, rather than proving an introduced-species mechanism. Direct-only yields 15/28 supported associations in broad flora and 11/28 in WCVP flora. Complete coefficients, intervals and unadjusted p values are reported in results/h1_final_traitwise_t_20261004/traitwise_results.csv.
 
-# Appendix S4. H2 conditional decomposition and raw floral patterns
+# Appendix S4. Selfing-syndrome alternatives: source H2 conditional decomposition and raw floral patterns
 
 H2 separates measured reproductive assurance from additional floral response.
 
