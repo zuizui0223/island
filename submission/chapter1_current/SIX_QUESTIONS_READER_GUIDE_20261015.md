@@ -1,6 +1,8 @@
-# Chapter 1 を6問で読む：各問題の問い・答え・限界（2026-10-15）
+# Historical crosswalk: six conceptual pairwise relationships (2026-10-15)
 
-**位置付け：投稿原稿の説明用ガイド。** [現行論文](MANUSCRIPT.md)、[科学的根拠表](H1_H4_EVIDENCE_MAP.md)、[H1/H2の再編案](HYPOTHESIS_STORY_ORDER_20261015.md)に基づく編集文書。新しい6つの確証的検定ではなく、解析ID・数値・モデル・図番号は変更しない。
+> **現在の論文構成には採用しない。** この文書はD/R/F/Pの6つの関係を整理した歴史的な説明メモであり、投稿用Ch1の6節や6つの検定結果ではない。現行Q1だけのMain/Supp構成は[こちら](CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md)。Ch2/Q2（`izu-core`）の進化・集団存続モデルは別論文で、本Ch1のSupplementではない。
+
+**位置付け：投稿原稿では採用しない説明案の履歴。** [現行論文](MANUSCRIPT.md)、[科学的根拠表](H1_H4_EVIDENCE_MAP.md)、[H1/H2の再編案](HYPOTHESIS_STORY_ORDER_20261015.md)に基づく編集文書。新しい6つの確証的検定ではなく、解析ID・数値・モデル・図番号は変更しない。
 
 ## まず読者に伝える構造
 
