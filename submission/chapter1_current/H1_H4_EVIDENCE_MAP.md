@@ -1,5 +1,7 @@
 # Chapter 1 — H1–H4 publication evidence map
 
+> **2026-10-15 論理順の案内：** [H番号の移行表・Ch2 Q1–Q4への機構対応](HYPOTHESIS_STORY_ORDER_20261015.md)。読む順序は **現行H3（花粉制限）→H1（形質の反復と地域差）→H2（自殖調整後の花形質）→H4（現在の機能的関連）**。解析ID・図表・凍結判定を改番したものではなく、この並びが因果経路を証明するわけでもない。
+
 > **Editorial navigation, not a new scientific lock or analysis.** Updated 14 October 2026.
 > The active paper is selected only by [chapter1_submission_current.json](../../config/chapter1_submission_current.json). Its current H1 specification is the **4 October 2026 seven-trait, finite-spatial-cluster-\(t\), unadjusted-pointwise** analysis, not a pooled/domain syndrome score. Use [the current manuscript](MANUSCRIPT.md) for submitted prose and [the final H1 report](../../results/h1_final_traitwise_t_20261004/README.md) plus [the corrected H2–H4 evidence](../../results/geography_20260924/) for numbers.
 > This map must not be used to replace frozen results or automatically promote exploratory findings.
