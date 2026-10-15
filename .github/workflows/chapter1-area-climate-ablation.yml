@@ -1,0 +1,112 @@
+name: Chapter 1 area-climate ablation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/audit_chapter1_area_climate_ablation.py"
+      - ".github/workflows/chapter1-area-climate-ablation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  sensitivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Download pinned, currently unexpired parent inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ch1-ablation/v14 /tmp/ch1-ablation/scores /tmp/ch1-ablation/output
+          gh run download 35314955780 --repo zuizui0223/island \
+            -n chapter1-v14-reordered-hypotheses-35314955780 \
+            -D /tmp/ch1-ablation/v14
+          gh run download 35100991898 --repo zuizui0223/island \
+            -n chapter1-all-data-primary-35100991898 \
+            -D /tmp/ch1-ablation/scores
+          for scope in all direct; do
+            test -s "/tmp/ch1-ablation/v14/$scope/h1/all_data_probability_counts.csv.gz"
+            test -s "/tmp/ch1-ablation/scores/syndrome/$scope/island_syndrome_scores.csv.gz"
+          done
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Run fixed-island covariate sensitivity
+        env:
+          OPENBLAS_NUM_THREADS: "1"
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: |
+          python -m py_compile scripts/audit_chapter1_area_climate_ablation.py
+          python scripts/audit_chapter1_area_climate_ablation.py \
+            --counts-all /tmp/ch1-ablation/v14/all/h1/all_data_probability_counts.csv.gz \
+            --counts-direct /tmp/ch1-ablation/v14/direct/h1/all_data_probability_counts.csv.gz \
+            --scores-all /tmp/ch1-ablation/scores/syndrome/all/island_syndrome_scores.csv.gz \
+            --scores-direct /tmp/ch1-ablation/scores/syndrome/direct/island_syndrome_scores.csv.gz \
+            --covariates results/geography_20260924/corrected_geography_covariates.csv \
+            --config config/chapter1_v14_h2_decomposition.yml \
+            --frozen results/geography_20260924 \
+            --output /tmp/ch1-ablation/output
+
+      - name: Show results and protect the claim ceiling
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          import json
+
+          path = Path("/tmp/ch1-ablation/output")
+          d = pd.read_csv(path / "ablation_h2_estimates.csv")
+          manifest = json.loads((path / "manifest.json").read_text())
+          assert len(d) == 96, f"expected 2 scopes x 4 variants x 12 rows, got {len(d)}"
+          assert len(manifest["baseline_gates"]) == 2
+          assert all(g["baseline_reproduced"] for g in manifest["baseline_gates"])
+          interesting = d.loc[
+              d.response.isin(["plain_colour", "generalized_accessible"])
+          ].copy()
+          interesting = interesting[
+              ["evidence_scope", "context", "controls", "response",
+               "n_islands", "distance_estimate", "selfing_core_estimate",
+               "distance_p_finite_t", "distance_q_eight_finite_t",
+               "selfing_p_finite_t", "selfing_q_eight_exploratory"]
+          ]
+          with open(__import__("os").environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write("## H2 fixed-sample area/climate ablation (exploratory)\n")
+              out.write("Frozen fully adjusted H2 replication gates passed.\n\n")
+              out.write("Values are associations. The R coefficient is not a frozen main hypothesis.\n\n")
+              out.write("### All evidence scope\n")
+              out.write(interesting.query(
+                  "evidence_scope == 'all_analysis_eligible'"
+              ).to_markdown(index=False))
+              out.write("\n\n### Direct evidence scope\n")
+              out.write(interesting.query(
+                  "evidence_scope == 'direct_only'"
+              ).to_markdown(index=False))
+              out.write("\n\n### Area/climate geographic overlap\n")
+              out.write(pd.read_csv(
+                  path / "area_climate_distance_overlap.csv"
+              ).to_markdown(index=False))
+              out.write("\n")
+          print(interesting.to_string(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-area-climate-ablation-${{ github.run_id }}
+          path: /tmp/ch1-ablation/output
+          if-no-files-found: warn
+          retention-days: 45
