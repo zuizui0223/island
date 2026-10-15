@@ -16,7 +16,7 @@ Status: **Ecology Letters first-shot draft conditional on data-policy clearance;
 - DATA_ACCESSIBILITY_DRAFT.md — rights-aware data/code availability wording.
 - ECOLOGY_LETTERS_DATA_GATE.md — hard submission gate created by third-party redistribution restrictions.
 - ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md — pre-submission editor inquiry.
-- figures/q1_main5/ — five rendered and manifest-checked Q1 Main PDFs/SVGs; figures/Figure1–Figure6 files are retained source-only.
+- figures/q1_main5/ — five rendered and manifest-checked Q1 Main PDFs/SVGs; PRINT_WIDTH_AUDIT.json checks the actual 178-mm text sizes; qa_print/ contains a five-page A4 proof (not a submission PDF). figures/Figure1–Figure6 remain historical source-only.
 - SUPPLEMENTARY_INFORMATION.md and supplement/ — submission-facing SI and deterministic tables.
 - SUBMISSION_CHECKLIST.md — remaining journal-specific work.
 - SUBMISSION_READINESS.md — current submission state.

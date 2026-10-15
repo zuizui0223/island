@@ -37,7 +37,7 @@ Historical directional/composite H1 files remain replay provenance only.
 
 ## Current five Q1 Main figures
 
-The committed and CI-validated Q1 display PDFs/SVGs are in `figures/q1_main5/`. Figure captions have been migrated to five numbers; frozen estimates remain unchanged. Original source-six figures and their [caption archive](history/FIGURE_CAPTIONS_SOURCE6_20261015.md) remain replay provenance. All five PDFs have 120-dpi raster QA images. After direct inspection, bottom-row labels in Figures 2 and 4 were repositioned; final journal-page-size layout QA remains open.
+The committed and CI-validated Q1 display PDFs/SVGs are in `figures/q1_main5/`. Figure captions have been migrated to five numbers; frozen estimates remain unchanged. The [178-mm five-page A4 print proof](figures/q1_main5/qa_print/Q1_Main5_178mm_A4_print_proof.pdf) and [minimum-font audit](figures/q1_main5/PRINT_WIDTH_AUDIT.json) are committed and pass (minimum effective glyph size 7.159 pt). Original source-six figures and their [caption archive](history/FIGURE_CAPTIONS_SOURCE6_20261015.md) remain replay provenance. All five PDFs have 120-dpi raster QA images. After direct inspection, bottom-row labels in Figures 2 and 4 were repositioned; final journal-page-size layout QA remains open.
 
 ## Historical six source figures (replay only)
 
@@ -62,4 +62,4 @@ No historical causal mediation is claimed.
 
 ## Submission state
 
-The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 133 words; working Main body 4,675 words; **five** Q1 Main display items). Five new figure PDF/SVG pairs and their manifest are committed; submission remains blocked by visual QA, the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 133 words; working Main body 4,675 words; **five** Q1 Main display items). Five new figure PDF/SVG pairs and their manifest are committed; submission remains blocked by *journal-composed Main/SI* visual QA, the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.

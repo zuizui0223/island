@@ -7,7 +7,8 @@
 - [x] SI source-ID-to-reader-stage crosswalk and five-figure migration plan added
 - [x] Render and manifest-check five Q1 Main PDF/SVG pairs, synchronize five captions and numerical manuscript citations
 - [x] Inspect 120-dpi PNG previews of all five PDF figures and fix bottom-row label collisions in Figures 2 and 4
-- [ ] Verify figures at the *assembled journal PDF* page width; move excess technical panels to SI if needed
+- [x] Assemble five-page A4 proof at 178-mm figure width, inspect all five pages, restore region-color legend and enforce 6.5-pt minimum text
+- [ ] Inspect figures within *final journal-composed Main/SI* and move any excess panels to SI if required
 - [ ] Validate the final five-figure PDF assets and journal-ready main/SI word limits after export
 
 - [x] Corrected 8,264-island geography baseline fixed
