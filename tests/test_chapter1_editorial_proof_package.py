@@ -3,6 +3,7 @@
 These tests verify source identity and the proof-only status; they do not
 authorize a real Ecology Letters submission or redistribute trait records.
 """
+
 from __future__ import annotations
 
 import hashlib
