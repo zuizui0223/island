@@ -39,7 +39,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq pandoc poppler-utils fonts-dejavu-core
-          pip install "pypdf>=5,<7" "weasyprint>=62,<69" "pymupdf>=1.25,<2" "Pillow>=11,<14" "ruff>=0.17,<0.18"
+          pip install "pypdf>=5,<7" "weasyprint>=62,<69" "pymupdf>=1.25,<2" "Pillow>=11,<14" "ruff>=0.17,<0.18" "python-docx>=1.2,<2"
           ruff check --fix scripts/submission/compose_ch1_editorial_proofs.py scripts/submission/audit_ch1_proof_pages.py
           ruff check scripts/submission/compose_ch1_editorial_proofs.py scripts/submission/audit_ch1_proof_pages.py
           python -m py_compile scripts/submission/compose_ch1_editorial_proofs.py scripts/submission/audit_ch1_proof_pages.py
