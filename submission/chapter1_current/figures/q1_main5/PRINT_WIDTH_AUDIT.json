@@ -1,0 +1,59 @@
+{
+  "contract": "chapter1_q1_print_width_text_audit_v1",
+  "target_width_mm": 178,
+  "scaling_assumption": "uniform scaling to 178 mm; Matplotlib text path sizes",
+  "minimum_effective_text_pt": 7.457,
+  "all_pass": true,
+  "figures": [
+    {
+      "filename": "Q1_Fig1_distinct_data_streams.svg",
+      "native_width_pt": 507.479453,
+      "print_width_mm": 178,
+      "text_label_count": 43,
+      "min_native_text_pt": 7.5,
+      "min_effective_text_pt": 7.457,
+      "threshold_pt": 6.5,
+      "pass": true
+    },
+    {
+      "filename": "Q1_Fig2_pollen_limitation_gradient.svg",
+      "native_width_pt": 495.85375,
+      "print_width_mm": 178,
+      "text_label_count": 14,
+      "min_native_text_pt": 8.0,
+      "min_effective_text_pt": 8.141,
+      "threshold_pt": 6.5,
+      "pass": true
+    },
+    {
+      "filename": "Q1_Fig3_seven_atomic_trait_responses.svg",
+      "native_width_pt": 500.120516,
+      "print_width_mm": 178,
+      "text_label_count": 46,
+      "min_native_text_pt": 8.0,
+      "min_effective_text_pt": 8.071,
+      "threshold_pt": 6.5,
+      "pass": true
+    },
+    {
+      "filename": "Q1_Fig4_selfing_adjusted_floral_response.svg",
+      "native_width_pt": 496.719951,
+      "print_width_mm": 178,
+      "text_label_count": 46,
+      "min_native_text_pt": 8.0,
+      "min_effective_text_pt": 8.126,
+      "threshold_pt": 6.5,
+      "pass": true
+    },
+    {
+      "filename": "Q1_Fig5_posthoc_functional_compatibility.svg",
+      "native_width_pt": 495.63625,
+      "print_width_mm": 178,
+      "text_label_count": 19,
+      "min_native_text_pt": 8.0,
+      "min_effective_text_pt": 8.144,
+      "threshold_pt": 6.5,
+      "pass": true
+    }
+  ]
+}
