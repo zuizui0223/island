@@ -1,6 +1,6 @@
 # Chapter 1 H1–H4 の見せ方と Chapter 2 Q1–Q4 への接続（2026-10-15）
 
-**位置付け：論文編集上の順序・番号移行案。新しいH1–H4の検定、解析IDの再命名、因果推定ではない。** 現行の [提出基準](../../config/chapter1_submission_current.json)・[本文](MANUSCRIPT.md)・[H1–H4証拠表](H1_H4_EVIDENCE_MAP.md) が科学的な出典であり、すべての「旧H番号」はそれらと完全に一致させる。
+**位置付け：論文編集上の順序・番号移行案。新しいH1–H4の検定、解析IDの再命名、因果推定ではない。** Ch2側の対応表は [izu-core PR #536の共通H–Q対応表](https://github.com/zuizui0223/izu-core/blob/codex/ch1-fourquestion-integration-20261015/docs/CHAPTER1_H1_H4_TO_CHAPTER2_Q1_Q4_CROSSWALK_20261015.md) を参照。 現行の [提出基準](../../config/chapter1_submission_current.json)・[本文](MANUSCRIPT.md)・[H1–H4証拠表](H1_H4_EVIDENCE_MAP.md) が科学的な出典であり、すべての「旧H番号」はそれらと完全に一致させる。
 
 ## 最初に決めること
 
