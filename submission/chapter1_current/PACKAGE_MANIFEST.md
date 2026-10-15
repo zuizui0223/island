@@ -5,10 +5,11 @@
 
 ## Editorial map (not a journal upload)
 
-[H1–H4 evidence map](H1_H4_EVIDENCE_MAP.md) fixes the reading order, regional-atomic claim boundary and source links without altering the selected scientific results. It is an **editorial navigation document**, not a replacement for the manuscript, supplementary information, a result lock or the journal file set.
+[Q1-only Main/Supp migration](CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md) defines the working manuscript's ecological-constraint → trait-response → functional-consistency order and proposed five Main figures. The [H1–H4 evidence map](H1_H4_EVIDENCE_MAP.md) retains numerical source identities, regional-atomic claim boundaries and links without altering the selected scientific results. It is an **editorial navigation document**, not a replacement for the manuscript, supplementary information, a result lock or the journal file set.
 
 ## Active files
 
+- submission/chapter1_current/CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md (editorial and not a rendered submission figure set)
 - submission/chapter1_current/MANUSCRIPT.md
 - submission/chapter1_current/FIGURE_CAPTIONS.md
 - submission/chapter1_current/COVER_LETTER_DRAFT.md
@@ -34,7 +35,7 @@
 
 Historical directional/composite H1 files remain replay provenance only.
 
-## Main figure sequence
+## Current six source figures (not yet migrated)
 
 1. Global geographic and data scope
 2. Database construction and analytical workflow
@@ -43,18 +44,18 @@ Historical directional/composite H1 files remain replay provenance only.
 5. H2 reproductive-assurance / additional floral-response decomposition
 6. H3 pollen-limitation gradient and H4 functional bridge
 
-## Current narrative
+## Updated Q1-only manuscript narrative
 
-The paper is organized around **functional recurrence without phenotypic uniformity**:
+The **working** paper is organized around **testing the pollen-supply constraint hypothesis**:
 
-- self-compatibility is the most recurrent traitwise response to isolation;
-- other reproductive, structural and colour responses vary among regions;
-- generalized accessibility is only partly explained by measured reproductive assurance;
-- pollen limitation independently increases with isolation;
-- reproductive-assurance and accessibility states are associated with lower current pollen limitation.
+- **ecological constraint**: GloPL's experimental pollen-limitation gradient against continental isolation, with measurement sensitivity;
+- **primary self-assembled database**: seven separate reproductive, colour and structural responses, with self-compatibility positive in four regions but other traits not uniformly aligned;
+- **within the same trait-response stage**: old H2 adjusts the floral response for measured selfing, challenging a compulsory single selfing-syndrome explanation;
+- **functional check**: source H4 uses separate exact-species matches and remains post-hoc;
+- **separate paper**: Q2/Chapter 2 models belong to `izu-core`, not this empirical paper.
 
 No historical causal mediation is claimed.
 
 ## Submission state
 
-The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 147 words; main text 4,947 words; six display items). Submission remains blocked by the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 133 words; working Main body 4,658 words; **existing** six source display items). Submission remains blocked by the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI, **five-figure rebuild and reference synchronisation**, and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
