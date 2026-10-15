@@ -18,7 +18,6 @@ from pathlib import Path
 from pypdf import PdfReader, PdfWriter, Transformation
 from weasyprint import CSS, HTML
 
-
 A4_WIDTH_PT = 210 * 72 / 25.4
 A4_HEIGHT_PT = 297 * 72 / 25.4
 FIGURE_WIDTH_PT = 178 * 72 / 25.4
@@ -81,9 +80,9 @@ def _strip_caps_heading(value: str) -> str:
     if lines and lines[-1].startswith("Original source-six caption provenance:"):
         lines.pop()
     result = "\n".join(lines).rstrip() + "\n"
-    if len(re.findall(r"^## Figure [1-5] \|", result, re.M)) != 5:
+    if len(re.findall(r"^## Figure [1-5] \|", result, re.MULTILINE)) != 5:
         raise ValueError("Exactly five current Main captions must be available")
-    if re.search(r"^## Figure 6 \|", result, re.M):
+    if re.search(r"^## Figure 6 \|", result, re.MULTILINE):
         raise ValueError("Superseded Figure 6 cannot enter the Main proof")
     return result
 

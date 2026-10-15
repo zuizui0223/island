@@ -4,28 +4,28 @@
   "scope": "layout_proof_only_no_numerical_reanalysis",
   "main": {
     "docx": "Q1_Main_EDIT_PROOF.docx",
-    "docx_sha256": "34344652b80430087a5e3fd5f03f48157b45c41ccf97a97c12415e6dde40782c",
+    "docx_sha256": "5b0e4ca3462a534a016441343cba685e2d11ee8c460a4f14b01b7fc1b037b6f1",
     "pdf": "Q1_Main_EDIT_PROOF.pdf",
-    "pdf_sha256": "c788d3d0cfc06cd324d34773ffe783677ed1629d23cf8c8ca57e780850fc16ae",
+    "pdf_sha256": "bc095a0cce767566d3da7712dedfa7fdb5f38ac26673e71ceba5ccc2c201267e",
     "pdf_pages": 23
   },
   "si": {
     "docx": "Q1_SI_EDIT_PROOF.docx",
-    "docx_sha256": "ad9f7d5dd71e371e771d7185da54066359ee261d43197c892d4e0c55089df96f",
+    "docx_sha256": "f81448370a484e3ecd022d24e7a8abceb7c66bcd99a9f2f11f8db7043e41f9bb",
     "pdf": "Q1_SI_EDIT_PROOF.pdf",
-    "pdf_sha256": "af72e0080014cedf3a16d0a6dbbb152ef7184fb60ce4192c446bde7e969fc5df",
+    "pdf_sha256": "999810f1d1f85760305fef038c31826b30f0c8969ed057ad23fad186895d494d",
     "pdf_pages": 14
   },
   "main_plus_figures": {
     "file": "Q1_Main_plus_5_figures_REVIEW.pdf",
     "pages": 28,
-    "sha256": "7097ab31900908b0c73dbd2214e540773965b0ed857395295606bfef78ad5be8",
+    "sha256": "c19a0a4c5ddee75a54a6f9c899b88ccc86c80cfd26b43ec5f98377f422d47c93",
     "figure_pages": 5
   },
   "si_plus_figures": {
     "file": "Q1_SI_plus_7_figures_REVIEW.pdf",
     "pages": 21,
-    "sha256": "dbed898b3cb4a22610b550a0751e54f93b0ed54c1fd3acaf290d89f73a4ecc45",
+    "sha256": "8a9f3cbf56366e967a08e59ddadec9af1dfb4f491757823d592971fc810af2ea",
     "figure_pages": 7
   },
   "supplement_figures_only": "Q1_Seven_SI_figures_A4.pdf",
