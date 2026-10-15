@@ -2,7 +2,7 @@
 
 ## One-sentence novelty
 
-**Island isolation is associated with a recurrent reproductive function—most consistently self-compatibility—while floral phenotype remains region dependent, and the same geographic gradient independently carries stronger experimental pollen limitation.**
+**Our distinct contribution is a three-part test of the classic pollen-supply-constraint explanation: experimental pollen limitation along isolation, seven separate reproductive/floral assemblage responses, and a post-hoc species-matched functional bridge—not proof of pollinator loss or a universal selfing/dulling syndrome.**
 
 ## Scale positioning
 
@@ -34,7 +34,7 @@ The H3 **2,969 experiments** come from the **previously published GloPL database
 
 ## Conceptual synthesis
 
-The paper replaces the idea of a universal floral checklist with **functional recurrence plus phenotypic contingency**. A repeated reproductive problem can generate a recurrent functional response while regional source pools, interaction environments and assembly histories determine the detailed floral phenotype.
+The paper tests how far the presumed **pollen-supply constraint** aligns with globally observed island reproductive and floral composition. The source-H1 seven-trait database and source-H2 selfing-adjusted floral results are the primary plant-science contribution; previously published GloPL provides an independent reproductive-constraint check and a post-hoc functional check. Selfing syndrome, parallel pollinator-facing response and lineage/colonist sorting remain non-identifiable alternative histories.
 
 ## Claim boundary
 
@@ -43,3 +43,7 @@ The study does not identify historical pollen limitation as a demonstrated causa
 ## Literature positioning audit
 
 See `docs/chapter1_prior_art_novelty_audit_20261008.md` for source-linked comparisons of denominators, inference units and research gaps.
+
+## Reader-facing Chapter 1 architecture (2026-10-15)
+
+See [Q1 Main/Supp figure migration plan](CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md). Source H3 → ecological constraint; source H1+H2 → island reproductive/floral response; source H4 → present-day trait–PL association. Separate `izu-core` Ch2 simulations are outside the submission. The historical six-edge proposal in PR #319 is retained only as an analytical relationship inventory.
