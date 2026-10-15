@@ -1,5 +1,6 @@
 # Chapter 1 — H1–H4 publication evidence map
 
+> **6問ごとの「質問→比較→結果→限界」と図の編集案：** [Six questions reader guide](SIX_QUESTIONS_READER_GUIDE_20261015.md)。
 > **2026-10-15 更新案：** [H1.1–H1.3（孤立と繁殖・花形質・花粉制限）＋H2.1–H2.3（この3指標間の関係）の6組構成](HYPOTHESIS_STORY_ORDER_20261015.md)。以前の「旧H3→H1→H2→H4」という4仮説の並べ替え案は撤回。**以下の本文・旧H1–H4ラベルは現行の解析識別子のまま**であり、6組の事前登録済み検定に変更したという意味ではない。
 
 > **Editorial navigation, not a new scientific lock or analysis.** Updated 14 October 2026.
