@@ -1,8 +1,8 @@
-# Chapter 1 submission readiness — 2026-10-08
+# Chapter 1 submission readiness — updated 2026-10-15
 
 ## Current decision
 
-The scientific submission surface is **corrected geography + final separate-trait H1**. Composite/domain H1 scores are historical provenance only.
+**Q1-only empirical paper.** The scientific submission surface remains corrected geography plus final separate-trait H1; the *editorial narrative* now tests the pollen-supply-constraint premise and uses constraint (source H3) → plant reproductive/floral response (sources H1 + H2) → contemporary functional compatibility (source H4). `izu-core` Ch2/Q2 simulations are a separate paper. Composite/domain H1 scores are historical provenance only.
 
 First-shot journal: **Ecology Letters**, conditional on closing the journal's data-policy gate.  
 Fallback: **Global Ecology and Biogeography** if the data-sharing restriction cannot be accepted.
@@ -24,19 +24,18 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 
 ### Manuscript package
 
-- title rewritten around recurrent reproductive function and contingent floral phenotype;
-- abstract: **147 words**;
-- main text: **4,947 words** by repository Markdown count;
-- six main figures;
+- working title and manuscript reorganized around a three-stage pollen-constraint question;
+- working abstract: **133 words**; working main body: **4,658 words** by whitespace count including headings;
+- **six frozen source figure captions** remain, but the proposed five Main figures are **not yet regenerated or renumbered**;
 - cover letter, novelty statement, comparative study-scale audit and prior literature placement synchronized to traitwise H1 (PR #315 merged);
 - discussion now identifies reduced *functional pollinator service* as a literature-supported, **unmeasured** possible explanation for H3; no pollinator declines, guild turnover or historical mediation are inferred from the Chapter 1 results;
 - current interpretation no longer relies on a pooled H1 score.
 
 ### Current scientific claim
 
-> **Island isolation is associated with recurrent reproductive assurance but not a universal floral phenotype; the same geographic gradient is independently associated with stronger pollen limitation, and the island-associated reproductive and accessibility states are functionally aligned with lower current limitation.**
+> **Independent GloPL experiments reveal an isolation-associated pollen-limitation gradient; global island floras show selective reproductive and nonuniform floral responses, some persisting after selfing adjustment. Exact-species trait–PL associations provide post-hoc functional compatibility but do not identify historical causal mediation.**
 
-## Status of post-PR #315 verification
+## Status of prior post-PR #315 verification (historical 8 October check)
 
 - Main branch contains the 8 October literature/scale clarification (squash commit `33ceede43a551a5e89df35905047fa405bf066a5`), with H1–H4 methods/results and frozen numerical tables unchanged.
 - Final H1 and corrected-geography workflows triggered by the final PR head (`37726796591`, `37726796582`) were **queued, not passed** when checked on 8 October 2026. Do not describe these checks as green unless their completed status is independently confirmed.
@@ -54,8 +53,11 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 3. **Final software/results DOI and tag.**  
    Freeze the final submission commit, mint the release DOI, then insert it into the final data-accessibility text.
 
-4. **Final journal files.**  
-   Compile and visually inspect the final manuscript/SI after metadata and DOI freeze.
+4. **Proposed five Main figures and cross-references.**  
+   Regenerate and verify the five-figure display sequence, update `FIGURE_CAPTIONS.md` and every figure reference in Main/SI. Current six source captions are not the new figure set.
+
+5. **Final journal files.**  
+   Compile and visually inspect the final manuscript/SI after metadata, rights, figure and DOI freeze.
 
 ## Claim ceiling
 
@@ -72,3 +74,9 @@ Must not claim:
 - global pollinator decline;
 - a universal named pollinator mechanism;
 - within-lineage evolution rather than assemblage filtering.
+
+## Working branch editorial status (15 October)
+
+- Q1 manuscript and SI crosswalk have been rewritten on PR #319's branch. The six-edge PR #319 proposal remains an archival relationship index, **not** the Main Results outline.
+- No frozen H1–H4 tables, source scripts, p-value rules or result locks were modified by this editorial restructuring.
+- [Main/Supp and figure migration contract](CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md). Completion of this PR is not equivalent to readiness for Ecology Letters submission.
