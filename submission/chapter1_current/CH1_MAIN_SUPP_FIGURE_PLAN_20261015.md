@@ -19,7 +19,7 @@ We directly measure **none of those historical arrows together in the same islan
 
 ## Proposed Main display set: **five** figures (within six-item Letter cap)
 
-The **current six source figures and numeric source IDs are not yet renumbered or raster-rebuilt**. The proposed migration below is an editorial specification, not a claim that the replacement figure PDFs now exist.
+The five Q1 Main figures have now been rendered and committed as PDF/SVG pairs under `figures/q1_main5/`, with source figures 1–6 preserved separately. Numeric H1–H4 source IDs remain immutable; the new Main figure numbers are 1–5. Automated file/manifest checks have passed, while manual visual QA is pending.
 
 | Future main | Main visual / one question | Existing evidence for graphical reuse | What remains in Supp |
 | --- | --- | --- | --- |
@@ -29,7 +29,7 @@ The **current six source figures and numeric source IDs are not yet renumbered o
 | **Fig. 4: Selfing syndrome versus additional floral association** | Source H2: island-level `selfing_core`, `generalized_accessible`, and `plain_colour`. Emphasize the **conditional D coefficient** after R adjustment and show the response definition in each panel. If an unadjusted-vs-adjusted contrast is desired, refit *the same* response on *identical islands* first; never compare H1 atomic outcomes with H2 aggregate scores as if identical. | Source Fig 5 | All/Direct q, complete-three-component sensitivity, raw colour × morphology, exploratory R coefficients, future area/climate ablation: S4 |
 | **Fig. 5: Functional association with current PL** | Source H4 scores against PL as two distinctly labelled matched analyses: `selfing_core` and accessibility, with denominators 455 and 143 species; post-hoc label visible. | Source Fig 6B–C | Atomic-trait estimates, supplemental-only, no-zero-constant, failed buffering/mediation tests: S6 |
 
-**Figure-number migration is required before submission.** Until figure binaries, legends, Methods citations and manuscript references are synchronized, `FIGURE_CAPTIONS.md` continues to describe the *old six source figures* and the text uses those source figure numbers. Do not mark the revised Main visual package as complete at this stage.
+**Figure-number migration was executed in PR #319.** `FIGURE_CAPTIONS.md` now documents the five current Q1 figures and Main/SI cross-references use their new numbering. Old source-six captions are in `history/`. CI verifies file integrity and frozen-source mapping; manual figure legibility review and journal-format assembly remain incomplete.
 
 ## Main sections
 

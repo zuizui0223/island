@@ -33,7 +33,7 @@ Official journal instructions remain the authority at submission.
 ## Current package fit
 
 - Article type: **Letter**
-- Main figures: **6**
+- Main figures: **5**
 - Tables: **0**
 - Text boxes: **0**
 - Main text: **4,664 / 5,000 words** (working whitespace count including headings)
@@ -73,4 +73,4 @@ If the Ecology Letters data-policy gate cannot be closed, switch to *Global Ecol
 
 ## Q1-only revision in progress (15 October)
 
-Working manuscript and SI now use source H3 → H1+H2 → H4 as a **reader sequence** and keep the source inferential identities. The current six figure files and captions have not yet been migrated to the [proposed five Main figures](CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md); do not call the new layout submission-ready. The independent `izu-core` Ch2/Q2 modelling paper is out of scope.
+Working manuscript and SI now use source H3 → H1+H2 → H4 as a **reader sequence** and keep the source inferential identities. The five Q1 Main figure PDFs/SVGs and synchronized captions now exist ([figure plan](CH1_MAIN_SUPP_FIGURE_PLAN_20261015.md)); final visual QA and submission policy gates remain, so the package is not submission-ready. The independent `izu-core` Ch2/Q2 modelling paper is out of scope.

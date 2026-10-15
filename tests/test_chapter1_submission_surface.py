@@ -211,3 +211,32 @@ def test_h1_h4_publication_map_uses_current_result_selector_and_claim_boundaries
     assert "superseded" in sep_text.lower()
     assert "../results/h1_final_traitwise_t_20261004/README.md" in sep_text
     assert "../results/h1_traitwise_20261004/README.md" not in sep_text
+
+
+
+def test_q1_five_main_figures_and_text_surface_are_synchronized():
+    """Five figures are the Q1 display; source H1-H4 numeric IDs remain unchanged."""
+    from xml.etree import ElementTree
+
+    current_figures = ROOT / "submission/chapter1_current/figures/q1_main5"
+    manifest = json.loads((current_figures / "FIGURE_MANIFEST.json").read_text(encoding="utf-8"))
+    assert manifest["contract"] == "chapter1_q1_five_main_figures_v1"
+    assert [item["figure"] for item in manifest["figures"]] == [1, 2, 3, 4, 5]
+    for item in manifest["figures"]:
+        svg = current_figures / item["svg"]
+        pdf = current_figures / item["pdf"]
+        assert svg.stat().st_size == item["svg_bytes"]
+        assert pdf.stat().st_size == item["pdf_bytes"]
+        assert pdf.read_bytes().startswith(b"%PDF-")
+        ElementTree.parse(svg)
+    captions = (ROOT / "submission/chapter1_current/FIGURE_CAPTIONS.md").read_text(encoding="utf-8")
+    manuscript = (ROOT / "submission/chapter1_current/MANUSCRIPT.md").read_text(encoding="utf-8")
+    assert sum(x.startswith("## Figure ") for x in captions.splitlines()) == 5
+    assert "(Figure 6A)" not in manuscript
+    assert "(Figure 6B-C)" not in manuscript
+    assert "(Figure 5)" in manuscript
+    assert "(Figure 4)" in manuscript
+    assert "(Figure 3;" in manuscript
+    for obsolete in ("HYPOTHESIS_STORY_ORDER_20261015.md", "SIX_QUESTIONS_READER_GUIDE_20261015.md"):
+        assert not (ROOT / "submission/chapter1_current" / obsolete).exists()
+        assert (ROOT / "submission/chapter1_current/history" / obsolete).exists()

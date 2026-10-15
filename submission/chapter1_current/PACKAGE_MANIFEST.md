@@ -35,7 +35,11 @@
 
 Historical directional/composite H1 files remain replay provenance only.
 
-## Current six source figures (not yet migrated)
+## Current five Q1 Main figures
+
+The committed and CI-validated Q1 display PDFs/SVGs are in `figures/q1_main5/`. Figure captions have been migrated to five numbers; frozen estimates remain unchanged. Original source-six figures and their [caption archive](history/FIGURE_CAPTIONS_SOURCE6_20261015.md) remain replay provenance. Layout/legibility requires final visual QA.
+
+## Historical six source figures (replay only)
 
 1. Global geographic and data scope
 2. Database construction and analytical workflow
@@ -58,4 +62,4 @@ No historical causal mediation is claimed.
 
 ## Submission state
 
-The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 133 words; working Main body 4,664 words; **existing** six source display items). Submission remains blocked by the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI, **five-figure rebuild and reference synchronisation**, and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 133 words; working Main body 4,664 words; **five** Q1 Main display items). Five new figure PDF/SVG pairs and their manifest are committed; submission remains blocked by visual QA, the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.

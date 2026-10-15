@@ -8,7 +8,7 @@ Status: **Ecology Letters first-shot draft conditional on data-policy clearance;
 ## Current package
 
 - MANUSCRIPT.md — submission manuscript rewritten around recurrent reproductive function and regionally contingent floral phenotype.
-- FIGURE_CAPTIONS.md — Main Figures 1–6 using corrected H1–H4 estimates.
+- FIGURE_CAPTIONS.md — five Q1 Main figure captions, with original six source captions under history/.
 - COVER_LETTER_DRAFT.md — Ecology Letters first-shot cover letter.
 - ECOLOGY_LETTERS_TARGET.md — journal fit, limits and editorial positioning.
 - NOVELTY_STATEMENT.md — conceptual novelty statement.
@@ -16,7 +16,7 @@ Status: **Ecology Letters first-shot draft conditional on data-policy clearance;
 - DATA_ACCESSIBILITY_DRAFT.md — rights-aware data/code availability wording.
 - ECOLOGY_LETTERS_DATA_GATE.md — hard submission gate created by third-party redistribution restrictions.
 - ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md — pre-submission editor inquiry.
-- figures/ — Main Figures 1–6.
+- figures/q1_main5/ — five rendered and manifest-checked Q1 Main PDFs/SVGs; figures/Figure1–Figure6 files are retained source-only.
 - SUPPLEMENTARY_INFORMATION.md and supplement/ — submission-facing SI and deterministic tables.
 - SUBMISSION_CHECKLIST.md — remaining journal-specific work.
 - SUBMISSION_READINESS.md — current submission state.
@@ -33,7 +33,11 @@ Status: **Ecology Letters first-shot draft conditional on data-policy clearance;
 - 1,113 spurious island zero distances repaired;
 - 996 true continental GloPL zero-distance sites retained.
 
-## Scientific spine
+## Reader-facing Q1 narrative
+
+The manuscript proceeds **ecological constraint (source H3) → seven trait responses plus selfing adjustment (sources H1 + H2) → post-hoc contemporary functional associations (source H4)**. The figure display sequence is Q1 Figures 1–5; source H1–H4 IDs are unchanged.
+
+## Frozen source analyses
 
 1. **H1 — traitwise recurrence and exceptions.** Seven traits are fitted separately in four regions. Self-compatibility increases with isolation in all four regions in broad All and WCVP-compatible All analyses. Other selfing, colour and structural responses are region dependent. H1 uses pointwise two-sided finite-cluster t inference; no pooled/domain score and no family-wise significance claim are active.
 2. **H2 — partial separability.** Measured reproductive assurance does not absorb all floral-accessibility response. FDR support for selfing-adjusted accessibility is strongest in northern high latitudes and tropical all-analysis; tropical Direct-only is not FDR-supported.

@@ -22,7 +22,7 @@ Source-analysis identifiers H1–H4 remain unchanged. The narrative sequence is 
 
 ### Global island plant database
 
-We used a corrected global analysis universe of **8,264 island units**. Candidate units originated from GSHHG 2.3.7 high-resolution island geometry. A geography audit identified one continental split component that had been retained as an island; excluding it yielded the corrected 8,264-unit universe and a broad H1 union of 4,379 islands. The trait database retained the same taxonomic and provenance structure, containing 106,295 accepted angiosperm species.
+We used a corrected global analysis universe of **8,264 island units** (Figure 1). Candidate units originated from GSHHG 2.3.7 high-resolution island geometry. A geography audit identified one continental split component that had been retained as an island; excluding it yielded the corrected 8,264-unit universe and a broad H1 union of 4,379 islands. The trait database retained the same taxonomic and provenance structure, containing 106,295 accepted angiosperm species.
 
 Observed island floras were assembled from GBIF occurrence records assigned to island units. Trait evidence was assembled source by source from floras, monographs, public trait resources and primary literature. Every accepted record retained source provenance. Species-direct high- and medium-confidence evidence had priority, while validated lower-confidence evidence was used only where direct evidence was unavailable. Missing trait information was retained as missing rather than converted to trait absence, and family-level inference was not used as a general fill rule.
 
@@ -102,7 +102,7 @@ We also retained atomic-trait sensitivities. Because the global colour response 
 
 Across 2,969 pollen-supplementation experiments, the corrected standardized distance coefficient was positive (**beta = 0.09191, SE = 0.03806; finite-publication two-sided p = 0.01594; one-sided positive p = 0.00797**). The no-zero-constant sensitivity also retained a supported positive coefficient (beta = 0.09089, p = 0.01869).
 
-The supplemental-only sensitivity was positive but unsupported (beta = 0.04410, p = 0.31082). The primary result therefore supports an isolation-associated increase in experimental pollen limitation, while the evidence is not equally strong under every measurement definition (Figure 6A).
+The supplemental-only sensitivity was positive but unsupported (beta = 0.04410, p = 0.31082). The primary result therefore supports an isolation-associated increase in experimental pollen limitation, while the evidence is not equally strong under every measurement definition (Figure 2).
 
 The post-hoc offshore-only analysis showed that this result was not generated solely by the contrast between 996 mainland zero-distance sites and offshore sites. Among 276 positive-distance measurement cells from 153 publications and 252 sites, pollen limitation still increased with isolation (**beta = 0.22031, SE = 0.09704, finite-publication p = 0.02459**). By contrast, a binary mainland-versus-offshore indicator alone was unsupported (beta = 0.12743, p = 0.14364). Leave-one-publication-out refits kept all 153 offshore-gradient estimates positive; the weakest two-sided result was p = 0.04892. These checks support a continuous offshore gradient while remaining post-hoc robustness analyses.
 
@@ -112,7 +112,7 @@ The post-hoc offshore-only analysis showed that this result was not generated so
 
 All 112 fits converged. Primary All evidence supports 17 of 28 individual associations at nominal two-sided P < 0.05. Self-compatibility increases with isolation in all four regions (P = 0.00569, 0.00671, 0.01812 and 0.01123 in northern mid-latitude, northern high-latitude, tropical and southern extratropical floras, respectively). Selfing mating system increases in the first three regions. Autonomous selfing increases in northern high latitudes and the tropics. Generalized form increases in northern mid-latitudes, the tropics and southern extratropics; actinomorphy increases in northern high latitudes and the tropics. Shallow/open tubes increase in northern high latitudes but decrease in southern extratropics. Plain colour increases in southern extratropics.
 
-In WCVP All, 10 of 28 individual associations meet the same nominal threshold. Increasing self-compatibility remains supported in all four regions. Northern-high autonomous selfing, actinomorphy and shallow/open tubes remain positive and supported; tropical actinomorphy remains supported. Plain colour increases in both tropical and southern extratropical WCVP floras. Several broad-flora associations, including the southern shallow/open-tube decrease, no longer meet the threshold. This can reflect changed composition, precision and coverage, rather than proving an introduced-species mechanism. Direct-only yields 15/28 supported associations in broad flora and 11/28 in WCVP flora. Complete coefficients, intervals and unadjusted P values are reported in Supplementary Table S2.
+In WCVP All, 10 of 28 individual associations meet the same nominal threshold. Increasing self-compatibility remains supported in all four regions. Northern-high autonomous selfing, actinomorphy and shallow/open tubes remain positive and supported; tropical actinomorphy remains supported. Plain colour increases in both tropical and southern extratropical WCVP floras. Several broad-flora associations, including the southern shallow/open-tube decrease, no longer meet the threshold. This can reflect changed composition, precision and coverage, rather than proving an introduced-species mechanism. Direct-only yields 15/28 supported associations in broad flora and 11/28 in WCVP flora. The traitwise coefficient display is shown in Figure 3; complete estimates, intervals and unadjusted P values are reported in Supplementary Table S2.
 
 #### Does measured reproductive assurance absorb the floral gradient? (source H2)
 
@@ -124,7 +124,7 @@ The complete-three-component Direct-only sensitivity reduced the selfing mediato
 
 Colour responses remained more heterogeneous. Southern adjusted plain colour remained supported after finite-cluster correction (q = 0.00243 in all-analysis and 1.8 × 10^-5 in Direct-only). Raw colour, architecture and colour-conditioned architecture analyses showed region-specific response patterns, including negative northern-high-latitude blue/purple architecture associations and a positive tropical Direct yellow/orange × butterfly/deep-tube pattern. These raw pattern analyses are descriptive and do not establish realized pollinator identity.
 
-The corrected H2 results therefore support a partially separable floral response: accessibility estimates remained positive after reproductive-assurance adjustment in all four regions, but FDR support was concentrated in northern high latitudes and the tropics. The strength and detailed form of the additional floral response are geographically contingent (Figure 5).
+The corrected H2 results therefore support a partially separable floral response: accessibility estimates remained positive after reproductive-assurance adjustment in all four regions, but FDR support was concentrated in northern high latitudes and the tropics. The strength and detailed form of the additional floral response are geographically contingent (Figure 4).
 
 ### Functional consistency: reproductive and floral traits versus current PL (source H4)
 
@@ -134,7 +134,7 @@ The literal H2-to-H4 bridge gave the same overall interpretation. The Direct-onl
 
 The Direct-only `generalized_accessible` score matched 143 GloPL species across 143 publications. Higher accessibility was associated with lower current pollen limitation (**beta = -0.29566, SE = 0.12896, finite-publication p = 0.02334**). The supplemental-only sensitivity was also negative (finite-publication p = 0.04239), and the no-zero-constant sensitivity remained supported (p = 0.02082).
 
-In different exact-species subsets, the selected reproductive-assurance and accessibility scores were each associated with lower current pollen limitation (Figure 6B-C). This functional alignment does not establish that historical pollen limitation caused the observed trait distributions.
+In different exact-species subsets, the selected reproductive-assurance and accessibility scores were each associated with lower current pollen limitation (Figure 5). This functional alignment does not establish that historical pollen limitation caused the observed trait distributions.
 
 ## Discussion
 

@@ -5,7 +5,8 @@
 - [x] Q1-only Ch1 empirical scope fixed; Ch2/Q2 mechanism model excluded as a separate `izu-core` paper
 - [x] Working Main reorganized into constraint → plant patterns plus original H2 → post-hoc functional consistency
 - [x] SI source-ID-to-reader-stage crosswalk and five-figure migration plan added
-- [ ] Regenerate proposed five Main figures, move excess technical panels to SI, and synchronize all captions and numerical figure citations
+- [x] Render and manifest-check five Q1 Main PDF/SVG pairs, synchronize five captions and numerical manuscript citations
+- [ ] Final visual QA of five Main figures; move any excess technical panels to SI as needed
 - [ ] Validate the final five-figure PDF assets and journal-ready main/SI word limits after export
 
 - [x] Corrected 8,264-island geography baseline fixed
@@ -17,7 +18,7 @@
 - [x] H3 corrected GloPL estimate and offshore-gradient robustness integrated
 - [x] H4 exact-score and atomic estimates integrated
 - [x] Previous manuscript baseline retained in Git history; new working manuscript reframed around the pollen-supply-constraint hypothesis
-- [x] **Existing six source figure captions** synchronized to frozen traitwise H1 (five-figure migration pending)
+- [x] Five Q1 captions are current; original six-source captions preserved under history/
 - [x] Ecology Letters cover letter and novelty statement synchronized
 - [x] Thesis positioning synchronized
 - [x] Historic H1–H5, pooled-composite H1 and October post-hoc regional hinge/genus findings kept outside the active submission claims
@@ -27,7 +28,7 @@
 - [x] Ecology Letters selected as first shot; GEB fallback
 - [x] Abstract <150 words
 - [x] Main text <5,000 words by repository Markdown count
-- [x] Six main display items
+- [x] Five Q1 Main display items
 - [ ] Complete author order and affiliations
 - [ ] Add corresponding-author details
 - [ ] Add funding and acknowledgements

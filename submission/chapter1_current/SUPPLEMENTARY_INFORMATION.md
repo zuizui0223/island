@@ -4,6 +4,8 @@
 
 This Supplementary Information accompanies the Q1-only empirical Chapter 1 manuscript selected by `config/chapter1_submission_current.json`. It preserves original statistical source identifiers H1–H4 and all numerical decisions; reader-facing ordering has changed, not the models. Results are bound to the active results tables (see results/h1_final_traitwise_t_20261004/README.md and results/geography_20260924/README.md) and the existing deterministic tables in submission/chapter1_current/supplement/Table_S1_data_summary.csv and related supplementary files.
 
+Five current Main display items and their immutable source analyses are listed in [FIGURE_CAPTIONS.md](FIGURE_CAPTIONS.md) and validated as five PDF/SVG pairs in [figures/q1_main5/FIGURE_MANIFEST.json](figures/q1_main5/FIGURE_MANIFEST.json). Figure numbering is for the Q1 Main only; source H1–H4 statistical IDs are unchanged. Historical six-source figures remain available for replay, not alternative Main displays.
+
 The Chapter 1 argument has three stages: published experimental pollen limitation (ecological constraint), the original island plant database (seven trait responses **and** the source-H2 selfing-adjusted floral decomposition), and the exploratory exact-species trait–PL bridge. The GloPL samples are not the same sampled island floras; the two datasets cannot identify historical PL mediation. The separate `izu-core` Chapter 2 evolutionary simulations are **not included** in the empirical Chapter 1 analysis or this SI. The geography correction remains post-hoc measurement repair, and H4 remains post-hoc functional triangulation.
 
 ### S0. Reader-facing sections versus frozen source analyses
