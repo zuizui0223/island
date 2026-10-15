@@ -23,9 +23,6 @@ def run(docpath: Path, outdir: Path, role: str) -> dict[str, object]:
     gap, title_h, cols, per_sheet = 14, 24, 3, 6
     tiles: list[str] = []
     for start in range(0, len(pdf), per_sheet):
-        group = pdf[start : start + per_sheet]
-        # Slicing PyMuPDF Document is not always implemented; use indices.
-        del group
         slots = min(per_sheet, len(pdf) - start)
         rows = math.ceil(slots / cols)
         sheet = Image.new(
