@@ -1,0 +1,130 @@
+name: Compose Chapter 1 Main SI Editorial Proofs
+
+on:
+  push:
+    branches:
+      - docs/hypothesis-story-order-20261015
+    paths:
+      - scripts/submission/compose_ch1_editorial_proofs.py
+      - .github/workflows/q1-compose-editorial-proofs.yml
+      - submission/chapter1_current/MANUSCRIPT.md
+      - submission/chapter1_current/SUPPLEMENTARY_INFORMATION.md
+      - submission/chapter1_current/FIGURE_CAPTIONS.md
+      - submission/chapter1_current/TITLE_PAGE_TEMPLATE.md
+      - submission/chapter1_current/figures/q1_main5/qa_print/Q1_Main5_178mm_A4_print_proof.pdf
+      - submission/chapter1_current/supplement/figures/*.pdf
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: chapter1-main-si-proof-q1
+  cancel-in-progress: true
+
+jobs:
+  compose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install composition tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq pandoc poppler-utils fonts-dejavu-core
+          pip install "pypdf>=5,<7" "weasyprint>=62,<69" "pymupdf>=1.25,<2" "Pillow>=11,<14"
+          python -m py_compile scripts/submission/compose_ch1_editorial_proofs.py
+      - name: Compose manuscript, SI, and figure-inclusive editorial proofs
+        run: |
+          python scripts/submission/compose_ch1_editorial_proofs.py --root . --out submission/chapter1_current/editorial_proofs
+      - name: Verify output contract and original science baseline
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from zipfile import ZipFile
+          from pypdf import PdfReader
+          root=Path("submission/chapter1_current/editorial_proofs")
+          audit=json.loads((root/"EDITORIAL_PROOF_MANIFEST.json").read_text())
+          assert audit["contract"]=="chapter1_q1_main_si_editorial_composition_v1"
+          assert audit["status"]=="EDITORIAL_PROOF_NOT_SUBMISSION_READY"
+          assert audit["submission_authorized"] is False
+          assert audit["trait_redistribution_rights_cleared"] is False
+          assert audit["author_approval"] is False
+          assert audit["source_audit"]["original_main_body_words"]<=5000
+          for family in ("main","si"):
+              record=audit[family]
+              with ZipFile(root/record["docx"]) as doc:
+                  assert doc.testzip() is None
+                  assert "word/document.xml" in doc.namelist()
+              pdf=PdfReader(root/record["pdf"])
+              assert len(pdf.pages)==record["pdf_pages"]
+              assert len(pdf.pages)>=2
+              for page in pdf.pages:
+                  assert abs(float(page.mediabox.width)-595.2756)<1
+                  assert abs(float(page.mediabox.height)-841.8898)<1
+          assert len(PdfReader(root/audit["main_plus_figures"]["file"]).pages)==audit["main"]["pdf_pages"]+5
+          assert len(PdfReader(root/audit["si_plus_figures"]["file"]).pages)==audit["si"]["pdf_pages"]+7
+          print("Verified editorial proof contract, DOCX ZIP packages, A4 PDFs, and appended figure counts.")
+          PY
+      - name: Render source-document page contact sheets
+        run: |
+          python - <<'PY'
+          import math
+          import json
+          from pathlib import Path
+          import fitz
+          from PIL import Image, ImageDraw
+          root=Path("submission/chapter1_current/editorial_proofs")
+          data=json.loads((root/"EDITORIAL_PROOF_MANIFEST.json").read_text())
+          for role in ("main","si"):
+              src=root/data[role]["pdf"]
+              pages=fitz.open(src)
+              thumb_w,thumb_h,columns=237,333,4
+              gutter,header=18,26
+              rows=math.ceil(len(pages)/columns)
+              sheet=Image.new("RGB", (columns*(thumb_w+gutter)+gutter, rows*(thumb_h+header+gutter)+gutter), "white")
+              draw=ImageDraw.Draw(sheet)
+              for k,page in enumerate(pages):
+                  pix=page.get_pixmap(matrix=fitz.Matrix(0.48,0.48),alpha=False)
+                  im=Image.frombytes("RGB",[pix.width,pix.height],pix.samples)
+                  im.thumbnail((thumb_w,thumb_h))
+                  x=gutter+(k%columns)*(thumb_w+gutter)
+                  y=gutter+(k//columns)*(thumb_h+header+gutter)
+                  sheet.paste(im,(x,y+header))
+                  draw.text((x,y+4),f"{role.upper()} page {k+1}",fill="black")
+              out=root/f"Q1_{role.upper()}_ALL_PAGES_CONTACT_SHEET.png"
+              sheet.save(out,optimize=True)
+              print(role, len(pages),"pages ->",out)
+          PY
+          pdftoppm -f 1 -l 1 -r 130 -png -singlefile \
+            submission/chapter1_current/editorial_proofs/Q1_Main_EDIT_PROOF.pdf \
+            submission/chapter1_current/editorial_proofs/Q1_Main_FIRST_PAGE
+          pdftoppm -f 1 -l 1 -r 130 -png -singlefile \
+            submission/chapter1_current/editorial_proofs/Q1_SI_EDIT_PROOF.pdf \
+            submission/chapter1_current/editorial_proofs/Q1_SI_FIRST_PAGE
+      - name: Commit editorial proofs to open PR branch
+        if: github.event_name == 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add submission/chapter1_current/editorial_proofs/
+          if git diff --cached --quiet; then
+            echo "No editorial proof changes"
+          else
+            git commit -m "docs(ch1): commit Main/SI DOCX and figure-inclusive PDF editorial proofs [skip ci]"
+            git push origin HEAD:refs/heads/docs/hypothesis-story-order-20261015
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-editorial-proof
+          path: submission/chapter1_current/editorial_proofs/
+          if-no-files-found: warn
+          retention-days: 60
