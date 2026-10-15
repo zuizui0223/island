@@ -658,6 +658,10 @@ def q1_figure1(root: Path, out: Path) -> None:
     ax_flow.text(0.50, 0.02, "Solid arrows: fitted associations across separate samples.",
                  ha="center", fontsize=8)
 
+    # Keep the four geographic classes explicitly decoded at actual print width.
+    handles, labels = ax_island.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="center", bbox_to_anchor=(0.50, 0.568),
+               ncol=4, fontsize=7.2, frameon=False)
     fig.suptitle("Figure 1 | Geographic sampling and inference boundary", y=0.995, fontsize=11)
     fig.subplots_adjust(left=0.09, right=0.98, top=0.94, bottom=0.04)
     _save(fig, out, Q1_FIGURE_STEMS[1])

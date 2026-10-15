@@ -92,3 +92,12 @@ def test_current_q1_five_main_figures_and_source_six_replay() -> None:
     assert captions.count("## Figure ") == 5
     assert (PACKAGE / "history/FIGURE_CAPTIONS_SOURCE6_20261015.md").is_file()
     assert len(json.loads((MAIN / "FIGURE_MANIFEST.json").read_text())["figures"]) == 6
+    proof_dir = current / "qa_print"
+    proof_manifest = json.loads((proof_dir / "PRINT_PROOF_MANIFEST.json").read_text())
+    assert proof_manifest["contract"] == "chapter1_q1_a4_print_width_proof_v1"
+    assert proof_manifest["figure_width_mm"] == 178
+    assert len(proof_manifest["figures"]) == 5
+    assert all(item["fits_a4_at_print_width"] for item in proof_manifest["figures"])
+    _assert_pdf(proof_dir / proof_manifest["proof_pdf"])
+    from pypdf import PdfReader
+    assert len(PdfReader(proof_dir / proof_manifest["proof_pdf"]).pages) == 5

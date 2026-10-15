@@ -8,6 +8,7 @@ on:
       - scripts/submission/render_chapter1_main_figures.py
       - .github/workflows/q1-five-main-figures.yml
       - scripts/submission/audit_q1_print_width.py
+      - scripts/submission/build_q1_print_proof.py
   workflow_dispatch:
 
 permissions:
@@ -80,6 +81,25 @@ jobs:
               with Image.open(img) as f:
                   assert f.width >= 650 and f.height >= 300
               print(img.name, img.stat().st_size)
+          PY
+      - name: Assemble actual 178-mm-width A4 figure proof
+        run: |
+          python scripts/submission/build_q1_print_proof.py \
+            --figure-dir submission/chapter1_current/figures/q1_main5 \
+            --output-dir submission/chapter1_current/figures/q1_main5/qa_print
+          pdftoppm -f 1 -l 5 -r 120 -png \
+            submission/chapter1_current/figures/q1_main5/qa_print/Q1_Main5_178mm_A4_print_proof.pdf \
+            submission/chapter1_current/figures/q1_main5/qa_print/page
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from pypdf import PdfReader
+          root=Path("submission/chapter1_current/figures/q1_main5/qa_print")
+          qa=json.loads((root/"PRINT_PROOF_MANIFEST.json").read_text())
+          assert qa["figure_width_mm"] == 178
+          assert len(qa["figures"]) == 5
+          assert len(PdfReader(root/qa["proof_pdf"]).pages) == 5
+          assert len(list(root.glob("page-*.png"))) == 5
           PY
       - name: Commit checked vector figure assets to PR head
         if: github.event_name == 'push'
