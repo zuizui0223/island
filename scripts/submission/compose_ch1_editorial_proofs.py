@@ -132,6 +132,70 @@ def _pandoc(md: Path, dst: Path, fmt: str) -> None:
     _run(["pandoc", "--standalone", "--from=gfm", f"--to={fmt}", str(md), "--output", str(dst)])
 
 
+def _make_si_docx_tables_readable(docx_path: Path) -> int:
+    """Edit only the SI Word layout; preserve all original words and numbers.
+
+    SI contains wide statistical tables with many columns. Unlike the readable
+    independent portrait PDF proof, Pandoc's default DOCX table widths can
+    wrap individual header letters. A4 landscape, fixed per-column widths and
+    compact cell text are appropriate for this editable *working* SI document.
+    """
+    from docx import Document
+    from docx.enum.section import WD_ORIENT
+    from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
+    from docx.oxml import OxmlElement
+    from docx.shared import Mm, Pt
+
+    doc = Document(docx_path)
+    for section in doc.sections:
+        section.orientation = WD_ORIENT.LANDSCAPE
+        section.page_width = Mm(297)
+        section.page_height = Mm(210)
+        section.left_margin = Mm(15)
+        section.right_margin = Mm(15)
+        section.top_margin = Mm(14)
+        section.bottom_margin = Mm(14)
+        section.header_distance = Mm(8)
+        section.footer_distance = Mm(8)
+
+    usable_mm = 267.0
+    for table in doc.tables:
+        ncols = len(table.columns)
+        if not ncols:
+            continue
+        table.autofit = False
+        if ncols == 3:
+            weights = [2.5, 2.0, 5.5]
+        elif ncols == 2:
+            weights = [3.5, 6.5]
+        elif ncols <= 5:
+            weights = [2.2] + [1.0] * (ncols - 1)
+        else:
+            weights = [2.6] + [1.0] * (ncols - 1)
+        unit = usable_mm / sum(weights)
+        font_pt = 8.2 if ncols <= 5 else 7.5
+        for col, weight in zip(table.columns, weights, strict=True):
+            col.width = Mm(weight * unit)
+        for ri, row in enumerate(table.rows):
+            tr_pr = row._tr.get_or_add_trPr()
+            tr_pr.append(OxmlElement("w:cantSplit"))
+            if ri == 0:
+                tr_pr.append(OxmlElement("w:tblHeader"))
+            for cell, weight in zip(row.cells, weights, strict=True):
+                cell.width = Mm(weight * unit)
+                cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
+                for paragraph in cell.paragraphs:
+                    paragraph.paragraph_format.space_before = Pt(0)
+                    paragraph.paragraph_format.space_after = Pt(0)
+                    paragraph.paragraph_format.line_spacing = 1.0
+                    for run in paragraph.runs:
+                        run.font.size = Pt(font_pt)
+    if len(doc.tables) < 4:
+        raise ValueError("Expected multiple SI tables for layout polishing")
+    doc.save(docx_path)
+    return len(doc.tables)
+
+
 def _render_one(markdown: str, dest: Path, name: str, style: str) -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="ch1-compose-") as tmp:
         tmpdir = Path(tmp)
@@ -141,6 +205,9 @@ def _render_one(markdown: str, dest: Path, name: str, style: str) -> dict[str, o
         docx = dest / f"{name}.docx"
         pdf = dest / f"{name}.pdf"
         _pandoc(input_md, docx, "docx")
+        si_docx_table_count = (
+            _make_si_docx_tables_readable(docx) if name == "Q1_SI_EDIT_PROOF" else 0
+        )
         _pandoc(input_md, html_file, "html5")
         HTML(filename=str(html_file), base_url=str(html_file.parent)).write_pdf(
             pdf, stylesheets=[CSS(string=style)]
@@ -156,6 +223,7 @@ def _render_one(markdown: str, dest: Path, name: str, style: str) -> dict[str, o
             "docx": docx.name, "docx_sha256": sha256(docx),
             "pdf": pdf.name, "pdf_sha256": sha256(pdf),
             "pdf_pages": page_count,
+            "si_docx_landscape_tables": si_docx_table_count,
         }
 
 
