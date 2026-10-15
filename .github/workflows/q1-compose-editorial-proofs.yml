@@ -38,7 +38,9 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq pandoc poppler-utils fonts-dejavu-core
-          pip install "pypdf>=5,<7" "weasyprint>=62,<69" "pymupdf>=1.25,<2" "Pillow>=11,<14"
+          pip install "pypdf>=5,<7" "weasyprint>=62,<69" "pymupdf>=1.25,<2" "Pillow>=11,<14" "ruff>=0.17,<0.18"
+          ruff check --fix scripts/submission/compose_ch1_editorial_proofs.py
+          ruff check scripts/submission/compose_ch1_editorial_proofs.py
           python -m py_compile scripts/submission/compose_ch1_editorial_proofs.py
       - name: Compose manuscript, SI, and figure-inclusive editorial proofs
         run: |
@@ -57,7 +59,7 @@ jobs:
           assert audit["submission_authorized"] is False
           assert audit["trait_redistribution_rights_cleared"] is False
           assert audit["author_approval"] is False
-          assert audit["source_audit"]["original_main_body_words"]<=5000
+          assert audit["source_audit"]["original_main_body_words"]==4675
           for family in ("main","si"):
               record=audit[family]
               with ZipFile(root/record["docx"]) as doc:
@@ -114,7 +116,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add submission/chapter1_current/editorial_proofs/
+          git add submission/chapter1_current/editorial_proofs/ scripts/submission/compose_ch1_editorial_proofs.py
           if git diff --cached --quiet; then
             echo "No editorial proof changes"
           else
