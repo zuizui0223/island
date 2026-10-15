@@ -1,0 +1,75 @@
+name: Render Chapter 1 Q1 five Main figures
+
+on:
+  push:
+    branches:
+      - docs/hypothesis-story-order-20261015
+    paths:
+      - scripts/submission/render_chapter1_main_figures.py
+      - .github/workflows/render-chapter1-q1-five-main.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: chapter1-q1-five-figures-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install renderer dependencies
+        run: pip install -e '.[dev]'
+      - name: Render five Main figures from locked repo tables
+        env:
+          MPLBACKEND: Agg
+        run: |
+          python -m py_compile scripts/submission/render_chapter1_main_figures.py
+          python scripts/submission/render_chapter1_main_figures.py --root . --q1-five --output-dir submission/chapter1_current/figures/q1_main5
+      - name: Validate source provenance and outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from xml.etree import ElementTree
+          root = Path('submission/chapter1_current/figures/q1_main5')
+          data = json.loads((root/'FIGURE_MANIFEST.json').read_text())
+          assert data['contract'] == 'chapter1_q1_five_main_figures_v1'
+          assert [r['figure'] for r in data['figures']] == [1, 2, 3, 4, 5]
+          for row in data['figures']:
+              svg, pdf = root/row['svg'], root/row['pdf']
+              assert svg.stat().st_size == row['svg_bytes']
+              assert pdf.stat().st_size == row['pdf_bytes']
+              assert pdf.read_bytes().startswith(b'%PDF-')
+              ElementTree.parse(svg)
+          print('Validated five SVG/PDF pairs and manifest')
+          PY
+      - name: Commit checked vector figure assets to PR head
+        if: github.event_name == 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add submission/chapter1_current/figures/q1_main5/
+          if git diff --cached --quiet; then
+            echo 'All five figures already match the locked renderer'
+          else
+            git commit -m 'docs(ch1): commit verified five Main figure assets [skip ci]'
+            git push origin HEAD:refs/heads/docs/hypothesis-story-order-20261015
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-q1-five-main-figures-${{ github.run_id }}
+          path: submission/chapter1_current/figures/q1_main5/
+          if-no-files-found: warn
+          retention-days: 60
