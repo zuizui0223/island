@@ -39,6 +39,19 @@ Historical directional/composite H1 files remain replay provenance only.
 
 The committed and CI-validated Q1 display PDFs/SVGs are in `figures/q1_main5/`. Figure captions have been migrated to five numbers; frozen estimates remain unchanged. The [178-mm five-page A4 print proof](figures/q1_main5/qa_print/Q1_Main5_178mm_A4_print_proof.pdf) and [minimum-font audit](figures/q1_main5/PRINT_WIDTH_AUDIT.json) are committed and pass (minimum effective glyph size 7.159 pt). Original source-six figures and their [caption archive](history/FIGURE_CAPTIONS_SOURCE6_20261015.md) remain replay provenance. All five PDFs have 120-dpi raster QA images. After direct inspection, bottom-row labels in Figures 2 and 4 were repositioned; final journal-page-size layout QA remains open.
 
+## Composed Main / SI editorial proofs (not final journal files)
+
+The GitHub-reviewed [editing-only proof directory](editorial_proofs/) contains:
+
+- `Q1_Main_EDIT_PROOF.docx` and `Q1_Main_EDIT_PROOF.pdf` (23 A4 Main pages, including title page, 4,675-word scientific Main source, references, and figure legends);
+- `Q1_Main_plus_5_figures_REVIEW.pdf` (28 pages; the five figures follow the text);
+- `Q1_SI_EDIT_PROOF.docx` and `Q1_SI_EDIT_PROOF.pdf` (14 SI text pages, Tables/S0–S7);
+- `Q1_SI_plus_7_figures_REVIEW.pdf` (21 pages; seven existing supplementary figure pages);
+- `EDITORIAL_PROOF_MANIFEST.json` with source SHA-256 hashes and fail-closed author/rights/DOI statuses;
+- `Q1_MAIN_PAGES_AUDIT.json`, `Q1_SI_PAGES_AUDIT.json`, and seven inspection contact tiles, covering all **37 text pages**.
+
+The [editorial proof QA record](EDITORIAL_PROOF_QA_20261015.md) describes the verification boundaries. These files are **not** journal typeset or submission-authorized. Neither a full third-party trait ledger nor a claim of rights clearance is included.
+
 ## Historical six source figures (replay only)
 
 1. Global geographic and data scope
@@ -62,4 +75,4 @@ No historical causal mediation is claimed.
 
 ## Submission state
 
-The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 133 words; working Main body 4,675 words; **five** Q1 Main display items). Five new figure PDF/SVG pairs and their manifest are committed; submission remains blocked by *journal-composed Main/SI* visual QA, the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 133 words; working Main body 4,675 words; **five** Q1 Main display items). Five new figure PDF/SVG pairs and their manifest are committed; submission remains blocked by *final journal-template production and approval*, the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and authorized submission. The editing-only Main/SI proofs are complete. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.

@@ -27,6 +27,7 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 - working title and manuscript reorganized around a three-stage pollen-constraint question;
 - working abstract: **133 words**; working main body: **4,675 words** by whitespace count including headings;
 - five Q1 Main PDF/SVG pairs are rendered and machine-verified; Main captions and references are now numbered 1–5, with original six-source figures archived as replay provenance; 120-dpi PDF previews and the 178-mm, five-page A4 proof have been visually inspected; 178-mm minimum text audit passes (7.159–8.144 pt), but final composed Main/SI still needs QA;
+- editing-only Main DOCX and 23-page text PDF, 28-page Main-plus-five-figures review PDF, SI DOCX and 14-page text PDF, 21-page SI-plus-seven-figures review PDF are committed under `submission/chapter1_current/editorial_proofs/`. All **37 text pages** passed the per-page text and canvas audit; complete page-contact tiles were inspected; the files are not submission-authorized;
 - cover letter, novelty statement, comparative study-scale audit and prior literature placement synchronized to traitwise H1 (PR #315 merged);
 - discussion now identifies reduced *functional pollinator service* as a literature-supported, **unmeasured** possible explanation for H3; no pollinator declines, guild turnover or historical mediation are inferred from the Chapter 1 results;
 - current interpretation no longer relies on a pooled H1 score.
@@ -57,7 +58,7 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
    Five PDFs/SVGs, PNG previews, and a five-page A4 proof with all figures at 178 mm are committed and visually checked. Actual print-width text is at least 7.159 pt and the original figures remain replayable. The remaining gate is their placement and reference consistency in the final compiled journal Main/SI, not a standalone figure size issue.
 
 5. **Final journal files.**  
-   Compile and visually inspect the final manuscript/SI after metadata, rights, figure and DOI freeze.
+   Editorial review DOCX/PDF files and checked figure-inclusive PDFs now exist. After author metadata, rights, and DOI freeze, perform actual journal-template production, typography/word-count checks, approval and final submission.
 
 ## Claim ceiling
 

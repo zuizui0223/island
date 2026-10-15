@@ -8,7 +8,9 @@
 - [x] Render and manifest-check five Q1 Main PDF/SVG pairs, synchronize five captions and numerical manuscript citations
 - [x] Inspect 120-dpi PNG previews of all five PDF figures and fix bottom-row label collisions in Figures 2 and 4
 - [x] Assemble five-page A4 proof at 178-mm figure width, inspect all five pages, restore region-color legend and enforce 6.5-pt minimum text
-- [ ] Inspect figures within *final journal-composed Main/SI* and move any excess panels to SI if required
+- [x] Generate **editorial-only** Main/SI DOCX and PDFs (23 Main text pages + 14 SI text pages), including five Main figures and seven SI figures in separate joined review PDFs
+- [x] Check all 37 Main/SI text pages: readable contact-sheet tiles, no blank pages or out-of-page text boxes, 4,675-word scientific Main source count
+- [ ] Inspect figures within the **actual target-journal-composed Main/SI** after author/data approvals; the existing A4 editorial proof is not final journal production
 - [ ] Validate the final five-figure PDF assets and journal-ready main/SI word limits after export
 
 - [x] Corrected 8,264-island geography baseline fixed
