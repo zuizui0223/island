@@ -198,8 +198,16 @@ def test_h1_h4_publication_map_uses_current_result_selector_and_claim_boundaries
     assert "global-average island-syndrome direction" not in readme
 
     assert manuscript.exists()
-    assert "### H1:" in manuscript.read_text(encoding="utf-8")
-    assert "### H4:" in manuscript.read_text(encoding="utf-8")
+    manuscript_text = manuscript.read_text(encoding="utf-8")
+    assert "#### Seven distinct trait responses (source H1)" in manuscript_text
+    assert "#### Does measured reproductive assurance absorb the floral gradient? (source H2)" in manuscript_text
+    assert "### Constraint: increased pollen limitation with isolation (source H3)" in manuscript_text
+    assert "### Functional consistency: reproductive and floral traits versus current PL (source H4)" in manuscript_text
+    assert (
+        manuscript_text.index("### Constraint: increased pollen limitation")
+        < manuscript_text.index("### Reproductive and floral patterns")
+        < manuscript_text.index("### Functional consistency:")
+    )
     assert "superseded" in sep_text.lower()
     assert "../results/h1_final_traitwise_t_20261004/README.md" in sep_text
     assert "../results/h1_traitwise_20261004/README.md" not in sep_text
