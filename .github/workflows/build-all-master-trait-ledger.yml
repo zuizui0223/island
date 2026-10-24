@@ -27,7 +27,7 @@ on:
       efloras_run_id:
         description: Completed eFloras production run ID; blank omits eFloras for an interim ledger
         required: false
-        default: "29409302362"
+        default: ""
         type: string
       gift_run_id:
         description: Completed GIFT direct-traits production run ID; blank omits GIFT
@@ -92,6 +92,7 @@ on:
   push:
     branches: [main]
     paths:
+      - ".github/workflows/build-all-master-trait-ledger.yml"
       - "data/v2/staging/traits/llm_evidence_extracted/**"
       - ".github/workflows/materialize-trait-fill-cascade.yml"
       - "src/island_v2/trait_fill_cascade.py"
@@ -161,7 +162,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       EOL_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'ingest_eol_traitbank_bulk' && github.event.workflow_run.id || inputs.eol_run_id || '29394577660' }}
       AUSTRAITS_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Ingest all AusTraits target floral traits' && github.event.workflow_run.id || inputs.austraits_run_id || '29335900995' }}
-      EFLORAS_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Promote accounted eFloras shard artifacts' && github.event.workflow_run.id || inputs.efloras_run_id || '29409302362' }}
+      EFLORAS_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Promote accounted eFloras shard artifacts' && github.event.workflow_run.id || inputs.efloras_run_id || '' }}
       GIFT_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Acquire GIFT direct floral traits' && github.event.workflow_run.id || inputs.gift_run_id || '29338693288' }}
       USDA_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Acquire USDA PLANTS direct floral traits' && github.event.workflow_run.id || inputs.usda_run_id || '29382621509' }}
       PUBLIC_WEB_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Promote accounted public-web shard run' && github.event.workflow_run.id || inputs.public_web_run_id || '29385927769' }}
@@ -217,41 +218,43 @@ jobs:
             exit 0
           fi
 
+          artifact_exists() {
+            local run_id="$1"
+            local prefix="$2"
+            local mode="$3"
+            local marker_prefix="$4"
+            local expected="$prefix"
+            [[ "$run_id" =~ ^[0-9]+$ ]] || return 1
+            if [[ "$mode" == "run_suffix" ]]; then
+              expected="$prefix$run_id"
+            fi
+            gh api --paginate "repos/$GH_REPO/actions/runs/$run_id/artifacts?per_page=100" \
+              --jq '.artifacts[] | select(.expired == false) | .name' \
+              | grep -Fxq "$expected" || return 1
+            if [[ -n "$marker_prefix" ]]; then
+              local marker="$marker_prefix$run_id"
+              gh api --paginate "repos/$GH_REPO/actions/runs/$run_id/artifacts?per_page=100" \
+                --jq '.artifacts[] | select(.expired == false) | .name' \
+                | grep -Fxq "$marker" || return 1
+            fi
+          }
+
           resolve_run() {
             local variable="$1"
             local workflow="$2"
             local artifact_prefix="$3"
             local artifact_mode="$4"
-            local marker_prefix="${5:-}"
+            local marker_prefix="$5"
             local chosen=""
             local candidate=""
-            local expected=""
-            local marker=""
-            local current="${!variable}"
+            local current
+            current="$(printenv "$variable" || true)"
             while IFS= read -r candidate; do
               [[ "$candidate" =~ ^[0-9]+$ ]] || continue
-              if [[ "$artifact_mode" == "run_suffix" ]]; then
-                expected="${artifact_prefix}${candidate}"
-              else
-                expected="$artifact_prefix"
+              if artifact_exists "$candidate" "$artifact_prefix" "$artifact_mode" "$marker_prefix"; then
+                chosen="$candidate"
+                break
               fi
-              if ! gh api --paginate \
-                "repos/$GH_REPO/actions/runs/$candidate/artifacts?per_page=100" \
-                --jq ".artifacts[] | select(.expired == false and .name == \"$expected\") | .id" \
-                | grep -Eq '^[0-9]+$'; then
-                continue
-              fi
-              if [[ -n "$marker_prefix" ]]; then
-                marker="${marker_prefix}${candidate}"
-                if ! gh api --paginate \
-                  "repos/$GH_REPO/actions/runs/$candidate/artifacts?per_page=100" \
-                  --jq ".artifacts[] | select(.expired == false and .name == \"$marker\") | .id" \
-                  | grep -Eq '^[0-9]+$'; then
-                  continue
-                fi
-              fi
-              chosen="$candidate"
-              break
             done < <(
               gh run list \
                 --repo "$GH_REPO" \
@@ -262,44 +265,81 @@ jobs:
                 --json databaseId \
                 --jq '.[].databaseId'
             )
+
             if [[ -z "$chosen" ]]; then
-              echo "::warning::No newer default-branch production artifact found for $artifact_prefix; retaining pinned run $current"
-              echo "- $variable: $current (pinned fallback)" >> "$GITHUB_STEP_SUMMARY"
-              return 0
+              if [[ -n "$current" ]] && artifact_exists "$current" "$artifact_prefix" "$artifact_mode" "$marker_prefix"; then
+                chosen="$current"
+                echo "::notice::$variable retained as verified pinned run $chosen"
+              elif [[ "$variable" == "EOL_RUN_ID" || "$variable" == "AUSTRAITS_RUN_ID" ]]; then
+                echo "::error::Required $variable has no non-expired artifact (pinned run '$current' is unusable)." >&2
+                return 1
+              else
+                echo "::warning::Optional $variable omitted: no non-expired artifact (pinned run '$current' is unusable)."
+                printf -v "$variable" '%s' ""
+                export "$variable"
+                echo "$variable=" >> "$GITHUB_ENV"
+                echo "- $variable: omitted (artifact unavailable)" >> "$GITHUB_STEP_SUMMARY"
+                return 0
+              fi
             fi
             printf -v "$variable" '%s' "$chosen"
             export "$variable"
             echo "$variable=$chosen" >> "$GITHUB_ENV"
-            echo "- $variable: $chosen" >> "$GITHUB_STEP_SUMMARY"
+            echo "- $variable: $chosen (artifact verified)" >> "$GITHUB_STEP_SUMMARY"
           }
 
           echo "## Resolved durable source snapshots" >> "$GITHUB_STEP_SUMMARY"
           resolve_run EOL_RUN_ID ingest-eol-traitbank-bulk.yml \
             eol-traitbank-bulk- run_suffix eol-traitbank-production-
           resolve_run AUSTRAITS_RUN_ID ingest-austraits-all-floral-bulk.yml \
-            austraits-all-floral-bulk- run_suffix
+            austraits-all-floral-bulk- run_suffix ""
           resolve_run EFLORAS_RUN_ID promote-efloras-accounted-run.yml \
-            efloras-all-floras-combined constant
+            efloras-all-floras-combined constant ""
           resolve_run GIFT_RUN_ID ingest-gift-direct-traits.yml \
-            gift-direct-traits- run_suffix
+            gift-direct-traits- run_suffix ""
           resolve_run USDA_RUN_ID ingest-usda-plants-direct-traits.yml \
-            usda-plants-direct-traits- run_suffix
+            usda-plants-direct-traits- run_suffix ""
           resolve_run PUBLIC_WEB_RUN_ID promote-public-web-accounted-run.yml \
-            public-web-traits-combined constant
+            public-web-traits-combined constant ""
           resolve_run LLM_RUN_ID ingest-search-enabled-llm-results.yml \
-            validated-llm-traits constant
+            validated-llm-traits constant ""
       - name: Validate immutable source-run inputs
         run: |
           set -euo pipefail
-          [[ "$EOL_RUN_ID" =~ ^[0-9]+$ ]]
-          [[ "$AUSTRAITS_RUN_ID" =~ ^[0-9]+$ ]]
-          if [[ -n "$EFLORAS_RUN_ID" ]]; then [[ "$EFLORAS_RUN_ID" =~ ^[0-9]+$ ]]; fi
-          if [[ -n "$GIFT_RUN_ID" ]]; then [[ "$GIFT_RUN_ID" =~ ^[0-9]+$ ]]; fi
-          if [[ -n "$USDA_RUN_ID" ]]; then [[ "$USDA_RUN_ID" =~ ^[0-9]+$ ]]; fi
-          if [[ -n "$PUBLIC_WEB_RUN_ID" ]]; then
-            [[ "$PUBLIC_WEB_RUN_ID" =~ ^[0-9]+$ ]]
-          fi
-          if [[ -n "$LLM_RUN_ID" ]]; then [[ "$LLM_RUN_ID" =~ ^[0-9]+$ ]]; fi
+          verify_artifact() {
+            local source="$1"
+            local run_id="$2"
+            local name="$3"
+            local required="$4"
+            if [[ -z "$run_id" ]]; then
+              if [[ "$required" == "required" ]]; then
+                echo "::error::$source is required but has no source run." >&2
+                return 1
+              fi
+              echo "- $source: omitted (no valid artifact)" >> "$GITHUB_STEP_SUMMARY"
+              return 0
+            fi
+            if ! [[ "$run_id" =~ ^[0-9]+$ ]]; then
+              echo "::error::$source has an invalid source run ID: $run_id" >&2
+              return 1
+            fi
+            if ! gh api --paginate "repos/$GH_REPO/actions/runs/$run_id/artifacts?per_page=100" \
+              --jq '.artifacts[] | select(.expired == false) | .name' \
+              | grep -Fxq "$name"; then
+              echo "::error::$source artifact '$name' is missing or expired in run $run_id" >&2
+              return 1
+            fi
+            echo "- $source: $run_id / $name verified" >> "$GITHUB_STEP_SUMMARY"
+          }
+          echo "### Source-artifact preflight" >> "$GITHUB_STEP_SUMMARY"
+          verify_artifact EOL "$EOL_RUN_ID" "eol-traitbank-bulk-$EOL_RUN_ID" required
+          verify_artifact EOL-production "$EOL_RUN_ID" "eol-traitbank-production-$EOL_RUN_ID" required
+          verify_artifact AusTraits "$AUSTRAITS_RUN_ID" "austraits-all-floral-bulk-$AUSTRAITS_RUN_ID" required
+          verify_artifact eFloras "$EFLORAS_RUN_ID" efloras-all-floras-combined optional
+          verify_artifact GIFT "$GIFT_RUN_ID" "gift-direct-traits-$GIFT_RUN_ID" optional
+          verify_artifact USDA "$USDA_RUN_ID" "usda-plants-direct-traits-$USDA_RUN_ID" optional
+          verify_artifact public-web "$PUBLIC_WEB_RUN_ID" public-web-traits-combined optional
+          verify_artifact validated-LLM "$LLM_RUN_ID" validated-llm-traits optional
       - name: Download exact source artifacts and metadata
         run: |
           set -euo pipefail
