@@ -1,0 +1,121 @@
+{
+  "contract": "chapter1_q1_editorial_all_pages_audit_v1",
+  "role": "si",
+  "source_pdf": "Q1_SI_EDIT_PROOF.pdf",
+  "total_pages": 12,
+  "every_page_nonempty_and_on_canvas": true,
+  "tiles": [
+    "Q1_SI_PAGES_01_06.png",
+    "Q1_SI_PAGES_07_12.png"
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "text_characters": 2995,
+      "text_blocks": 9,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 2,
+      "text_characters": 1482,
+      "text_blocks": 11,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 3,
+      "text_characters": 1844,
+      "text_blocks": 13,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 4,
+      "text_characters": 2017,
+      "text_blocks": 11,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 5,
+      "text_characters": 2654,
+      "text_blocks": 11,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 6,
+      "text_characters": 2280,
+      "text_blocks": 13,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 7,
+      "text_characters": 1859,
+      "text_blocks": 13,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 8,
+      "text_characters": 1981,
+      "text_blocks": 14,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 9,
+      "text_characters": 1895,
+      "text_blocks": 16,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 10,
+      "text_characters": 2667,
+      "text_blocks": 13,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 11,
+      "text_characters": 1466,
+      "text_blocks": 15,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    },
+    {
+      "page": 12,
+      "text_characters": 427,
+      "text_blocks": 3,
+      "out_of_page_boxes": [],
+      "page_width_pt": 841.89,
+      "page_height_pt": 595.304,
+      "passes": true
+    }
+  ]
+}

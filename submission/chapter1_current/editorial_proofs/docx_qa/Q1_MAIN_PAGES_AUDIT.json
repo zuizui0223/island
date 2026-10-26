@@ -1,0 +1,186 @@
+{
+  "contract": "chapter1_q1_editorial_all_pages_audit_v1",
+  "role": "main",
+  "source_pdf": "Q1_Main_EDIT_PROOF.pdf",
+  "total_pages": 19,
+  "every_page_nonempty_and_on_canvas": true,
+  "tiles": [
+    "Q1_MAIN_PAGES_01_06.png",
+    "Q1_MAIN_PAGES_07_12.png",
+    "Q1_MAIN_PAGES_13_18.png",
+    "Q1_MAIN_PAGES_19_19.png"
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "text_characters": 1035,
+      "text_blocks": 18,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 2,
+      "text_characters": 1975,
+      "text_blocks": 12,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 3,
+      "text_characters": 2914,
+      "text_blocks": 7,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 4,
+      "text_characters": 2700,
+      "text_blocks": 8,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 5,
+      "text_characters": 2864,
+      "text_blocks": 7,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 6,
+      "text_characters": 2750,
+      "text_blocks": 8,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 7,
+      "text_characters": 2469,
+      "text_blocks": 12,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 8,
+      "text_characters": 2389,
+      "text_blocks": 12,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 9,
+      "text_characters": 2807,
+      "text_blocks": 8,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 10,
+      "text_characters": 2943,
+      "text_blocks": 7,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 11,
+      "text_characters": 2738,
+      "text_blocks": 7,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 12,
+      "text_characters": 2937,
+      "text_blocks": 6,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 13,
+      "text_characters": 3108,
+      "text_blocks": 5,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 14,
+      "text_characters": 2914,
+      "text_blocks": 7,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 15,
+      "text_characters": 2647,
+      "text_blocks": 8,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 16,
+      "text_characters": 2372,
+      "text_blocks": 12,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 17,
+      "text_characters": 2384,
+      "text_blocks": 13,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 18,
+      "text_characters": 2507,
+      "text_blocks": 8,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    },
+    {
+      "page": 19,
+      "text_characters": 1844,
+      "text_blocks": 5,
+      "out_of_page_boxes": [],
+      "page_width_pt": 612.0,
+      "page_height_pt": 792.0,
+      "passes": true
+    }
+  ]
+}

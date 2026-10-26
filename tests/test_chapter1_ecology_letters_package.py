@@ -117,7 +117,7 @@ def test_ecology_letters_title_page_metadata() -> None:
     assert len(running) < 45
     assert len([item for item in keywords.split(";") if item.strip()]) <= 10
     assert "**Article type:** Letter" in text
-    assert "**Figures:** 6" in text
+    assert "**Figures:** 5" in text
     assert "**Tables:** 0" in text
     assert "**Text boxes:** 0" in text
 
