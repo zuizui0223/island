@@ -1,0 +1,193 @@
+{
+  "schema_version": "floral_space_pair_validation_v1",
+  "date_jst": "2026-11-06",
+  "status": "complete",
+  "design_commit": "af72c03af7b51714b0cf99e899226e7ce49f021d",
+  "implementation_commit": "6bd020439206b8392986cefeb6fc62f0286f813b",
+  "focused_tests": {
+    "passed": 105,
+    "new_kernel": 25,
+    "new_runner": 23,
+    "prior_floral_tests": 57,
+    "failed": 0
+  },
+  "full_suite": {
+    "passed": 1525,
+    "failed": 5,
+    "skipped": 1,
+    "warnings": 8,
+    "duration_seconds": 60.42,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m pytest -q",
+    "log_sha256": "ab1f7df032d6aa19f863d19b0872912489ccf7b301cdf70fbb6995c57bbafaaf",
+    "pre_existing_failures": [
+      "tests/test_chapter1_v13_legacy_boundary.py::test_active_handoff_points_to_archive_boundary",
+      "tests/test_chapter1_v13_submission_surface.py::test_readme_is_v13_only_and_points_pre_v13_to_legacy",
+      "tests/test_chapter1_v13_submission_surface.py::test_pipeline_is_v13_only_and_points_pre_v13_to_legacy",
+      "tests/test_chapter1_v13_submission_surface.py::test_current_handoff_is_global_only",
+      "tests/test_v1_category_search.py::test_disabled_web_provider_does_not_parse_sitemap_snapshot"
+    ],
+    "baseline_record": "../floral_space_20261106/validation_baseline.md",
+    "affected_files_byte_identical_to_baseline": [
+      "README.md",
+      "docs/PAPER_PIPELINE.md",
+      "src/island_v2/v1_category_search.py",
+      "tests/test_chapter1_v13_legacy_boundary.py",
+      "tests/test_chapter1_v13_submission_surface.py",
+      "tests/test_v1_category_search.py"
+    ]
+  },
+  "lint": "pass for both new modules, both test files and renderer",
+  "whitespace": "pass for committed implementation and all staged result files",
+  "independent_task_reviews": {
+    "kernel": {
+      "spec_compliance": "pass",
+      "quality": "approved",
+      "blocking_findings": 0
+    },
+    "runner": {
+      "spec_compliance": "pass",
+      "quality": "approved",
+      "blocking_findings": 0
+    }
+  },
+  "data_integrity": {
+    "matched_hash_checks": 46,
+    "distinct_files_checked": 24,
+    "common_taxon_profile_mismatches": 0,
+    "candidate_and_supported_pair_counts_match_independent_audit": true,
+    "support_audit_outcome_blind": true
+  },
+  "numerical_output_validation": {
+    "status": "pass",
+    "summary_rows": 16,
+    "draw_rows": 15984,
+    "pair_rows": 24360,
+    "cohort_rows": 8,
+    "cohort_pair_combinations": 12180,
+    "distinct_physical_island_pairs_across_encodings": 11478,
+    "all_draws_reconstructed_for_finite_p_quantiles_sd_and_diagnostics": true,
+    "bh_and_by_match_independent_scipy": true,
+    "all_direct_pairs_match_frozen_pre_inference_selection": true,
+    "source_reconstructed_observed_pair_rows": 24360,
+    "source_replayed_joint_draws_first_three_per_comparison": 48,
+    "source_replay_calls_production_helpers": false,
+    "max_absolute_numeric_difference": 1.1102230246251565e-16,
+    "all_manifest_file_hashes_match": true,
+    "manifest_hash_checks": 27,
+    "public_aggregate_tables_omit_taxon_source_rows": true,
+    "prior_result_directory_unchanged": true,
+    "frozen_pair_selections": [
+      {
+        "encoding": "full_state_sets",
+        "analysis_regime": "northern_midlatitude",
+        "pairs": 2000,
+        "pre_inference_pair_file_sha256": "23aa75ec2a9051a90daf59e81c8d4cabbd96540fd3a945f11ddb272e6391e095"
+      },
+      {
+        "encoding": "full_state_sets",
+        "analysis_regime": "northern_high_latitude",
+        "pairs": 2000,
+        "pre_inference_pair_file_sha256": "4adf5fb7b4a250a083bc61d3dd39f38d336a7fd336a0ec0db2ca218525dda349"
+      },
+      {
+        "encoding": "full_state_sets",
+        "analysis_regime": "tropical",
+        "pairs": 2000,
+        "pre_inference_pair_file_sha256": "3bdfc7dc455418d21ec5a4fcf2bda8bf7719d002cd5fc38eccf84ef918977dd3"
+      },
+      {
+        "encoding": "full_state_sets",
+        "analysis_regime": "southern_extratropical",
+        "pairs": 1618,
+        "pre_inference_pair_file_sha256": "e7984f1a868e603fabc399a7a4b72cda959481f8e7eb3719b40532c42996727b"
+      },
+      {
+        "encoding": "single_state",
+        "analysis_regime": "northern_midlatitude",
+        "pairs": 2000,
+        "pre_inference_pair_file_sha256": "1f5a83ab422ddcd8b9634ee5ab8645b66423ecf17761ec0c66ecc2a33743147c"
+      },
+      {
+        "encoding": "single_state",
+        "analysis_regime": "northern_high_latitude",
+        "pairs": 171,
+        "pre_inference_pair_file_sha256": "b61779787c2bcc715bf068966ac88d4d1acd1b678f2f51c1725038e09578045a"
+      },
+      {
+        "encoding": "single_state",
+        "analysis_regime": "tropical",
+        "pairs": 2000,
+        "pre_inference_pair_file_sha256": "adfada50a799600aa9df606e0a4df53d64d622363f50f97e9d5ecca7bbda10df"
+      },
+      {
+        "encoding": "single_state",
+        "analysis_regime": "southern_extratropical",
+        "pairs": 391,
+        "pre_inference_pair_file_sha256": "c6e49cc1771263648984d48db980bb9b63cd3140db8db33f39143a07707b3d5d"
+      }
+    ],
+    "validator_sha256": "62709f960f989e476a90ef435e2bede5c6614a579486cf306547d43691cf9e28",
+    "scope_of_verification": "All saved summary fields reconstructed; all observed pairs rebuilt from private source membership/profile sets; first 3 joint regional draws per comparison independently replayed. Remaining per-pair null means/SDs have mathematical bounds and unit-test coverage, not an independent full production replay."
+  },
+  "visual_verification": {
+    "status": "pass",
+    "renderer": "scripts/render_floral_space_pairs.py",
+    "matplotlib_version": "3.10.8",
+    "png_dimensions": [
+      3800,
+      1880
+    ],
+    "checked": [
+      "Actual production figure inspected at full size",
+      "All 16 observed points, null medians and central 95% ranges agree with the summary",
+      "Same raw Jaccard scale in both panels",
+      "Sample counts and BY q labels agree with matched cohorts",
+      "No clipping, overlaps or misleading effect-confidence-interval labels",
+      "All observed points outlined, correctly reflecting no BY-adjusted rejection"
+    ],
+    "assets": {
+      "pair_sharing_results.png": {
+        "sha256": "47825ebeaa41e103fc847c0e3fcc1604247b153beda1c4060aa1dc91fde48d98",
+        "bytes": 447549
+      },
+      "pair_sharing_results.svg": {
+        "sha256": "eeed0cf5a81402040e8c78e06209bb7dd5ce8fcf15cb4ec046cad05fb135396f",
+        "bytes": 30859
+      }
+    }
+  },
+  "whole_change_review": {
+    "verdict": "approved for publication to existing draft PR321",
+    "critical_findings": 0,
+    "important_findings": 0,
+    "minor_findings": 0,
+    "base_commit": "506ea1f6792d9bf63cfdd3b6ec0daafddbff2f04",
+    "reviewed_implementation_commit": "6bd020439206b8392986cefeb6fc62f0286f813b",
+    "scope": "Complete pair-sharing extension: two modules, two test files, renderer, frozen design, plan and nine production artifacts",
+    "independent_checks": [
+      "Frozen specification unchanged from design commit",
+      "Prior result directory unchanged",
+      "All 27 manifest hashes and two figure hashes match",
+      "All 16 comparisons, 15,984 draws and 24,360 pair rows consistent",
+      "Observed/null medians, quantiles, finite p values, BH/BY recalculated",
+      "Actual PNG visually verified and SVG parsed",
+      "Aggregate-only release schemas and restrained scientific interpretation"
+    ],
+    "limits": "Reviewer did not rerun production inference, source-level membership reconstruction, all pair-level null moments or full test suite; the controller and earlier task reviews supply the explicitly scoped evidence."
+  },
+  "production": {
+    "elapsed_seconds": 89.93158618599773,
+    "max_rss_kib": 292556,
+    "user_seconds": 89.567231,
+    "system_seconds": 0.344307,
+    "returncode": 0,
+    "successful_runs": 1,
+    "launch_note": "An initial /usr/bin/time invocation failed before Python because the executable was absent; the unchanged command completed via a Python standard-library timing wrapper."
+  },
+  "public_release": {
+    "status": "aggregate_boundary_verified",
+    "policy": "docs/CHAPTER1_DATABASE_RIGHTS_AUDIT.md",
+    "tables": "Island-level counts, profile overlap and comparison-level null summaries only; no taxon names or source-linked trait rows",
+    "staged_paths_checked": true
+  }
+}
