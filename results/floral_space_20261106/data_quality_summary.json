@@ -1,0 +1,198 @@
+{
+  "contract": "floral_space_trait_profiles_v1",
+  "traits": [
+    "flower_primary_color",
+    "floral_form",
+    "floral_symmetry",
+    "tube_depth_class"
+  ],
+  "input_validation": {
+    "raw_direct": {
+      "focal_cells": 87358,
+      "valid_focal_cells": 84992,
+      "invalid_ontology_cells": 0,
+      "nonresolved_cells": 0,
+      "excluded_by_reason": {
+        "nonspecific_description": 2366
+      },
+      "by_trait": {
+        "flower_primary_color": {
+          "input_cells": 39903,
+          "valid_cells": 37778
+        },
+        "floral_form": {
+          "input_cells": 9924,
+          "valid_cells": 9683
+        },
+        "floral_symmetry": {
+          "input_cells": 32653,
+          "valid_cells": 32653
+        },
+        "tube_depth_class": {
+          "input_cells": 4878,
+          "valid_cells": 4878
+        }
+      }
+    },
+    "snapshot_all": {
+      "focal_cells": 161535,
+      "valid_focal_cells": 157844,
+      "invalid_ontology_cells": 1297,
+      "nonresolved_cells": 0,
+      "excluded_by_reason": {
+        "invalid_ontology": 1297,
+        "nonspecific_description": 2394
+      },
+      "by_trait": {
+        "flower_primary_color": {
+          "input_cells": 82556,
+          "valid_cells": 80404
+        },
+        "floral_form": {
+          "input_cells": 16678,
+          "valid_cells": 16037
+        },
+        "floral_symmetry": {
+          "input_cells": 51212,
+          "valid_cells": 50899
+        },
+        "tube_depth_class": {
+          "input_cells": 11089,
+          "valid_cells": 10504
+        }
+      }
+    },
+    "snapshot_direct": {
+      "focal_cells": 85345,
+      "valid_focal_cells": 82951,
+      "invalid_ontology_cells": 0,
+      "nonresolved_cells": 0,
+      "excluded_by_reason": {
+        "nonspecific_description": 2394
+      },
+      "by_trait": {
+        "flower_primary_color": {
+          "input_cells": 40721,
+          "valid_cells": 38569
+        },
+        "floral_form": {
+          "input_cells": 7511,
+          "valid_cells": 7269
+        },
+        "floral_symmetry": {
+          "input_cells": 32234,
+          "valid_cells": 32234
+        },
+        "tube_depth_class": {
+          "input_cells": 4879,
+          "valid_cells": 4879
+        }
+      }
+    }
+  },
+  "comparison": {
+    "shared_focal_direct_keys": 84511,
+    "raw_only_focal_keys": 2847,
+    "snapshot_only_focal_keys": 834,
+    "state_disagreements": 268,
+    "snapshot_state_and_lineage_supersets": 268,
+    "individual_disagreement_records_in_private_checkpoint": 268
+  },
+  "selection": {
+    "snapshot_direct_cells_retained": 82951,
+    "raw_direct_cells_restored": 2847,
+    "raw_direct_cells_restored_by_trait": {
+      "flower_primary_color": 0,
+      "floral_form": 2423,
+      "floral_symmetry": 424,
+      "tube_depth_class": 0
+    },
+    "low_cells_blocked_by_direct_key": 0,
+    "low_cells_admitted": 74893
+  },
+  "coverage": {
+    "snapshot_all": {
+      "input_species_union": 96880,
+      "by_trait": {
+        "flower_primary_color": 80404,
+        "floral_form": 16037,
+        "floral_symmetry": 50899,
+        "tube_depth_class": 10504
+      },
+      "colour_form": 14494,
+      "colour_form_symmetry": 7824,
+      "colour_form_symmetry_depth": 851
+    },
+    "snapshot_direct": {
+      "input_species_union": 96880,
+      "by_trait": {
+        "flower_primary_color": 38569,
+        "floral_form": 7269,
+        "floral_symmetry": 32234,
+        "tube_depth_class": 4879
+      },
+      "colour_form": 6262,
+      "colour_form_symmetry": 3157,
+      "colour_form_symmetry_depth": 561
+    },
+    "restored_all": {
+      "input_species_union": 96880,
+      "by_trait": {
+        "flower_primary_color": 80404,
+        "floral_form": 18460,
+        "floral_symmetry": 51323,
+        "tube_depth_class": 10504
+      },
+      "colour_form": 16764,
+      "colour_form_symmetry": 8864,
+      "colour_form_symmetry_depth": 1289
+    },
+    "restored_direct": {
+      "input_species_union": 96880,
+      "by_trait": {
+        "flower_primary_color": 38569,
+        "floral_form": 9692,
+        "floral_symmetry": 32658,
+        "tube_depth_class": 4879
+      },
+      "colour_form": 8468,
+      "colour_form_symmetry": 4183,
+      "colour_form_symmetry_depth": 998
+    }
+  },
+  "policies": {
+    "states": "sets retained; no Cartesian product or inferred combinations",
+    "direct": "retain snapshot Direct; restore missing traits from reviewed raw Direct",
+    "low": "existing snapshot validated Low only where no Direct key exists",
+    "generic_and_invalid": "entire cell missing; no silent token deletion or relabelling",
+    "denominator": "species union here; use frozen 106295-species universe for percentages"
+  },
+  "inputs": {
+    "raw_direct": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/trait_source/direct_species_trait_ledger.csv.gz",
+      "sha256": "7e86170218814abe2845da9a0282aecfdc930819b9d0c439bae8df4a0679c577"
+    },
+    "snapshot_all": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/progressive/snapshot/chapter1_trait_ledger_all_analysis.csv.gz",
+      "sha256": "2d95136fc7df1dcce92aab738ce0364cdb1434746e1f7b794c529900192cbf4d"
+    },
+    "snapshot_direct": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/progressive/snapshot/chapter1_trait_ledger_direct_only.csv.gz",
+      "sha256": "d7d6a0372ce7f3ebe958047a222ae0504f01564e364f93bab360273235c6661b"
+    },
+    "ontology": {
+      "path": "/workspace/scratch/625333e4fa64/island/config/trait_ontology.yml",
+      "sha256": "ca2a7e7d3fe74ab41a50f31d00f17605e45df570d85b291c7895d3da2e9c228a"
+    }
+  },
+  "population_species": 106295,
+  "population_validation": {
+    "coverage_axis_rows": 318885,
+    "ledger_name_union": 96880,
+    "names_outside_population": 0,
+    "population_names_without_ledger_rows": 9415,
+    "analysis_unit": "taxon_name_unit",
+    "taxonomic_exclusion_stage": "analyze; prepared profiles retain the frozen population"
+  },
+  "public_surface": "Aggregate audit only; source-linked row-level records remain in the private input checkpoint."
+}

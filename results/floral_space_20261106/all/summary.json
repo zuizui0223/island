@@ -1,0 +1,60 @@
+{
+  "study_status": "exploratory_descriptive",
+  "traits": [
+    "flower_primary_color",
+    "floral_form"
+  ],
+  "upstream_population_name_units": 106295,
+  "n_excluded_uninomial_names": 170,
+  "n_excluded_unresolved_names": 1,
+  "n_profile_population_species": 106124,
+  "n_complete_species": 16739,
+  "n_complete_species_in_flora": 16725,
+  "n_profiles": 496,
+  "n_reference_profiles": 496,
+  "n_islands_with_complete_profiles": 3858,
+  "n_geographic_units": 8264,
+  "geography_excluded_flora_rows": 880,
+  "n_islands_min_species": 1532,
+  "min_species": 50,
+  "rarefaction_size": 50,
+  "pair_count": 2000,
+  "seed": 20261106,
+  "pcoa": {
+    "correction": "sqrt",
+    "distance": "equal_weight_mean_set_jaccard",
+    "negative_inertia_fraction": 0.23793544113601375,
+    "lingoes_constant": 0.0,
+    "positive_dimensions": 75,
+    "two_dimensional_raw_rmse": 0.5015403156649133,
+    "minimum_raw_rmse_dimension": 17,
+    "two_dimensional_inertia_fraction": 0.15353075806441305,
+    "dimensions_for_80_percent_inertia": 17,
+    "dimensions_for_95_percent_inertia": 34
+  },
+  "baseline": "finite sampling without replacement from the recorded species union within each broad latitudinal regime; genus counts fixed in genus baseline",
+  "limitations": [
+    "Opportunistic realized floras, not censuses or absence data",
+    "Recorded species state sets are not joint flower-level morph observations",
+    "Regional recorded pools are not historical colonist source pools",
+    "Profile overlap is descriptive; categories mechanically increase similarity",
+    "Pair comparisons share islands and are not independent replicates",
+    "All includes validated genus-level fill and uneven direct-evidence coverage",
+    "Accepted-species keys are taxon-name units including hybrid formulas; exact species rank was not re-resolved"
+  ],
+  "eligible_medians": {
+    "n_species": 144.0,
+    "n_profiles": 75.0,
+    "singleton_fraction": 0.6214168714168714,
+    "mean_redundancy": 1.9301948051948052,
+    "joint_coverage": 0.4298791389544447,
+    "rarefied_profiles": 35.40292119042121,
+    "profile_ratio_to_genus_pool": 0.9935448162250592,
+    "profile_ratio_to_regional_pool": 1.025192782472098
+  },
+  "pair_medians": {
+    "species_jaccard": 0.03502637713164029,
+    "profile_jaccard": 0.28447825762661294,
+    "profile_jaccard_without_shared_species": 0.21238938053097345
+  }
+}
