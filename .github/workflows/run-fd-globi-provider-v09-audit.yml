@@ -64,6 +64,40 @@ jobs:
           print('Pinned source genus predictor verified:',len(d),'names')
           PY
 
+      - name: Recover the original source-backed Direct flora ledger (fixed artifact)
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          ARTIFACT_ID=10058653212
+          SOURCE_RUN="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.workflow_run.id')"
+          SOURCE_NAME="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.name')"
+          test -n "$SOURCE_RUN" && test -n "$SOURCE_NAME"
+          gh run download "$SOURCE_RUN" --repo zuizui0223/island \
+            --name "$SOURCE_NAME" --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          if [ -z "$LEDGER" ]; then
+            NESTED="$(find "$STAGE/original" -name '*.zip' -type f -print -quit)"
+            if [ -n "$NESTED" ]; then
+              mkdir -p "$STAGE/original-unpacked"
+              unzip -q "$NESTED" -d "$STAGE/original-unpacked"
+              LEDGER="$(find "$STAGE/original-unpacked" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+            fi
+          fi
+          test -n "$LEDGER"
+          test -s "$LEDGER"
+          test -s data/v2/staging/gbif/collected/island_taxa.csv
+          echo "DIRECT_LEDGER=$LEDGER" >> "$GITHUB_ENV"
+          echo "FAMILY_TAXONOMY=$GITHUB_WORKSPACE/data/v2/staging/gbif/collected/island_taxa.csv" >> "$GITHUB_ENV"
+          python - <<'PY'
+          import gzip, os, pandas as pd
+          z=pd.read_csv(os.environ["DIRECT_LEDGER"],
+                        usecols=["accepted_species","trait_name","normalized_value",
+                                 "evidence_scope","evidence_quality"])
+          assert set(z.evidence_scope.dropna()).issubset({"species_direct"})
+          assert len(z)>1000
+          print("Source Direct trait ledger source-artifact scope/coverage checked:",len(z))
+          PY
+
       - name: Download and SHA-verify exact original GloBI v0.9 SUPPORTS archive
         run: |
           set -euo pipefail
@@ -79,6 +113,8 @@ jobs:
           python scripts/run_fd_globi_provider_v09_audit.py \
             --interactions "$STAGE/interactions.tsv.gz" \
             --frozen-source-genus-csv "$GENUS_CSV" \
+            --original-direct-ledger "$DIRECT_LEDGER" \
+            --original-island-taxonomy "$FAMILY_TAXONOMY" \
             --chunksize 200000 \
             --output "$STAGE/provider_coverage_receipt.json"
           python - <<'PY'
@@ -91,7 +127,22 @@ jobs:
           assert d['n_distinct_source_providers']>=3
           assert d['n_common_genera_3plus_refs']>0
           assert d['source_and_taxon_identifiers_released'] is False
-          assert d['provider_family_prediction_rerun_completed'] is False
+          family=d.get("provider_omitted_family_transfer",{})
+          assert family.get("status") in {
+              "COMPLETED_EXPLORATORY_PROVIDER_OMITTED_FAMILY_TRANSFER",
+              "NOT_IDENTIFIABLE_AFTER_PROVIDER_OMISSION",
+          }
+          if family["status"]=="COMPLETED_EXPLORATORY_PROVIDER_OMITTED_FAMILY_TRANSFER":
+              assert family["n_same_genera_before_after_with_direct_traits_and_unambiguous_family"] >= 50
+              assert family["n_same_families"] >= 15
+              assert family["heldout_original_provider_prediction_completed"]
+          else:
+              assert not family["heldout_original_provider_prediction_completed"]
+          assert d['provider_heldout_effect_on_flower_morphology_NOT_TESTED'] == (
+              not family["heldout_original_provider_prediction_completed"]
+          )
+          assert d["original_archive_source_granularity_unresolved"] is True
+          assert d['source_and_taxon_identifiers_released'] is False
           print('Source provider evidence receipt verified (aggregate-only)')
           PY
 
