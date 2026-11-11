@@ -261,3 +261,50 @@ def test_h1_direct_northern_high_convergence_audit_closes_warning() -> None:
     assert "2.93 × 10^-6" not in manuscript
     assert "1.43 × 10^-8" not in manuscript
 
+
+def test_h3_full_and_offshore_figure_contract() -> None:
+    import pandas as pd
+
+    full = pd.read_csv(
+        PACKAGE / "supplement/Table_S5_H3_pollen_limitation.csv"
+    ).set_index("analysis")
+    offshore = pd.read_csv(
+        ROOT / "results/h1_final_directional_20261003/h3_offshore_finite_publication_audit.csv"
+    ).set_index("analysis")
+    assert full.loc["primary", "estimate"] > 0
+    assert offshore.loc["offshore_continuous_gradient", "estimate"] > 0
+    assert full.loc["primary", "finite_publication_t_two_sided_p"] < 0.05
+    assert offshore.loc["offshore_continuous_gradient", "finite_publication_t_two_sided_p"] < 0.05
+    assert full.loc["supplemental_only", "finite_publication_t_two_sided_p"] > 0.05
+
+    figure_source = (
+        ROOT / "scripts/submission/render_chapter1_main_figures.py"
+    ).read_text(encoding="utf-8")
+    main_h3 = figure_source.split("def figure6(")[1].split("h4p =")[0]
+    assert 'loc["offshore_continuous_gradient"]' in main_h3
+    assert 'loc["primary"]' in main_h3
+    assert "supplemental_only" not in main_h3
+    assert "Within-sample standardized isolation slope" in main_h3
+
+    caption = CAPTIONS.read_text(encoding="utf-8")
+    manuscript = MANUSCRIPT.read_text(encoding="utf-8")
+    assert "independently standardized" in caption
+    assert "cannot be directly compared" in manuscript
+    assert "not independently verified island sites" in manuscript
+
+
+def test_h4_autonomous_selfing_reproductive_assurance_contract() -> None:
+    import pandas as pd
+
+    atomics = pd.read_csv(ROOT / "results/geography_20260924/h4_atomic_corrected.csv")
+    rows = atomics.loc[atomics["analysis"].eq("primary")].set_index("trait")
+    auto = rows.loc["autonomous_selfing"]
+    sc = rows.loc["self_compatibility"]
+    assert float(auto["trait_state_estimate"]) < 0
+    assert float(auto["trait_state_two_sided_p"]) < 0.05
+    assert float(sc["trait_state_two_sided_p"]) > 0.05
+
+    manuscript = MANUSCRIPT.read_text(encoding="utf-8")
+    assert "external pollen" in manuscript
+    assert "not experimentally assigned" in manuscript
+    assert "post-hoc" in manuscript
