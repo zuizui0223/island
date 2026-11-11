@@ -41,7 +41,7 @@ Historical directional/composite H1 files remain replay provenance only.
 3. Constraint–response triangle / inferential boundary
 4. Seven separate H1 trait responses across regions and evidence/provenance sensitivities
 5. H2 reproductive-assurance / additional floral-response decomposition
-6. H3 pollen-limitation gradient and H4 functional bridge
+6. Supporting H3 full/offshore pollen-limitation gradients and H4 functional bridge (Figure 6 SVG/PDF regenerated and visually checked in PR #322)
 
 ## Current narrative
 
@@ -57,4 +57,4 @@ No historical causal mediation is claimed.
 
 ## Submission state
 
-The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 147 words; main text 4,947 words; six display items). Submission remains blocked by the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 135 words; main text 4,958 words; six display items). Submission remains blocked by the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.

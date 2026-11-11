@@ -40,9 +40,8 @@ In WCVP All, 10 of 28 individual associations meet the same nominal threshold. I
 ### H2 — Conditional decomposition
 Reproductive assurance is separated from additional floral responses. With finite-cluster t references and the same frozen BH family, selfing-adjusted accessibility is FDR-supported in northern high latitudes (q = **0.00243**) and tropical all-analysis (q = **0.01913**). Tropical Direct-only accessibility remains positive but is **not** FDR-supported (q = **0.1267**). Colour and colour × architecture responses remain region dependent.
 
-### H3 — Ecological pressure
-Experimental pollen limitation increases with corrected geographic isolation:
-`beta=0.09191`, `SE=0.03806`, finite-publication two-sided `p=0.01594`. The post-hoc offshore-only continuous gradient also remains positive (`p=0.02459`).
+### H3 — Supporting ecological context
+Experimental pollen limitation increases with corrected geographic isolation in both the full continental-plus-offshore analysis (`beta=0.09191`, `SE=0.03806`, finite-publication two-sided `p=0.01594`) and a post-hoc offshore-only analysis (`beta=0.22031`, `p=0.02459`). This supports an association with contemporary pollen-supply constraints, **not a measured decline in pollinator abundance**. The two distance coefficients use different within-sample standardizations and are not magnitude-comparable. Measurement-definition sensitivities, including an unsupported supplemental-only subset, remain in Supplementary Table S5 rather than the main figure. The updated Figure 6 SVG/PDF is generated from both frozen H3 gradients.
 
 ### H4 — Functional compatibility
 Exact-species post-hoc functional triangulation links both H2 trait families to lower current pollen limitation:

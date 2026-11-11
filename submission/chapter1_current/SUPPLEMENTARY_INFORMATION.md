@@ -203,18 +203,18 @@ Machine-readable table:
 | Supplemental-only | 0.04410 | 0.04351 | 0.31134 | 828 | 470 | 736 |
 | No-zero-constant | 0.09089 | 0.03865 | 0.01891 | 1,375 | 912 | 1,238 |
 
-The primary and no-zero-constant models support a positive isolation association. Supplemental-only remains positive but unsupported. H3 is an isolation-associated pollen-delivery constraint, not direct evidence of declining pollinator abundance or visitation.
+The primary and no-zero-constant models support a positive isolation association. Supplemental-only remains positive but unsupported. H3 tests current pollen limitation, not a measured decline in pollinator abundance or visitation.
 
 ### Table S5b. Offshore-gradient robustness
 
-Because 996 of 1,248 GloPL sites are true continental zero-distance sites, we tested whether H3 reduces to a mainland/offshore step.
+Because 996 of 1,248 GloPL sites are true continental zero-distance sites, we tested whether H3 reduces to a mainland/offshore step. The P values below use finite-publication t inference; older asymptotic P values (0.02319 and 0.14364) are retained in the machine-readable audit. Offshore means positive corrected coast distance, not independently confirmed membership in an island polygon. Offshore distance was re-standardized within the restricted sample; its β magnitude is not directly comparable with the full-sample β.
 
 | Analysis | β | SE | Two-sided P | Cells | Publications | Sites |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Offshore continuous gradient | 0.22031 | 0.09704 | 0.02319 | 276 | 153 | 252 |
-| Mainland vs offshore indicator | 0.12743 | 0.08714 | 0.14364 | 1,408 | 919 | 1,248 |
+| Offshore continuous gradient | 0.22031 | 0.09704 | 0.02459 | 276 | 153 | 252 |
+| Mainland vs offshore indicator | 0.12743 | 0.08714 | 0.14398 | 1,408 | 919 | 1,248 |
 
-A leave-one-publication-out jackknife of the offshore gradient retained positive estimates in all 153 deletions. The minimum coefficient was 0.17850, the maximum was 0.26930 and the weakest two-sided P value was 0.04892.
+A leave-one-publication-out jackknife of the offshore gradient retained positive estimates in all 153 deletions. The minimum coefficient was 0.17850, the maximum was 0.26930 and the weakest asymptotic two-sided P value was 0.04892.
 
 Machine-readable results:
 
