@@ -1,0 +1,103 @@
+name: fd source-pinned GloBI v0.9 provider/reference coverage
+
+on:
+  push:
+    branches:
+      - analysis/fd-globi-provider-v09-20261111
+    paths:
+      - 'src/island_v2/fd_globi_provider_v09.py'
+      - 'scripts/run_fd_globi_provider_v09_audit.py'
+      - 'tests/test_fd_globi_provider_v09.py'
+      - '.github/workflows/run-fd-globi-provider-v09-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  provider-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      PYTHONPATH: src
+      GH_TOKEN: ${{ github.token }}
+      PIN_SHA256: 095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17
+      GLOBI_VERSION: "10.5281/zenodo.20546682"
+      STAGE: /tmp/fd-globi-provider-v09
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install minimal independent test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pandas numpy pytest
+
+      - name: Verify source orientation, original references and provider collision tests
+        run: |
+          python -m pytest -q tests/test_fd_globi_provider_v09.py
+          python -m compileall -q src/island_v2/fd_globi_provider_v09.py scripts/run_fd_globi_provider_v09_audit.py
+
+      - name: Reuse already frozen pre-outcome GloBI genus list from island artifact
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/source-breadth"
+          gh run download 34790842133 \
+            --repo zuizui0223/island \
+            --name chapter1-globi-source-breadth-v2-34790842133 \
+            --dir "$STAGE/source-breadth"
+          find "$STAGE/source-breadth" -name globi_source_genus_breadth.csv -type f -print
+          GENUS_CSV="$(find "$STAGE/source-breadth" -name globi_source_genus_breadth.csv -type f -print -quit)"
+          test -n "$GENUS_CSV"
+          echo "GENUS_CSV=$GENUS_CSV" >> "$GITHUB_ENV"
+          python - <<'PY'
+          import os, pandas as pd
+          d=pd.read_csv(os.environ['GENUS_CSV'])
+          assert len(d)==2228
+          assert d.genus.notna().all() and d.genus.is_unique
+          assert {'n_independent_references','n_reference_channel_units'}.issubset(d)
+          print('Pinned source genus predictor verified:',len(d),'names')
+          PY
+
+      - name: Download and SHA-verify exact original GloBI v0.9 SUPPORTS archive
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$STAGE/interactions.tsv.gz" \
+            "https://zenodo.org/records/20546682/files/interactions.tsv.gz?download=1"
+          printf '%s  %s\n' "$PIN_SHA256" "$STAGE/interactions.tsv.gz" | sha256sum --check --strict
+
+      - name: Reconstruct reference and provider concentration without phenotype data
+        run: |
+          set -euo pipefail
+          python scripts/run_fd_globi_provider_v09_audit.py \
+            --interactions "$STAGE/interactions.tsv.gz" \
+            --frozen-source-genus-csv "$GENUS_CSV" \
+            --chunksize 200000 \
+            --output "$STAGE/provider_coverage_receipt.json"
+          python - <<'PY'
+          import os, json
+          from pathlib import Path
+          d=json.loads((Path(os.environ['STAGE'])/'provider_coverage_receipt.json').read_text())
+          assert d['source_sha256']==os.environ['PIN_SHA256']
+          assert d['status']=='PROVIDER_COVERAGE_ONLY_NOT_FAMILY_PREDICTION'
+          assert d['n_original_interaction_rows']>0
+          assert d['n_distinct_source_providers']>=3
+          assert d['n_common_genera_3plus_refs']>0
+          assert d['source_and_taxon_identifiers_released'] is False
+          assert d['provider_family_prediction_rerun_completed'] is False
+          print('Source provider evidence receipt verified (aggregate-only)')
+          PY
+
+      - name: Publish ONLY the original-source provider coverage receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-globi-provider-v09-coverage-${{ github.run_id }}
+          path: /tmp/fd-globi-provider-v09/provider_coverage_receipt.json
+          if-no-files-found: error
+          retention-days: 90
