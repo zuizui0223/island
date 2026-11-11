@@ -493,7 +493,7 @@ def figure6(root: Path, out: Path) -> None:
     axes[0].axvline(0, linewidth=0.8)
     axes[0].set_yticks(y, ["Mainland + offshore", "Offshore only (post-hoc)"])
     axes[0].invert_yaxis()
-    axes[0].set_xlabel("Standardized isolation coefficient")
+    axes[0].set_xlabel("Within-sample standardized isolation slope")
     axes[0].set_title("A | Supporting GloPL evidence")
 
     h4p = h4.loc[h4["analysis"].eq("primary")].copy()
