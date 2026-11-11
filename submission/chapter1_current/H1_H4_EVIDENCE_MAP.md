@@ -65,7 +65,7 @@ This challenges the compulsory **`isolation → selfing → all floral change`**
 - Reproductive assurance: **455 species / 409 publications**, **−0.29830** (finite-publication **p = 0.00417**).
 - Generalized accessibility: **143 species / 143 publications**, **−0.29566** (finite-publication **p = 0.02334**).
 
-The retained atomic check is strongest for **autonomous selfing**; SC alone is weaker and imprecise. Historical Route A/B tests asking whether these states moderate the *isolation slope* of pollen limitation were unsupported. H4 was formulated after the parent analyses, so this is **post-hoc compatibility** rather than confirmatory causal evidence.
+The functional direction is biologically predicted: autonomous selfing can provide seed set without external pollen delivery, reducing the reproductive gain from experimental pollen addition. The retained atomic check is strongest for **autonomous selfing** (β = **−0.44492**, finite-publication p = **4.85 × 10⁻⁸**), including negative results in the supplemental-only and within-publication sensitivities; **self-compatibility alone** is weaker and imprecise (β = **−0.11885**, p = **0.1502**) because SC need not imply autonomous self-fertilization. Thus H4 supplies *positive, biologically coherent functional evidence*. It remains **post-hoc** because the test was added after parent analyses; it is not a randomized manipulation of selfing or confirmation that historical island pollen limitation caused trait evolution. Historical Route A/B tests asking whether these states moderate the *isolation slope* of pollen limitation were unsupported.
 
 ## Main paper structure and live locations
 
