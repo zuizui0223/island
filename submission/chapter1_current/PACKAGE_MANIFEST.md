@@ -57,4 +57,4 @@ No historical causal mediation is claimed.
 
 ## Submission state
 
-The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 135 words; main text 4,995 words; six display items). Submission remains blocked by the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 135 words; main text 4,958 words; six display items). Submission remains blocked by the Ecology Letters data-policy gate, author approval/metadata, permanent release DOI and final journal-file compilation. Documentation-only PR #315 updated comparative literature framing on 8 October 2026; frozen H1–H4 estimates were unchanged.
