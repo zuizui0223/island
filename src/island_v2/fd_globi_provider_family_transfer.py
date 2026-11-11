@@ -116,6 +116,8 @@ def family_transfer(
               for name in np.unique(family_labels)]
     rng = np.random.default_rng(seed)
     results = {}
+    per_family_guild_gains = {}
+    per_genus_guild_gains = {}
     for label, ref in (("pre_provider_omission", before),
                        ("post_provider_omission", after)):
         count = ref.reindex(same)[list(CHANNELS)].to_numpy(float)
@@ -147,11 +149,28 @@ def family_transfer(
             pred[model] = _project(result)
         err0 = (pred["source_support_only"] - Y)**2
         err1 = (pred["source_support_plus_open_form"] - Y)**2
-        gain = (err0 - err1).mean(axis=1)
-        familyscore = np.array([gain[test].mean() for test in groups])
-        draws = familyscore[rng.integers(
+        per_guild = err0 - err1
+        gain = per_guild.mean(axis=1)
+        family_guild = np.stack([
+            per_guild[test].mean(axis=0) for test in groups
+        ])
+        familyscore = family_guild.mean(axis=1)
+        paired_indices = rng.integers(
             len(groups), size=(bootstrap, len(groups))
-        )].mean(axis=1)
+        )
+        draws = familyscore[paired_indices].mean(axis=1)
+        guilds = {}
+        for j, guild in enumerate(CHANNELS):
+            guild_draws = family_guild[paired_indices, j].mean(axis=1)
+            guilds[guild] = {
+                "genus_equal_gain": float(per_guild[:, j].mean()),
+                "family_equal_gain": float(family_guild[:, j].mean()),
+                "family_equal_ci025": float(np.quantile(guild_draws, .025)),
+                "family_equal_ci975": float(np.quantile(guild_draws, .975)),
+                "n_positive_families": int((family_guild[:, j] > 0).sum()),
+            }
+        per_family_guild_gains[label] = family_guild
+        per_genus_guild_gains[label] = per_guild
         results[label] = {
             "genus_equal_baseline_MSE": float(err0.mean()),
             "genus_equal_open_form_MSE": float(err1.mean()),
@@ -160,6 +179,25 @@ def family_transfer(
             "family_equal_ci025": float(np.quantile(draws, .025)),
             "family_equal_ci975": float(np.quantile(draws, .975)),
             "n_positive_families": int((familyscore > 0).sum()),
+            "individual_guilds": guilds,
+        }
+    # The same genera, family labels and fold targets occur on BOTH sides:
+    # resample identical family indices for a paired rather than two
+    # independent before/after uncertainty statements.
+    delta = (per_family_guild_gains["post_provider_omission"] -
+             per_family_guild_gains["pre_provider_omission"])
+    family_delta = delta.mean(axis=1)
+    paired_indices = rng.integers(
+        len(groups), size=(bootstrap, len(groups))
+    )
+    paired_draws = family_delta[paired_indices].mean(axis=1)
+    per_guild_deltas = {}
+    for j, guild in enumerate(CHANNELS):
+        draws = delta[paired_indices, j].mean(axis=1)
+        per_guild_deltas[guild] = {
+            "family_equal_after_minus_before_gain": float(delta[:, j].mean()),
+            "family_equal_delta_ci025": float(np.quantile(draws, .025)),
+            "family_equal_delta_ci975": float(np.quantile(draws, .975)),
         }
     return {
         "status": "COMPLETED_EXPLORATORY_PROVIDER_OMITTED_FAMILY_TRANSFER",
@@ -168,6 +206,15 @@ def family_transfer(
         "dominant_provider_grouping_is_archive_URI_and_must_be_audited": True,
         "pre": results["pre_provider_omission"],
         "after": results["post_provider_omission"],
+        "family_equal_after_minus_before_gain": float(family_delta.mean()),
+        "family_equal_delta_ci025": float(np.quantile(paired_draws, .025)),
+        "family_equal_delta_ci975": float(np.quantile(paired_draws, .975)),
+        "genus_equal_after_minus_before_gain": float((
+            per_genus_guild_gains["post_provider_omission"] -
+            per_genus_guild_gains["pre_provider_omission"]).mean()),
+        "per_guild_after_minus_before": per_guild_deltas,
+        "before_after_comparison_is_same_genus_same_family": True,
+        "bootstrap_is_paired_at_family_level": True,
         "local_pollinator_presence_or_effectiveness_measured": False,
         "original_taxon_or_provider_IDs_released": False,
     }
