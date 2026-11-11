@@ -12,7 +12,7 @@
 - [x] H4 exact-score and atomic estimates integrated
 - [x] Manuscript rewritten around recurrent reproductive function and regionally contingent floral phenotype
 - [x] Figure captions synchronized to traitwise H1
-- [ ] Regenerate and inspect Figure 6 SVG/PDF to match the revised full/offshore H3 panel (source updated, committed binary still older)
+- [x] Figure 6 SVG/PDF regenerated from frozen source tables and visually inspected via PDF raster QA; full/offshore coefficient scaling distinguished
 - [x] Ecology Letters cover letter and novelty statement synchronized
 - [x] Thesis positioning synchronized
 - [x] Historic H1–H5, pooled-composite H1 and October post-hoc regional hinge/genus findings kept outside the active submission claims
