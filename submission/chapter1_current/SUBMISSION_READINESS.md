@@ -1,4 +1,4 @@
-# Chapter 1 submission readiness — 2026-10-08
+# Chapter 1 submission readiness — updated 2026-11-11 (PR #322)
 
 ## Current decision
 
@@ -20,6 +20,7 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 - H2 reproductive-assurance / accessibility conditional decomposition completed;
 - H3 GloPL continental-plus-offshore gradient and post-hoc offshore-only sensitivity completed, as supporting ecological context;
 - H4 biologically predicted, post-hoc exact-species functional triangulation completed; autonomous selfing shows the strongest negative pollen-limitation association;
+- Figure 6 SVG/PDF regenerated from the full and post-hoc offshore H3 gradients plus H4, and the PDF was rasterized and visually inspected (PR #322);
 - causal and claim boundaries fixed.
 
 ### Manuscript package
@@ -27,7 +28,7 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 - title rewritten around recurrent reproductive function and contingent floral phenotype;
 - abstract: **135 words**;
 - main text: **4,958 words** by repository Markdown count;
-- six main figures;
+- six main figures, with revised Figure 6 assets now synchronized to the source and caption;
 - cover letter, novelty statement, comparative study-scale audit and prior literature placement synchronized to traitwise H1 (PR #315 merged);
 - discussion now identifies reduced *functional pollinator service* as a literature-supported, **unmeasured** possible explanation for H3; no pollinator declines, guild turnover or historical mediation are inferred from the Chapter 1 results;
 - current interpretation no longer relies on a pooled H1 score.
@@ -55,7 +56,7 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
    Freeze the final submission commit, mint the release DOI, then insert it into the final data-accessibility text.
 
 4. **Final journal files.**  
-   Re-render and visually inspect Figure 6 after the full/offshore panel-code change, then compile the final manuscript/SI after metadata and DOI freeze.
+   Figure 6 has been regenerated and visually inspected. Compile and inspect the final manuscript/SI after author metadata, rights clearance and DOI freeze.
 
 ## Claim ceiling
 
