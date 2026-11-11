@@ -49,6 +49,23 @@ def test_frozen_source_matched_genus_and_family_training():
     assert not out["local_pollinator_presence_or_effectiveness_measured"]
     assert not out["original_taxon_or_provider_IDs_released"]
     assert "genus" not in out and "family" not in out
+    assert out["before_after_comparison_is_same_genus_same_family"]
+    assert out["bootstrap_is_paired_at_family_level"]
+    assert out["family_equal_delta_ci025"] <= out["family_equal_after_minus_before_gain"]
+    assert out["family_equal_delta_ci975"] >= out["family_equal_after_minus_before_gain"]
+    assert set(out["per_guild_after_minus_before"]) == {
+        "bombus", "non_bombus_bees", "lepidoptera",
+        "flower_visiting_birds", "diptera",
+    }
+    assert all(q["family_equal_delta_ci025"] <=
+               q["family_equal_after_minus_before_gain"] <=
+               q["family_equal_delta_ci975"]
+               for q in out["per_guild_after_minus_before"].values())
+    assert set(out["pre"]["individual_guilds"]) == set(
+        out["after"]["individual_guilds"])
+    assert abs(out["genus_equal_after_minus_before_gain"] -
+               (out["after"]["genus_equal_open_form_gain"] -
+                out["pre"]["genus_equal_open_form_gain"])) < 1e-12
 
 
 def test_loss_of_coverage_gates_are_not_negative_ecological_effect():
