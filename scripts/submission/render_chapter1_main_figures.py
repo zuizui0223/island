@@ -467,22 +467,34 @@ def figure6(root: Path, out: Path) -> None:
 
     fig, axes = plt.subplots(1, 3, figsize=(12.6, 4.6))
 
-    order = ["primary", "no_zero_constant", "supplemental_only"]
-    labels = ["Primary", "No-zero constant", "Supplemental only"]
-    h3p = h3.set_index("analysis").loc[order]
-    y = np.arange(3)
+    # Main H3 figure: full and offshore-only gradients. Other sensitivities are in SI.
+    offshore = pd.read_csv(
+        root / "results/h1_final_directional_20261003/h3_offshore_finite_publication_audit.csv"
+    )
+    primary = h3.set_index("analysis").loc["primary"]
+    off = offshore.set_index("analysis").loc["offshore_continuous_gradient"]
+    h3p = pd.DataFrame(
+        [
+            {"estimate": float(primary["estimate"]), "se": float(primary["se"]),
+             "n_publications": int(primary["n_publications"])},
+            {"estimate": float(off["estimate"]), "se": float(off["se"]),
+             "n_publications": int(off["n_publications"])},
+        ]
+    )
+    y = np.arange(2)
+    h3_crit = student_t.ppf(0.975, h3p["n_publications"].to_numpy() - 1)
     axes[0].errorbar(
-        h3p["estimate"].astype(float),
+        h3p["estimate"].to_numpy(),
         y,
-        xerr=1.96 * h3p["se"].astype(float),
+        xerr=h3_crit * h3p["se"].to_numpy(),
         fmt="o",
         capsize=3,
     )
     axes[0].axvline(0, linewidth=0.8)
-    axes[0].set_yticks(y, labels)
+    axes[0].set_yticks(y, ["Mainland + offshore", "Offshore only (post-hoc)"])
     axes[0].invert_yaxis()
-    axes[0].set_xlabel("Isolation coefficient")
-    axes[0].set_title("A | H3 pollen limitation")
+    axes[0].set_xlabel("Standardized isolation coefficient")
+    axes[0].set_title("A | Supporting GloPL evidence")
 
     h4p = h4.loc[h4["analysis"].eq("primary")].copy()
     h4_labels = ["Reproductive assurance", "Accessibility"]
