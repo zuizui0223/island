@@ -187,7 +187,7 @@ def test_h1_h4_publication_map_uses_current_result_selector_and_claim_boundaries
     for name in (
         "H1 — Traitwise island responses",
         "H2 — Conditional floral response",
-        "H3 — Independent ecological pressure",
+        "H3 — Supporting ecological context",
         "H4 — Functional compatibility",
     ):
         assert name in evidence_map
