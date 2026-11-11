@@ -48,6 +48,15 @@ def main():
         "v09_full_TSV_source_version":VERSION,
         "v09_full_TSV_SHA256":PIN,
         "focal_island_traits_used":False,
+        # Source universe was fixed before looking at morphology. The
+        # prediction DOES use Direct morphology in its feature matrix;
+        # avoid implying that no phenotype data entered the prediction.
+        "source_universe_selected_without_flower_traits":True,
+        "direct_flower_traits_used_for_family_prediction":
+            bool(a.original_direct_ledger),
+        "provider_family_prediction_rerun_completed":
+            bool(result.get("provider_omitted_family_transfer",{}).get(
+                "heldout_original_provider_prediction_completed",False)),
         "provider_heldout_effect_on_flower_morphology_NOT_TESTED":
             not result.get("provider_omitted_family_transfer",{}).get(
                 "heldout_original_provider_prediction_completed",False),
