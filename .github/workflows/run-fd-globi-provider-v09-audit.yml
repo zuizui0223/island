@@ -6,8 +6,10 @@ on:
       - analysis/fd-globi-provider-v09-20261111
     paths:
       - 'src/island_v2/fd_globi_provider_v09.py'
+      - 'src/island_v2/fd_globi_provider_family_transfer.py'
       - 'scripts/run_fd_globi_provider_v09_audit.py'
       - 'tests/test_fd_globi_provider_v09.py'
+      - 'tests/test_fd_globi_provider_family_transfer.py'
       - '.github/workflows/run-fd-globi-provider-v09-audit.yml'
   workflow_dispatch:
 
@@ -137,12 +139,20 @@ jobs:
               assert family["n_same_genera_before_after_with_direct_traits_and_unambiguous_family"] >= 50
               assert family["n_same_families"] >= 15
               assert family["heldout_original_provider_prediction_completed"]
+              assert family["bootstrap_is_paired_at_family_level"] is True
+              assert family["before_after_comparison_is_same_genus_same_family"] is True
+              assert family["family_equal_delta_ci025"] < family["family_equal_delta_ci975"]
+              assert len(family["per_guild_after_minus_before"]) == 5
           else:
               assert not family["heldout_original_provider_prediction_completed"]
           assert d['provider_heldout_effect_on_flower_morphology_NOT_TESTED'] == (
               not family["heldout_original_provider_prediction_completed"]
           )
           assert d["original_archive_source_granularity_unresolved"] is True
+          assert d["provider_family_prediction_rerun_completed"] == (
+              not d["provider_heldout_effect_on_flower_morphology_NOT_TESTED"])
+          assert d["source_universe_selected_without_flower_traits"] is True
+          assert d["direct_flower_traits_used_for_family_prediction"] is True
           assert d['source_and_taxon_identifiers_released'] is False
           print('Source provider evidence receipt verified (aggregate-only)')
           PY
