@@ -29,7 +29,8 @@ RAW=(
  "interactionTypeId","referenceDoi","referenceCitation","referenceUrl",
  "sourceDOI","sourceArchiveURI","sourceNamespace","sourceCitation",
 )
-COLS=("plant_genus","visitor_channel","provider_id","reference_id","evidence_class")
+COLS=("plant_genus","visitor_channel","provider_id","reference_id","evidence_class",
+      "source_namespace","source_doi","source_citation")
 
 def val(x):
     if x is None or pd.isna(x):return ""
@@ -90,7 +91,8 @@ def canonicalize_chunk(frame:pd.DataFrame,focus:set[str]|None=None):
         ref=reference(r)
         if not ref:
             ctr["missing_bibliographic_reference"]+=1;continue
-        rows.append((genus,ch,prov,ref,strength))
+        rows.append((genus,ch,prov,ref,strength,val(r.get("sourceNamespace")),
+                     val(r.get("sourceDOI")),val(r.get("sourceCitation"))))
     ctr["cited_flower_interaction_rows"]=len(rows)
     return pd.DataFrame.from_records(rows,columns=COLS).drop_duplicates(),dict(ctr)
 
@@ -98,12 +100,24 @@ class ProviderReferenceEvidence:
     def __init__(self):
         self.rows=set()
         self.tallies=Counter()
+        # Structural source-provider hierarchy audit: sourceArchiveURI may group
+        # many independent sourceNamespace, DOI or sourceCitation records.
+        # These IDs never leave the runner; only grouped cardinalities do.
+        self.provider_namespaces=defaultdict(set)
+        self.provider_dois=defaultdict(set)
+        self.provider_citations=defaultdict(set)
 
     def add(self,canonical:pd.DataFrame,tally:dict|None=None):
         if set(COLS)-set(canonical):raise ValueError("Missing canonical reference fields")
         if tally:self.tallies.update(tally)
-        self.rows.update((r.plant_genus,r.visitor_channel,r.provider_id,r.reference_id)
-                         for r in canonical.itertuples(index=False))
+        for r in canonical.itertuples(index=False):
+            self.rows.add((r.plant_genus,r.visitor_channel,r.provider_id,r.reference_id))
+            if r.source_namespace:
+                self.provider_namespaces[r.provider_id].add(r.source_namespace)
+            if r.source_doi:
+                self.provider_dois[r.provider_id].add(r.source_doi)
+            if r.source_citation:
+                self.provider_citations[r.provider_id].add(r.source_citation)
 
     def summarize(self,min_refs=3):
         if min_refs<3:raise ValueError("Expected >=3 distinct references")
@@ -134,6 +148,11 @@ class ProviderReferenceEvidence:
             "n_crossprovider_repeated_references_excluded":int(len(collision)),
             "n_unique_plant_guild_provider_reference_units":int(len(df)),
             "top_provider_fraction_of_reference_units":float(provider_n.iloc[0]/len(df)),
+            "largest_provider_distinct_subnamespace_count":int(len(self.provider_namespaces[excluded])),
+            "largest_provider_distinct_source_doi_count":int(len(self.provider_dois[excluded])),
+            "largest_provider_distinct_source_citation_count":int(len(self.provider_citations[excluded])),
+            "provider_grouping_rule":"sourceArchiveURI_first_else_sourceDOI_else_namespace_plus_sourceCitation",
+            "provider_aggregator_granularity_verified":False,
             "n_genera_with_3plus_refs_before":int(orig_ok.sum()),
             "n_genera_with_3plus_refs_after":int(after_ok.sum()),
             "n_common_genera_3plus_refs":int(common.sum()),
