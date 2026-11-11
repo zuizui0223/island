@@ -26,9 +26,9 @@
 
 **Keywords:** island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; functional island biogeography; pollination
 
-**Abstract word count:** 147 [final journal count to verify; must remain <=150]
+**Abstract word count:** 135 [final journal count to verify; must remain <=150]
 
-**Main-text word count:** 4,947 [repository Markdown count; final journal count to verify; must remain <=5,000]
+**Main-text word count:** 4,995 [repository Markdown count; final journal count to verify; must remain <=5,000]
 
 **References:** 24
 
