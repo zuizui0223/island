@@ -53,6 +53,7 @@ jobs:
           find "$STAGE/source-breadth" -name globi_source_genus_breadth.csv -type f -print
           GENUS_CSV="$(find "$STAGE/source-breadth" -name globi_source_genus_breadth.csv -type f -print -quit)"
           test -n "$GENUS_CSV"
+          export GENUS_CSV
           echo "GENUS_CSV=$GENUS_CSV" >> "$GITHUB_ENV"
           python - <<'PY'
           import os, pandas as pd
