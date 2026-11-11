@@ -1,0 +1,74 @@
+name: PR322 one-shot Figure 6 source sync
+
+on:
+  push:
+    branches:
+      - docs/ch1-h3-context-offshore-20261111
+    paths:
+      - ".github/workflows/ch1-figure6-pr322-sync.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  render-current-figure6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install plot dependencies
+        run: pip install -e ".[figures]" pytest
+
+      - name: Re-render Figure 6 from the frozen tables
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ch1-pr322-render
+          python scripts/submission/render_chapter1_main_figures.py --root . --output-dir /tmp/ch1-pr322-render
+          test -s /tmp/ch1-pr322-render/Figure6_H3_H4_functional_bridge.svg
+          test -s /tmp/ch1-pr322-render/Figure6_H3_H4_functional_bridge.pdf
+          cp /tmp/ch1-pr322-render/Figure6_H3_H4_functional_bridge.svg submission/chapter1_current/figures/
+          cp /tmp/ch1-pr322-render/Figure6_H3_H4_functional_bridge.pdf submission/chapter1_current/figures/
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+          root=Path("submission/chapter1_current/figures")
+          mf=root/"FIGURE_MANIFEST.json"
+          data=json.loads(mf.read_text(encoding="utf-8"))
+          rec=next(x for x in data["figures"] if x["figure"] == 6)
+          svg=root/rec["svg"]
+          pdf=root/rec["pdf"]
+          ET.parse(svg)
+          assert pdf.read_bytes().startswith(b"%PDF")
+          rec["svg_bytes"]=svg.stat().st_size
+          rec["pdf_bytes"]=pdf.stat().st_size
+          mf.write_text(json.dumps(data,indent=2)+"\n",encoding="utf-8")
+          PY
+
+      - name: Validate the complete main-figure package
+        run: pytest -q tests/test_chapter1_figure_packages.py
+
+      - name: Commit only regenerated Figure 6 assets and manifest
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            submission/chapter1_current/figures/Figure6_H3_H4_functional_bridge.svg \
+            submission/chapter1_current/figures/Figure6_H3_H4_functional_bridge.pdf \
+            submission/chapter1_current/figures/FIGURE_MANIFEST.json
+          if git diff --cached --quiet; then
+            echo "No plot changes."
+            exit 0
+          fi
+          git commit -m "fig(ch1): render full/offshore H3 and H4 Figure 6"
+          git push origin HEAD:docs/ch1-h3-context-offshore-20261111
