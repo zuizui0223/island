@@ -54,6 +54,21 @@ jobs:
           mf.write_text(json.dumps(data,indent=2)+"\n",encoding="utf-8")
           PY
 
+      - name: Produce temporary QA preview from generated PDF
+        run: |
+          python -m pip install pymupdf
+          python - <<'PY'
+          import fitz
+          from pathlib import Path
+          pdf=Path("submission/chapter1_current/figures/Figure6_H3_H4_functional_bridge.pdf")
+          out=Path("submission/chapter1_current/figures/QA_Figure6_PR322.png")
+          with fitz.open(pdf) as doc:
+              assert len(doc)==1
+              pix=doc[0].get_pixmap(matrix=fitz.Matrix(1.7,1.7),alpha=False)
+              pix.save(out)
+          assert out.stat().st_size>5000
+          PY
+
       - name: Validate the complete main-figure package
         run: pytest -q tests/test_chapter1_figure_packages.py
 
@@ -65,7 +80,8 @@ jobs:
           git add \
             submission/chapter1_current/figures/Figure6_H3_H4_functional_bridge.svg \
             submission/chapter1_current/figures/Figure6_H3_H4_functional_bridge.pdf \
-            submission/chapter1_current/figures/FIGURE_MANIFEST.json
+            submission/chapter1_current/figures/FIGURE_MANIFEST.json \
+            submission/chapter1_current/figures/QA_Figure6_PR322.png
           if git diff --cached --quiet; then
             echo "No plot changes."
             exit 0
