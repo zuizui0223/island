@@ -39,7 +39,7 @@ jobs:
 
       - name: Verify source orientation, original references and provider collision tests
         run: |
-          python -m pytest -q tests/test_fd_globi_provider_v09.py
+          python -m pytest -q tests/test_fd_globi_provider_v09.py tests/test_fd_globi_provider_family_transfer.py
           python -m compileall -q src/island_v2/fd_globi_provider_v09.py scripts/run_fd_globi_provider_v09_audit.py
 
       - name: Reuse already frozen pre-outcome GloBI genus list from island artifact
@@ -86,6 +86,7 @@ jobs:
           test -n "$LEDGER"
           test -s "$LEDGER"
           test -s data/v2/staging/gbif/collected/island_taxa.csv
+          export DIRECT_LEDGER
           echo "DIRECT_LEDGER=$LEDGER" >> "$GITHUB_ENV"
           echo "FAMILY_TAXONOMY=$GITHUB_WORKSPACE/data/v2/staging/gbif/collected/island_taxa.csv" >> "$GITHUB_ENV"
           python - <<'PY'
