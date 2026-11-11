@@ -41,7 +41,7 @@ Historical directional/composite H1 files remain replay provenance only.
 3. Constraint–response triangle / inferential boundary
 4. Seven separate H1 trait responses across regions and evidence/provenance sensitivities
 5. H2 reproductive-assurance / additional floral-response decomposition
-6. Supporting H3 full/offshore pollen-limitation gradients and H4 functional bridge (re-rendering Figure 6 binary is pending)
+6. Supporting H3 full/offshore pollen-limitation gradients and H4 functional bridge (Figure 6 SVG/PDF regenerated and visually checked in PR #322)
 
 ## Current narrative
 
