@@ -86,7 +86,7 @@ jobs:
           test -n "$LEDGER"
           test -s "$LEDGER"
           test -s data/v2/staging/gbif/collected/island_taxa.csv
-          export DIRECT_LEDGER
+          export DIRECT_LEDGER="$LEDGER"
           echo "DIRECT_LEDGER=$LEDGER" >> "$GITHUB_ENV"
           echo "FAMILY_TAXONOMY=$GITHUB_WORKSPACE/data/v2/staging/gbif/collected/island_taxa.csv" >> "$GITHUB_ENV"
           python - <<'PY'
