@@ -1,4 +1,4 @@
-# Chapter 1 submission readiness — updated 2026-11-11 (PR #322)
+# Chapter 1 submission readiness — updated 2026-11-12 (PR #324 review package)
 
 ## Current decision
 
@@ -29,6 +29,7 @@ Fallback: **Global Ecology and Biogeography** if the data-sharing restriction ca
 - abstract: **135 words**;
 - main text: **4,958 words** by repository Markdown count;
 - six main figures, with revised Figure 6 assets now synchronized to the source and caption;
+- editable main/SI review DOCX and PDF, complete main/SI figure PDFs, and aggregate tables assembled into a rights-safe ZIP; CI run #43214515134 passed and first-page visual QA was inspected on 12 November 2026. This remains a review copy, not a final submitted article;
 - cover letter, novelty statement, comparative study-scale audit and prior literature placement synchronized to traitwise H1 (PR #315 merged);
 - discussion now identifies reduced *functional pollinator service* as a literature-supported, **unmeasured** possible explanation for H3; no pollinator declines, guild turnover or historical mediation are inferred from the Chapter 1 results;
 - current interpretation no longer relies on a pooled H1 score.
