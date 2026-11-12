@@ -82,6 +82,7 @@ def macro_exact_928_locality_gate(
         original_928_flora:pd.DataFrame,
         verified_geometry_path:Path,
         verified_geometry_receipt_path:Path,
+        *, largest_global_archive_first_label:str|None=None,
 )->dict:
     """Source-provenance-preserving polygon × exact plant name match.
 
@@ -138,6 +139,29 @@ def macro_exact_928_locality_gate(
         "n_distinct_original_source_archive_labels_in_matched_rows":0,
         "n_island_species_pairs_with_2plus_documented_visitor_guilds":0,
         "n_island_species_pairs_with_3plus_source_bibliography_keys":0,
+        "n_island_species_pairs_with_2plus_distinct_archive_first_labels":0,
+        "n_island_species_pairs_with_2plus_distinct_coordinate_sites":0,
+        "n_native_island_species_pairs_with_2plus_documented_visitor_guilds":0,
+        "n_unresolved_origin_island_species_pairs_with_2plus_documented_visitor_guilds":0,
+        "n_georeferenced_same_native_plant_relation_units_with_pollination_label":0,
+        "n_source_archive_labels_accounting_for_local_cited_units":0,
+        "largest_archive_fraction_in_local_cited_units":None,
+        "n_island_species_pairs_with_record_after_globally_largest_archive_omitted":
+            0 if largest_global_archive_first_label is not None else None,
+        "n_islands_with_same_plant_cited_relations_after_globally_largest_archive_omitted":
+            0 if largest_global_archive_first_label is not None else None,
+        "n_native_island_species_pairs_with_record_after_globally_largest_archive_omitted":
+            0 if largest_global_archive_first_label is not None else None,
+        "n_native_islands_with_cited_plant_after_globally_largest_archive_omitted":
+            0 if largest_global_archive_first_label is not None else None,
+        "n_island_species_pairs_with_2plus_guilds_after_globally_largest_archive_omitted":
+            0 if largest_global_archive_first_label is not None else None,
+        "n_native_island_species_pairs_with_2plus_guilds_after_globally_largest_archive_omitted":
+            0 if largest_global_archive_first_label is not None else None,
+        "n_same_original_island_plant_pairs_with_bird_and_another_cited_guild":0,
+        "n_native_original_island_plant_pairs_with_bird_and_another_cited_guild":0,
+        "global_largest_source_is_selected_before_locality_or_trait_results":True,
+        "original_archive_first_label_is_not_proven_independent_study":True,
         "n_strict_native_flora_island_species_pairs_with_visitor_relation":0,
         "n_origin_unresolved_flora_island_species_pairs_with_visitor_relation":0,
         "n_islands_with_native_plant_visitation_reference":0,
