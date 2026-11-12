@@ -11,6 +11,9 @@ import pandas as pd
 
 from island_v2.fd_globi_provider_v09 import analyze_v09_gzip, VERSION, PIN
 from island_v2.fd_globi_provider_family_transfer import family_transfer
+from island_v2.fd_globi_species_shift_v09 import (
+    select_native_source_names, ExactSpeciesGloBICoverage, GEO_FIELDS
+)
 
 def main():
     p=argparse.ArgumentParser()
@@ -19,6 +22,8 @@ def main():
     p.add_argument("--output",required=True,type=Path)
     p.add_argument("--original-direct-ledger",type=Path)
     p.add_argument("--original-island-taxonomy",type=Path)
+    p.add_argument("--original-progressive-root",type=Path)
+    p.add_argument("--qualified-island-channel-states",type=Path)
     p.add_argument("--chunksize",type=int,default=200_000)
     a=p.parse_args()
     d=pd.read_csv(a.frozen_source_genus_csv)
@@ -26,18 +31,57 @@ def main():
     if not needed.issubset(d):raise ValueError("Missing frozen source-genus breadth contract")
     if d.genus.isna().any() or d.genus.duplicated().any():
         raise ValueError("Unresolved or duplicate focal plant genus")
+    original_ledger=None
+    if a.original_direct_ledger is not None:
+        original_ledger=pd.read_csv(a.original_direct_ledger,
+            usecols=["accepted_species","trait_name","normalized_value",
+                     "evidence_scope","evidence_quality"])
+    species_evidence=None
+    species_selection=None
+    if bool(a.original_progressive_root) != bool(a.qualified_island_channel_states):
+        raise ValueError("Both original progressive source and qualified island channel cohort required")
+    if a.original_progressive_root is not None:
+        if original_ledger is None:
+            raise ValueError("Species shift evidence requires original species-direct traits")
+        root=a.original_progressive_root
+        flora=pd.read_csv(root/"fixed/canonical/input/chapter1_status_flora.csv.gz",
+                           usecols=["island_id","accepted_species","origin_status"])
+        states=pd.read_csv(a.qualified_island_channel_states,
+                           usecols=["island_id","channel_id","channel_state","source_state"])
+        sources=pd.read_csv(root/"fixed/source/result/island_source_assignments.csv.gz",
+                           usecols=["island_id","source_mode","source_rank","entity_ID"])
+        mainland=pd.read_csv(root/"fixed/source/source/gift_native_mainland_flora.csv.gz",
+                            usecols=["entity_ID","work_species"])
+        names,species_selection=select_native_source_names(
+            original_ledger,flora,states,sources,mainland)
+        # Cohort is fixed and all identity-level records remain private;
+        # any unexpected change means this is NOT the original 54-species test.
+        required={"n_islands_with_30plus_species_direct_flower_traits":928,
+                  "n_candidate_islands_qualified_Bombus_nondetection_bird_recorded":21,
+                  "n_native_same_name_GIFT_source_island_plant_rows":197,
+                  "n_distinct_native_same_name_GIFT_source_plant_species":54,
+                  "n_islands_with_native_same_name_GIFT_source_plant":13}
+        if any(species_selection.get(k)!=v for k,v in required.items()):
+            raise ValueError("Original 2026-11-12 source-matched 54-species cohort has drifted")
+        species_evidence=ExactSpeciesGloBICoverage(names)
+        print("Fixed candidate native/source cohort: 54 species, 13 islands; identifiers kept private",flush=True)
     original, after, result=analyze_v09_gzip(
-        a.interactions, set(d.genus.astype(str)), chunksize=a.chunksize
+        a.interactions, set(d.genus.astype(str)), chunksize=a.chunksize,
+        extra_hook=(species_evidence.add_chunk if species_evidence else None),
+        extra_columns=(GEO_FIELDS if species_evidence else ()),
     )
+    if species_evidence is not None:
+        result["species_direct_mainland_island_shift_evidence_coverage"]={
+            "selection":species_selection,
+            "GloBI_exact_species":species_evidence.summarize(),
+            "status":"EXACT_SPECIES_GLOBAL_GLOBI_EVIDENCE_COVERAGE_NOT_ACTUAL_ISLAND_SOURCE_POLLINATOR_SHIFT",
+        }
     if bool(a.original_direct_ledger) != bool(a.original_island_taxonomy):
         raise ValueError("Need BOTH the original direct ledger and frozen GBIF taxonomy")
     if a.original_direct_ledger:
         for pth in (a.original_direct_ledger, a.original_island_taxonomy):
             if not pth.is_file():
                 raise ValueError("Missing original source-backed morphology or taxonomy")
-        original_ledger=pd.read_csv(a.original_direct_ledger,
-           usecols=["accepted_species","trait_name","normalized_value",
-                    "evidence_scope","evidence_quality"])
         original_taxonomy=pd.read_csv(a.original_island_taxonomy,
            usecols=["genus","family"])
         result["provider_omitted_family_transfer"]=family_transfer(
@@ -54,6 +98,8 @@ def main():
         "source_universe_selected_without_flower_traits":True,
         "direct_flower_traits_used_for_family_prediction":
             bool(a.original_direct_ledger),
+        "native_same_species_GIFT_source_evidence_audit_completed":
+            bool(species_evidence),
         "provider_family_prediction_rerun_completed":
             bool(result.get("provider_omitted_family_transfer",{}).get(
                 "heldout_original_provider_prediction_completed",False)),
