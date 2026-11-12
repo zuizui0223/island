@@ -230,7 +230,7 @@ def _setup_document(kind: str, source: str) -> Document:
     doc.add_paragraph("The source manuscript is not changed by this conversion. Author "
                       "details, data-sharing authorization and permanent software DOI "
                       "remain pending.")
-    doc.add_page_break()
+    doc.add_paragraph("")
     return doc
 
 def _figure_pdf_to_png(pdf: Path, out_png: Path) -> None:
