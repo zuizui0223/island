@@ -251,6 +251,16 @@ jobs:
           assert loc_macro["plant_island_geography_provider_reference_IDs_released"] is False
           assert loc_macro["unreproducible_original_polygon_IDs_never_called_absence"] is True
           assert len(loc_macro["per_guild"])==5
+          assert loc_macro["global_largest_source_is_selected_before_locality_or_trait_results"] is True
+          assert loc_macro["original_archive_first_label_is_not_proven_independent_study"] is True
+          assert 0 <= loc_macro["n_native_island_species_pairs_with_2plus_documented_visitor_guilds"] <= loc_macro["n_strict_native_flora_island_species_pairs_with_visitor_relation"]
+          assert 0 <= loc_macro["n_unresolved_origin_island_species_pairs_with_2plus_documented_visitor_guilds"] <= loc_macro["n_origin_unresolved_flora_island_species_pairs_with_visitor_relation"]
+          assert 0 <= loc_macro["n_island_species_pairs_with_2plus_distinct_archive_first_labels"] <= loc_macro["n_distinct_island_species_pairs_with_record"]
+          assert 0 <= loc_macro["n_island_species_pairs_with_record_after_globally_largest_archive_omitted"] <= loc_macro["n_distinct_island_species_pairs_with_record"]
+          assert 0 <= loc_macro["n_native_island_species_pairs_with_record_after_globally_largest_archive_omitted"] <= loc_macro["n_strict_native_flora_island_species_pairs_with_visitor_relation"]
+          assert 0 <= loc_macro["n_native_island_species_pairs_with_2plus_guilds_after_globally_largest_archive_omitted"] <= loc_macro["n_native_island_species_pairs_with_2plus_documented_visitor_guilds"]
+          assert len(loc_macro["per_guild"])==5
+          assert all("n_native_island_plant_pairs_with_guild_after_globally_largest_source_removed" in row for row in loc_macro["per_guild"])
           assert d["original_13_candidate_island_GloBI_point_polygon_preflight_completed"] is True
           loc=s["original_island_polygon_locality_overlap"]
           assert loc["status"]=="EXACT_FOCAL_ISLAND_POLYGON_OVERLAP_AUDITED_NOT_VERIFIED_POLLINATOR_SHIFT"
