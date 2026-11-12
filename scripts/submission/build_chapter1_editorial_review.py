@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Build a RIGHTS-SAFE, non-submittable Chapter 1 editorial review packet.
 
 No trait-ledger/raw-data inputs are opened. The packet is an author-review aid;
@@ -12,7 +11,6 @@ import json
 import os
 import re
 import shutil
-import tempfile
 import zipfile
 from pathlib import Path
 
@@ -363,7 +361,7 @@ def build(root: Path, out_dir: Path, *, source_commit: str) -> dict:
         cmd = [executable, "-env:UserInstallation=file:///tmp/island-ch1-lo-review",
                "--headless", "--convert-to", "pdf", "--outdir", str(word_dir),
                *[str(p) for p in docs]]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True, timeout=240)
         if result.returncode != 0:
             raise RuntimeError("LibreOffice PDF conversion failed: " + result.stderr)
         for doc in docs:
