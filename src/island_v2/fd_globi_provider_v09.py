@@ -169,12 +169,21 @@ def sha256_file(path:Path):
         for block in iter(lambda:f.read(1<<20),b""):h.update(block)
     return h.hexdigest()
 
-def analyze_v09_gzip(path:Path,focus:set[str],chunksize=200_000):
+def analyze_v09_gzip(path:Path,focus:set[str],chunksize=200_000,
+                     extra_hook=None,extra_columns=()):
+    """Single-source pass with optional PRIVATE exact-species evidence hook.
+
+    A second reader must not silently use a newer snapshot. The original
+    SHA256 and original SOURCE-based genus eligibility are verified first.
+    """
     if not focus:raise ValueError("Explicit outcome-independent focal genus list required")
     if sha256_file(path)!=PIN:raise ValueError("GloBI v0.9 original SHA mismatch")
     acc=ProviderReferenceEvidence()
+    fields=tuple(dict.fromkeys((*RAW,*extra_columns)))
     for chunk in pd.read_csv(path,sep="\t",compression="gzip",dtype=str,
-                             usecols=RAW,chunksize=chunksize,low_memory=False):
+                             usecols=fields,chunksize=chunksize,low_memory=False):
+        if extra_hook is not None:
+            extra_hook(chunk)
         row,tally=canonicalize_chunk(chunk,focus)
         acc.add(row,tally)
     return acc.summarize()
