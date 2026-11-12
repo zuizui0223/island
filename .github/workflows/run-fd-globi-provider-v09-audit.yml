@@ -9,11 +9,13 @@ on:
       - 'src/island_v2/fd_globi_provider_family_transfer.py'
       - 'src/island_v2/fd_globi_species_shift_v09.py'
       - 'src/island_v2/fd_globi_species_shift_spatial_v09.py'
+      - 'src/island_v2/fd_globi_macro_928_locality_v09.py'
       - 'scripts/run_fd_globi_provider_v09_audit.py'
       - 'tests/test_fd_globi_provider_v09.py'
       - 'tests/test_fd_globi_provider_family_transfer.py'
       - 'tests/test_fd_globi_species_shift_v09.py'
-      - 'tests/test_fd_globi_species_shift_spatial_v09.py'
+      - 'tests/test_fd_globi_species_shift_spatial_v09.py tests/test_fd_globi_macro_928_locality_v09.py'
+      - 'tests/test_fd_globi_macro_928_locality_v09.py'
       - '.github/workflows/run-fd-globi-provider-v09-audit.yml'
   workflow_dispatch:
 
@@ -234,6 +236,21 @@ jobs:
           assert coverage["n_confirmed_evolutionary_pollinator_shifts"]==0
           assert coverage["no_exact_species_or_island_or_provider_id_released"] is True
           assert s["status"].endswith("NOT_ACTUAL_ISLAND_SOURCE_POLLINATOR_SHIFT")
+          assert d["macro_928_original_Direct_flora_source_GloBI_preflight_completed"] is True
+          macro=d["macro_928_Direct_flora_exact_species_GloBI"]
+          assert macro["status"]=="MACRO_SOURCE_EVIDENCE_ONLY_NOT_POLLINATOR_SHIFT"
+          cohort_macro=macro["original_Direct_flora_source_cohort"]
+          assert cohort_macro["n_original_eligible_islands"]==928
+          assert cohort_macro["n_original_complete_plant_species"]>=54
+          loc_macro=macro["original_exact_island_locality_coverage"]
+          assert loc_macro["status"]=="MACRO_928_FLORA_EXACT_GLOBI_LOCALITY_EVIDENCE_PREFLIGHT"
+          assert loc_macro["n_original_Direct_triple_complete_islands"]==928
+          assert loc_macro["n_islands_matching_original_GSHHG_geometric_id"]+loc_macro["n_islands_unmatchable_to_original_geometry"]==928
+          assert loc_macro["n_islands_unmatchable_to_original_geometry"]<=9
+          assert loc_macro["n_biological_pollinator_shifts_demonstrated"]==0
+          assert loc_macro["plant_island_geography_provider_reference_IDs_released"] is False
+          assert loc_macro["unreproducible_original_polygon_IDs_never_called_absence"] is True
+          assert len(loc_macro["per_guild"])==5
           assert d["original_13_candidate_island_GloBI_point_polygon_preflight_completed"] is True
           loc=s["original_island_polygon_locality_overlap"]
           assert loc["status"]=="EXACT_FOCAL_ISLAND_POLYGON_OVERLAP_AUDITED_NOT_VERIFIED_POLLINATOR_SHIFT"
