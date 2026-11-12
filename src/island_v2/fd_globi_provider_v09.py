@@ -6,6 +6,7 @@ Global documented reference composition != local pollination effectiveness.
 """
 from __future__ import annotations
 from collections import Counter, defaultdict
+import gzip
 import hashlib
 from pathlib import Path
 import pandas as pd
@@ -179,7 +180,18 @@ def analyze_v09_gzip(path:Path,focus:set[str],chunksize=200_000,
     if not focus:raise ValueError("Explicit outcome-independent focal genus list required")
     if sha256_file(path)!=PIN:raise ValueError("GloBI v0.9 original SHA mismatch")
     acc=ProviderReferenceEvidence()
-    fields=tuple(dict.fromkeys((*RAW,*extra_columns)))
+    # Original v0.9 may omit event-time and some geography columns that
+    # appear in documentation for other GloBI versions. Only original
+    # taxonomy/interaction/reference columns are mandatory. Never fabricate
+    # an absent optional field or silently substitute another GloBI release.
+    with gzip.open(path,"rt",encoding="utf-8") as source:
+        available=set(source.readline().rstrip("\n\r").split("\t"))
+    missing=set(RAW)-available
+    if missing:
+        raise ValueError("Pinned v0.9 source lacks required interaction fields: "+
+                         str(sorted(missing)))
+    present_optional=tuple(c for c in extra_columns if c in available)
+    fields=tuple(dict.fromkeys((*RAW,*present_optional)))
     for chunk in pd.read_csv(path,sep="\t",compression="gzip",dtype=str,
                              usecols=fields,chunksize=chunksize,low_memory=False):
         if extra_hook is not None:
