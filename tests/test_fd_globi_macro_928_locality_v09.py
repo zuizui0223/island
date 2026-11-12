@@ -101,3 +101,50 @@ def test_trait_genus_consensus_never_imputed_as_strict_species_direct(tmp_path):
         for island in range(928) for i in range(30)])
     with pytest.raises(ValueError,match="All 3 original"):
         strict_direct_928_flora(pd.DataFrame(d),flora)
+
+
+
+def test_native_multiguild_and_original_global_archive_omission_not_plant_shift(tmp_path):
+    plants,geometry,receipt=_data(tmp_path)
+    rows={
+        ("Plant0 species0","flower_visiting_birds","Rbird","archiveA","flower_visit",.4,.3),
+        ("Plant0 species0","non_bombus_bees","Rbee","archiveB","pollination",.4,.3),
+        ("Plant1 species1","lepidoptera","Rmoth","archiveC","flower_visit",.3,3.4),
+    }
+    providers={"Rbird":{"archiveA"},"Rbee":{"archiveB"},"Rmoth":{"archiveC"}}
+    result=macro_exact_928_locality_gate(
+        rows,providers,plants,geometry,receipt,
+        largest_global_archive_first_label="archiveA")
+    assert result["n_island_species_pairs_with_2plus_distinct_archive_first_labels"]==1
+    assert result["n_native_island_species_pairs_with_2plus_documented_visitor_guilds"]==1
+    assert result["n_unresolved_origin_island_species_pairs_with_2plus_documented_visitor_guilds"]==0
+    assert result["n_georeferenced_same_native_plant_relation_units_with_pollination_label"]==1
+    assert result["n_same_original_island_plant_pairs_with_bird_and_another_cited_guild"]==1
+    assert result["n_native_original_island_plant_pairs_with_bird_and_another_cited_guild"]==1
+    assert result["n_island_species_pairs_with_record_after_globally_largest_archive_omitted"]==2
+    assert result["n_native_island_species_pairs_with_record_after_globally_largest_archive_omitted"]==1
+    assert result["n_island_species_pairs_with_2plus_guilds_after_globally_largest_archive_omitted"]==0
+    assert result["n_native_island_species_pairs_with_2plus_guilds_after_globally_largest_archive_omitted"]==0
+    assert result["global_largest_source_is_selected_before_locality_or_trait_results"]
+    assert result["original_archive_first_label_is_not_proven_independent_study"]
+    assert result["n_biological_pollinator_shifts_demonstrated"]==0
+    assert not {"island_id","accepted_species","provider_id","reference_id"} & set(result)
+    assert len(result["per_guild"])==5
+    for row in result["per_guild"]:
+        assert "n_native_island_plant_pairs_with_guild_after_globally_largest_source_removed" in row
+
+
+def test_reference_and_coordinate_duplication_do_not_create_two_local_sources(tmp_path):
+    plants,geometry,receipt=_data(tmp_path)
+    rows={
+        ("Plant0 species0","bombus","R1","A","flower_visit",.5,.5),
+        ("Plant0 species0","bombus","R2","A","flower_visit",.5,.5),
+    }
+    z=macro_exact_928_locality_gate(
+        rows,{"R1":{"A"},"R2":{"A"}},plants,geometry,receipt,
+        largest_global_archive_first_label="A")
+    assert z["n_island_species_pairs_with_2plus_distinct_archive_first_labels"]==0
+    assert z["n_island_species_pairs_with_2plus_distinct_coordinate_sites"]==0
+    assert z["n_island_species_pairs_with_2plus_documented_visitor_guilds"]==0
+    assert z["n_island_species_pairs_with_record_after_globally_largest_archive_omitted"]==0
+    assert z["n_biological_pollinator_shifts_demonstrated"]==0
