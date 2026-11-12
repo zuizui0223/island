@@ -7,6 +7,7 @@ Release only aggregate sample coverage; species/island/reference IDs stay local.
 """
 from __future__ import annotations
 from collections import Counter, defaultdict
+from itertools import combinations
 import gzip
 from pathlib import Path
 import numpy as np
@@ -120,9 +121,15 @@ class ExactSpeciesGloBICoverage:
     Coordinates can establish that SOME record was georeferenced, not that the
     visit was on the focal island (requires original island polygon overlay).
     """
-    def __init__(self,names:set[str]):
+    def __init__(self,names:set[str],floral_form_by_species:dict[str,str]|None=None):
         if not names:raise ValueError("No fixed GIFT same-species focal names")
         self.names=set(names)
+        if floral_form_by_species is not None:
+            if (set(floral_form_by_species)!=self.names or
+                any(not isinstance(v,str) or not v.strip() or "|" in v
+                    for v in floral_form_by_species.values())):
+                raise ValueError("Unresolved or non-strict matched species-direct floral form")
+        self.floral_form_by_species=floral_form_by_species
         self.raw=Counter()
         self.units=set()
         self.providers_by_reference=defaultdict(set)
@@ -224,8 +231,19 @@ class ExactSpeciesGloBICoverage:
                      in by_guild.items() if gg==g}
             surviving={p:refs for (p,gg),refs in after_by_guild.items()
                        if gg==g}
+            form=self.floral_form_by_species
+            n_open=(
+                sum(form.get(p)=="open_radial" for p in species)
+                if form is not None else None
+            )
+            n_open_after=(
+                sum(form.get(p)=="open_radial" for p in surviving)
+                if form is not None else None
+            )
             by_guild_summary.append({
                 "guild":g,
+                "n_species_with_species_direct_open_radial_form_and_cited_guild_interaction":n_open,
+                "n_species_with_species_direct_open_radial_form_and_cited_guild_interaction_after_largest_archive_removed":n_open_after,
                 "n_candidate_species_with_cited_interaction":
                     sum(len(v)>=1 for v in species.values()),
                 "n_candidate_species_with_3plus_distinct_bibliography":
@@ -234,6 +252,18 @@ class ExactSpeciesGloBICoverage:
                     sum(len(v)>=1 for v in surviving.values()),
                 "n_candidate_species_with_3plus_distinct_bibliography_after_largest_archive_removed":
                     sum(len(v)>=3 for v in surviving.values()),
+            })
+        pairwise=[]
+        for g1,g2 in combinations(GUILDS,2):
+            a={p for (p,g) in by_guild if g==g1}
+            b={p for (p,g) in by_guild if g==g2}
+            aa={p for (p,g) in after_by_guild if g==g1}
+            bb={p for (p,g) in after_by_guild if g==g2}
+            pairwise.append({
+                "guild_A":g1,"guild_B":g2,
+                "n_species_with_both_guilds_globally_cited":len(a&b),
+                "n_species_with_both_guilds_after_largest_archive_removed":len(aa&bb),
+                "n_island_local_same_plant_two_guild_records_confirmed":0,
             })
         return {
           "source_version":VERSION,"GloBI_v09_SHA256":PIN,
@@ -298,6 +328,13 @@ class ExactSpeciesGloBICoverage:
           "n_exact_species_guild_provider_bibliography_units":
               len(filtered),
           "per_visitor_guild":by_guild_summary,
+          "species_level_global_cross_guild_documentation_pairs":pairwise,
+          "cross_guild_documentation_is_not_local_visitation_or_functional_compensation":True,
+          "n_direct_open_radial_form_54_candidates":
+              sum(v=="open_radial" for v in self.floral_form_by_species.values())
+              if self.floral_form_by_species is not None else None,
+          "direct_open_form_crossover_tested":
+              self.floral_form_by_species is not None,
           "n_plant_populations_with_verified_island_mainland_flower_visits":0,
           "n_effective_pollen_delivery_observations_in_input":0,
           "n_confirmed_evolutionary_pollinator_shifts":0,
