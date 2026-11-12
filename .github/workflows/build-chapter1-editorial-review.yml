@@ -85,10 +85,12 @@ jobs:
           with fitz.open(docs/"Manuscript_WITH_FIGURES_REVIEW.pdf") as pdf:
               assert 6 <= len(pdf) < 80
               assert "EDITORIAL REVIEW COPY" in pdf[0].get_text()
+              assert "Island isolation is associated with" in pdf[0].get_text()
               pdf[0].get_pixmap(matrix=fitz.Matrix(1.6,1.6)).save(root/"QA_Manuscript_FirstPage.png")
               pdf[-1].get_pixmap(matrix=fitz.Matrix(1.5,1.5)).save(root/"QA_Manuscript_LastPage.png")
           with fitz.open(docs/"Supplementary_Information_REVIEW.pdf") as si:
               assert len(si)>5
+              assert "Supplementary Information" in si[0].get_text()
               si[0].get_pixmap(matrix=fitz.Matrix(1.6,1.6)).save(root/"QA_SI_FirstPage.png")
           manifest=json.loads((root/"REVIEW_ONLY"/"PACKAGE_MANIFEST_REVIEW.json").read_text())
           assert manifest["ready_for_submission"] is False
