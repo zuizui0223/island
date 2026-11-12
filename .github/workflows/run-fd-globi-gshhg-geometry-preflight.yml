@@ -1,0 +1,92 @@
+name: fd GloBI candidate island exact-GSHHG-geometry source preflight
+
+on:
+  push:
+    branches: [analysis/fd-globi-provider-v09-20261111]
+    paths:
+      - scripts/fd_globi_gshhg_geometry_preflight.py
+      - tests/test_fd_globi_gshhg_geometry_preflight.py
+      - .github/workflows/run-fd-globi-gshhg-geometry-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  exact-original-geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      PYTHONPATH: src
+      GH_TOKEN: ${{ github.token }}
+      PREP_DIR: /tmp/fd-globi-exact-gshhg
+      EXPECTED_GSHHG_SHA: 8dbbe7e071e77e9e75f2d639239099ebca8d5c16d6a07df8169729d49f15cf41
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original GSHHG rebuilding requirements
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "geopandas>=1.0" "shapely>=2" "pyogrio>=0.9" pandas numpy pyyaml typer httpx pytest
+      - name: Recover original frozen outcome-independent GIFT source assignment island IDs
+        run: |
+          set -euo pipefail
+          mkdir -p "$PREP_DIR/input"
+          ARTIFACT_ID=10058653212
+          SOURCE_RUN="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.workflow_run.id')"
+          SOURCE_NAME="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.name')"
+          test -n "$SOURCE_RUN" && test -n "$SOURCE_NAME"
+          gh run download "$SOURCE_RUN" --repo zuizui0223/island \
+            --name "$SOURCE_NAME" --dir "$PREP_DIR/input"
+          SOURCE_CSV="$(find "$PREP_DIR/input" -path '*/fixed/source/result/island_source_assignments.csv.gz' -type f -print -quit)"
+          if [ -z "$SOURCE_CSV" ]; then
+            NESTED="$(find "$PREP_DIR/input" -name '*.zip' -type f -print -quit)"
+            if [ -n "$NESTED" ]; then
+              mkdir -p "$PREP_DIR/unpacked"
+              unzip -q "$NESTED" -d "$PREP_DIR/unpacked"
+              SOURCE_CSV="$(find "$PREP_DIR/unpacked" -path '*/fixed/source/result/island_source_assignments.csv.gz' -type f -print -quit)"
+            fi
+          fi
+          test -n "$SOURCE_CSV" && test -s "$SOURCE_CSV"
+          echo "SOURCE_CSV=$SOURCE_CSV" >> "$GITHUB_ENV"
+          export SOURCE_CSV
+          python - <<'PY'
+          import os,pandas as pd
+          d=pd.read_csv(os.environ['SOURCE_CSV'],usecols=['island_id','source_mode','source_rank'])
+          k=d[d.source_mode.eq('geo_k5')]
+          assert k.island_id.nunique()==8265
+          assert len(k)==8265*5 and k.source_rank.between(1,5).all()
+          print('Original 8265 islands × 5 GIFT source slots frozen')
+          PY
+      - name: Reconstruct exact GSHHG 2.3.7 h polygon set and compare every original island ID
+        run: |
+          set -euo pipefail
+          python scripts/fd_globi_gshhg_geometry_preflight.py \
+            --original-source-assignments "$SOURCE_CSV" \
+            --output-dir "$PREP_DIR/out" \
+            --config config/island_source_gshhg.yml
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          r=json.loads((Path(os.environ['PREP_DIR'])/'out'/'original_gshhg_geometry_receipt.json').read_text())
+          assert r['status']=='ORIGINAL_GSHHG_GEOMETRY_RECONSTRUCTED_SAME_8265_IDS'
+          assert r['GSHHG_archive_SHA256']==os.environ['EXPECTED_GSHHG_SHA']
+          assert r['n_original_GIFT_geo_k5_island_ids']==8265
+          assert r['n_reconstructed_polygon_units']==8265
+          assert r['n_original_GIFT_source_rows']==8265*5
+          assert r['n_source_species_pollinator_records_tested']==0
+          assert r['GloBI_locality_or_pollination_shift_confirmed'] is False
+          print('No Natural Earth fallback, no island/pollinator inference')
+          PY
+      - name: Upload revalidated only-original GSHHG geometry for later pinned island-locality GloBI checking
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-globi-revalidated-exact-gshhg-${{ github.run_id }}
+          path: |
+            /tmp/fd-globi-exact-gshhg/out/original_gshhg_v237_h_8265_verified.gpkg
+            /tmp/fd-globi-exact-gshhg/out/original_gshhg_geometry_receipt.json
+          if-no-files-found: error
+          retention-days: 90
