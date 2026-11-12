@@ -145,3 +145,36 @@ def test_optional_v09_event_time_or_geography_columns_must_not_be_fabricated():
     result=q.summarize()
     assert result["source_geographical_coordinate_fields_available"] is False
     assert result["n_species_with_any_georeferenced_relation"]==0
+
+
+def test_exact_species_archive_omission_uses_same_species_and_real_bibliography():
+    q=ExactSpeciesGloBICoverage({"Genus0 species0", "Genus1 species1"})
+    data=[]
+    for j in range(6):
+        data.append(row(ref=f"10.1111/dominant-{j}",prov="dominant"))
+    for j in range(3):
+        data.append(row(ref=f"10.2222/independent-{j}",prov="second"))
+    data.append(row(ref="10.3333/single",prov="third",
+                    plant="Genus1 species1"))
+    q.add_chunk(pd.DataFrame(data))
+    receipt=q.summarize()
+    assert receipt["n_fixed_candidate_species"]==2
+    assert receipt["n_species_with_3plus_exact_distinct_bibliography"]==1
+    assert receipt["n_distinct_archive_first_source_labels"]==3
+    assert receipt["n_species_with_exact_cited_interactions_after_largest_archive_removed"]==2
+    assert receipt["n_species_with_3plus_distinct_bibliography_after_largest_archive_removed"]==1
+    by_guild={g["guild"]:g for g in receipt["per_visitor_guild"]}
+    assert by_guild["bombus"]["n_candidate_species_with_cited_interaction_after_largest_archive_removed"]==2
+    assert by_guild["bombus"]["n_candidate_species_with_3plus_distinct_bibliography_after_largest_archive_removed"]==1
+    assert receipt["archive_level_provider_is_not_proven_independent_study"]
+
+
+def test_archive_omission_with_only_one_provider_must_report_zero_remaining_evidence():
+    q=ExactSpeciesGloBICoverage({"Genus0 species0"})
+    q.add_chunk(pd.DataFrame([row(ref="10.1/a",prov="only"),
+                              row(ref="10.1/b",prov="only")]))
+    r=q.summarize()
+    assert r["n_distinct_archive_first_source_labels"]==1
+    assert r["n_species_with_exact_cited_interactions_after_largest_archive_removed"]==0
+    assert r["per_visitor_guild"][0]["n_candidate_species_with_cited_interaction_after_largest_archive_removed"]==0
+    assert r["n_confirmed_evolutionary_pollinator_shifts"]==0
