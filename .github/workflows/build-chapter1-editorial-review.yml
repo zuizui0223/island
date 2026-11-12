@@ -1,0 +1,119 @@
+name: Chapter 1 — rights-safe editorial review bundle
+
+on:
+  push:
+    branches:
+      - submission/chapter1-reviewpack-20261112
+    paths:
+      - "scripts/submission/build_chapter1_editorial_review.py"
+      - "tests/test_chapter1_editorial_review_bundle.py"
+      - ".github/workflows/build-chapter1-editorial-review.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "scripts/submission/build_chapter1_editorial_review.py"
+      - "tests/test_chapter1_editorial_review_bundle.py"
+      - ".github/workflows/build-chapter1-editorial-review.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-packet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install document builders
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install python-docx pymupdf pytest
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libreoffice-writer
+
+      - name: Validate frozen scientific and rights boundaries
+        run: |
+          pytest -q tests/test_chapter1_editorial_review_bundle.py
+
+      - name: Build the author-review packet (no source-ledger export)
+        run: |
+          set -euo pipefail
+          python scripts/submission/build_chapter1_editorial_review.py \
+            --root . \
+            --output-dir "$RUNNER_TEMP/ch1-review" \
+            --source-commit "$GITHUB_SHA" > "$RUNNER_TEMP/review-log.json"
+
+      - name: Structural DOCX and PDF audit
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import zipfile
+          from pathlib import Path
+          import fitz
+          from docx import Document
+          root=Path(os.environ["RUNNER_TEMP"])/"ch1-review"
+          zpath=root/"Chapter1_Editorial_REVIEW_ONLY.zip"
+          assert zpath.exists() and zpath.stat().st_size > 70000
+          with zipfile.ZipFile(zpath) as z:
+              names=z.namelist()
+              assert len(names)==len(set(names))
+              assert any(x.endswith("Manuscript_WITH_FIGURES_REVIEW.docx") for x in names)
+              assert any(x.endswith("Manuscript_WITH_FIGURES_REVIEW.pdf") for x in names)
+              assert any(x.endswith("Supplementary_Information_REVIEW.pdf") for x in names)
+              assert sum(x.endswith(".pdf") and "/main_figures/" in x for x in names)==6
+              assert sum(x.endswith(".pdf") and "/supplementary_figures/" in x for x in names)==7
+              assert not any("trait_ledger" in x.lower() for x in names)
+              assert not any("raw_sources" in x.lower() for x in names)
+          docs=root/"REVIEW_ONLY"/"word_review"
+          d=Document(docs/"Manuscript_WITH_FIGURES_REVIEW.docx")
+          extracted="\n".join(p.text for p in d.paragraphs)
+          assert "EDITORIAL REVIEW COPY" in extracted
+          assert "Island isolation is associated with" in extracted
+          assert "H3: independent pollen-limitation context" in extracted
+          assert "H4: island-associated response traits" in extracted
+          with fitz.open(docs/"Manuscript_WITH_FIGURES_REVIEW.pdf") as pdf:
+              assert 6 <= len(pdf) < 80
+              assert "EDITORIAL REVIEW COPY" in pdf[0].get_text()
+              assert "Island isolation is associated with" in pdf[0].get_text()
+              pdf[0].get_pixmap(matrix=fitz.Matrix(1.6,1.6)).save(root/"QA_Manuscript_FirstPage.png")
+              pdf[-1].get_pixmap(matrix=fitz.Matrix(1.5,1.5)).save(root/"QA_Manuscript_LastPage.png")
+          with fitz.open(docs/"Supplementary_Information_REVIEW.pdf") as si:
+              assert len(si)>5
+              assert "Supplementary Information" in si[0].get_text()
+              si[0].get_pixmap(matrix=fitz.Matrix(1.6,1.6)).save(root/"QA_SI_FirstPage.png")
+          manifest=json.loads((root/"REVIEW_ONLY"/"PACKAGE_MANIFEST_REVIEW.json").read_text())
+          assert manifest["ready_for_submission"] is False
+          assert manifest["contains_restricted_trait_ledger"] is False
+          assert len(manifest["files"])>=25
+          print(json.dumps({"word_counts":manifest["word_counts"],
+                            "file_count":len(manifest["files"])}))
+          PY
+
+      - name: Upload editorial review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-editorial-review-${{ github.run_id }}
+          path: ${{ runner.temp }}/ch1-review/Chapter1_Editorial_REVIEW_ONLY.zip
+          if-no-files-found: error
+          retention-days: 21
+
+      - name: Upload visual QA previews
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-review-qa-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/ch1-review/QA_Manuscript_FirstPage.png
+            ${{ runner.temp }}/ch1-review/QA_Manuscript_LastPage.png
+            ${{ runner.temp }}/ch1-review/QA_SI_FirstPage.png
+          retention-days: 14

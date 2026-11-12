@@ -13,6 +13,7 @@
 - [x] Manuscript rewritten around recurrent reproductive function and regionally contingent floral phenotype
 - [x] Figure captions synchronized to traitwise H1
 - [x] Figure 6 SVG/PDF regenerated from frozen source tables and visually inspected via PDF raster QA; full/offshore coefficient scaling distinguished
+- [x] Rights-safe editorial REVIEW bundle generated and visually sampled (DOCX/PDF for manuscript and SI, 6 main figures, 7 SI figures); successful Actions run #43214515134. This is NOT journal-ready final typesetting.
 - [x] Ecology Letters cover letter and novelty statement synchronized
 - [x] Thesis positioning synchronized
 - [x] Historic H1–H5, pooled-composite H1 and October post-hoc regional hinge/genus findings kept outside the active submission claims
