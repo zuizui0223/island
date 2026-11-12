@@ -39,8 +39,19 @@ def main():
     digest=checksum(original_source)
     if digest!=EXPECTED_GSHHG:
         raise ValueError("Regenerated GSHHG archive SHA256 differs from source pin")
-    if len(units)!=EXPECTED_N_ISLANDS or not units.island_id.is_unique:
-        raise ValueError("Regenerated GSHHG island polygon count/ID uniqueness drift")
+    if not units.island_id.is_unique:
+        raise ValueError("Regenerated GSHHG island polygon IDs not unique")
+    # Compare source geometry to the EXACT original island ID set before
+    # deciding whether a rebuilt geometry can be used. A different count
+    # is not an invitation to relax the historical identity contract.
+    if len(units)!=EXPECTED_N_ISLANDS:
+        print(json.dumps({
+            "geometry_rebuild_diagnostic":"COUNT_NOT_EQUAL_ORIGINAL_GIFT_SOURCE_UNIVERSE",
+            "n_rebuilt_island_polygons":int(len(units)),
+            "n_expected_islands":EXPECTED_N_ISLANDS,
+            "GSHHG_archive_SHA256":digest,
+            "source_polygon_ids_released":False,
+        },sort_keys=True),flush=True)
     if units.crs is None or units.crs.to_epsg()!=4326:
         raise ValueError("Original geometry CRS must be EPSG:4326")
     source=pd.read_csv(a.original_source_assignments,
@@ -52,10 +63,17 @@ def main():
     original_ids=set(candidates.island_id)
     observed_ids=set(units.island_id)
     if original_ids!=observed_ids:
+        print(json.dumps({
+            "geometry_rebuild_diagnostic":"ID_SET_NOT_EQUAL_ORIGINAL_GIFT_SOURCE_UNIVERSE",
+            "n_rebuilt_polygons":int(len(observed_ids)),
+            "n_original_GIFT_island_IDs":int(len(original_ids)),
+            "n_source_IDs_not_in_rebuild":int(len(original_ids-observed_ids)),
+            "n_rebuilt_IDs_not_in_original_source":int(len(observed_ids-original_ids)),
+            "GSHHG_archive_SHA256":digest,
+            "source_polygon_ids_released":False,
+        },sort_keys=True),flush=True)
         raise ValueError(
-            f"Exact GSHHG polygon IDs mismatch original GIFT frozen universe: "
-            f"source-only={len(original_ids-observed_ids)}, "
-            f"geometry-only={len(observed_ids-original_ids)}")
+            "Exact historical island IDs differ; STOP all purported original-island GloBI geolocation inference")
     if candidates.groupby("island_id").source_rank.nunique().ne(5).any():
         raise ValueError("Frozen source regions must have five ranks per island")
     gpkg=a.output_dir/"original_gshhg_v237_h_8265_verified.gpkg"
