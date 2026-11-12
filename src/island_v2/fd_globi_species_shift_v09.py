@@ -204,16 +204,36 @@ class ExactSpeciesGloBICoverage:
             by_guild[(plant,guild)].add(ref)
             by_etype[(plant,etype)].add(ref)
             by_provider[plant].add(prov)
+        # A single archive-first source label may subsume many studies.
+        # Quantify exactly how much source-backed species-level support
+        # survives omitting the largest original provider LABEL; never
+        # present this as independent-study holdout.
+        provider_units=Counter(row[3] for row in filtered)
+        largest_label=provider_units.most_common(1)[0][0] if provider_units else None
+        after_units=[row for row in filtered if row[3]!=largest_label]
+        after_by_plant=defaultdict(set)
+        after_by_guild=defaultdict(set)
+        after_by_type=defaultdict(set)
+        for plant,guild,ref,prov,etype in after_units:
+            after_by_plant[plant].add(ref)
+            after_by_guild[(plant,guild)].add(ref)
+            after_by_type[(plant,etype)].add(ref)
         by_guild_summary=[]
         for g in GUILDS:
             species={p:references for (p,gg),references
                      in by_guild.items() if gg==g}
+            surviving={p:refs for (p,gg),refs in after_by_guild.items()
+                       if gg==g}
             by_guild_summary.append({
                 "guild":g,
                 "n_candidate_species_with_cited_interaction":
                     sum(len(v)>=1 for v in species.values()),
                 "n_candidate_species_with_3plus_distinct_bibliography":
                     sum(len(v)>=3 for v in species.values()),
+                "n_candidate_species_with_cited_interaction_after_largest_archive_removed":
+                    sum(len(v)>=1 for v in surviving.values()),
+                "n_candidate_species_with_3plus_distinct_bibliography_after_largest_archive_removed":
+                    sum(len(v)>=3 for v in surviving.values()),
             })
         return {
           "source_version":VERSION,"GloBI_v09_SHA256":PIN,
@@ -233,6 +253,22 @@ class ExactSpeciesGloBICoverage:
                    if sum((p,g) in by_guild for g in GUILDS)>=2}),
           "n_species_with_2plus_provider_archive_labels":
               sum(len(v)>=2 for v in by_provider.values()),
+          "n_distinct_archive_first_source_labels":
+              len(provider_units),
+          "largest_archive_label_fraction_of_cited_species_guild_reference_units":
+              (float(provider_units[largest_label]/len(filtered))
+               if filtered else None),
+          "n_species_with_exact_cited_interactions_after_largest_archive_removed":
+              sum(len(v)>=1 for v in after_by_plant.values()),
+          "n_species_with_3plus_distinct_bibliography_after_largest_archive_removed":
+              sum(len(v)>=3 for v in after_by_plant.values()),
+          "n_species_with_exact_pollination_class_after_largest_archive_removed":
+              sum(len(v)>=1 for (p,t),v in after_by_type.items()
+                  if t=="pollination"),
+          "n_species_with_2plus_guilds_after_largest_archive_removed":
+              len({p for p in after_by_plant
+                   if sum((p,g) in after_by_guild for g in GUILDS)>=2}),
+          "archive_level_provider_is_not_proven_independent_study":True,
           "n_species_with_any_georeferenced_relation":
               len(self.geocoded_species),
           "n_species_with_2plus_distinct_coarse_01deg_coordinate_bins":
