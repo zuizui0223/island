@@ -8,10 +8,12 @@ on:
       - 'src/island_v2/fd_globi_provider_v09.py'
       - 'src/island_v2/fd_globi_provider_family_transfer.py'
       - 'src/island_v2/fd_globi_species_shift_v09.py'
+      - 'src/island_v2/fd_globi_species_shift_spatial_v09.py'
       - 'scripts/run_fd_globi_provider_v09_audit.py'
       - 'tests/test_fd_globi_provider_v09.py'
       - 'tests/test_fd_globi_provider_family_transfer.py'
       - 'tests/test_fd_globi_species_shift_v09.py'
+      - 'tests/test_fd_globi_species_shift_spatial_v09.py'
       - '.github/workflows/run-fd-globi-provider-v09-audit.yml'
   workflow_dispatch:
 
@@ -39,11 +41,11 @@ jobs:
       - name: Install minimal independent test dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pandas numpy pytest
+          python -m pip install pandas numpy pytest "geopandas>=1.0" "shapely>=2" "pyogrio>=0.9"
 
       - name: Verify source orientation, original references and provider collision tests
         run: |
-          python -m pytest -q tests/test_fd_globi_provider_v09.py tests/test_fd_globi_provider_family_transfer.py tests/test_fd_globi_species_shift_v09.py
+          python -m pytest -q tests/test_fd_globi_provider_v09.py tests/test_fd_globi_provider_family_transfer.py tests/test_fd_globi_species_shift_v09.py tests/test_fd_globi_species_shift_spatial_v09.py
           python -m compileall -q src/island_v2/fd_globi_provider_v09.py src/island_v2/fd_globi_species_shift_v09.py scripts/run_fd_globi_provider_v09_audit.py
 
       - name: Reuse already frozen pre-outcome GloBI genus list from island artifact
@@ -131,6 +133,34 @@ jobs:
           print("Original exact-island evidence cohort checked:",len(d),"channel rows")
           PY
 
+      - name: Recover SHA-verified exact original GSHHG polygons for the 21 frozen focal islands
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/exact-original-geometry"
+          gh run download 43162949729 \
+            --repo zuizui0223/island \
+            --name fd-globi-revalidated-exact-gshhg-43162949729 \
+            --dir "$STAGE/exact-original-geometry"
+          GSHHG_GPKG="$(find "$STAGE/exact-original-geometry" -name 'original_gshhg_v237_h_candidate21_exact_shared_ids.gpkg' -type f -print -quit)"
+          GSHHG_RECEIPT="$(find "$STAGE/exact-original-geometry" -name 'original_gshhg_geometry_receipt.json' -type f -print -quit)"
+          test -n "$GSHHG_GPKG" && test -s "$GSHHG_GPKG"
+          test -n "$GSHHG_RECEIPT" && test -s "$GSHHG_RECEIPT"
+          echo "GSHHG_GPKG=$GSHHG_GPKG" >> "$GITHUB_ENV"
+          echo "GSHHG_RECEIPT=$GSHHG_RECEIPT" >> "$GITHUB_ENV"
+          export GSHHG_GPKG GSHHG_RECEIPT
+          python - <<'PY'
+          import json,os,hashlib
+          from pathlib import Path
+          q=json.loads(Path(os.environ["GSHHG_RECEIPT"]).read_text())
+          h=hashlib.sha256(Path(os.environ["GSHHG_GPKG"]).read_bytes()).hexdigest()
+          assert q["status"]=="FOCAL_21_POLYGONS_IDENTICAL_BUT_FULL_UNIVERSE_DRIFT"
+          assert q["n_original_focal_islands"]==21
+          assert q["n_focal_islands_with_exact_historical_polygon"]==21
+          assert q["global_full_universe_identity_verified"] is False
+          assert q["geometry_file_SHA256"]==h
+          print("21 original island polygon IDs verified, NOT a global 8265-ID exact replay")
+          PY
+
       - name: Download and SHA-verify exact original GloBI v0.9 SUPPORTS archive
         run: |
           set -euo pipefail
@@ -150,6 +180,8 @@ jobs:
             --original-island-taxonomy "$FAMILY_TAXONOMY" \
             --original-progressive-root "$ORIGINAL_ROOT" \
             --qualified-island-channel-states "$CHANNEL_CSV" \
+            --original-candidate-island-GSHHG-gpkg "$GSHHG_GPKG" \
+            --original-candidate-island-GSHHG-receipt "$GSHHG_RECEIPT" \
             --chunksize 200000 \
             --output "$STAGE/provider_coverage_receipt.json"
           python - <<'PY'
@@ -202,6 +234,17 @@ jobs:
           assert coverage["n_confirmed_evolutionary_pollinator_shifts"]==0
           assert coverage["no_exact_species_or_island_or_provider_id_released"] is True
           assert s["status"].endswith("NOT_ACTUAL_ISLAND_SOURCE_POLLINATOR_SHIFT")
+          assert d["original_13_candidate_island_GloBI_point_polygon_preflight_completed"] is True
+          loc=s["original_island_polygon_locality_overlap"]
+          assert loc["status"]=="EXACT_FOCAL_ISLAND_POLYGON_OVERLAP_AUDITED_NOT_VERIFIED_POLLINATOR_SHIFT"
+          assert loc["n_approved_original_candidate_island_polygon_IDs"]==21
+          assert loc["n_frozen_candidate_species"]==54
+          assert loc["n_strict_native_source_matched_plant_island_rows"]==197
+          assert loc["n_qualified_focal_islands_with_same_native_source_names"]==13
+          assert loc["n_confirmed_same_species_mainland_to_island_pollinator_shifts"]==0
+          assert loc["n_original_mainland_GIFT_source_population_visitor_assessments"]==0
+          assert len(loc["guilds"])==5
+          assert loc["original_species_island_provider_reference_or_geo_coordinates_exported"] is False
           assert d['source_and_taxon_identifiers_released'] is False
           print('Source provider evidence receipt verified (aggregate-only)')
           PY
