@@ -125,7 +125,23 @@ def test_qualified_source_nondetection_cannot_be_imputed():
         select_native_source_names(*frames)
 
 
-def test_unavailable_GloBI_geography_fields_fail_closed():
+def test_optional_v09_event_time_or_geography_columns_must_not_be_fabricated():
     q=ExactSpeciesGloBICoverage({"Genus0 species0"})
-    with pytest.raises(ValueError,match="geography schema"):
-        q.add_chunk(pd.DataFrame([{k:"" for k in RAW}]))
+    # The ACTUAL pinned v0.9 original lacks eventDateUnixEpoch. This
+    # is a documented sampling-metadata limitation, not biological absence.
+    d=row()
+    d.pop("eventDateUnixEpoch")
+    q.add_chunk(pd.DataFrame([d]))
+    result=q.summarize()
+    assert result["source_geographical_coordinate_fields_available"]
+    assert result["source_event_time_field_available"] is False
+    assert result["n_species_with_any_event_dated_relation"] is None
+    assert result["n_species_with_any_georeferenced_relation"]==1
+
+    q=ExactSpeciesGloBICoverage({"Genus0 species0"})
+    d=row()
+    for k in GEO_FIELDS:d.pop(k,None)
+    q.add_chunk(pd.DataFrame([d]))
+    result=q.summarize()
+    assert result["source_geographical_coordinate_fields_available"] is False
+    assert result["n_species_with_any_georeferenced_relation"]==0
