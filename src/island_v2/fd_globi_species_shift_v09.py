@@ -128,11 +128,17 @@ class ExactSpeciesGloBICoverage:
         self.providers_by_reference=defaultdict(set)
         self.geocoded_species=set()
         self.dated_species=set()
+        self.available_geography_fields=set()
+        self.available_event_time_fields=set()
         self.spatial_bins=defaultdict(set)
 
     def add_chunk(self,df:pd.DataFrame):
-        if (set(RAW)|set(GEO_FIELDS))-set(df):
-            raise ValueError("GloBI v0.9 source/citation or geography schema missing")
+        if set(RAW)-set(df):
+            raise ValueError("Pinned GloBI required original source fields missing")
+        self.available_geography_fields.update(
+            set(GEO_FIELDS[:3]).intersection(df.columns))
+        self.available_event_time_fields.update(
+            set(GEO_FIELDS[3:]).intersection(df.columns))
         self.raw["n_original_GloBI_rows_read"]+=len(df)
         sub=df.loc[df.interactionTypeId.fillna("").isin(RO)]
         fwd=sub.interactionTypeId.isin([
@@ -231,7 +237,14 @@ class ExactSpeciesGloBICoverage:
               len(self.geocoded_species),
           "n_species_with_2plus_distinct_coarse_01deg_coordinate_bins":
               sum(len(v)>=2 for v in self.spatial_bins.values()),
-          "n_species_with_any_event_dated_relation":len(self.dated_species),
+          "n_species_with_any_event_dated_relation":
+              len(self.dated_species) if self.available_event_time_fields else None,
+          "source_geographical_coordinate_fields_available":
+              ("decimalLatitude" in self.available_geography_fields and
+               "decimalLongitude" in self.available_geography_fields),
+          "source_event_time_field_available":
+              bool(self.available_event_time_fields),
+          "GloBI_event_time_unassessable_when_field_missing":True,
           "n_original_GloBI_rows_read":int(self.raw["n_original_GloBI_rows_read"]),
           "n_exact_species_predicate_rows":int(self.raw["n_exact_species_predicate_rows"]),
           "n_eligible_species_flower_relation_rows":
