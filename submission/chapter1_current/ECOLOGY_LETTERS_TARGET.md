@@ -36,8 +36,8 @@ Official journal instructions remain the authority at submission.
 - Main figures: **6**
 - Tables: **0**
 - Text boxes: **0**
-- Main text: **4,947 / 5,000 words** by repository Markdown count
-- Abstract: **147 / 150 words**
+- Main text: **4,958 / 5,000 words** by repository Markdown count
+- Abstract: **135 / 150 words**
 - Running-title candidate: **Recurrent function, contingent flowers**
 - Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; functional island biogeography; pollination
 
