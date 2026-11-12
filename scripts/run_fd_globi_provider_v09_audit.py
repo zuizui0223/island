@@ -14,6 +14,9 @@ from island_v2.fd_globi_provider_family_transfer import family_transfer
 from island_v2.fd_globi_species_shift_v09 import (
     select_native_source_names, ExactSpeciesGloBICoverage, GEO_FIELDS
 )
+from island_v2.fd_globi_species_shift_spatial_v09 import (
+    original_candidate_island_locality_gate
+)
 
 def main():
     p=argparse.ArgumentParser()
@@ -24,6 +27,8 @@ def main():
     p.add_argument("--original-island-taxonomy",type=Path)
     p.add_argument("--original-progressive-root",type=Path)
     p.add_argument("--qualified-island-channel-states",type=Path)
+    p.add_argument("--original-candidate-island-GSHHG-gpkg",type=Path)
+    p.add_argument("--original-candidate-island-GSHHG-receipt",type=Path)
     p.add_argument("--chunksize",type=int,default=200_000)
     a=p.parse_args()
     d=pd.read_csv(a.frozen_source_genus_csv)
@@ -38,6 +43,7 @@ def main():
                      "evidence_scope","evidence_quality"])
     species_evidence=None
     species_selection=None
+    private_native_species_island_pairs=None
     if bool(a.original_progressive_root) != bool(a.qualified_island_channel_states):
         raise ValueError("Both original progressive source and qualified island channel cohort required")
     if a.original_progressive_root is not None:
@@ -52,8 +58,9 @@ def main():
                            usecols=["island_id","source_mode","source_rank","entity_ID"])
         mainland=pd.read_csv(root/"fixed/source/source/gift_native_mainland_flora.csv.gz",
                             usecols=["entity_ID","work_species"])
-        names,species_selection=select_native_source_names(
-            original_ledger,flora,states,sources,mainland)
+        names,species_selection,private_native_species_island_pairs=select_native_source_names(
+            original_ledger,flora,states,sources,mainland,
+            return_private_pairs=True)
         # Cohort is fixed and all identity-level records remain private;
         # any unexpected change means this is NOT the original 54-species test.
         required={"n_islands_with_30plus_species_direct_flower_traits":928,
@@ -86,12 +93,27 @@ def main():
         extra_hook=(species_evidence.add_chunk if species_evidence else None),
         extra_columns=(GEO_FIELDS if species_evidence else ()),
     )
+    if bool(a.original_candidate_island_GSHHG_gpkg) != bool(a.original_candidate_island_GSHHG_receipt):
+        raise ValueError("Both original candidate exact-GSHHG geometry and receipt required")
+    if a.original_candidate_island_GSHHG_gpkg is not None and species_evidence is None:
+        raise ValueError("Geospatial visitor audit requires original strict 54 plant species")
     if species_evidence is not None:
-        result["species_direct_mainland_island_shift_evidence_coverage"]={
+        species_payload={
             "selection":species_selection,
             "GloBI_exact_species":species_evidence.summarize(),
             "status":"EXACT_SPECIES_GLOBAL_GLOBI_EVIDENCE_COVERAGE_NOT_ACTUAL_ISLAND_SOURCE_POLLINATOR_SHIFT",
         }
+        if a.original_candidate_island_GSHHG_gpkg is not None:
+            species_payload["original_island_polygon_locality_overlap"] = (
+                original_candidate_island_locality_gate(
+                    species_evidence.georeferenced_documented_relations,
+                    species_evidence.providers_by_reference,
+                    private_native_species_island_pairs,
+                    a.original_candidate_island_GSHHG_gpkg,
+                    a.original_candidate_island_GSHHG_receipt,
+                )
+            )
+        result["species_direct_mainland_island_shift_evidence_coverage"]=species_payload
     if bool(a.original_direct_ledger) != bool(a.original_island_taxonomy):
         raise ValueError("Need BOTH the original direct ledger and frozen GBIF taxonomy")
     if a.original_direct_ledger:
@@ -116,6 +138,8 @@ def main():
             bool(a.original_direct_ledger),
         "native_same_species_GIFT_source_evidence_audit_completed":
             bool(species_evidence),
+        "original_13_candidate_island_GloBI_point_polygon_preflight_completed":
+            bool(species_evidence and a.original_candidate_island_GSHHG_gpkg),
         "provider_family_prediction_rerun_completed":
             bool(result.get("provider_omitted_family_transfer",{}).get(
                 "heldout_original_provider_prediction_completed",False)),
