@@ -2,6 +2,8 @@
 
 **Status: editorial review artifact, not a journal submission or archival release.**
 
+**Verified generator run:** [GitHub Actions #43214515134](https://github.com/zuizui0223/island/actions/runs/43214515134) — successful. The package ZIP and visual-QA PNG artifacts are retained by Actions for a limited period (21 and 14 days, respectively). First-page manuscript/SI previews were visually inspected. The files are still marked REVIEW ONLY.
+
 The GitHub Actions workflow [Chapter 1 — rights-safe editorial review bundle](../../.github/workflows/build-chapter1-editorial-review.yml) runs from the branch `submission/chapter1-reviewpack-20261112`.
 
 It checks the selected current submission contract, abstract/body word counts, and main-figure manifest. It then compiles:
