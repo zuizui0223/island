@@ -36,6 +36,7 @@ def original_candidate_island_locality_gate(
     native_plant_island_pairs:pd.DataFrame,
     verified_geometry_path:Path,
     geometry_receipt_path:Path,
+    *, dominant_source_archive_label:str|None=None,
 )->dict:
     """One-to-one original GSHHG polygon membership preflight.
 
@@ -96,6 +97,19 @@ def original_candidate_island_locality_gate(
         "n_same_island_plant_species_with_2plus_documented_guilds":0,
         "n_same_island_plant_species_with_3plus_independent_cited_references":0,
         "n_original_explicit_pollination_relations_inside_island_with_native_species":0,
+        "n_distinct_original_georeferenced_site_coordinates_matching_native_plant":0,
+        "n_distinct_original_bibliographic_reference_keys_matching_native_plant":0,
+        "n_distinct_original_archive_first_labels_matching_native_plant":0,
+        "n_original_same_island_plant_pairs_with_2plus_archive_labels":0,
+        "n_original_same_island_plant_pairs_with_2plus_distinct_coordinate_sites":0,
+        "n_exact_same_island_native_plant_relation_rows_after_globally_dominant_archive_removed":
+            0 if dominant_source_archive_label else None,
+        "n_native_plant_species_with_record_after_globally_dominant_archive_removed":
+            0 if dominant_source_archive_label else None,
+        "n_islands_with_record_after_globally_dominant_archive_removed":
+            0 if dominant_source_archive_label else None,
+        "dominant_archive_identifier_never_exported":True,
+        "source_label_removal_is_not_leave_one_independent_study_out":True,
         "n_effective_pollen_deposition_or_seedset_measurements_in_input":0,
         "n_confirmed_same_species_mainland_to_island_pollinator_shifts":0,
         "n_original_mainland_GIFT_source_population_visitor_assessments":0,
@@ -152,19 +166,38 @@ def original_candidate_island_locality_gate(
     output["n_distinct_original_native_species_with_spatially_matched_guild_record"]=int(matched.accepted_species.nunique())
     if not matched.empty:
         plant_island=matched.groupby(["island_id","accepted_species"])
+        output["n_distinct_original_georeferenced_site_coordinates_matching_native_plant"]=int(
+            matched[["island_id","longitude","latitude"]].drop_duplicates().shape[0])
+        output["n_distinct_original_bibliographic_reference_keys_matching_native_plant"]=int(
+            matched.reference_id.nunique())
+        output["n_distinct_original_archive_first_labels_matching_native_plant"]=int(
+            matched.provider_id.nunique())
+        output["n_original_same_island_plant_pairs_with_2plus_archive_labels"]=int(
+            plant_island.provider_id.nunique().ge(2).sum())
+        output["n_original_same_island_plant_pairs_with_2plus_distinct_coordinate_sites"]=int(
+            plant_island.apply(lambda frame:frame[["latitude","longitude"]].drop_duplicates().shape[0],
+                               include_groups=False).ge(2).sum())
         output["n_same_island_plant_species_with_2plus_documented_guilds"]=int(
             plant_island.guild.nunique().ge(2).sum())
         output["n_same_island_plant_species_with_3plus_independent_cited_references"]=int(
             plant_island.reference_id.nunique().ge(3).sum())
         output["n_original_explicit_pollination_relations_inside_island_with_native_species"]=int(
             matched.evidence_class.eq("pollination").sum())
+    if dominant_source_archive_label is not None:
+        rest=matched.loc[matched.provider_id.ne(dominant_source_archive_label)]
+        output["n_exact_same_island_native_plant_relation_rows_after_globally_dominant_archive_removed"]=int(len(rest))
+        output["n_native_plant_species_with_record_after_globally_dominant_archive_removed"]=int(rest.accepted_species.nunique())
+        output["n_islands_with_record_after_globally_dominant_archive_removed"]=int(rest.island_id.nunique())
     for g in GUILDS:
         part=matched[matched.guild.eq(g)]
+        rest_g=part[part.provider_id.ne(dominant_source_archive_label)] if dominant_source_archive_label is not None else None
         output["guilds"].append({
             "guild":g,
             "n_source_native_focal_plant_species_with_georeferenced_relation":
                 int(part.accepted_species.nunique()),
             "n_source_native_focal_islands_with_georeferenced_relation":
                 int(part.island_id.nunique()),
+            "n_source_native_focal_plant_species_after_largest_archive_removed":
+                int(rest_g.accepted_species.nunique()) if rest_g is not None else None,
         })
     return output
