@@ -8,6 +8,13 @@ on:
       - "scripts/submission/build_chapter1_editorial_review.py"
       - "tests/test_chapter1_editorial_review_bundle.py"
       - ".github/workflows/build-chapter1-editorial-review.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "scripts/submission/build_chapter1_editorial_review.py"
+      - "tests/test_chapter1_editorial_review_bundle.py"
+      - ".github/workflows/build-chapter1-editorial-review.yml"
   workflow_dispatch:
 
 permissions:
