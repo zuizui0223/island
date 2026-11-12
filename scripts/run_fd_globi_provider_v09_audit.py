@@ -18,6 +18,9 @@ from island_v2.fd_globi_species_shift_v09 import (
 from island_v2.fd_globi_species_shift_spatial_v09 import (
     original_candidate_island_locality_gate
 )
+from island_v2.fd_globi_macro_928_locality_v09 import (
+    strict_direct_928_flora, macro_exact_928_locality_gate
+)
 
 def main():
     p=argparse.ArgumentParser()
@@ -45,6 +48,9 @@ def main():
     species_evidence=None
     species_selection=None
     private_native_species_island_pairs=None
+    macro_928_evidence=None
+    macro_928_flora=None
+    macro_928_source_receipt=None
     if bool(a.original_progressive_root) != bool(a.qualified_island_channel_states):
         raise ValueError("Both original progressive source and qualified island channel cohort required")
     if a.original_progressive_root is not None:
@@ -59,6 +65,12 @@ def main():
                            usecols=["island_id","source_mode","source_rank","entity_ID"])
         mainland=pd.read_csv(root/"fixed/source/source/gift_native_mainland_flora.csv.gz",
                             usecols=["entity_ID","work_species"])
+        macro_928_flora,macro_928_source_receipt=strict_direct_928_flora(
+            original_ledger,flora)
+        macro_928_names=set(macro_928_flora.accepted_species)
+        macro_928_evidence=ExactSpeciesGloBICoverage(macro_928_names)
+        print("Original 928-island Direct macro-flora:",len(macro_928_names),
+              "unique species, identifiers private",flush=True)
         names,species_selection,private_native_species_island_pairs=select_native_source_names(
             original_ledger,flora,states,sources,mainland,
             return_private_pairs=True)
@@ -89,9 +101,14 @@ def main():
         species_evidence=ExactSpeciesGloBICoverage(
             names,floral_form_by_species=forms)
         print("Fixed candidate native/source cohort: 54 species, 13 islands; identifiers kept private",flush=True)
+    def source_evidence_hooks(chunk):
+        if species_evidence is not None:
+            species_evidence.add_chunk(chunk)
+        if macro_928_evidence is not None:
+            macro_928_evidence.add_chunk(chunk)
     original, after, result=analyze_v09_gzip(
         a.interactions, set(d.genus.astype(str)), chunksize=a.chunksize,
-        extra_hook=(species_evidence.add_chunk if species_evidence else None),
+        extra_hook=(source_evidence_hooks if species_evidence else None),
         extra_columns=(GEO_FIELDS if species_evidence else ()),
     )
     if bool(a.original_candidate_island_GSHHG_gpkg) != bool(a.original_candidate_island_GSHHG_receipt):
@@ -125,6 +142,24 @@ def main():
                 )
             )
         result["species_direct_mainland_island_shift_evidence_coverage"]=species_payload
+    if macro_928_evidence is not None:
+        macro_payload={
+            "original_Direct_flora_source_cohort":macro_928_source_receipt,
+            "GloBI_exact_species_global_reference_coverage":
+                macro_928_evidence.summarize(),
+            "status":"MACRO_SOURCE_EVIDENCE_ONLY_NOT_POLLINATOR_SHIFT",
+        }
+        if a.original_candidate_island_GSHHG_gpkg is not None:
+            macro_payload["original_exact_island_locality_coverage"]=(
+                macro_exact_928_locality_gate(
+                    macro_928_evidence.georeferenced_documented_relations,
+                    macro_928_evidence.providers_by_reference,
+                    macro_928_flora,
+                    a.original_candidate_island_GSHHG_gpkg,
+                    a.original_candidate_island_GSHHG_receipt,
+                )
+            )
+        result["macro_928_Direct_flora_exact_species_GloBI"]=macro_payload
     if bool(a.original_direct_ledger) != bool(a.original_island_taxonomy):
         raise ValueError("Need BOTH the original direct ledger and frozen GBIF taxonomy")
     if a.original_direct_ledger:
@@ -149,6 +184,8 @@ def main():
             bool(a.original_direct_ledger),
         "native_same_species_GIFT_source_evidence_audit_completed":
             bool(species_evidence),
+        "macro_928_original_Direct_flora_source_GloBI_preflight_completed":
+            bool(macro_928_evidence and a.original_candidate_island_GSHHG_gpkg),
         "original_13_candidate_island_GloBI_point_polygon_preflight_completed":
             bool(species_evidence and a.original_candidate_island_GSHHG_gpkg),
         "provider_family_prediction_rerun_completed":
