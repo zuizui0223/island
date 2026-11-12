@@ -10,12 +10,14 @@ on:
       - 'src/island_v2/fd_globi_species_shift_v09.py'
       - 'src/island_v2/fd_globi_species_shift_spatial_v09.py'
       - 'src/island_v2/fd_globi_macro_928_locality_v09.py'
+      - 'src/island_v2/fd_globi_exact_species_syndrome_cv_v09.py'
       - 'scripts/run_fd_globi_provider_v09_audit.py'
       - 'tests/test_fd_globi_provider_v09.py'
       - 'tests/test_fd_globi_provider_family_transfer.py'
       - 'tests/test_fd_globi_species_shift_v09.py'
-      - 'tests/test_fd_globi_species_shift_spatial_v09.py tests/test_fd_globi_macro_928_locality_v09.py'
+      - 'tests/test_fd_globi_species_shift_spatial_v09.py tests/test_fd_globi_macro_928_locality_v09.py tests/test_fd_globi_exact_species_syndrome_cv_v09.py'
       - 'tests/test_fd_globi_macro_928_locality_v09.py'
+      - 'tests/test_fd_globi_exact_species_syndrome_cv_v09.py'
       - '.github/workflows/run-fd-globi-provider-v09-audit.yml'
   workflow_dispatch:
 
@@ -251,6 +253,21 @@ jobs:
           assert loc_macro["plant_island_geography_provider_reference_IDs_released"] is False
           assert loc_macro["unreproducible_original_polygon_IDs_never_called_absence"] is True
           assert len(loc_macro["per_guild"])==5
+          model=d.get("macro_928_exact_species_flower_syndrome_documentation_transfer",{})
+          assert model.get("status") in {
+              "COMPLETED_EXPLORATORY_EXACT_SPECIES_FAMILY_LOFO_DOCUMENTARY_SHARES",
+              "NOT_IDENTIFIABLE_AFTER_ORIGINAL_SOURCE_OMISSION",
+          }
+          assert model["n_original_Direct_triple_complete_source_flora_species"] >= 2000
+          assert model["same_species_same_family_before_after_sample"] is True
+          assert model["source_location_visitor_effectiveness_tested"] is False
+          assert model["evolutionary_pollinator_shift_confirmed"] is False
+          if model["status"].startswith("COMPLETED_"):
+              assert model["n_strict_common_species_with_3plus_documentation"]>=50
+              assert model["n_strict_common_botanical_families"]>=15
+              assert len(model["models_before_source_label_omission"])==5
+              assert len(model["models_after_source_label_omission"])==5
+              assert not model["original_plant_family_archive_or_citation_identifiers_released"]
           assert loc_macro["global_largest_source_is_selected_before_locality_or_trait_results"] is True
           assert loc_macro["original_archive_first_label_is_not_proven_independent_study"] is True
           assert 0 <= loc_macro["n_native_island_species_pairs_with_2plus_documented_visitor_guilds"] <= loc_macro["n_strict_native_flora_island_species_pairs_with_visitor_relation"]
