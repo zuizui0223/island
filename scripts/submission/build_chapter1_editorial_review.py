@@ -81,8 +81,9 @@ def _set_cell_border(cell) -> None:
 
 def _add_inline(paragraph, text: str) -> None:
     # Keep content verbatim and style basic Markdown; protect substantive text.
-    token = re.compile(r"(\*\*[^*]+\*\*|\*[^*]+\*|[^" + chr(96) +
-                       r"]+" + chr(96) + r"[^" + chr(96) + r"]+" + chr(96) +
+    tick = chr(96)
+    token = re.compile(r"(\*\*[^*]+\*\*|\*[^*]+\*|" + tick +
+                       r"[^" + tick + r"]+" + tick +
                        r"|\[[^\]]+\]\([^)]+\))")
     pos = 0
     for m in token.finditer(text):
@@ -353,6 +354,27 @@ def build(root: Path, out_dir: Path, *, source_commit: str) -> dict:
     _build_doc(package / "COVER_LETTER_DRAFT.md",
                word_dir / "Cover_Letter_UNAPPROVED_REVIEW.docx",
                "cover letter")
+
+    # PDF is a QA/export convenience only; print-ready journal files require author sign-off.
+    import subprocess
+    executable = shutil.which("libreoffice") or shutil.which("soffice")
+    if executable:
+        docs = sorted(word_dir.glob("*.docx"))
+        cmd = [executable, "-env:UserInstallation=file:///tmp/island-ch1-lo-review",
+               "--headless", "--convert-to", "pdf", "--outdir", str(word_dir),
+               *[str(p) for p in docs]]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
+        if result.returncode != 0:
+            raise RuntimeError("LibreOffice PDF conversion failed: " + result.stderr)
+        for doc in docs:
+            pdf = doc.with_suffix(".pdf")
+            if not pdf.is_file():
+                raise RuntimeError("Missing rendered PDF: " + str(pdf))
+            with fitz.open(pdf) as check:
+                if len(check) < 1 or not "".join(page.get_text() for page in check).strip():
+                    raise RuntimeError("Empty review PDF: " + str(pdf))
+    else:
+        raise RuntimeError("LibreOffice is required for the review PDF bundle")
 
     readme = (
         "# Island Chapter 1 — editorial review packet (NOT a submission)\n\n"
