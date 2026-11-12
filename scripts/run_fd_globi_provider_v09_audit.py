@@ -21,6 +21,9 @@ from island_v2.fd_globi_species_shift_spatial_v09 import (
 from island_v2.fd_globi_macro_928_locality_v09 import (
     strict_direct_928_flora, macro_exact_928_locality_gate
 )
+from island_v2.fd_globi_exact_species_syndrome_cv_v09 import (
+    species_family_documentation_syndrome_transfer
+)
 
 def main():
     p=argparse.ArgumentParser()
@@ -182,6 +185,18 @@ def main():
            usecols=["genus","family"])
         result["provider_omitted_family_transfer"]=family_transfer(
             original,after,original_ledger,d,original_taxonomy)
+        if macro_928_evidence is not None:
+            # Same original Direct botanical species, not genus-only visitor
+            # labels; whole-family leaveout on matched before/after source
+            # citation outcomes. No claim of actual effective pollination.
+            result["macro_928_exact_species_flower_syndrome_documentation_transfer"]=(
+                species_family_documentation_syndrome_transfer(
+                    macro_928_evidence.units,
+                    macro_928_evidence.providers_by_reference,
+                    original_ledger,original_taxonomy,
+                    set(macro_928_flora.accepted_species),
+                )
+            )
 
     result.update({
         "n_outcome_blind_frozen_original_genus_list":int(len(d)),
