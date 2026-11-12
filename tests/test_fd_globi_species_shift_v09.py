@@ -178,3 +178,52 @@ def test_archive_omission_with_only_one_provider_must_report_zero_remaining_evid
     assert r["n_species_with_exact_cited_interactions_after_largest_archive_removed"]==0
     assert r["per_visitor_guild"][0]["n_candidate_species_with_cited_interaction_after_largest_archive_removed"]==0
     assert r["n_confirmed_evolutionary_pollinator_shifts"]==0
+
+
+def test_global_guild_pair_documentation_and_Direct_flower_form_are_not_island_shift():
+    a=row(plant="Genus0 species0",ref="10.1/bee",prov="archive-A")
+    b=row(plant="Genus0 species0",ref="10.1/moth",prov="archive-B")
+    b["sourceTaxonOrderName"]="Lepidoptera"
+    b["sourceTaxonFamilyName"]="Nymphalidae"
+    b["sourceTaxonGenusName"]="Vanessa"
+    b["sourceTaxonSpeciesName"]="Vanessa cardui"
+    c=row(plant="Genus1 species1",ref="10.1/bird",prov="archive-B")
+    c["sourceTaxonClassName"]="Aves"
+    c["sourceTaxonOrderName"]="Passeriformes"
+    c["sourceTaxonFamilyName"]="Zosteropidae"
+    c["sourceTaxonGenusName"]="Zosterops"
+    c["sourceTaxonSpeciesName"]="Zosterops japonicus"
+    q=ExactSpeciesGloBICoverage(
+        {"Genus0 species0","Genus1 species1"},
+        floral_form_by_species={
+            "Genus0 species0":"open_radial",
+            "Genus1 species1":"tubular",
+        },
+    )
+    q.add_chunk(pd.DataFrame([a,b,c]))
+    summary=q.summarize()
+    d={z["guild"]:z for z in summary["per_visitor_guild"]}
+    assert summary["direct_open_form_crossover_tested"]
+    assert summary["n_direct_open_radial_form_54_candidates"]==1
+    assert d["bombus"]["n_species_with_species_direct_open_radial_form_and_cited_guild_interaction"]==1
+    assert d["lepidoptera"]["n_species_with_species_direct_open_radial_form_and_cited_guild_interaction"]==1
+    assert d["flower_visiting_birds"]["n_species_with_species_direct_open_radial_form_and_cited_guild_interaction"]==0
+    assert len(summary["species_level_global_cross_guild_documentation_pairs"])==10
+    match=[z for z in summary["species_level_global_cross_guild_documentation_pairs"]
+           if z["guild_A"]=="bombus" and z["guild_B"]=="lepidoptera"]
+    assert len(match)==1 and match[0]["n_species_with_both_guilds_globally_cited"]==1
+    assert match[0]["n_island_local_same_plant_two_guild_records_confirmed"]==0
+    assert summary["n_confirmed_evolutionary_pollinator_shifts"]==0
+
+
+def test_direct_flower_form_requires_whole_frozen_native_plant_cohort():
+    with pytest.raises(ValueError,match="Unresolved or non-strict"):
+        ExactSpeciesGloBICoverage(
+            {"Genus0 species0","Genus1 species1"},
+            floral_form_by_species={"Genus0 species0":"open_radial"},
+        )
+    with pytest.raises(ValueError,match="Unresolved or non-strict"):
+        ExactSpeciesGloBICoverage(
+            {"Genus0 species0"},
+            floral_form_by_species={"Genus0 species0":"tubular|open_radial"},
+        )
