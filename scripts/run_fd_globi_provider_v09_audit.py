@@ -63,7 +63,23 @@ def main():
                   "n_islands_with_native_same_name_GIFT_source_plant":13}
         if any(species_selection.get(k)!=v for k,v in required.items()):
             raise ValueError("Original 2026-11-12 source-matched 54-species cohort has drifted")
-        species_evidence=ExactSpeciesGloBICoverage(names)
+        # Join ONLY species-direct, unambiguous, immutable flower form
+        # measured in the original source ledger (never a guild-derived
+        # pollination-syndrome classification).
+        d_form=original_ledger.loc[
+            original_ledger.trait_name.eq("floral_form") &
+            original_ledger.evidence_scope.eq("species_direct") &
+            original_ledger.evidence_quality.isin(("high","medium")) &
+            original_ledger.accepted_species.isin(names)].copy()
+        if d_form.duplicated("accepted_species").any():
+            raise ValueError("Multiple incompatible original species-direct floral form records")
+        d_form=d_form.dropna(subset=["normalized_value"])
+        d_form=d_form.loc[~d_form.normalized_value.astype(str).str.contains("|",regex=False)]
+        forms=d_form.set_index("accepted_species").normalized_value.to_dict()
+        if set(forms)!=names:
+            raise ValueError("54 original candidate plants lack Direct unambiguous flower form")
+        species_evidence=ExactSpeciesGloBICoverage(
+            names,floral_form_by_species=forms)
         print("Fixed candidate native/source cohort: 54 species, 13 islands; identifiers kept private",flush=True)
     original, after, result=analyze_v09_gzip(
         a.interactions, set(d.genus.astype(str)), chunksize=a.chunksize,
