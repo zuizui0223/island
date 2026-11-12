@@ -150,6 +150,17 @@ def main():
             "status":"MACRO_SOURCE_EVIDENCE_ONLY_NOT_POLLINATOR_SHIFT",
         }
         if a.original_candidate_island_GSHHG_gpkg is not None:
+            # Select the archive most common across ALL 2,135 Direct source
+            # botanical species BEFORE looking at any local/pollen outcome.
+            duplicate_refs={ref for ref,prov in
+                macro_928_evidence.providers_by_reference.items()
+                if len(prov)>1}
+            eligible_units=[row for row in macro_928_evidence.units
+                if row[2] not in duplicate_refs]
+            provider_counts=Counter(row[3] for row in eligible_units)
+            if not provider_counts:
+                raise ValueError("No independently cited original macro flower interactions")
+            largest=sorted(provider_counts,key=lambda k:(-provider_counts[k],k))[0]
             macro_payload["original_exact_island_locality_coverage"]=(
                 macro_exact_928_locality_gate(
                     macro_928_evidence.georeferenced_documented_relations,
@@ -157,6 +168,7 @@ def main():
                     macro_928_flora,
                     a.original_candidate_island_GSHHG_gpkg,
                     a.original_candidate_island_GSHHG_receipt,
+                    largest_global_archive_first_label=largest,
                 )
             )
         result["macro_928_Direct_flora_exact_species_GloBI"]=macro_payload
