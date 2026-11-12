@@ -51,5 +51,5 @@ def test_offshore_slope_kept_as_posthoc_supporting_evidence():
     assert "β = 0.09191" in manuscript
     assert "β = 0.22031" in manuscript
     assert "cannot be directly compared" in manuscript
-    assert "not direct evidence of fewer pollinators" in manuscript
+    assert "not fewer pollinators or historical decline" in manuscript
     assert "not experimentally assigned" in manuscript
