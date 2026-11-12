@@ -220,11 +220,63 @@ def macro_exact_928_locality_gate(
             by.guild.nunique().ge(2).sum())
         out["n_island_species_pairs_with_3plus_source_bibliography_keys"]=int(
             by.reference_id.nunique().ge(3).sum())
+        out["n_island_species_pairs_with_2plus_distinct_archive_first_labels"]=int(
+            by.provider_id.nunique().ge(2).sum())
+        out["n_island_species_pairs_with_2plus_distinct_coordinate_sites"]=int(
+            by.apply(lambda q:q[["latitude","longitude"]].drop_duplicates().shape[0],
+                     include_groups=False).ge(2).sum())
+        out["n_native_island_species_pairs_with_2plus_documented_visitor_guilds"]=int(
+            native.groupby(["island_id","accepted_species"]).guild.nunique().ge(2).sum())
+        out["n_unresolved_origin_island_species_pairs_with_2plus_documented_visitor_guilds"]=int(
+            unresolved.groupby(["island_id","accepted_species"]).guild.nunique().ge(2).sum())
+        out["n_georeferenced_same_native_plant_relation_units_with_pollination_label"]=int(
+            native.evidence_class.eq("pollination").sum())
+        local_providers=linked.provider_id.value_counts()
+        out["n_source_archive_labels_accounting_for_local_cited_units"]=int(len(local_providers))
+        out["largest_archive_fraction_in_local_cited_units"]=float(local_providers.iloc[0]/len(linked))
+        bird="flower_visiting_birds"
+        bridge=by.guild.agg(set)
+        pairs_with_birds_and_other={k for k,v in bridge.items() if bird in v and len(v)>1}
+        out["n_same_original_island_plant_pairs_with_bird_and_another_cited_guild"]=len(pairs_with_birds_and_other)
+        origin=p.set_index(["island_id","accepted_species"]).origin_status
+        out["n_native_original_island_plant_pairs_with_bird_and_another_cited_guild"]=int(
+            sum(origin.get(k)=="native" for k in pairs_with_birds_and_other))
+    if largest_global_archive_first_label is not None:
+        after=linked.loc[linked.provider_id.ne(largest_global_archive_first_label)]
+        after_native=after.loc[after.origin_status.eq("native")]
+        out["n_island_species_pairs_with_record_after_globally_largest_archive_omitted"]=int(
+            after[["island_id","accepted_species"]].drop_duplicates().shape[0])
+        out["n_islands_with_same_plant_cited_relations_after_globally_largest_archive_omitted"]=int(
+            after.island_id.nunique())
+        out["n_native_island_species_pairs_with_record_after_globally_largest_archive_omitted"]=int(
+            after_native[["island_id","accepted_species"]].drop_duplicates().shape[0])
+        out["n_native_islands_with_cited_plant_after_globally_largest_archive_omitted"]=int(
+            after_native.island_id.nunique())
+        out["n_island_species_pairs_with_2plus_guilds_after_globally_largest_archive_omitted"]=int(
+            after.groupby(["island_id","accepted_species"]).guild.nunique().ge(2).sum())
+        out["n_native_island_species_pairs_with_2plus_guilds_after_globally_largest_archive_omitted"]=int(
+            after_native.groupby(["island_id","accepted_species"]).guild.nunique().ge(2).sum())
     for guild in GUILDS:
         sub=linked.loc[linked.guild.eq(guild)]
         nsub=native.loc[native.guild.eq(guild)]
+        after_guild=(linked.loc[
+            linked.guild.eq(guild) &
+            linked.provider_id.ne(largest_global_archive_first_label)]
+            if largest_global_archive_first_label is not None else None)
+        after_native=(after_guild.loc[after_guild.origin_status.eq("native")]
+            if after_guild is not None else None)
         out["per_guild"].append({
             "documented_guild":guild,
+            "n_original_island_plant_pairs_with_documented_guild":int(
+                sub[["island_id","accepted_species"]].drop_duplicates().shape[0]),
+            "n_native_island_plant_pairs_with_documented_guild":int(
+                nsub[["island_id","accepted_species"]].drop_duplicates().shape[0]),
+            "n_original_island_plant_pairs_with_guild_after_globally_largest_source_removed":
+                int(after_guild[["island_id","accepted_species"]].drop_duplicates().shape[0])
+                if after_guild is not None else None,
+            "n_native_island_plant_pairs_with_guild_after_globally_largest_source_removed":
+                int(after_native[["island_id","accepted_species"]].drop_duplicates().shape[0])
+                if after_native is not None else None,
             "n_islands_with_same_flora_species_locality":
                 int(sub.island_id.nunique()),
             "n_locality_matched_plant_species":
