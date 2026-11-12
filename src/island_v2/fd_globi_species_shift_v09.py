@@ -27,8 +27,8 @@ GEO_FIELDS=("decimalLatitude","decimalLongitude","localityName",
 def select_native_source_names(
     direct_ledger:pd.DataFrame, flora:pd.DataFrame,
     channel_evidence:pd.DataFrame, source_assignments:pd.DataFrame,
-    mainland_flora:pd.DataFrame
-) -> tuple[set[str],dict]:
+    mainland_flora:pd.DataFrame, *, return_private_pairs:bool=False
+) -> tuple:
     """Select only source-GIFT-name matched native island Direct flowers.
 
     FIVE plausible GIFT mainland source regions are not historical ancestors.
@@ -101,7 +101,7 @@ def select_native_source_names(
          for island,name in native[["island_id","accepted_species"]]
                            .itertuples(index=False,name=None)]]
     species=set(matched.accepted_species)
-    return species,{
+    receipt={
       "n_islands_with_30plus_species_direct_flower_traits":len(eligible),
       "n_candidate_islands_qualified_Bombus_nondetection_bird_recorded":len(candidates),
       "n_candidate_native_island_plant_rows":len(native),
@@ -113,6 +113,10 @@ def select_native_source_names(
           int(matched.island_id.nunique()),
       "focal_species_names_exported":False,
     }
+    if return_private_pairs:
+        # This never enters an Actions artifact or GitHub repo result.
+        return species,receipt,matched[["island_id","accepted_species"]].copy()
+    return species,receipt
 
 
 class ExactSpeciesGloBICoverage:
@@ -138,6 +142,7 @@ class ExactSpeciesGloBICoverage:
         self.available_geography_fields=set()
         self.available_event_time_fields=set()
         self.spatial_bins=defaultdict(set)
+        self.georeferenced_documented_relations=set()
 
     def add_chunk(self,df:pd.DataFrame):
         if set(RAW)-set(df):
@@ -195,6 +200,12 @@ class ExactSpeciesGloBICoverage:
                 self.raw["n_relation_rows_without_bibliography"]+=1
             if not prov or not ref:
                 continue
+            if (np.isfinite(lat) and np.isfinite(lon) and
+                -90<=lat<=90 and -180<=lon<=180):
+                # Store only locally in the SHA-pinned runner, never release
+                # site/visitor/reference identities as an artifact.
+                self.georeferenced_documented_relations.add(
+                    (plant,guild,ref,prov,etype,float(lat),float(lon)))
             self.units.add((plant,guild,ref,prov,etype))
             self.providers_by_reference[ref].add(prov)
 
