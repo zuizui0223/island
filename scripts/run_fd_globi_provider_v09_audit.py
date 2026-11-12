@@ -5,6 +5,7 @@ genus breadth artifact. Only a privacy-safe JSON receipt is published.
 """
 from __future__ import annotations
 import argparse
+from collections import Counter
 import json
 from pathlib import Path
 import pandas as pd
@@ -104,6 +105,15 @@ def main():
             "status":"EXACT_SPECIES_GLOBAL_GLOBI_EVIDENCE_COVERAGE_NOT_ACTUAL_ISLAND_SOURCE_POLLINATOR_SHIFT",
         }
         if a.original_candidate_island_GSHHG_gpkg is not None:
+            # Source selection is across ALL 54 candidate plant species,
+            # NOT selected by how many favorable focal-island points exist.
+            repeated={ref for ref,provs in species_evidence.providers_by_reference.items()
+                      if len(provs)>1}
+            units=[row for row in species_evidence.units if row[2] not in repeated]
+            provider_n=Counter(row[3] for row in units)
+            if not provider_n:
+                raise ValueError("No original source-cited plant species evidence to audit")
+            largest_archive=sorted(provider_n,key=lambda k:(-provider_n[k],k))[0]
             species_payload["original_island_polygon_locality_overlap"] = (
                 original_candidate_island_locality_gate(
                     species_evidence.georeferenced_documented_relations,
@@ -111,6 +121,7 @@ def main():
                     private_native_species_island_pairs,
                     a.original_candidate_island_GSHHG_gpkg,
                     a.original_candidate_island_GSHHG_receipt,
+                    dominant_source_archive_label=largest_archive,
                 )
             )
         result["species_direct_mainland_island_shift_evidence_coverage"]=species_payload
