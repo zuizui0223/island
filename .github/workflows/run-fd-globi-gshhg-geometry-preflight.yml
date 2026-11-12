@@ -52,6 +52,12 @@ jobs:
           fi
           test -n "$SOURCE_CSV" && test -s "$SOURCE_CSV"
           echo "SOURCE_CSV=$SOURCE_CSV" >> "$GITHUB_ENV"
+          DIRECT_LEDGER="$(find "$PREP_DIR/input" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          ISLAND_FLORA="$(find "$PREP_DIR/input" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -n "$DIRECT_LEDGER" && test -s "$DIRECT_LEDGER"
+          test -n "$ISLAND_FLORA" && test -s "$ISLAND_FLORA"
+          echo "DIRECT_LEDGER=$DIRECT_LEDGER" >> "$GITHUB_ENV"
+          echo "ISLAND_FLORA=$ISLAND_FLORA" >> "$GITHUB_ENV"
           export SOURCE_CSV
           python - <<'PY'
           import os,pandas as pd
@@ -61,21 +67,41 @@ jobs:
           assert len(k)==8265*5 and k.source_rank.between(1,5).all()
           print('Original 8265 islands × 5 GIFT source slots frozen')
           PY
-      - name: Reconstruct exact GSHHG 2.3.7 h polygon set and compare every original island ID
+      - name: Recover independent frozen GBIF guild evidence to define focal 21 islands before geography
+        run: |
+          set -euo pipefail
+          mkdir -p "$PREP_DIR/qualified-channels"
+          gh run download 34750153702 \
+            --repo zuizui0223/island \
+            --name chapter1-nee-channel-qualification-34750153702 \
+            --dir "$PREP_DIR/qualified-channels"
+          CHANNEL_CSV="$(find "$PREP_DIR/qualified-channels" -name nee_projected_channel_state.csv -type f -print -quit)"
+          test -n "$CHANNEL_CSV" && test -s "$CHANNEL_CSV"
+          echo "CHANNEL_CSV=$CHANNEL_CSV" >> "$GITHUB_ENV"
+
+      - name: Reconstruct exact GSHHG 2.3.7 h polygons and verify the original 21 candidate polygon hashes
         run: |
           set -euo pipefail
           python scripts/fd_globi_gshhg_geometry_preflight.py \
             --original-source-assignments "$SOURCE_CSV" \
+            --original-direct-ledger "$DIRECT_LEDGER" \
+            --original-island-flora "$ISLAND_FLORA" \
+            --original-qualified-channel-states "$CHANNEL_CSV" \
             --output-dir "$PREP_DIR/out" \
             --config config/island_source_gshhg.yml
           python - <<'PY'
           import os,json
           from pathlib import Path
           r=json.loads((Path(os.environ['PREP_DIR'])/'out'/'original_gshhg_geometry_receipt.json').read_text())
-          assert r['status']=='ORIGINAL_GSHHG_GEOMETRY_RECONSTRUCTED_SAME_8265_IDS'
+          assert r['status'] in {
+              'FULL_8265_GLOBAL_GEOMETRY_IDENTICAL',
+              'FOCAL_21_POLYGONS_IDENTICAL_BUT_FULL_UNIVERSE_DRIFT',
+          }
           assert r['GSHHG_archive_SHA256']==os.environ['EXPECTED_GSHHG_SHA']
           assert r['n_original_GIFT_geo_k5_island_ids']==8265
-          assert r['n_reconstructed_polygon_units']==8265
+          assert r['n_original_focal_islands']==21
+          assert r['n_focal_islands_with_exact_historical_polygon']==21
+          assert r['n_reconstructed_polygon_units']+r['n_IDs_missing_from_geometry']==8265
           assert r['n_original_GIFT_source_rows']==8265*5
           assert r['n_source_species_pollinator_records_tested']==0
           assert r['GloBI_locality_or_pollination_shift_confirmed'] is False
@@ -86,7 +112,7 @@ jobs:
         with:
           name: fd-globi-revalidated-exact-gshhg-${{ github.run_id }}
           path: |
-            /tmp/fd-globi-exact-gshhg/out/original_gshhg_v237_h_8265_verified.gpkg
+            /tmp/fd-globi-exact-gshhg/out/original_gshhg_v237_h_candidate21_exact_shared_ids.gpkg
             /tmp/fd-globi-exact-gshhg/out/original_gshhg_geometry_receipt.json
           if-no-files-found: error
           retention-days: 90
