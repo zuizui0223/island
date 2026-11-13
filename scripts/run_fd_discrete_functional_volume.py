@@ -48,6 +48,7 @@ def main():
     p.add_argument("--repeats",type=int,default=25)
     p.add_argument("--null-shuffles",type=int,default=19)
     p.add_argument("--random-profiles",type=int,default=199)
+    p.add_argument("--seed",type=int,default=20261113)
     a=p.parse_args()
     root=a.progressive_root
     direct=pd.read_csv(root/"fixed/source/current/evidence/direct_only_trait_ledger.csv.gz",
@@ -72,7 +73,7 @@ def main():
     result=original_categorical_flora_volume(
         triple,matched_flora,geo,source,mainland,
         n=30,repeats=a.repeats,null_shuffles=a.null_shuffles,
-        random_profiles=a.random_profiles,bootstrap=1999)
+        random_profiles=a.random_profiles,bootstrap=1999,seed=a.seed)
     assert result["n_928_direct_islands"]==928
     assert result["n_all_recorded_islands_scored"]==928
     assert result["measurement"]["radius0_is_only_unique_observed_profile_richness_over_K"]
@@ -94,6 +95,8 @@ def main():
         "n_reference_species":result["n_original_reference_direct_plant_species"],
         "n_reference_profiles":result["n_original_distinct_triple_profiles"],
         "n_native_islands":result["n_original_strict_native_islands_scored"],
+        "fixed_seed":a.seed,
+        "rarefaction_repeats":a.repeats,
         "by_region":[{
             "region":x["regime"],
             "n":x["n_islands"],
