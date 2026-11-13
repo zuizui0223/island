@@ -121,6 +121,12 @@ jobs:
           assert d["original_design"]["one_original_physical_island_one_regression_row"]
           assert d["original_design"]["same_15_true_dated_plant_tips_on_island_and_GIFT_source"]
           assert d["original_design"]["family_genus_source_area_isolation_adjusted_regressions"]
+          assert d["original_design"]["functional_Jaccard_beta_exact_island_source_profile_k_nulls"]
+          assert d["original_design"]["null_reference_uniform_and_global_direct_species_frequency"]
+          assert any(
+              "functional_beta_excess_given_exact_profile_k_adjusted_block" in r
+              for r in d["region_support_and_categorical_beta_relationships"]
+              if r["regime"]=="tropical" and r["scope"]=="all_recorded")
           assert d["no_original_true_phylogeny_backbone_or_taxon_record_redistributed"]
           audit=d["family_preserving_whole_flower_trait_permutation_audit"]
           assert audit["n_whole_three_trait_profile_within_family_shuffles"]==99
