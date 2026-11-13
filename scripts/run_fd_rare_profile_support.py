@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 import pandas as pd
@@ -35,6 +36,16 @@ def direct_triples(direct:pd.DataFrame)->pd.DataFrame:
     if len(result)!=2234:
         raise ValueError("Original global Direct 2234 species drifted")
     return result
+
+
+def _strict_json(value):
+    if isinstance(value,dict):
+        return {str(k):_strict_json(v) for k,v in value.items()}
+    if isinstance(value,list):
+        return [_strict_json(v) for v in value]
+    if isinstance(value,float) and not math.isfinite(value):
+        return None  # Sparse source-signature or block support is UNESTIMABLE, not zero.
+    return value
 
 
 def main()->None:
@@ -71,6 +82,7 @@ def main()->None:
     assert not result["genus_matched_null_effect_estimated"]
     assert result["source_species_island_taxa_genera_coordinates_not_released"]
     assert not result["measured_actual_pollinator_function_or_adaptation"]
+    result=_strict_json(result)
     text=json.dumps(result,sort_keys=True,indent=2,allow_nan=False)
     for forbidden in ('"island_id"','"accepted_species"','"entity_ID"',
                        '"work_species"','"spatial_block"','"genus"','"family"'):
