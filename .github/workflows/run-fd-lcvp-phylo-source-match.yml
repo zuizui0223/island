@@ -73,7 +73,7 @@ jobs:
             fi
           fi
           test -n "$LEDGER" && test -s "$LEDGER"
-          ORIGINAL_ROOT="$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "$LEDGER")")")")"
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
           test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
           test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
           test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
