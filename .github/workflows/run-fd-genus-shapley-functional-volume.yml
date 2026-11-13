@@ -80,6 +80,9 @@ jobs:
           assert d["n_original_reference_Direct_species"]==2234
           assert d["n_original_reference_triple_profiles"]==100
           assert d["method"]["exact_additive_shapley_coverage_proven"]
+          assert d["n_original_island_scope_rows_decomposed"]>=700
+          assert len(d["all_source_disjoint_flora_genus_shapley_regions"])>=4
+          assert any(p["matched_distinct_genera_per_island"]==5 for p in d["restricted_distinct_genus_source_pairing_panels"])
           assert d["method"]["strict_same_plant_name_source_exclusion"]
           assert d["no_original_island_taxon_species_genus_source_identity_released"]
           assert not d["no_actual_pollinator_service_or_historical_decline_tested"] is False
