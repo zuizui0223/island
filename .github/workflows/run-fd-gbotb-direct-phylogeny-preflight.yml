@@ -1,0 +1,113 @@
+name: fd original 928-island exact GBOTB three-tree phylogenetic coverage audit
+on:
+  push:
+    branches:
+      - analysis/fd-discrete-functional-volume-20261113
+    paths:
+      - 'scripts/run_fd_gbotb_direct_phylogeny_preflight.py'
+      - 'scripts/fd_gbotb_original_tip_match.R'
+      - '.github/workflows/run-fd-gbotb-direct-phylogeny-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  fixed-original-phylogeny:
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    env:
+      STAGE: /tmp/fd-phylo-original
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+      - name: Install source numerical dependencies
+        run: python -m pip install pandas numpy pytest
+      - name: Checkout exact frozen 2026 published mega-tree source
+        uses: actions/checkout@v4
+        with:
+          repository: jinyizju/V.PhyloMaker2
+          ref: 7af3fb5152f691af2e4ec9d5e2e467d1b50505e9
+          path: work/V.PhyloMaker2
+          persist-credentials: false
+      - name: Validate three actual dated source-tree byte hashes, not impute false species-tip evidence
+        run: |
+          set -euo pipefail
+          echo '9ac19e04d6016c9e7ee8758524996f40a089271b2fd34371a5dbd607b5dbf2a3  work/V.PhyloMaker2/data/GBOTB.extended.TPL.rda' | sha256sum --check
+          echo '30fd7e9e67bdfff427b336d3b35983f63e284ef118e91f76a7f51a884c9b4e5b  work/V.PhyloMaker2/data/GBOTB.extended.LCVP.rda' | sha256sum --check
+          echo '7fc97970fcd9e69f6506b0c860b1296f4a797635193a8ce4bcb052a83fd1f965  work/V.PhyloMaker2/data/GBOTB.extended.WP.rda' | sha256sum --check
+          python -m compileall -q scripts/run_fd_gbotb_direct_phylogeny_preflight.py
+      - name: Retrieve original protected 2234 source Direct and 928 island botanical phenotypes
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          ARTIFACT_ID=10058653212
+          SOURCE_RUN="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.workflow_run.id')"
+          SOURCE_NAME="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.name')"
+          test -n "$SOURCE_RUN" && test -n "$SOURCE_NAME"
+          gh run download "$SOURCE_RUN" --repo zuizui0223/island --name "$SOURCE_NAME" --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          if [ -z "$LEDGER" ]; then
+            NESTED="$(find "$STAGE/original" -name '*.zip' -type f -print -quit)"
+            if [ -n "$NESTED" ]; then
+              mkdir -p "$STAGE/unpacked"
+              unzip -q "$NESTED" -d "$STAGE/unpacked"
+              LEDGER="$(find "$STAGE/unpacked" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+            fi
+          fi
+          test -n "$LEDGER" && test -s "$LEDGER"
+          ORIGINAL_ROOT="$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "$LEDGER")")")")")"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Restore independent frozen Catalogue of Life XR strict accepted-family candidate mapping
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/colxr"
+          gh run download 34668274725 --repo zuizui0223/island \
+            --name island-plant-database-2.0.0-alpha2-taxonomy-34668274725 \
+            --dir "$STAGE/colxr"
+          COLXR="$(find "$STAGE/colxr" -name taxonomy_crosswalk.csv.gz -type f -print -quit)"
+          test -n "$COLXR" && test -s "$COLXR"
+          echo "079d9c27b0ca3aa51f0c7310f43ad4901b07a319d6063eab5a7d62b291bdd9e3  $COLXR" | sha256sum --check --strict
+          echo "COLXR=$COLXR" >> "$GITHUB_ENV"
+      - name: Evaluate original true dated tip versus genus/family insertion availability and geographic bias
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python scripts/run_fd_gbotb_direct_phylogeny_preflight.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --colxr-crosswalk "$COLXR" \
+            --backbone-checkout work/V.PhyloMaker2 \
+            --r-matcher scripts/fd_gbotb_original_tip_match.R \
+            --workdir "$STAGE" \
+            --output "$STAGE/anonymous_gbotb_direct_phylogeny_928_coverage.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          path=Path(os.environ["STAGE"])/"anonymous_gbotb_direct_phylogeny_928_coverage.json"
+          r=json.loads(path.read_text())
+          assert r["original_direct"]==2234
+          assert r["original_eligible_islands"]==928
+          assert r["original_CoLXR_exact_candidate_family_species"]==2190
+          assert len(r["by_original_species_rarity_tier_and_tree"])==9
+          assert len(r["by_island_regime_and_tree"])==12
+          assert r["original_phylogenetic_branch_length_effect_not_yet_fit"]
+          assert r["phylogeny_tree_taxonomy_triple_original_sites_never_exported"]
+          assert not any('"'+x+'"' in path.read_text() for x in (
+              "accepted_species","source_genus","source_family","island_id",
+              "family","genus","species","source_signature","tip_label"))
+          print("Three original dated trees and 928 island true-tip coverage audited without source data release")
+          PY
+      - name: Upload ONLY anonymous original-phylogeny reference coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-gbotb-phylogeny-direct-928-${{ github.run_id }}
+          path: /tmp/fd-phylo-original/anonymous_gbotb_direct_phylogeny_928_coverage.json
+          if-no-files-found: error
+          retention-days: 90
