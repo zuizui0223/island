@@ -57,9 +57,11 @@ jobs:
           echo '7fc97970fcd9e69f6506b0c860b1296f4a797635193a8ce4bcb052a83fd1f965  work/V.PhyloMaker2/data/GBOTB.extended.WP.rda' | sha256sum --check
           PYTHONPATH=work/fd/src python -m pytest -q \
             work/fd/tests/test_true_backbone_phylo_distance.py \
-            work/fd/tests/test_true_backbone_phylo_source_match.py
+            work/fd/tests/test_true_backbone_phylo_source_match.py \
+            work/fd/tests/test_true_tree_close_family_source.py
           python -m compileall -q work/fd/src/fd/true_backbone_phylo_distance.py \
             work/fd/src/fd/true_backbone_phylo_source_match.py \
+            work/fd/src/fd/true_tree_close_family_source.py \
             scripts/run_fd_lcvp_phylogenetic_source_match.py
       - name: Restore original protected 2234 source Direct flower traits, original GIFT
         run: |
@@ -127,6 +129,15 @@ jobs:
           assert r['external_plant_phylogeny_GPL2_source_not_redistributed']
           assert r['original_tree_tip_island_taxon_or_source_name_exported'] is False
           assert r['demonstrated_phylogeny_caused_flower_loss_or_pollinator_shift'] is False
+          near=r["strict_within_family_close_true_tree_source_sensitivity"]
+          assert near["n_original_source_eligible_full_islands"]==928
+          assert near["tree_version"]==os.environ["TREE_VERSION"]
+          assert near["design"]["cutoffs_original_branch_length_50_100_are_posthoc"]
+          assert near["design"]["all_graft_and_taxonomy_inserted_species_excluded"]
+          assert near["design"]["source_selection_does_not_examine_flower_trait_phenotypes"]
+          assert near["no_original_plant_family_genus_island_source_or_tree_ids_exported"]
+          assert not near["not_phylogeny_or_evolution_causal_island_phenotype_change"]
+          assert len(near["region_phylogenetic_close_family_source_evidence"])>=8
           assert len(r['region_phylogenetic_tip_matching_support'])>=8
           raw=p.read_text()
           assert all('"'+k+'"' not in raw for k in (
