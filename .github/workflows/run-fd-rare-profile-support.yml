@@ -1,0 +1,98 @@
+name: fd 928-island rare and common phenotype support volume
+on:
+  push:
+    branches:
+      - analysis/fd-discrete-functional-volume-20261113
+    paths:
+      - 'scripts/run_fd_rare_profile_support.py'
+      - '.github/workflows/run-fd-rare-profile-support.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-original-rarity-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    env:
+      STAGE: /tmp/fd-source-rarity-hv
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact source runtime
+        run: python -m pip install pandas numpy pytest
+      - name: Checkout separate fd rare-morphology research branch
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Test frequency-stratified reference and two k-preserving nulls
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_rare_profile_decomposition.py
+          python -m compileall -q work/fd/src/fd/rare_profile_decomposition.py scripts/run_fd_rare_profile_support.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore rights-restricted original Direct flora and GIFT sources
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          ARTIFACT_ID=10058653212
+          SOURCE_RUN="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.workflow_run.id')"
+          SOURCE_NAME="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.name')"
+          test -n "$SOURCE_RUN" && test -n "$SOURCE_NAME"
+          gh run download "$SOURCE_RUN" --repo zuizui0223/island --name "$SOURCE_NAME" --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          if [ -z "$LEDGER" ]; then
+            NESTED="$(find "$STAGE/original" -name '*.zip' -type f -print -quit)"
+            if [ -n "$NESTED" ]; then
+              mkdir -p "$STAGE/unpacked"
+              unzip -q "$NESTED" -d "$STAGE/unpacked"
+              LEDGER="$(find "$STAGE/unpacked" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+            fi
+          fi
+          test -n "$LEDGER" && test -s "$LEDGER"
+          ORIGINAL_ROOT="$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "$LEDGER")")")")")"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          echo "Original plant and GIFT-source identifiers remain only in CI memory"
+      - name: Compute original k-matched rare vs common and genus-availability stop rule
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python scripts/run_fd_rare_profile_support.py \
+            --progressive-root "$ORIGINAL_ROOT" \
+            --rarefactions 40 --null-draws 399 \
+            --output "$STAGE/anonymous_rare_common_metric_volume.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['STAGE'])/'anonymous_rare_common_metric_volume.json'
+          d=json.loads(p.read_text())
+          assert d["n_original_reference_complete_Direct_species"]==2234
+          assert d["n_original_reference_triple_profiles"]==100
+          assert d["n_original_928_island_flora"]==928
+          assert sum(d["rarity_bins"]["n_original_profile_categories_by_tier"].values())==100
+          assert d["sampling"]["equal_direct_species_island_and_GIFT_source"]==30
+          assert d["sampling"]["equal_k_global_speciesfrequency_profile_null_draws"]==399
+          assert d["genus_matched_null_effect_estimated"] is False
+          assert d["source_species_island_taxa_genera_coordinates_not_released"] is True
+          assert d["measured_actual_pollinator_function_or_adaptation"] is False
+          forbidden=["island_id","accepted_species","spatial_block","entity_ID","work_species","genus"]
+          s=p.read_text()
+          assert all('"'+k+'"' not in s for k in forbidden)
+          print("Original 928-island rare/common categorical-space results are anonymous and support-gated")
+          PY
+      - name: Upload protected-source derived anonymous aggregate ONLY
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-rare-common-volume-928-${{ github.run_id }}
+          path: /tmp/fd-source-rarity-hv/anonymous_rare_common_metric_volume.json
+          if-no-files-found: error
+          retention-days: 90
