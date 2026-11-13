@@ -1,4 +1,4 @@
-name: fd original dated LCVP true-tip matched island floral rarity test
+name: fd original 928-island true-tip TPL LCVP WP phylogenetic source comparison
 on:
   push:
     branches:
@@ -15,10 +15,15 @@ jobs:
   exact-dated-tree-comparison:
     runs-on: ubuntu-latest
     timeout-minutes: 85
+    strategy:
+      fail-fast: false
+      matrix:
+        tree_version: [TPL, LCVP, WP]
     env:
       STAGE: /tmp/fd-phylo-matched-lcvp
       GH_TOKEN: ${{ github.token }}
       OPENBLAS_NUM_THREADS: "1"
+      TREE_VERSION: ${{ matrix.tree_version }}
       OMP_NUM_THREADS: "1"
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +52,9 @@ jobs:
       - name: Verify original phylogeny and exact-tip mathematical pair matching
         run: |
           set -euo pipefail
+          echo '9ac19e04d6016c9e7ee8758524996f40a089271b2fd34371a5dbd607b5dbf2a3  work/V.PhyloMaker2/data/GBOTB.extended.TPL.rda' | sha256sum --check
           echo '30fd7e9e67bdfff427b336d3b35983f63e284ef118e91f76a7f51a884c9b4e5b  work/V.PhyloMaker2/data/GBOTB.extended.LCVP.rda' | sha256sum --check
+          echo '7fc97970fcd9e69f6506b0c860b1296f4a797635193a8ce4bcb052a83fd1f965  work/V.PhyloMaker2/data/GBOTB.extended.WP.rda' | sha256sum --check
           PYTHONPATH=work/fd/src python -m pytest -q \
             work/fd/tests/test_true_backbone_phylo_distance.py \
             work/fd/tests/test_true_backbone_phylo_source_match.py
@@ -97,22 +104,26 @@ jobs:
             --original-root "$ORIGINAL_ROOT" \
             --crosswalk "$COLXR" \
             --backbone work/V.PhyloMaker2 \
+            --tree-version "$TREE_VERSION" \
             --workdir "$STAGE" \
             --rarefactions 20 --reference-null 199 --bootstrap 999 \
-            --output "$STAGE/anonymous_true_tree_phylogenetic_floral_928.json"
+            --output "$STAGE/anonymous_true_tree_phylogenetic_floral_${TREE_VERSION}_928.json"
           python - <<'PY'
           import json,os
           from pathlib import Path
-          p=Path(os.environ['STAGE'])/'anonymous_true_tree_phylogenetic_floral_928.json'
+          p=Path(os.environ['STAGE'])/'anonymous_true_tree_phylogenetic_floral_${TREE_VERSION}_928.json'
           r=json.loads(p.read_text())
-          assert r['tree_version']=='LCVP'
+          assert r['tree_version']==os.environ["TREE_VERSION"]
           assert r['n_original_eligible_full_island_flora']==928
-          assert r['n_original_strict_tip_species_in_tree']==1162
+          assert r['n_original_strict_tip_species_in_tree']=={
+            'TPL':1187,'LCVP':1162,'WP':1160}[os.environ["TREE_VERSION"]]
           assert r['design']['strict_exact_original_tree_tip_only']
           assert r['design']['optimal_unique_nearest_phylogeny_source_species_per_tip']
           assert r['design']['source_species_exact_island_names_removed']
           assert r['design']['primary_exact_tree_tip_plants_per_side']==15
           assert r['design']['sensitivity_exact_tree_tip_plants_per_side']==10
+          assert r['design']['matched_phylo_distance_50_100_thresholds_posthoc_diagnostics_only']
+          assert r['design']['original_colxr_family_and_genus_pair_support_diagnostics']
           assert r['external_plant_phylogeny_GPL2_source_not_redistributed']
           assert r['original_tree_tip_island_taxon_or_source_name_exported'] is False
           assert r['demonstrated_phylogeny_caused_flower_loss_or_pollinator_shift'] is False
@@ -126,7 +137,7 @@ jobs:
       - name: Upload only anonymous regional matched phylogenetic source sensitivity
         uses: actions/upload-artifact@v4
         with:
-          name: fd-original-real-phylo-source-928-${{ github.run_id }}
-          path: /tmp/fd-phylo-matched-lcvp/anonymous_true_tree_phylogenetic_floral_928.json
+          name: fd-original-real-phylo-source-${{ matrix.tree_version }}-928-${{ github.run_id }}
+          path: /tmp/fd-phylo-matched-lcvp/anonymous_true_tree_phylogenetic_floral_${TREE_VERSION}_928.json
           if-no-files-found: error
           retention-days: 90
