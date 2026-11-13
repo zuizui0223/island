@@ -96,6 +96,11 @@ jobs:
           assert r["n_original_eligible_island_flora"]==928
           assert r["n_original_Direct_species"]==2234
           assert r["n_strict_candidate_family_species"]>=1900
+          assert sum(p["n_family_matched_islands"]>=10 for p in
+                     r["same_family_island_mainland_matched_panels"])>=4
+          assert all(p["n_blocks"]>=5 and p["n_first_GIFT_source_signatures"]>=5
+                     for p in r["same_family_island_mainland_matched_panels"]
+                     if p["reportable_under_10island_5block_5source_gate"])
           assert r["inference"]["family_labels_are_unreviewed_exact_accepted_COL_XR_candidates"]
           assert r["inference"]["equal_5_family_one_plant_each_source_and_island_primary"]
           assert r["inference"]["different_genus_condition_restricts_to_different_genus_in_same_family"]
