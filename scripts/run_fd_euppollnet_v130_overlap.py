@@ -16,6 +16,7 @@ from fd.pollinator_functional_diversity import direct_triple
 from fd.euppollnet_island_overlap import (
     SOURCE_COLUMNS, validate_original_visits, audit_original_island_euppollnet
 )
+from fd.euppollnet_guild_loss_simulation import original_island_network_guild_ablation
 
 EXPECTED_GEOMETRY_ORIGINAL_ZIP_SHA = "8dbbe7e071e77e9e75f2d639239099ebca8d5c16d6a07df8169729d49f15cf41"
 
@@ -112,6 +113,11 @@ def main() -> None:
         raise ValueError("Conflicting site across exact original island polygons")
     result=audit_original_island_euppollnet(
        source,site_to_island,floral,geo)
+    # Model WHAT COULD HAPPEN to observed flower-visit links if a sampled
+    # guild disappeared, not actual decline, true substitution, or fitness.
+    simulated=original_island_network_guild_ablation(
+        source,site_to_island,floral,direct_triple(direct),geo,source_meta)
+    result["hypothetical_within_network_visitor_guild_removal"]=simulated
     result.update(
         source_public_license="CC_BY_4_0",
         source_zenodo_record="10.5281/zenodo.15183272",
@@ -149,7 +155,8 @@ def main() -> None:
        "fd_islands_with_sites":result["n_original_928_flora_islands_with_exact_network_site"],
        "fd_direct_plant_visits":result.get("n_direct_species_joined_interaction_rows",0),
        "n_source_repeated_site_years":result.get("n_islands_with_two_years_site",0),
-       "source_disjoint_regions_eligible":result.get("n_regions_meeting_10_islands_5blocks_3studies",0)
+       "source_disjoint_regions_eligible":result.get("n_regions_meeting_10_islands_5blocks_3studies",0),
+       "simulated_network_scenarios":simulated.get("n_qualified_network_simulation_scenarios",0)
     },sort_keys=True))
 if __name__=="__main__":
     main()
