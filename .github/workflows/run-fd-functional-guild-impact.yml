@@ -122,6 +122,8 @@ jobs:
           assert d["no_actual_pollinator_loss_or_shift_measured"]
           assert d["no_species_island_or_source_level_data_exported"]
           assert d["same_island_native_vs_all_assurance_sensitivity"]
+          assert isinstance(d["same_plant_carrier_SC_and_mating_system_source_control"],list)
+          assert all(x["same_carrier_both_traits_and_same_source"] for x in d["same_plant_carrier_SC_and_mating_system_source_control"])
           assert any("source_equal_mean_delta_positive_share" in row for row in d["reproductive_assurance_functional_assemblage_by_region"])
           assert len(d["reproductive_assurance_functional_assemblage_by_region"])>0
           assert not any(k in p.read_text() for k in ('accepted_species','island_id','work_species','entity_ID','reference_id'))
