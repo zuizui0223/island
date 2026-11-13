@@ -121,6 +121,8 @@ jobs:
           assert d["unknown_reproductive_trait_is_not_state_zero"]
           assert d["no_actual_pollinator_loss_or_shift_measured"]
           assert d["no_species_island_or_source_level_data_exported"]
+          assert d["same_island_native_vs_all_assurance_sensitivity"]
+          assert any("source_equal_mean_delta_positive_share" in row for row in d["reproductive_assurance_functional_assemblage_by_region"])
           assert len(d["reproductive_assurance_functional_assemblage_by_region"])>0
           assert not any(k in p.read_text() for k in ('accepted_species','island_id','work_species','entity_ID','reference_id'))
           print("Rights-safe Direct reproductive-assurance functional traits verified")
