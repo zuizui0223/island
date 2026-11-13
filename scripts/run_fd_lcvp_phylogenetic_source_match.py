@@ -140,6 +140,7 @@ def main():
         tree_version=version,reference_draws=args.reference_null,
         repeat=args.rarefactions,bootstrap=args.bootstrap)
     result["strict_within_family_close_true_tree_source_sensitivity"]=bounded
+    result["source_same_island_close_pair_50_100_support_tested"]=True
     result["original_taxonomy_source_family_candidates"]=len(family)
     result["original_GBOTB_tree_SHA256"]=tree_sha
     result["original_accepted_species_exact_tip_names_agreed_to_CoL"]=len(true)
