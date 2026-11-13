@@ -86,6 +86,8 @@ jobs:
           assert d["n_original_eligible_island_floras"]==928
           assert d["n_original_direct_plant_species_global"]==2234
           assert d["n_original_strict_native_eligible_islands"]==87
+          assert d["n_original_WCVP_range_source_species"]==55137
+          assert d["n_original_island_TDWG_L3_records"]==8265
           assert d["n_WCVP_region_compatible_candidate_eligible_islands"]==357
           assert d["method"]["expected_reference_coverage_analytically_from_hypergeometric"]
           assert d["method"]["WCVP_TDWG_L3_is_regionally_compatible_not_exact_island_native"]
