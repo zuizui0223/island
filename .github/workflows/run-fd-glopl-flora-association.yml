@@ -49,7 +49,7 @@ jobs:
           test "$(git hash-object work/glopl/Output/GloPL.csv)" = "ef3fbc9ac144da55a5f5ff936bbab734711d53d0"
           python -m pytest -q tests/test_chapter1_h5_glopl_island_overlap_preflight.py
           PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_glopl_floral_fd_association.py
-          python -m compileall -q scripts/run_fd_glopl_functional_preflight.py
+          python -m compileall -q scripts/run_fd_glopl_flora_association.py work/fd/src/fd/glopl_floral_fd_association.py
       - name: Restore original licensed Direct flora and source geography
         run: |
           set -euo pipefail
@@ -89,7 +89,7 @@ jobs:
       - name: Source-first island flora Q with outcome-blind gate, then experimental GloPL association
         run: |
           set -euo pipefail
-          python scripts/run_fd_glopl_functional_preflight.py \
+          python scripts/run_fd_glopl_flora_association.py \
             --glopl work/glopl/Output/GloPL.csv \
             --glopl-config config/chapter1_h5_glopl_island_overlap_preflight_v1.yml \
             --progressive-root "$ORIGINAL_ROOT" \
@@ -120,6 +120,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: fd-glopl-original-island-fd-association-${{ github.run_id }}
-          path: /tmp/fd-glopl-functional/anonymous_glopl_fd_experimental_overlap.json
+          path: /tmp/fd-glopl-functional/anonymous_original_glopl_island_fd_association.json
           if-no-files-found: error
           retention-days: 90
