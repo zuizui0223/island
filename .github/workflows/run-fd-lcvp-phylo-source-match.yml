@@ -147,6 +147,7 @@ jobs:
                       for r in near["paired_same_island_50_vs_100_tree_cutoff_sensitivity"])
           assert r["source_same_island_close_pair_50_100_support_tested"]
           assert r["new_strict_identical_focal_plant_five_tip_source_distance_bands"]
+          assert near["design"]["new_strict_nonoverlapping_d50_vs_d50to100_identical_five_focal_plant_species"]
           assert len(r['region_phylogenetic_tip_matching_support'])>=8
           raw=p.read_text()
           assert all('"'+k+'"' not in raw for k in (
