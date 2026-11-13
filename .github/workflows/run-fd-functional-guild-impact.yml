@@ -94,6 +94,8 @@ jobs:
           r=json.loads(p.read_text())
           assert r["n_original_qualifying_islands"]==928
           assert len(r["support_by_guild_regime"])==20
+          assert r["same_island_direct_native_status_sensitivity"]
+          assert all(x["same_islands_and_fixed_30_species_each"] for x in r["same_island_direct_native_status_sensitivity"])
           assert r["raw_island_taxon_or_source_identifiers_exported"] is False
           assert r["real_local_visitor_shift_measured"] is False
           assert r["biological_guild_absence_from_unresolved"] is False
