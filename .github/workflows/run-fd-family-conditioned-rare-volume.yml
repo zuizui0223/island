@@ -96,6 +96,11 @@ jobs:
           assert r["n_original_eligible_island_flora"]==928
           assert r["n_original_Direct_species"]==2234
           assert r["n_strict_candidate_family_species"]>=1900
+          ascertain=r["original_source_family_mapping_ascertainment_by_global_profile_rarity"]
+          assert sum(z["n_original_reference_profiles"] for z in ascertain.values())==100
+          assert sum(z["n_original_species_carriers"] for z in ascertain.values())==2234
+          assert sum(z["n_original_carriers_lacking_strict_family"] for z in ascertain.values())==44
+          assert len(r["posthoc_paired_exact_family_identity_vs_family_count_panels"])>0
           assert sum(p["n_family_matched_islands"]>=10 for p in
                      r["same_family_island_mainland_matched_panels"])>=4
           assert all(p["n_blocks"]>=5 and p["n_first_GIFT_source_signatures"]>=5
