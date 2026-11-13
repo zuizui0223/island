@@ -17,6 +17,9 @@ jobs:
     env:
       STAGE: /tmp/fd-original-genus-shapley
       GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
     steps:
       - name: Checkout protected original island source analysis
         uses: actions/checkout@v4
