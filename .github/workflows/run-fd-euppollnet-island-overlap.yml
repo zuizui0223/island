@@ -1,0 +1,133 @@
+name: fd original actual EuPPollNet v1.3.0 island visitor overlap
+
+on:
+  push:
+    branches:
+      - analysis/fd-functional-guild-impact-20261113
+    paths:
+      - 'scripts/run_fd_euppollnet_v130_overlap.py'
+      - '.github/workflows/run-fd-euppollnet-island-overlap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-island-network-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      STAGE: /tmp/fd-euppollnet-v130
+      GH_TOKEN: ${{ github.token }}
+      PYTHONPATH: "src:work/fd/src"
+    steps:
+      - name: Checkout original island source pipeline
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install audited analysis dependencies
+        run: python -m pip install pandas numpy pytest "geopandas>=1.0" "shapely>=2" "pyogrio>=0.9"
+      - name: Checkout fd separate unmerged analysis branch
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/pollinator-loss-functional-assembly-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Checkout original correction-pinned European plant-pollinator source
+        uses: actions/checkout@v4
+        with:
+          repository: joseblanuza/EuPPollNet
+          ref: v1.3.0
+          path: work/euppollnet
+          persist-credentials: false
+          lfs: false
+      - name: Fail closed on public source correction and schema drift
+        run: |
+          set -euo pipefail
+          test -s work/euppollnet/Data/3_Final_data/Interaction_data.csv.gz
+          test -s work/euppollnet/Data/3_Final_data/Metadata.csv
+          test "$(git hash-object work/euppollnet/Data/3_Final_data/Interaction_data.csv.gz)" = "6e639d4af81feee76eefa6804622f8b901c39feb"
+          test "$(git hash-object work/euppollnet/Data/3_Final_data/Metadata.csv)" = "f9708e2f2b142ab2437a8be9d16e33aaefdef0ed"
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_euppollnet_island_overlap.py work/fd/tests/test_euppollnet_guild_loss_simulation.py
+          python -m compileall -q scripts/run_fd_euppollnet_v130_overlap.py work/fd/src/fd/euppollnet_island_overlap.py work/fd/src/fd/euppollnet_guild_loss_simulation.py
+          echo "Pinned EuPPollNet v1.3.0 corrected evidence source checked"
+      - name: Recover original private Direct floral flora and frozen island geography
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          ARTIFACT_ID=10058653212
+          SOURCE_RUN="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.workflow_run.id')"
+          SOURCE_NAME="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.name')"
+          test -n "$SOURCE_RUN" && test -n "$SOURCE_NAME"
+          gh run download "$SOURCE_RUN" --repo zuizui0223/island --name "$SOURCE_NAME" --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          if [ -z "$LEDGER" ]; then
+            NESTED="$(find "$STAGE/original" -name '*.zip' -type f -print -quit)"
+            if [ -n "$NESTED" ]; then
+              mkdir -p "$STAGE/unpacked"
+              unzip -q "$NESTED" -d "$STAGE/unpacked"
+              LEDGER="$(find "$STAGE/unpacked" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+            fi
+          fi
+          test -n "$LEDGER" && test -s "$LEDGER"
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Recover original WKB-verified GSHHG polygon geometry
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geometry"
+          gh run download 43162949729 --repo zuizui0223/island \
+            --name fd-globi-revalidated-exact-gshhg-43162949729 \
+            --dir "$STAGE/geometry"
+          GPKG="$(find "$STAGE/geometry" -name 'original_gshhg_v237_h_candidate21_exact_shared_ids.gpkg' -type f -print -quit)"
+          RECEIPT="$(find "$STAGE/geometry" -name 'original_gshhg_geometry_receipt.json' -type f -print -quit)"
+          test -n "$GPKG" && test -s "$GPKG"
+          test -n "$RECEIPT" && test -s "$RECEIPT"
+          echo "GPKG=$GPKG" >> "$GITHUB_ENV"
+          echo "GEOMETRY_RECEIPT=$RECEIPT" >> "$GITHUB_ENV"
+      - name: Match original European flower-visitor networks to historic FD island flora
+        run: |
+          set -euo pipefail
+          python scripts/run_fd_euppollnet_v130_overlap.py \
+            --euppollnet-interactions work/euppollnet/Data/3_Final_data/Interaction_data.csv.gz \
+            --euppollnet-metadata work/euppollnet/Data/3_Final_data/Metadata.csv \
+            --original-progressive-root "$ORIGINAL_ROOT" \
+            --original-gshhg-gpkg "$GPKG" \
+            --original-gshhg-receipt "$GEOMETRY_RECEIPT" \
+            --output "$STAGE/anonymous_original_euppollnet_fd_island_overlap.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_euppollnet_fd_island_overlap.json"
+          result=json.loads(p.read_text())
+          assert result["original_input_interaction_rows"]>=600000
+          assert result["original_source_interaction_csv_SHA256"]
+          assert result["source_git_ref"]=="v1.3.0"
+          assert result["source_island_pollinator_shift_or_loss_identified"] is False
+          stress=result["hypothetical_within_network_visitor_guild_removal"]
+          assert stress["observed_pollinator_loss_shift_or_effective_pollen_delivery"] is False
+          assert stress["raw_taxon_network_site_or_source_ids_exported"] is False
+          assert all("n_networks_with_equal_removed_visitor_species_null" in row
+                     for row in stress["scenario_aggregates"])
+          assert all("island_equal_mean_fraction_plant_links_lost" in row
+                     for row in stress["scenario_aggregates"])
+          assert result["original_taxon_network_island_or_coordinates_released"] is False
+          assert result["n_original_928_flora_ids_without_verified_geometry"]==1
+          forbidden=['"island_id"','"Study_id"','"Network_id"',
+                     '"Plant_accepted_name"','"Pollinator_accepted_name"',
+                     '"Latitude"','"Longitude"','"accepted_species"']
+          assert all(s not in p.read_text() for s in forbidden)
+          print("Only anonymous original island source/network eligibility receipt accepted")
+          PY
+      - name: Save only source-backed aggregate, no raw original datasets
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-euppollnet-v130-island-aggregate-${{ github.run_id }}
+          path: /tmp/fd-euppollnet-v130/anonymous_original_euppollnet_fd_island_overlap.json
+          if-no-files-found: error
+          retention-days: 90

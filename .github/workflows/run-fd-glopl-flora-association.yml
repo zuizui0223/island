@@ -1,0 +1,125 @@
+name: fd GloPL experiment versus island floral FD observational association
+
+on:
+  push:
+    branches:
+      - analysis/fd-functional-guild-impact-20261113
+    paths:
+      - 'scripts/run_fd_glopl_flora_association.py'
+      - '.github/workflows/run-fd-glopl-flora-association.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-experiment-geography:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      STAGE: /tmp/fd-glopl-functional
+      GH_TOKEN: ${{ github.token }}
+      PYTHONPATH: 'src:work/fd/src'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install source tools
+        run: python -m pip install pandas numpy pyyaml typer pytest 'geopandas>=1.0' 'shapely>=2' 'pyogrio>=0.9'
+      - name: Restore unmerged fd source only
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/pollinator-loss-functional-assembly-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Fetch SHA-pinned independent experimental GloPL source
+        uses: actions/checkout@v4
+        with:
+          repository: idiv-biodiversity/pollen-limitation-data-descriptor
+          ref: abbe193770981b2c61713e75a0f01e004bdded8e
+          path: work/glopl
+          persist-credentials: false
+      - name: Verify original GloPL source and pre-outcome geometry-only validation
+        run: |
+          set -euo pipefail
+          echo '264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de  work/glopl/Output/GloPL.csv' | sha256sum --check --strict
+          test "$(git hash-object work/glopl/Output/GloPL.csv)" = "ef3fbc9ac144da55a5f5ff936bbab734711d53d0"
+          python -m pytest -q tests/test_chapter1_h5_glopl_island_overlap_preflight.py
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_glopl_floral_fd_association.py
+          python -m compileall -q scripts/run_fd_glopl_flora_association.py work/fd/src/fd/glopl_floral_fd_association.py
+      - name: Restore original licensed Direct flora and source geography
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          ARTIFACT_ID=10058653212
+          SOURCE_RUN="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.workflow_run.id')"
+          SOURCE_NAME="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.name')"
+          test -n "$SOURCE_RUN" && test -n "$SOURCE_NAME"
+          gh run download "$SOURCE_RUN" --repo zuizui0223/island --name "$SOURCE_NAME" --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          if [ -z "$LEDGER" ]; then
+            NESTED="$(find "$STAGE/original" -name '*.zip' -type f -print -quit)"
+            if [ -n "$NESTED" ]; then
+              mkdir -p "$STAGE/unpacked"
+              unzip -q "$NESTED" -d "$STAGE/unpacked"
+              LEDGER="$(find "$STAGE/unpacked" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+            fi
+          fi
+          test -n "$LEDGER" && test -s "$LEDGER"
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Retrieve independently reconstructed original GSHHG polygon hashes
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geometry"
+          gh run download 43162949729 --repo zuizui0223/island \
+            --name fd-globi-revalidated-exact-gshhg-43162949729 \
+            --dir "$STAGE/geometry"
+          GPKG="$(find "$STAGE/geometry" -name 'original_gshhg_v237_h_candidate21_exact_shared_ids.gpkg' -type f -print -quit)"
+          RECEIPT="$(find "$STAGE/geometry" -name 'original_gshhg_geometry_receipt.json' -type f -print -quit)"
+          test -n "$GPKG" && test -s "$GPKG"
+          test -n "$RECEIPT" && test -s "$RECEIPT"
+          echo "GPKG=$GPKG" >> "$GITHUB_ENV"
+          echo "GEOMETRY_RECEIPT=$RECEIPT" >> "$GITHUB_ENV"
+      - name: Source-first island flora Q with outcome-blind gate, then experimental GloPL association
+        run: |
+          set -euo pipefail
+          python scripts/run_fd_glopl_flora_association.py \
+            --glopl work/glopl/Output/GloPL.csv \
+            --glopl-config config/chapter1_h5_glopl_island_overlap_preflight_v1.yml \
+            --progressive-root "$ORIGINAL_ROOT" \
+            --original-gshhg-gpkg "$GPKG" \
+            --original-gshhg-receipt "$GEOMETRY_RECEIPT" \
+            --output "$STAGE/anonymous_original_glopl_island_fd_association.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_glopl_island_fd_association.json"
+          d=json.loads(p.read_text())
+          assert d["direct_source_taxon_flora_population"]==928
+          assert d["original_hand_pollen_measurements_on_same_flower_species_count"]==0
+          assert d["genuine_pollinator_decline_or_shift_measured"] is False
+          assert d["exact_study_island_species_geography_not_exported"] is True
+          assert d["n_rarefaction_draws"]==30
+          if d["pre_effect_outcome_blind_gate_passed"]:
+              assert d["effect_sizes_read"] is True
+              assert d["all_measurement_types"]["ecological_mediation_or_adaptation_identified"] is False
+              assert d["all_measurement_types"]["original_source_taxa_sites_island_ids_exported"] is False
+          else:
+              assert d["effect_sizes_read"] is False
+          assert all('"'+x+'"' not in p.read_text() for x in (
+             'island_id','study_key','accepted_species','entity_ID',
+             'Species_accepted_names','Longitude','Latitude'))
+          print("Rights-safe GloPL conditional island FD association, not ecological loss/shift, validated")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fd-glopl-original-island-fd-association-${{ github.run_id }}
+          path: /tmp/fd-glopl-functional/anonymous_original_glopl_island_fd_association.json
+          if-no-files-found: error
+          retention-days: 90
