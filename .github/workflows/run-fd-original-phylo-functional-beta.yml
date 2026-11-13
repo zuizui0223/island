@@ -122,6 +122,12 @@ jobs:
           assert d["original_design"]["same_15_true_dated_plant_tips_on_island_and_GIFT_source"]
           assert d["original_design"]["family_genus_source_area_isolation_adjusted_regressions"]
           assert d["no_original_true_phylogeny_backbone_or_taxon_record_redistributed"]
+          audit=d["family_preserving_whole_flower_trait_permutation_audit"]
+          assert audit["n_whole_three_trait_profile_within_family_shuffles"]==99
+          assert audit["preserve_exact_original_within_family_phenotype_counts"]
+          assert audit["keep_island_and_GIFT_membership_and_phylogenetic_tree_fixed"]
+          assert len(d["original_family_preserving_flower_trait_null_by_region"])>=4
+          assert d["original_design"]["family_preserving_original_whole_triple_profile_permutation_is_posthoc"]
           assert d["original_source_tip_genus_family_island_or_coordinate_ids_not_exported"]
           assert d["no_actual_pollinator_guild_decline_or_evolutionary_trait_change_measured"]
           assert len(d["region_support_and_categorical_beta_relationships"])>=4
