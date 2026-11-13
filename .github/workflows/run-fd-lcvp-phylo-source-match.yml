@@ -136,7 +136,7 @@ jobs:
           assert near["design"]["all_graft_and_taxonomy_inserted_species_excluded"]
           assert near["design"]["source_selection_does_not_examine_flower_trait_phenotypes"]
           assert near["no_original_plant_family_genus_island_source_or_tree_ids_exported"]
-          assert not near["not_phylogeny_or_evolution_causal_island_phenotype_change"]
+          assert near["not_phylogeny_or_evolution_causal_island_phenotype_change"] is True
           assert len(near["region_phylogenetic_close_family_source_evidence"])>=8
           assert len(r['region_phylogenetic_tip_matching_support'])>=8
           raw=p.read_text()
