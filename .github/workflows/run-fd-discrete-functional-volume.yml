@@ -72,7 +72,7 @@ jobs:
           set -euo pipefail
           PYTHONPATH="src:work/fd/src" python scripts/run_fd_discrete_functional_volume.py \
             --progressive-root "$ORIGINAL_ROOT" \
-            --repeats 25 --null-shuffles 19 --random-profiles 199 \
+            --repeats 60 --null-shuffles 19 --random-profiles 399 --seed 20261114 \
             --output "$STAGE/anonymous_categorical_floral_volume.json"
           python - <<'PY'
           import json,os
@@ -83,6 +83,9 @@ jobs:
           assert d["n_original_reference_direct_plant_species"]==2234
           assert d["n_all_recorded_islands_scored"]==928
           assert d["measurement"]["fixed_species_per_island_or_source"]==30
+          assert d["measurement"]["species_rarefaction_repeats"]==60
+          assert d["measurement"]["richness_conditional_geometry_null_unique_profiles"]==399
+          assert any("source_equal_mean_source_excluding_same_island_species_delta_metric_volume_r1_weighted" in r for r in d["floral_metric_volume_by_geographic_regime"])
           assert d["measurement"]["radius0_is_only_unique_observed_profile_richness_over_K"]
           assert d["measurement"]["null_preserves_observed_colour_margins_and_form_symmetry_pairs"]
           assert d["measurement"]["richness_conditional_geometry_null_preserves_taxonomic_identity"] is False
