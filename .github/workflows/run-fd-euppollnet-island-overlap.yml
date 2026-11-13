@@ -112,6 +112,10 @@ jobs:
           stress=result["hypothetical_within_network_visitor_guild_removal"]
           assert stress["observed_pollinator_loss_shift_or_effective_pollen_delivery"] is False
           assert stress["raw_taxon_network_site_or_source_ids_exported"] is False
+          assert all("n_networks_with_equal_removed_visitor_species_null" in row
+                     for row in stress["scenario_aggregates"])
+          assert all("island_equal_mean_fraction_plant_links_lost" in row
+                     for row in stress["scenario_aggregates"])
           assert result["original_taxon_network_island_or_coordinates_released"] is False
           assert result["n_original_928_flora_ids_without_verified_geometry"]==1
           forbidden=['"island_id"','"Study_id"','"Network_id"',
