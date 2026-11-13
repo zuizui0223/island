@@ -111,6 +111,8 @@ jobs:
           assert r['design']['strict_exact_original_tree_tip_only']
           assert r['design']['optimal_unique_nearest_phylogeny_source_species_per_tip']
           assert r['design']['source_species_exact_island_names_removed']
+          assert r['design']['primary_exact_tree_tip_plants_per_side']==15
+          assert r['design']['sensitivity_exact_tree_tip_plants_per_side']==10
           assert r['external_plant_phylogeny_GPL2_source_not_redistributed']
           assert r['original_tree_tip_island_taxon_or_source_name_exported'] is False
           assert r['demonstrated_phylogeny_caused_flower_loss_or_pollinator_shift'] is False
