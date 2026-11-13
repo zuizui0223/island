@@ -18,7 +18,13 @@ from fd.true_backbone_phylo_source_match import original_true_phylogeny_match
 
 from run_fd_gbotb_direct_phylogeny_preflight import direct_triplets
 
-PINNED_LCVP_SHA="30fd7e9e67bdfff427b336d3b35983f63e284ef118e91f76a7f51a884c9b4e5b"
+PINNED_TREE_SHA={
+    "TPL":"9ac19e04d6016c9e7ee8758524996f40a089271b2fd34371a5dbd607b5dbf2a3",
+    "LCVP":"30fd7e9e67bdfff427b336d3b35983f63e284ef118e91f76a7f51a884c9b4e5b",
+    "WP":"7fc97970fcd9e69f6506b0c860b1296f4a797635193a8ce4bcb052a83fd1f965"
+}
+EXPECTED_TRUE_TIPS={"TPL":1187,"LCVP":1162,"WP":1160}
+EXPECTED_FULL_TIPS={"TPL":74529,"LCVP":73420,"WP":72570}
 PINNED_COLXR_SHA="079d9c27b0ca3aa51f0c7310f43ad4901b07a319d6063eab5a7d62b291bdd9e3"
 
 
@@ -44,14 +50,17 @@ def main():
     a.add_argument("--backbone",type=Path,required=True)
     a.add_argument("--workdir",type=Path,required=True)
     a.add_argument("--output",type=Path,required=True)
+    a.add_argument("--tree-version",choices=("TPL","LCVP","WP"),default="LCVP")
     a.add_argument("--rarefactions",type=int,default=20)
     a.add_argument("--reference-null",type=int,default=199)
     a.add_argument("--bootstrap",type=int,default=999)
     args=a.parse_args()
     if sha256(args.crosswalk)!=PINNED_COLXR_SHA:
         raise ValueError("Frozen original CoL XR source taxonomy changed")
-    if sha256(args.backbone/"data/GBOTB.extended.LCVP.rda")!=PINNED_LCVP_SHA:
-        raise ValueError("True dated original LCVP source tree altered")
+    version=args.tree_version
+    tree_sha=PINNED_TREE_SHA[version]
+    if sha256(args.backbone/f"data/GBOTB.extended.{version}.rda")!=tree_sha:
+        raise ValueError("True dated original source tree hash altered")
     root=args.original_root
     ledger=pd.read_csv(root/"fixed/source/current/evidence/direct_only_trait_ledger.csv.gz",
         usecols=["accepted_species","trait_name","normalized_value",
@@ -80,15 +89,15 @@ def main():
        str(args.backbone/"data"),str(info),str(placements)],
        check=True,timeout=120)
     p=pd.read_csv(placements,sep="\t",dtype=str)
-    true=set(p.loc[p.tree_version.eq("LCVP")&
+    true=set(p.loc[p.tree_version.eq(version)&
             p.supported_species_placement.eq("exact_backbone_tip"),
             "accepted_species"])
-    if len(true)!=1162:
-        raise ValueError("Original source 1162 phylo taxon match count altered")
-    edge_file=private/"dated_lcvp_original_edges.tsv"
-    tip_file=private/"source_tip_accepted_species_node.tsv"
+    if len(true)!=EXPECTED_TRUE_TIPS[version]:
+        raise ValueError("Original published true phylogenetic tip count changed")
+    edge_file=private/f"dated_{version}_original_edges.tsv"
+    tip_file=private/f"{version}_source_tip_accepted_species_node.tsv"
     subprocess.run(["Rscript","scripts/fd_gbotb_export_private_edges.R",
-       str(args.backbone/"data"),str(info),"LCVP",
+       str(args.backbone/"data"),str(info),version,
        str(edge_file),str(tip_file)],
        check=True,timeout=120)
     edges=pd.read_csv(edge_file,sep="\t")
@@ -97,7 +106,7 @@ def main():
                              "original_branch_length"}:
         raise ValueError("Published phylogeny graph source schema invalid")
     tips=tips.loc[tips.accepted_species.isin(true)].copy()
-    if len(tips)!=1162 or tips.accepted_species.duplicated().any():
+    if len(tips)!=EXPECTED_TRUE_TIPS[version] or tips.accepted_species.duplicated().any():
         raise ValueError("One original accepted taxon is not EXACT observed tree tip")
     ordered=tips.sort_values("accepted_species")
     tree_tip_nodes=ordered.tip_node_id.to_numpy(dtype=np.int32)
@@ -106,7 +115,7 @@ def main():
     D=true_tip_patristic_distance(
        edges[["parent_node_id","child_node_id"]].to_numpy(dtype=np.int64),
        edges.original_branch_length.to_numpy(dtype=float),
-       tree_tip_nodes,n_original_tree_tips=73420)
+       tree_tip_nodes,n_original_tree_tips=EXPECTED_FULL_TIPS[version])
     if np.any(D<0) or not np.isfinite(D).all():
         raise ValueError("Original true phylogenetic distance matrix invalid")
     geo=pd.read_csv(root/"fixed/isolation/results/purpose_shortest_island_data.csv",
@@ -118,10 +127,11 @@ def main():
     result=original_true_phylogeny_match(
        direct,eligible,geo,donors,gift,
        name_to_tip,ordered.accepted_species.tolist(),D,
-       tree_version="LCVP",rarefactions=args.rarefactions,
+       tree_version=version,original_accepted_family=family,
+       rarefactions=args.rarefactions,
        reference_draws=args.reference_null,bootstrap=args.bootstrap)
     result["original_taxonomy_source_family_candidates"]=len(family)
-    result["original_GBOTB_LCVP_tree_SHA256"]=PINNED_LCVP_SHA
+    result["original_GBOTB_tree_SHA256"]=tree_sha
     result["original_accepted_species_exact_tip_names_agreed_to_CoL"]=len(true)
     result["original_phylogeny_tree_tips_with_distances"]=len(ordered)
     result["external_plant_phylogeny_GPL2_source_not_redistributed"]=True
@@ -138,6 +148,7 @@ def main():
        "status":result["status"],
        "n_original_true_tips":len(ordered),
        "n_original_eligible_flora":928,
+       "tree_version":version,
        "by_region":[{
            "region":x["regime"],"scope":x["scope"],
            "n_true_tree_tips":x["n_dated_true_tree_tips_per_side"],
