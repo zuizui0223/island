@@ -52,7 +52,7 @@ jobs:
           test "$(git hash-object work/euppollnet/Data/3_Final_data/Interaction_data.csv.gz)" = "6e639d4af81feee76eefa6804622f8b901c39feb"
           test "$(git hash-object work/euppollnet/Data/3_Final_data/Metadata.csv)" = "f9708e2f2b142ab2437a8be9d16e33aaefdef0ed"
           PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_euppollnet_island_overlap.py work/fd/tests/test_euppollnet_guild_loss_simulation.py
-          python -m compileall -q scripts/run_fd_euppollnet_v130_overlap.py work/fd/src/fd/euppollnet_island_overlap.py
+          python -m compileall -q scripts/run_fd_euppollnet_v130_overlap.py work/fd/src/fd/euppollnet_island_overlap.py work/fd/src/fd/euppollnet_guild_loss_simulation.py
           echo "Pinned EuPPollNet v1.3.0 corrected evidence source checked"
       - name: Recover original private Direct floral flora and frozen island geography
         run: |
