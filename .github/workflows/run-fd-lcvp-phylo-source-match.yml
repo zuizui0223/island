@@ -138,6 +138,10 @@ jobs:
           assert near["no_original_plant_family_genus_island_source_or_tree_ids_exported"]
           assert near["not_phylogeny_or_evolution_causal_island_phenotype_change"] is True
           assert len(near["region_phylogenetic_close_family_source_evidence"])>=8
+          assert near["design"]["same_island_cutoff_pairing_keeps_geography_but_not_identical_plant_species"]
+          assert any(r["regime"]=="tropical" and r["scope"]=="all_recorded"
+                      for r in near["paired_same_island_50_vs_100_tree_cutoff_sensitivity"])
+          assert r["source_same_island_close_pair_50_100_support_tested"]
           assert len(r['region_phylogenetic_tip_matching_support'])>=8
           raw=p.read_text()
           assert all('"'+k+'"' not in raw for k in (
