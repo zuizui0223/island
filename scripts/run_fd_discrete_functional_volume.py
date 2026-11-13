@@ -59,8 +59,10 @@ def main():
     if original_gate["n_original_eligible_islands"]!=928:
         raise ValueError("Locked original 928-island Direct macro-flora check failed")
     triple=_source_direct_triples(direct)
-    if len(triple)!=original_gate["n_original_complete_plant_species"]:
-        raise ValueError("Original Direct ledger schema or filtering changed")
+    if not len(triple)>=original_gate["n_original_complete_plant_species"]:
+        raise ValueError("Original Direct species reference smaller than eligible-island cohort")
+    if len(triple)!=2234:
+        raise ValueError("Global triple-complete source population must be original 2,234 species")
     geo=pd.read_csv(root/"fixed/isolation/results/purpose_shortest_island_data.csv",
         usecols=["island_id","analysis_regime","spatial_block"])
     source=pd.read_csv(root/"fixed/source/result/island_source_assignments.csv.gz",
