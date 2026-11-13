@@ -35,7 +35,7 @@ jobs:
       - name: Run exact fixed-margin diversity tests on synthetic data only
         run: |
           set -euo pipefail
-          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_pollinator_functional_diversity.py
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_pollinator_functional_diversity.py work/fd/tests/test_reproductive_assurance_functional_diversity.py
           PYTHONPATH=work/fd/src python -m compileall -q work/fd/src/fd/pollinator_functional_diversity.py work/fd/scripts/run_pollinator_functional_diversity.py
           git -C work/fd rev-parse HEAD
       - name: Recover rights-restricted original progressive source from locked artifact
@@ -102,10 +102,35 @@ jobs:
           assert not any(k in p.read_text() for k in ('accepted_species','island_id','work_species','entity_ID','reference_id'))
           print("Rights-safe source-qualified functional-diversity aggregate and null gate verified")
           PY
+      - name: Evaluate Direct reproductive-assurance and paired floral joint FD
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python work/fd/scripts/run_reproductive_assurance_functional_diversity.py \
+            --progressive-root "$ORIGINAL_ROOT" \
+            --qualified-channel-csv "$CHANNEL_CSV" \
+            --output "$STAGE/reproductive_assurance_functional_aggregate.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"reproductive_assurance_functional_aggregate.json"
+          d=json.loads(p.read_text())
+          assert d["n_original_direct_triple_flora_islands"]==928
+          assert d["n_original_focal_Bombus_nondetection_bird_detection_candidates"]==21
+          assert d["carrier_specific_support_min"]==20
+          assert d["same_carrier_morphology_and_assurance_scoring"]
+          assert d["unknown_reproductive_trait_is_not_state_zero"]
+          assert d["no_actual_pollinator_loss_or_shift_measured"]
+          assert d["no_species_island_or_source_level_data_exported"]
+          assert len(d["reproductive_assurance_functional_assemblage_by_region"])>0
+          assert not any(k in p.read_text() for k in ('accepted_species','island_id','work_species','entity_ID','reference_id'))
+          print("Rights-safe Direct reproductive-assurance functional traits verified")
+          PY
       - name: Upload only anonymous original-source aggregate, never licensed rows
         uses: actions/upload-artifact@v4
         with:
           name: fd-functional-pollinator-guild-aggregate-${{ github.run_id }}
-          path: /tmp/fd-original-functional/floral_functional_guild_impact_aggregate.json
+          path: |
+            /tmp/fd-original-functional/floral_functional_guild_impact_aggregate.json
+            /tmp/fd-original-functional/reproductive_assurance_functional_aggregate.json
           if-no-files-found: error
           retention-days: 90
