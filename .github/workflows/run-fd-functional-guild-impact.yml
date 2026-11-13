@@ -1,4 +1,4 @@
-name: fd original-source pollinator-channel opportunity and floral FD
+name: fd source-conditioned floral FD and guild opportunity
 on:
   push:
     branches:
@@ -85,7 +85,7 @@ jobs:
           PYTHONPATH=work/fd/src python work/fd/scripts/run_pollinator_functional_diversity.py \
             --progressive-root "$ORIGINAL_ROOT" \
             --qualified-channel-csv "$CHANNEL_CSV" \
-            --rarefactions 8 \
+            --rarefactions 30 \
             --output "$STAGE/floral_functional_guild_impact_aggregate.json"
           python - <<'PY'
           import json,os
