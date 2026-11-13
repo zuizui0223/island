@@ -29,6 +29,13 @@ jobs:
           r-version: release
       - name: Install source numerical dependencies
         run: python -m pip install pandas numpy pytest
+      - name: Checkout fd independent exact family and flower dataset audit code
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
       - name: Checkout exact frozen 2026 published mega-tree source
         uses: actions/checkout@v4
         with:
@@ -80,7 +87,7 @@ jobs:
       - name: Evaluate original true dated tip versus genus/family insertion availability and geographic bias
         run: |
           set -euo pipefail
-          PYTHONPATH=src python scripts/run_fd_gbotb_direct_phylogeny_preflight.py \
+          PYTHONPATH="src:work/fd/src" python scripts/run_fd_gbotb_direct_phylogeny_preflight.py \
             --original-root "$ORIGINAL_ROOT" \
             --colxr-crosswalk "$COLXR" \
             --backbone-checkout work/V.PhyloMaker2 \
