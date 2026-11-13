@@ -15,6 +15,7 @@ from island_v2.fd_globi_macro_928_locality_v09 import strict_direct_928_flora
 from fd.colxr_family_opportunity import strict_candidate_family_map
 from fd.true_backbone_phylo_distance import true_tip_patristic_distance
 from fd.true_backbone_phylo_source_match import original_true_phylogeny_match
+from fd.true_tree_close_family_source import run_close_phylo_family_source
 
 from run_fd_gbotb_direct_phylogeny_preflight import direct_triplets
 
@@ -130,11 +131,21 @@ def main():
        tree_version=version,original_accepted_family=family,
        rarefactions=args.rarefactions,
        reference_draws=args.reference_null,bootstrap=args.bootstrap)
+    # Source-only independently bounded *within-family* true-tree tip pairs.
+    # These 50/100 dated-tree-unit thresholds are posthoc diagnostics, not
+    # evidence of ecological adaptive transformation or sister species.
+    bounded=run_close_phylo_family_source(
+        direct,eligible,geo,donors,gift,
+        ordered.accepted_species.tolist(),D,family,
+        tree_version=version,reference_draws=args.reference_null,
+        repeat=args.rarefactions,bootstrap=args.bootstrap)
+    result["strict_within_family_close_true_tree_source_sensitivity"]=bounded
     result["original_taxonomy_source_family_candidates"]=len(family)
     result["original_GBOTB_tree_SHA256"]=tree_sha
     result["original_accepted_species_exact_tip_names_agreed_to_CoL"]=len(true)
     result["original_phylogeny_tree_tips_with_distances"]=len(ordered)
     result["external_plant_phylogeny_GPL2_source_not_redistributed"]=True
+    result["no_close_pair_effect_where_source_is_not_qualified"]=True
     result=cleanup(result)
     txt=json.dumps(result,indent=2,sort_keys=True,allow_nan=False)
     if any('"'+word+'"' in txt for word in (
@@ -148,6 +159,14 @@ def main():
        "status":result["status"],
        "n_original_true_tips":len(ordered),
        "n_original_eligible_flora":928,
+       "n_close_pair_region_panels":len(bounded["region_phylogenetic_close_family_source_evidence"]),
+       "close_pair_tropical":[{
+          "scope":t["scope"],"criterion":t["criterion"],
+          "n_islands":t["n_islands_with_5_real_tree_tip_close_pairs"],
+          "n_blocks":t["n_physical_blocks"],
+          "supported":t["reportable_under_20_islands_10_blocks_10_sources"],
+       } for t in bounded["region_phylogenetic_close_family_source_evidence"]
+          if t["regime"]=="tropical"],
        "tree_version":version,
        "by_region":[{
            "region":x["regime"],"scope":x["scope"],
