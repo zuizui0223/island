@@ -111,7 +111,7 @@ jobs:
           python - <<'PY'
           import json,os
           from pathlib import Path
-          p=Path(os.environ['STAGE'])/'anonymous_true_tree_phylogenetic_floral_${TREE_VERSION}_928.json'
+          p=Path(os.environ['STAGE'])/f"anonymous_true_tree_phylogenetic_floral_{os.environ['TREE_VERSION']}_928.json"
           r=json.loads(p.read_text())
           assert r['tree_version']==os.environ["TREE_VERSION"]
           assert r['n_original_eligible_full_island_flora']==928
@@ -138,6 +138,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fd-original-real-phylo-source-${{ matrix.tree_version }}-928-${{ github.run_id }}
-          path: /tmp/fd-phylo-matched-lcvp/anonymous_true_tree_phylogenetic_floral_${TREE_VERSION}_928.json
+          path: /tmp/fd-phylo-matched-lcvp/anonymous_true_tree_phylogenetic_floral_${{ matrix.tree_version }}_928.json
           if-no-files-found: error
           retention-days: 90
