@@ -1,0 +1,68 @@
+name: fd pinned GBOTB phylogeny source structure audit
+on:
+  push:
+    branches:
+      - analysis/fd-discrete-functional-volume-20261113
+    paths:
+      - '.github/workflows/audit-fd-gbotb-tree-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gbotb-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+      - uses: actions/checkout@v4
+        with:
+          repository: jinyizju/V.PhyloMaker2
+          ref: 7af3fb5152f691af2e4ec9d5e2e467d1b50505e9
+          path: external/V.PhyloMaker2
+          persist-credentials: false
+      - name: Inspect immutable backbone tip, family and dated edge structure without private floral taxa
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/fd-gbotb
+          Rscript - <<'RS'
+          root='external/V.PhyloMaker2/data'
+          report=list(source_repository='jinyizju/V.PhyloMaker2',
+            source_commit='7af3fb5152f691af2e4ec9d5e2e467d1b50505e9',
+            version='0.1.0',source_licence='GPL-2')
+          for (flavor in c('TPL','LCVP','WP')) {
+            env=new.env(parent=baseenv())
+            tree=load(file.path(root,paste0('GBOTB.extended.',flavor,'.rda')),envir=env)
+            x=env[[tree[1]]]
+            tips=load(file.path(root,paste0('tips.info.',flavor,'.rda')),envir=env)
+            y=env[[tips[1]]]
+            cat('BACKBONE',flavor,'tree-object',tree,'tree-class',paste(class(x),collapse=','),
+              'n_tips',length(x$tip.label),
+              'n_nodes',x$Nnode,
+              'n_edges',nrow(x$edge),
+              'has_edge_lengths',!is.null(x$edge.length),
+              'n_positive_edges',sum(x$edge.length>0,na.rm=TRUE),
+              'n_missing_edges',sum(!is.finite(x$edge.length)),
+              '\n')
+            cat('TIPS',flavor,'n_rows',nrow(y),'n_cols',ncol(y),'columns',
+              paste(names(y),collapse='|'),'\n')
+            report[[flavor]]=list(n_original_backbone_tips=length(x$tip.label),
+              n_nodes=x$Nnode,n_edges=nrow(x$edge),
+              backbone_tips_info_n_rows=nrow(y),
+              backbone_tips_info_columns=names(y),
+              has_branch_lengths=!is.null(x$edge.length),
+              n_missing_branch_lengths=sum(!is.finite(x$edge.length)),
+              n_nonpositive_branch_lengths=sum(x$edge.length<=0,na.rm=TRUE),
+              branch_lengths_are_dated_backbone_hypothesis_not_experimental_measurement=TRUE)
+          }
+          saveRDS(report,'/tmp/fd-gbotb/pinned_reference_receipt.rds')
+          RS
+          for file in external/V.PhyloMaker2/data/GBOTB.extended.*.rda; do sha256sum "$file"; done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fd-gbotb-pinned-reference-${{ github.run_id }}
+          path: /tmp/fd-gbotb/pinned_reference_receipt.rds
+          if-no-files-found: error
+          retention-days: 90
