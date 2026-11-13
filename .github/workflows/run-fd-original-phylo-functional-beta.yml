@@ -125,6 +125,9 @@ jobs:
           assert d["original_source_tip_genus_family_island_or_coordinate_ids_not_exported"]
           assert d["no_actual_pollinator_guild_decline_or_evolutionary_trait_change_measured"]
           assert len(d["region_support_and_categorical_beta_relationships"])>=4
+          assert all(0 <= row["median_original_phylo_beta"] <= 1 and
+                     0 <= row["median_original_functional_beta"] <= 1
+                     for row in d["region_support_and_categorical_beta_relationships"])
           assert not any('"'+k+'"' in path.read_text() for k in (
              "accepted_species","island_id","source_genus","source_family",
              "candidate_family","entity_ID","source_signature","spatial_block",
