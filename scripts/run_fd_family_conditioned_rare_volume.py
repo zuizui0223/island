@@ -99,6 +99,8 @@ def main():
     assert result["n_original_eligible_island_flora"]==928
     assert result["inference"]["family_labels_are_unreviewed_exact_accepted_COL_XR_candidates"]
     assert result["inference"]["different_genus_condition_restricts_to_different_genus_in_same_family"]
+    assert result["inference"]["paired_family_id_vs_count_sensitivity_is_posthoc"]
+    assert result["posthoc_paired_exact_family_identity_vs_family_count_panels"]
     assert result["no_original_species_family_source_island_or_coordinates_exported"]
     assert result["inference"]["not_causal_selection_or_phylogenetic_effect"]
     result=_json(result)
@@ -115,6 +117,7 @@ def main():
         "original_928_islands":result["n_original_eligible_island_flora"],
         "candidate_taxonomy_matched_species":len(family),
         "shapley_panels":len(result["family_shapley_rare_category_macro_panels"]),
+        "posthoc_paired_panels":len(result["posthoc_paired_exact_family_identity_vs_family_count_panels"]),
         "matched_panels":[{
             "scope":r["scope"],"regime":r["regime"],
             "same_family_count":r["n_exact_shared_families_per_side"],
