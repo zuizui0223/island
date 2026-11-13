@@ -1,0 +1,121 @@
+{
+  "schema_version": "floral_profile_joint_genus_permutation_v1",
+  "status": "complete",
+  "design_status": "exploratory conditional assemblage comparison",
+  "fixed_comparison_family_size": 16,
+  "evidence_scopes": [
+    "all",
+    "direct",
+    "all_single_state",
+    "direct_single_state"
+  ],
+  "analysis_regimes": [
+    "northern_midlatitude",
+    "northern_high_latitude",
+    "tropical",
+    "southern_extratropical"
+  ],
+  "permutations_requested_per_comparison": 999,
+  "minimum_complete_name_units_per_island": 50,
+  "seed": 20261106,
+  "rng": "NumPy default_rng(SeedSequence([seed, scope_index, region_index]))",
+  "statistic": "median across eligible islands of n_profiles / fixed analytic expected_profiles_genus_pool",
+  "conditioning": [
+    "observed island-by-taxon membership and hence island sample sizes and genus composition",
+    "within-genus profile multisets in the union of all complete taxa recorded in each regime",
+    "one permuted profile per taxon shared across all islands of the same regime",
+    "pool includes complete taxa found only on islands below the eligibility threshold"
+  ],
+  "regional_interpretation": "independent conditional reference distributions; not a reassignment of global species traits",
+  "tail_definition": "p_lower=(1+sum(T_perm<=T_obs+tol))/(B+1); p_upper=(1+sum(T_perm>=T_obs-tol))/(B+1); two-sided=min(1,2*min(p_lower,p_upper))",
+  "tie_tolerance": "100 * machine_epsilon * max(1, abs(T_obs)); ties in both tails",
+  "null_range": "2.5 and 97.5 percentiles of permutation statistics, not a confidence interval",
+  "multiple_testing": "BH across fixed 16 comparisons; absent comparisons retain a family slot",
+  "claim_limits": [
+    "conditional descriptive assemblage association, not historical or causal selection",
+    "observational coverage and source-dependent profile assignments remain part of the input",
+    "overlapping evidence scopes are not independent replications",
+    "BH adjustment is exploratory; arbitrary-dependence FDR control is not asserted"
+  ],
+  "sources": {
+    "flora": {
+      "path": "work/floral_space_inputs/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz",
+      "sha256": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a",
+      "bytes": 9359912
+    },
+    "geography": {
+      "path": "results/geography_20260924/corrected_geography_covariates.csv",
+      "sha256": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7",
+      "bytes": 4677771
+    },
+    "all": {
+      "profiles": {
+        "path": "results/floral_space_20261106/all/species_profiles.csv.gz",
+        "sha256": "6bd9f551c0ddf3c776711c51f53378e8b2337848e10b15bdbb849fccaf837e35",
+        "bytes": 187348
+      },
+      "island_metrics": {
+        "path": "results/floral_space_20261106/all/island_metrics.csv",
+        "sha256": "da57fda27c980ba62238c393d5a0280c687869d5e1f9ff01174d820304cc0be3",
+        "bytes": 1430862
+      }
+    },
+    "direct": {
+      "profiles": {
+        "path": "results/floral_space_20261106/direct/species_profiles.csv.gz",
+        "sha256": "359da274fd80446a62529037252ac446996db1272a1b79aa2f8c0197be386890",
+        "bytes": 116639
+      },
+      "island_metrics": {
+        "path": "results/floral_space_20261106/direct/island_metrics.csv",
+        "sha256": "71694e26cbcfecfeaa54c9988e93aecccafaa48d4f0611039ad163f0af81b5bf",
+        "bytes": 1390915
+      }
+    },
+    "all_single_state": {
+      "profiles": {
+        "path": "results/floral_space_20261106/all_single_state/species_profiles.csv.gz",
+        "sha256": "0b04ca0d56ecb216c1c4cedcad796c52981361dd984765f4e36e7a4318967812",
+        "bytes": 83002
+      },
+      "island_metrics": {
+        "path": "results/floral_space_20261106/all_single_state/island_metrics.csv",
+        "sha256": "e76b8ce5389b87411f43523668a3934b2e63c471711e42d495eeaee9edf75e08",
+        "bytes": 1247258
+      }
+    },
+    "direct_single_state": {
+      "profiles": {
+        "path": "results/floral_space_20261106/direct_single_state/species_profiles.csv.gz",
+        "sha256": "afe9670c4f844c7f8ca94fe2b4c55e12b33581ee4de3d2e69bb8af3e4b39c52a",
+        "bytes": 62305
+      },
+      "island_metrics": {
+        "path": "results/floral_space_20261106/direct_single_state/island_metrics.csv",
+        "sha256": "de9e645b8a393e6ec15818a79162ef05bac89f9d357ec4004e54e1aaed2002f0",
+        "bytes": 1186672
+      }
+    }
+  },
+  "code": {
+    "path": "/workspace/scratch/625333e4fa64/island/src/island_v2/floral_space_null.py",
+    "sha256": "afed7e74c028a6f01f884a99f4a9d223476d9c87e4de9828640e9856151ecf2b",
+    "bytes": 18811
+  },
+  "outputs": {
+    "permutation_summary.csv": {
+      "path": "results/floral_space_20261106/permutation_summary.csv",
+      "sha256": "069f67566116c95bf3a5adad957e0328fb5a218bb636c626554c56b4eb9920ea",
+      "bytes": 4111
+    },
+    "permutation_null_draws.csv.gz": {
+      "path": "results/floral_space_20261106/permutation_null_draws.csv.gz",
+      "sha256": "3ce6effc62b88f561726169bf566328fd14adbdcb2e74a43171570675fd1c5dd",
+      "bytes": 152368
+    }
+  },
+  "method_references": [
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html",
+    "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.false_discovery_control.html"
+  ]
+}

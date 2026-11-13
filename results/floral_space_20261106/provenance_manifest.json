@@ -1,0 +1,377 @@
+{
+  "contract": "floral_space_exploration_v1",
+  "created_utc": "2026-11-06T08:58:03.439682+00:00",
+  "status": "complete",
+  "analysis_unit": "taxon_name_unit",
+  "population_species": 106295,
+  "parameters": {
+    "min_species": 50,
+    "rarefaction_size": 50,
+    "pair_count": 2000,
+    "seed": 20261106,
+    "expected_species": 106295,
+    "traits": [
+      "flower_primary_color",
+      "floral_form"
+    ],
+    "space_reference": "all",
+    "single_state_policy": "mask both core traits if either contains multiple states; retain population rows"
+  },
+  "sources": {
+    "raw_direct": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/trait_source/direct_species_trait_ledger.csv.gz",
+      "sha256": "7e86170218814abe2845da9a0282aecfdc930819b9d0c439bae8df4a0679c577",
+      "reference_sha256": "7e86170218814abe2845da9a0282aecfdc930819b9d0c439bae8df4a0679c577",
+      "matches_reference_sha256": true
+    },
+    "species_axis_coverage": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/trait_source/species_axis_coverage.csv.gz",
+      "sha256": "a6eef8d731b2730a99e388ddd0683d7ac9b2af30d43f1f9569c857f89f664b2a",
+      "reference_sha256": "a6eef8d731b2730a99e388ddd0683d7ac9b2af30d43f1f9569c857f89f664b2a",
+      "matches_reference_sha256": true
+    },
+    "snapshot_all": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/progressive/snapshot/chapter1_trait_ledger_all_analysis.csv.gz",
+      "sha256": "2d95136fc7df1dcce92aab738ce0364cdb1434746e1f7b794c529900192cbf4d",
+      "reference_sha256": "2d95136fc7df1dcce92aab738ce0364cdb1434746e1f7b794c529900192cbf4d",
+      "matches_reference_sha256": true
+    },
+    "snapshot_direct": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/progressive/snapshot/chapter1_trait_ledger_direct_only.csv.gz",
+      "sha256": "d7d6a0372ce7f3ebe958047a222ae0504f01564e364f93bab360273235c6661b",
+      "reference_sha256": "d7d6a0372ce7f3ebe958047a222ae0504f01564e364f93bab360273235c6661b",
+      "matches_reference_sha256": true
+    },
+    "flora": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz",
+      "sha256": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a",
+      "reference_sha256": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a",
+      "matches_reference_sha256": true
+    },
+    "geography": {
+      "path": "/workspace/scratch/625333e4fa64/island/results/geography_20260924/corrected_geography_covariates.csv",
+      "sha256": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7"
+    },
+    "ontology": {
+      "path": "/workspace/scratch/625333e4fa64/island/config/trait_ontology.yml",
+      "sha256": "ca2a7e7d3fe74ab41a50f31d00f17605e45df570d85b291c7895d3da2e9c228a"
+    }
+  },
+  "upstream_reference_artifacts": {
+    "trait_source": {
+      "repository": "zuizui0223/island",
+      "run_id": 34191508045,
+      "artifact_id": 10042377593,
+      "name": "source-scale-batch-integration-34191508045",
+      "run_url": "https://github.com/zuizui0223/island/actions/runs/34191508045",
+      "archive_sha256": "5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd",
+      "local_archive": {
+        "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/trait_source.zip",
+        "sha256": "5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd",
+        "matches_reference_sha256": true
+      }
+    },
+    "progressive": {
+      "repository": "zuizui0223/island",
+      "run_id": 34232450884,
+      "artifact_id": 10058653212,
+      "name": "chapter1-progressive-analysis-34232450884",
+      "run_url": "https://github.com/zuizui0223/island/actions/runs/34232450884",
+      "archive_sha256": "b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999",
+      "local_archive": {
+        "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/progressive.zip",
+        "sha256": "b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999",
+        "matches_reference_sha256": true
+      }
+    }
+  },
+  "prepared_profiles": {
+    "all": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/all_profiles.csv.gz",
+      "sha256": "9debbd534d87238f087081e68f4e3067779cc5609b3747859812dd730db41ab3"
+    },
+    "direct": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/direct_profiles.csv.gz",
+      "sha256": "bd5df75ca07e1cc26ef1f381db1b31ced45e7928cdbcf1591253b709dbf31b56"
+    },
+    "all_single_state": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/all_single_state_profiles.csv.gz",
+      "sha256": "2c8163e0d434ba0644e73168af51212bdef5ed0a44c06c2cddfcde7374962456"
+    },
+    "direct_single_state": {
+      "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/direct_single_state_profiles.csv.gz",
+      "sha256": "8851e0b54bb9b2992a7ff61a6635a4dc829744f3cd7866727d24c4027f3099a3"
+    }
+  },
+  "source_code": {
+    "runner": {
+      "path": "/workspace/scratch/625333e4fa64/island/scripts/run_floral_space_exploration.py",
+      "sha256": "8673ae38bd988c3771e4970102879999dcd0f3e974ee284b2e26638f5d8e8518"
+    },
+    "data_adapter": {
+      "path": "/workspace/scratch/625333e4fa64/island/src/island_v2/floral_space_data.py",
+      "sha256": "23485bb026d33034281e60661c5ed2e14ab38058914f95f28edd0d37664ddd02"
+    },
+    "analysis": {
+      "path": "/workspace/scratch/625333e4fa64/island/src/island_v2/floral_space.py",
+      "sha256": "47e1648af752fe14a559fac436b7bd8040656a652de5e4890f26d0ce26fa1d94"
+    },
+    "geometry": {
+      "path": "/workspace/scratch/625333e4fa64/island/src/island_v2/floral_space_geometry.py",
+      "sha256": "6c61ca421f3096c9341d040d07b83c67ea229ff2ef606a5682d16ba09db704e9"
+    }
+  },
+  "repository_head": "3bfa818ffbc7a0dea4319933c4b0a0eb41cfabb5",
+  "software": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "libraries": {
+      "numpy": "2.3.5",
+      "pandas": "2.2.3",
+      "scipy": "1.17.0",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "summaries": {
+    "all": {
+      "study_status": "exploratory_descriptive",
+      "traits": [
+        "flower_primary_color",
+        "floral_form"
+      ],
+      "upstream_population_name_units": 106295,
+      "n_excluded_uninomial_names": 170,
+      "n_excluded_unresolved_names": 1,
+      "n_profile_population_species": 106124,
+      "n_complete_species": 16739,
+      "n_complete_species_in_flora": 16725,
+      "n_profiles": 496,
+      "n_reference_profiles": 496,
+      "n_islands_with_complete_profiles": 3858,
+      "n_geographic_units": 8264,
+      "geography_excluded_flora_rows": 880,
+      "n_islands_min_species": 1532,
+      "min_species": 50,
+      "rarefaction_size": 50,
+      "pair_count": 2000,
+      "seed": 20261106,
+      "pcoa": {
+        "correction": "sqrt",
+        "distance": "equal_weight_mean_set_jaccard",
+        "negative_inertia_fraction": 0.23793544113601375,
+        "lingoes_constant": 0.0,
+        "positive_dimensions": 75,
+        "two_dimensional_raw_rmse": 0.5015403156649133,
+        "minimum_raw_rmse_dimension": 17,
+        "two_dimensional_inertia_fraction": 0.15353075806441305,
+        "dimensions_for_80_percent_inertia": 17,
+        "dimensions_for_95_percent_inertia": 34
+      },
+      "baseline": "finite sampling without replacement from the recorded species union within each broad latitudinal regime; genus counts fixed in genus baseline",
+      "limitations": [
+        "Opportunistic realized floras, not censuses or absence data",
+        "Recorded species state sets are not joint flower-level morph observations",
+        "Regional recorded pools are not historical colonist source pools",
+        "Profile overlap is descriptive; categories mechanically increase similarity",
+        "Pair comparisons share islands and are not independent replicates",
+        "All includes validated genus-level fill and uneven direct-evidence coverage",
+        "Accepted-species keys are taxon-name units including hybrid formulas; exact species rank was not re-resolved"
+      ],
+      "eligible_medians": {
+        "n_species": 144.0,
+        "n_profiles": 75.0,
+        "singleton_fraction": 0.6214168714168714,
+        "mean_redundancy": 1.9301948051948052,
+        "joint_coverage": 0.4298791389544447,
+        "rarefied_profiles": 35.40292119042121,
+        "profile_ratio_to_genus_pool": 0.9935448162250592,
+        "profile_ratio_to_regional_pool": 1.025192782472098
+      },
+      "pair_medians": {
+        "species_jaccard": 0.03502637713164029,
+        "profile_jaccard": 0.28447825762661294,
+        "profile_jaccard_without_shared_species": 0.21238938053097345
+      }
+    },
+    "direct": {
+      "study_status": "exploratory_descriptive",
+      "traits": [
+        "flower_primary_color",
+        "floral_form"
+      ],
+      "upstream_population_name_units": 106295,
+      "n_excluded_uninomial_names": 170,
+      "n_excluded_unresolved_names": 1,
+      "n_profile_population_species": 106124,
+      "n_complete_species": 8455,
+      "n_complete_species_in_flora": 8452,
+      "n_profiles": 467,
+      "n_reference_profiles": 496,
+      "n_islands_with_complete_profiles": 3779,
+      "n_geographic_units": 8264,
+      "geography_excluded_flora_rows": 880,
+      "n_islands_min_species": 1442,
+      "min_species": 50,
+      "rarefaction_size": 50,
+      "pair_count": 2000,
+      "seed": 20261106,
+      "pcoa": {
+        "correction": "sqrt",
+        "distance": "equal_weight_mean_set_jaccard",
+        "negative_inertia_fraction": 0.23793544113601375,
+        "lingoes_constant": 0.0,
+        "positive_dimensions": 75,
+        "two_dimensional_raw_rmse": 0.5015403156649133,
+        "minimum_raw_rmse_dimension": 17,
+        "two_dimensional_inertia_fraction": 0.15353075806441305,
+        "dimensions_for_80_percent_inertia": 17,
+        "dimensions_for_95_percent_inertia": 34
+      },
+      "baseline": "finite sampling without replacement from the recorded species union within each broad latitudinal regime; genus counts fixed in genus baseline",
+      "limitations": [
+        "Opportunistic realized floras, not censuses or absence data",
+        "Recorded species state sets are not joint flower-level morph observations",
+        "Regional recorded pools are not historical colonist source pools",
+        "Profile overlap is descriptive; categories mechanically increase similarity",
+        "Pair comparisons share islands and are not independent replicates",
+        "All includes validated genus-level fill and uneven direct-evidence coverage",
+        "Accepted-species keys are taxon-name units including hybrid formulas; exact species rank was not re-resolved"
+      ],
+      "eligible_medians": {
+        "n_species": 142.0,
+        "n_profiles": 75.0,
+        "singleton_fraction": 0.6222000995520159,
+        "mean_redundancy": 1.9158823529411766,
+        "joint_coverage": 0.43861336565826925,
+        "rarefied_profiles": 35.56087315673866,
+        "profile_ratio_to_genus_pool": 0.9869449567668774,
+        "profile_ratio_to_regional_pool": 0.9613376381438941
+      },
+      "pair_medians": {
+        "species_jaccard": 0.04603045511455446,
+        "profile_jaccard": 0.29810678451982797,
+        "profile_jaccard_without_shared_species": 0.21505376344086022
+      }
+    },
+    "all_single_state": {
+      "study_status": "exploratory_descriptive",
+      "traits": [
+        "flower_primary_color",
+        "floral_form"
+      ],
+      "upstream_population_name_units": 106295,
+      "n_excluded_uninomial_names": 170,
+      "n_excluded_unresolved_names": 1,
+      "n_profile_population_species": 106124,
+      "n_complete_species": 7222,
+      "n_complete_species_in_flora": 7220,
+      "n_profiles": 54,
+      "n_reference_profiles": 496,
+      "n_islands_with_complete_profiles": 3448,
+      "n_geographic_units": 8264,
+      "geography_excluded_flora_rows": 880,
+      "n_islands_min_species": 905,
+      "min_species": 50,
+      "rarefaction_size": 50,
+      "pair_count": 2000,
+      "seed": 20261106,
+      "pcoa": {
+        "correction": "sqrt",
+        "distance": "equal_weight_mean_set_jaccard",
+        "negative_inertia_fraction": 0.23793544113601375,
+        "lingoes_constant": 0.0,
+        "positive_dimensions": 75,
+        "two_dimensional_raw_rmse": 0.5015403156649133,
+        "minimum_raw_rmse_dimension": 17,
+        "two_dimensional_inertia_fraction": 0.15353075806441305,
+        "dimensions_for_80_percent_inertia": 17,
+        "dimensions_for_95_percent_inertia": 34
+      },
+      "baseline": "finite sampling without replacement from the recorded species union within each broad latitudinal regime; genus counts fixed in genus baseline",
+      "limitations": [
+        "Opportunistic realized floras, not censuses or absence data",
+        "Recorded species state sets are not joint flower-level morph observations",
+        "Regional recorded pools are not historical colonist source pools",
+        "Profile overlap is descriptive; categories mechanically increase similarity",
+        "Pair comparisons share islands and are not independent replicates",
+        "All includes validated genus-level fill and uneven direct-evidence coverage",
+        "Accepted-species keys are taxon-name units including hybrid formulas; exact species rank was not re-resolved"
+      ],
+      "eligible_medians": {
+        "n_species": 92.0,
+        "n_profiles": 24.0,
+        "singleton_fraction": 0.3888888888888889,
+        "mean_redundancy": 4.076923076923077,
+        "joint_coverage": 0.2152777777777778,
+        "rarefied_profiles": 17.511431955974704,
+        "profile_ratio_to_genus_pool": 0.9165205607365948,
+        "profile_ratio_to_regional_pool": 0.8638609560551954
+      },
+      "pair_medians": {
+        "species_jaccard": 0.0660973970426494,
+        "profile_jaccard": 0.5,
+        "profile_jaccard_without_shared_species": 0.3902439024390244
+      }
+    },
+    "direct_single_state": {
+      "study_status": "exploratory_descriptive",
+      "traits": [
+        "flower_primary_color",
+        "floral_form"
+      ],
+      "upstream_population_name_units": 106295,
+      "n_excluded_uninomial_names": 170,
+      "n_excluded_unresolved_names": 1,
+      "n_profile_population_species": 106124,
+      "n_complete_species": 4870,
+      "n_complete_species_in_flora": 4869,
+      "n_profiles": 54,
+      "n_reference_profiles": 496,
+      "n_islands_with_complete_profiles": 3308,
+      "n_geographic_units": 8264,
+      "geography_excluded_flora_rows": 880,
+      "n_islands_min_species": 843,
+      "min_species": 50,
+      "rarefaction_size": 50,
+      "pair_count": 2000,
+      "seed": 20261106,
+      "pcoa": {
+        "correction": "sqrt",
+        "distance": "equal_weight_mean_set_jaccard",
+        "negative_inertia_fraction": 0.23793544113601375,
+        "lingoes_constant": 0.0,
+        "positive_dimensions": 75,
+        "two_dimensional_raw_rmse": 0.5015403156649133,
+        "minimum_raw_rmse_dimension": 17,
+        "two_dimensional_inertia_fraction": 0.15353075806441305,
+        "dimensions_for_80_percent_inertia": 17,
+        "dimensions_for_95_percent_inertia": 34
+      },
+      "baseline": "finite sampling without replacement from the recorded species union within each broad latitudinal regime; genus counts fixed in genus baseline",
+      "limitations": [
+        "Opportunistic realized floras, not censuses or absence data",
+        "Recorded species state sets are not joint flower-level morph observations",
+        "Regional recorded pools are not historical colonist source pools",
+        "Profile overlap is descriptive; categories mechanically increase similarity",
+        "Pair comparisons share islands and are not independent replicates",
+        "All includes validated genus-level fill and uneven direct-evidence coverage",
+        "Accepted-species keys are taxon-name units including hybrid formulas; exact species rank was not re-resolved"
+      ],
+      "eligible_medians": {
+        "n_species": 91.0,
+        "n_profiles": 24.0,
+        "singleton_fraction": 0.38461538461538464,
+        "mean_redundancy": 4.095238095238095,
+        "joint_coverage": 0.21325051759834368,
+        "rarefied_profiles": 17.464381140296783,
+        "profile_ratio_to_genus_pool": 0.9153823915020383,
+        "profile_ratio_to_regional_pool": 0.8349177883247364
+      },
+      "pair_medians": {
+        "species_jaccard": 0.08197189284145806,
+        "profile_jaccard": 0.5,
+        "profile_jaccard_without_shared_species": 0.38461538461538464
+      }
+    }
+  }
+}

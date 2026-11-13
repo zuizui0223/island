@@ -1,0 +1,53 @@
+name: Floral profile fixed-margin sensitivity
+
+on:
+  push:
+    branches: [analysis/floral-space-20261106]
+    paths:
+      - 'src/island_v2/floral_fixed_margins.py'
+      - 'tests/test_floral_fixed_margins.py'
+      - '.github/workflows/floral-fixed-margins.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: floral-fixed-margins-island-analysis
+  cancel-in-progress: false
+
+jobs:
+  fixed-margins:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test margin invariants and deterministic sampling
+        run: |
+          PYTHONPATH=src python -m unittest discover -s tests -p 'test_floral_fixed_margins.py' -v
+          python -m py_compile src/island_v2/floral_fixed_margins.py
+      - name: Analyze 16 scope-by-region comparisons
+        run: |
+          PYTHONPATH=src python -m island_v2.floral_fixed_margins \
+            --previous results/floral_space_pairs_20261106 \
+            --root results/floral_space_20261106 \
+            --output results/floral_space_fixed_margins_20261107 \
+            --per-chain 200 --burn-multiplier 12 --gap-multiplier 3 \
+            --seed 20261107
+          cat results/floral_space_fixed_margins_20261107/README.md
+      - name: Publish aggregate-only summary, draws, and audit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/floral_space_fixed_margins_20261107/
+          if git diff --cached --quiet; then
+            echo "Fixed-margin aggregate results already up to date"
+          else
+            git commit -m "Record fixed-margin floral profile sharing sensitivity"
+            git push origin HEAD:analysis/floral-space-20261106
+          fi

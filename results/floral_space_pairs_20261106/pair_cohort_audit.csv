@@ -1,0 +1,9 @@
+encoding,all_scope,direct_scope,min_species,analysis_regime,min_unique,max_pairs,n_eligible_islands_all,n_eligible_islands_direct,n_matched_eligible_islands,n_candidate_pairs,n_supported_pairs_all,n_supported_pairs_direct,n_excluded_support_all,n_excluded_support_direct,n_excluded_support_both,n_joint_supported_pairs,n_excluded_pairs,n_islands_with_supported_pairs,n_sampled_pairs,n_sampled_islands,n_supported_pairs_not_sampled,sampled_partners_min,sampled_partners_median,sampled_partners_max
+full_state_sets,all,direct,50,northern_midlatitude,20,2000,1111,1074,1074,576201,553141,549995,23060,26206,23060,549995,26206,1074,2000,1051,547995,1,4.0,10
+full_state_sets,all,direct,50,northern_high_latitude,20,2000,95,90,90,4005,2934,2811,1071,1194,1071,2811,1194,90,2000,90,811,15,44.5,70
+full_state_sets,all,direct,50,tropical,20,2000,256,218,218,23653,22944,22459,709,1194,709,22459,1194,218,2000,218,20459,9,18.0,32
+full_state_sets,all,direct,50,southern_extratropical,20,2000,70,60,60,1770,1653,1618,117,152,117,1618,152,60,1618,60,0,22,56.0,59
+single_state,all_single_state,direct_single_state,50,northern_midlatitude,20,2000,702,669,669,223446,195005,193333,28441,30113,28441,193333,30113,669,2000,668,191333,1,6.0,14
+single_state,all_single_state,direct_single_state,50,northern_high_latitude,20,2000,47,40,40,780,201,171,579,609,579,171,609,40,171,40,0,2,7.0,39
+single_state,all_single_state,direct_single_state,50,tropical,20,2000,119,104,104,5356,5074,4956,282,400,282,4956,400,104,2000,104,2956,22,38.5,52
+single_state,all_single_state,direct_single_state,50,southern_extratropical,20,2000,37,30,30,435,399,391,36,44,36,391,44,30,391,30,0,15,27.0,29

@@ -1,0 +1,457 @@
+{
+  "schema_version": "floral_space_hypervolume_feasibility_v1",
+  "analysis_date_jst": "2026-11-06",
+  "repository_base_commit": "3bfa818ffbc7a0dea4319933c4b0a0eb41cfabb5",
+  "status": "completed_diagnostic_no_hypervolume_estimates",
+  "design_status": "exploratory; coordinate transformation chosen after inspecting distance quality",
+  "coordinate_contract": {
+    "traits": [
+      "flower_primary_color",
+      "floral_form"
+    ],
+    "distance": "equal-weight mean of within-trait state-set Jaccard dissimilarities",
+    "primary_transformation": "sqrt(distance)",
+    "reference_population": "unique complete All profiles after the analysis-specific taxonomic gate",
+    "reference_profiles": 496,
+    "species_to_coordinates": "lookup by profile ID; All and Direct use the same coordinates",
+    "multistate_rule": "one recorded state-set profile per name unit; no Cartesian expansion",
+    "profile_breadth_weighting": "each unique profile would receive equal weight; species carriers are a separate endpoint",
+    "negative_inertia_definition": "sum(abs(negative eigenvalues))/sum(abs(all eigenvalues)); numerical-zero eigenvalues removed using the implementation tolerance",
+    "mean_original_off_diagonal_distance": 0.7803921608558706,
+    "mean_sqrt_off_diagonal_distance": 0.8764699643404544,
+    "raw_relative_rmse_denominator": "mean original off-diagonal distance"
+  },
+  "scope_counts": {
+    "all": {
+      "input_population_name_units_after_taxonomy_gate": 106124,
+      "complete_name_units": 16739,
+      "complete_name_units_in_corrected_flora": 16725,
+      "unique_profiles_in_evidence_scope": 496,
+      "profiles_in_common_reference_space": 496,
+      "islands_with_at_least_one_complete_profile": 3858,
+      "islands_with_at_least_50_complete_name_units": 1532,
+      "maximum_unique_profiles_on_one_island": 301,
+      "median_unique_profiles_on_islands_with_at_least_50_complete_name_units": 75.0,
+      "excluded_non_species_or_undetermined_names": 171,
+      "single_state_complete_name_units": 7222
+    },
+    "direct": {
+      "input_population_name_units_after_taxonomy_gate": 106124,
+      "complete_name_units": 8455,
+      "complete_name_units_in_corrected_flora": 8452,
+      "unique_profiles_in_evidence_scope": 467,
+      "profiles_in_common_reference_space": 496,
+      "islands_with_at_least_one_complete_profile": 3779,
+      "islands_with_at_least_50_complete_name_units": 1442,
+      "maximum_unique_profiles_on_one_island": 284,
+      "median_unique_profiles_on_islands_with_at_least_50_complete_name_units": 75.0,
+      "excluded_non_species_or_undetermined_names": 171,
+      "single_state_complete_name_units": 4870
+    }
+  },
+  "ordination": {
+    "sqrt_primary": {
+      "transformation": "sqrt",
+      "positive_dimensions": 75,
+      "raw_negative_inertia_fraction": 0.23793544113601375,
+      "transformed_negative_inertia_fraction": 0.0,
+      "lingoes_eigenvalue_shift_c": 0.0,
+      "lingoes_squared_distance_addition_2c": 0.0,
+      "dimensions_for_80_percent_positive_inertia": 17,
+      "dimensions_for_95_percent_positive_inertia": 34,
+      "two_dimensional_positive_inertia_fraction": 0.15353075806441305,
+      "minimum_original_distance_rmse_dimension": 17,
+      "minimum_original_distance_rmse": 0.06651508321646167,
+      "selected_dimension_diagnostics": [
+        {
+          "dimension": 1,
+          "positive_inertia_fraction": 0.07825540831104164,
+          "raw_mae": 0.5799004998521734,
+          "raw_rmse": 0.6114838271559097,
+          "raw_relative_rmse": 0.783559674004521,
+          "corrected_mae": 0.6757503066847994,
+          "corrected_rmse": 0.6935912285489253
+        },
+        {
+          "dimension": 2,
+          "positive_inertia_fraction": 0.15353075806441305,
+          "raw_mae": 0.4699188121246667,
+          "raw_rmse": 0.5015403156649133,
+          "raw_relative_rmse": 0.6426772856288878,
+          "corrected_mae": 0.5648875945373376,
+          "corrected_rmse": 0.583629446763751
+        },
+        {
+          "dimension": 3,
+          "positive_inertia_fraction": 0.22572497907941555,
+          "raw_mae": 0.39052935981141496,
+          "raw_rmse": 0.42233187738642836,
+          "raw_relative_rmse": 0.541179036092891,
+          "corrected_mae": 0.48454546431627804,
+          "corrected_rmse": 0.5035487025508885
+        },
+        {
+          "dimension": 4,
+          "positive_inertia_fraction": 0.2925039100580442,
+          "raw_mae": 0.33021349673894484,
+          "raw_rmse": 0.35954466779538596,
+          "raw_relative_rmse": 0.46072306441554545,
+          "corrected_mae": 0.42205758672117183,
+          "corrected_rmse": 0.440374107413103
+        },
+        {
+          "dimension": 5,
+          "positive_inertia_fraction": 0.3573234596662162,
+          "raw_mae": 0.2778758429349238,
+          "raw_rmse": 0.30741007245839813,
+          "raw_relative_rmse": 0.393917427516514,
+          "corrected_mae": 0.36858273379708956,
+          "corrected_rmse": 0.38662903177638025
+        },
+        {
+          "dimension": 6,
+          "positive_inertia_fraction": 0.4211072902509747,
+          "raw_mae": 0.23365148273402692,
+          "raw_rmse": 0.26044738045522237,
+          "raw_relative_rmse": 0.33373910390076816,
+          "corrected_mae": 0.3211646613782695,
+          "corrected_rmse": 0.3386136873588449
+        },
+        {
+          "dimension": 9,
+          "positive_inertia_fraction": 0.5765501374344886,
+          "raw_mae": 0.1404588537276989,
+          "raw_rmse": 0.17114216214607003,
+          "raw_relative_rmse": 0.21930276946705263,
+          "corrected_mae": 0.2206902926996286,
+          "corrected_rmse": 0.24008402080596125
+        },
+        {
+          "dimension": 17,
+          "positive_inertia_fraction": 0.8048989716069689,
+          "raw_mae": 0.05175216848789759,
+          "raw_rmse": 0.06651508321646167,
+          "raw_relative_rmse": 0.08523289514276174,
+          "corrected_mae": 0.09430491786812946,
+          "corrected_rmse": 0.1022636768880026
+        },
+        {
+          "dimension": 34,
+          "positive_inertia_fraction": 0.9538409239266473,
+          "raw_mae": 0.08183776891126748,
+          "raw_rmse": 0.10120975842862283,
+          "raw_relative_rmse": 0.1296908958152837,
+          "corrected_mae": 0.021474190341104413,
+          "corrected_rmse": 0.029921852202560828
+        },
+        {
+          "dimension": 75,
+          "positive_inertia_fraction": 1.0000000000000002,
+          "raw_mae": 0.09607780348458378,
+          "raw_rmse": 0.11809510753073373,
+          "raw_relative_rmse": 0.15132790083541667,
+          "corrected_mae": 2.316030499781946e-16,
+          "corrected_rmse": 3.073918105111954e-16
+        }
+      ]
+    },
+    "lingoes_comparison": {
+      "transformation": "lingoes",
+      "positive_dimensions": 494,
+      "raw_negative_inertia_fraction": 0.23793544113601375,
+      "transformed_negative_inertia_fraction": 0.0,
+      "lingoes_eigenvalue_shift_c": 1.5907640337103564,
+      "lingoes_squared_distance_addition_2c": 3.1815280674207127,
+      "dimensions_for_80_percent_positive_inertia": 337,
+      "dimensions_for_95_percent_positive_inertia": 437,
+      "two_dimensional_positive_inertia_fraction": 0.04988621827278974,
+      "minimum_original_distance_rmse_dimension": 9,
+      "minimum_original_distance_rmse": 0.1158330947184805,
+      "selected_dimension_diagnostics": [
+        {
+          "dimension": 1,
+          "positive_inertia_fraction": 0.025402766194836397,
+          "raw_mae": 0.5290629803155465,
+          "raw_rmse": 0.5665935362458945,
+          "raw_relative_rmse": 0.7260369397156691,
+          "corrected_mae": 1.7002584462805292,
+          "corrected_rmse": 1.7087767668199816
+        },
+        {
+          "dimension": 2,
+          "positive_inertia_fraction": 0.04988621827278974,
+          "raw_mae": 0.3940011186484916,
+          "raw_rmse": 0.4309306029393043,
+          "raw_relative_rmse": 0.5521975034535133,
+          "corrected_mae": 1.560814624211193,
+          "corrected_rmse": 1.5698009167066715
+        },
+        {
+          "dimension": 3,
+          "positive_inertia_fraction": 0.07286333099562849,
+          "raw_mae": 0.2989820814717015,
+          "raw_rmse": 0.33337564235056477,
+          "raw_relative_rmse": 0.42718989127843815,
+          "corrected_mae": 1.4608323626792346,
+          "corrected_rmse": 1.4693433348386407
+        },
+        {
+          "dimension": 4,
+          "positive_inertia_fraction": 0.09460064599656136,
+          "raw_mae": 0.22769807650617413,
+          "raw_rmse": 0.25606520077777517,
+          "raw_relative_rmse": 0.3281237480614153,
+          "corrected_mae": 1.381772183045454,
+          "corrected_rmse": 1.3896424407295707
+        },
+        {
+          "dimension": 5,
+          "positive_inertia_fraction": 0.11469682496267562,
+          "raw_mae": 0.17235959371015136,
+          "raw_rmse": 0.19937619171563198,
+          "raw_relative_rmse": 0.25548205340373026,
+          "corrected_mae": 1.3169319724603954,
+          "corrected_rmse": 1.3244258975757168
+        },
+        {
+          "dimension": 6,
+          "positive_inertia_fraction": 0.134128970808538,
+          "raw_mae": 0.12527029754398,
+          "raw_rmse": 0.1561473844479977,
+          "raw_relative_rmse": 0.200088355932161,
+          "corrected_mae": 1.2603052568011222,
+          "corrected_rmse": 1.267589257573846
+        },
+        {
+          "dimension": 9,
+          "positive_inertia_fraction": 0.1799581891638028,
+          "raw_mae": 0.0942862017559946,
+          "raw_rmse": 0.1158330947184805,
+          "raw_relative_rmse": 0.14842934171896882,
+          "corrected_mae": 1.1432079919875733,
+          "corrected_rmse": 1.150405444644078
+        },
+        {
+          "dimension": 17,
+          "positive_inertia_fraction": 0.24834862534021665,
+          "raw_mae": 0.17909942334232484,
+          "raw_rmse": 0.18615595890974818,
+          "raw_relative_rmse": 0.23854155416628925,
+          "corrected_mae": 0.9944191004898264,
+          "corrected_rmse": 1.0003629475773228
+        },
+        {
+          "dimension": 34,
+          "positive_inertia_fraction": 0.2985066015911971,
+          "raw_mae": 0.2761373464481199,
+          "raw_rmse": 0.2808487636245452,
+          "raw_relative_rmse": 0.3598815796874909,
+          "corrected_mae": 0.8973811773840314,
+          "corrected_rmse": 0.9026517746921298
+        },
+        {
+          "dimension": 494,
+          "positive_inertia_fraction": 0.9999999999999988,
+          "raw_mae": 1.1735185238321513,
+          "raw_rmse": 1.17902093195574,
+          "raw_relative_rmse": 1.5108057090971876,
+          "corrected_mae": 5.806658148409331e-16,
+          "corrected_rmse": 7.645459070636372e-16
+        }
+      ]
+    }
+  },
+  "kde_sample_support": {
+    "screening_rule": "ln(m)>d",
+    "m": "number of unique recorded profiles on an island",
+    "d": "number of retained common PCoA axes",
+    "interpretation": "literature screening heuristic, not a proof or guarantee of estimability; using unique profiles is the project-specific conservative adaptation for profile breadth",
+    "source": "Blonder et al. (2018), Table 2",
+    "by_dimension": [
+      {
+        "dimension": 2,
+        "minimum_integer_unique_profiles": 8,
+        "common_space_positive_inertia_fraction": 0.15353075806441305,
+        "all_islands_any_complete_profile_meeting_rule": 2601,
+        "all_islands_at_least_50_complete_name_units_meeting_rule": 1532,
+        "direct_islands_any_complete_profile_meeting_rule": 2511,
+        "direct_islands_at_least_50_complete_name_units_meeting_rule": 1442
+      },
+      {
+        "dimension": 3,
+        "minimum_integer_unique_profiles": 21,
+        "common_space_positive_inertia_fraction": 0.22572497907941555,
+        "all_islands_any_complete_profile_meeting_rule": 1977,
+        "all_islands_at_least_50_complete_name_units_meeting_rule": 1532,
+        "direct_islands_any_complete_profile_meeting_rule": 1899,
+        "direct_islands_at_least_50_complete_name_units_meeting_rule": 1441
+      },
+      {
+        "dimension": 4,
+        "minimum_integer_unique_profiles": 55,
+        "common_space_positive_inertia_fraction": 0.2925039100580442,
+        "all_islands_any_complete_profile_meeting_rule": 1136,
+        "all_islands_at_least_50_complete_name_units_meeting_rule": 1136,
+        "direct_islands_any_complete_profile_meeting_rule": 1085,
+        "direct_islands_at_least_50_complete_name_units_meeting_rule": 1085
+      },
+      {
+        "dimension": 5,
+        "minimum_integer_unique_profiles": 149,
+        "common_space_positive_inertia_fraction": 0.3573234596662162,
+        "all_islands_any_complete_profile_meeting_rule": 79,
+        "all_islands_at_least_50_complete_name_units_meeting_rule": 79,
+        "direct_islands_any_complete_profile_meeting_rule": 74,
+        "direct_islands_at_least_50_complete_name_units_meeting_rule": 74
+      },
+      {
+        "dimension": 6,
+        "minimum_integer_unique_profiles": 404,
+        "common_space_positive_inertia_fraction": 0.4211072902509747,
+        "all_islands_any_complete_profile_meeting_rule": 0,
+        "all_islands_at_least_50_complete_name_units_meeting_rule": 0,
+        "direct_islands_any_complete_profile_meeting_rule": 0,
+        "direct_islands_at_least_50_complete_name_units_meeting_rule": 0
+      }
+    ]
+  },
+  "decision": {
+    "full_flora_gaussian_hypervolume_inference": "not_performed",
+    "reasons": [
+      "Low-dimensional projections omit most of the common sqrt-distance geometry.",
+      "No island satisfies the unique-profile KDE screening rule at six dimensions; 80% common inertia requires seventeen dimensions.",
+      "PCoA coordinates do not turn unobserved categorical combinations into biologically observed continuous states."
+    ],
+    "retained_outputs": [
+      "common PCoA projection with explicit inertia and distance error",
+      "recorded profile counts",
+      "species carriers per profile",
+      "exact rarefied profile richness",
+      "discrete between-island profile overlap"
+    ]
+  },
+  "limited_projection_option": {
+    "status": "not_estimated",
+    "estimand": "volume of a smoothed, equally weighted distribution of unique recorded profiles in a fixed common low-dimensional projection, at a declared probability-content threshold",
+    "does_not_estimate": [
+      "total floral trait-space breadth",
+      "number of observed profile combinations",
+      "historical convergence",
+      "pollination-service interchangeability"
+    ],
+    "conditions": [
+      "predeclare retained axes, common scaling, bandwidth rule and probability threshold",
+      "show original and transformed distance loss in that projection",
+      "retain complete-profile coverage and unique-profile support",
+      "control or equalize the number of input profiles when comparing volumes"
+    ]
+  },
+  "input_manifests": {
+    "all": {
+      "profiles": {
+        "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/all_profiles.csv.gz",
+        "sha256": "9debbd534d87238f087081e68f4e3067779cc5609b3747859812dd730db41ab3"
+      },
+      "space_profiles": {
+        "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/all_profiles.csv.gz",
+        "sha256": "9debbd534d87238f087081e68f4e3067779cc5609b3747859812dd730db41ab3"
+      },
+      "flora": {
+        "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz",
+        "sha256": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a"
+      },
+      "geography": {
+        "path": "/workspace/scratch/625333e4fa64/island/results/geography_20260924/corrected_geography_covariates.csv",
+        "sha256": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7"
+      },
+      "ontology": {
+        "path": "/workspace/scratch/625333e4fa64/island/config/trait_ontology.yml",
+        "sha256": "ca2a7e7d3fe74ab41a50f31d00f17605e45df570d85b291c7895d3da2e9c228a"
+      }
+    },
+    "direct": {
+      "profiles": {
+        "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/direct_profiles.csv.gz",
+        "sha256": "bd5df75ca07e1cc26ef1f381db1b31ced45e7928cdbcf1591253b709dbf31b56"
+      },
+      "space_profiles": {
+        "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/all_profiles.csv.gz",
+        "sha256": "9debbd534d87238f087081e68f4e3067779cc5609b3747859812dd730db41ab3"
+      },
+      "flora": {
+        "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz",
+        "sha256": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a"
+      },
+      "geography": {
+        "path": "/workspace/scratch/625333e4fa64/island/results/geography_20260924/corrected_geography_covariates.csv",
+        "sha256": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7"
+      },
+      "ontology": {
+        "path": "/workspace/scratch/625333e4fa64/island/config/trait_ontology.yml",
+        "sha256": "ca2a7e7d3fe74ab41a50f31d00f17605e45df570d85b291c7895d3da2e9c228a"
+      }
+    }
+  },
+  "evidence_files": {
+    "src/island_v2/floral_space_geometry.py": {
+      "sha256": "6c61ca421f3096c9341d040d07b83c67ea229ff2ef606a5682d16ba09db704e9",
+      "bytes": 12369
+    },
+    "results/floral_space_20261106/all/profile_coordinates.csv": {
+      "sha256": "8b952193306eea255a31d627a6f6e65dc08a199f88aaf2ef3c7ed23ffd833a2e",
+      "bytes": 821306
+    },
+    "results/floral_space_20261106/all/ordination_diagnostics.csv": {
+      "sha256": "a50f6f3b7eb440a8194c0e66747eecdd747c5cda0464030c3f7fcfe2f1701ce2",
+      "bytes": 9269
+    },
+    "results/floral_space_20261106/all/lingoes_ordination_diagnostics.csv": {
+      "sha256": "35731e9ffcfda64a2993df427562894b12197eaaffa3ba021305f5c736be4fae",
+      "bytes": 58623
+    },
+    "results/floral_space_20261106/all/island_metrics.csv": {
+      "sha256": "da57fda27c980ba62238c393d5a0280c687869d5e1f9ff01174d820304cc0be3",
+      "bytes": 1430862
+    },
+    "results/floral_space_20261106/all/species_profiles.csv.gz": {
+      "sha256": "6bd9f551c0ddf3c776711c51f53378e8b2337848e10b15bdbb849fccaf837e35",
+      "bytes": 187348
+    },
+    "results/floral_space_20261106/all/excluded_taxon_names.csv": {
+      "sha256": "f880797cdddefd594e81d3fcb85fc8fa3b21b1aee2c353afe490a592f7c47556",
+      "bytes": 3367
+    },
+    "results/floral_space_20261106/direct/profile_coordinates.csv": {
+      "sha256": "4fe2433797c09057cf32103e397f8a1633494f5002640b45451656d3aaadaa7d",
+      "bytes": 821236
+    },
+    "results/floral_space_20261106/direct/island_metrics.csv": {
+      "sha256": "71694e26cbcfecfeaa54c9988e93aecccafaa48d4f0611039ad163f0af81b5bf",
+      "bytes": 1390915
+    },
+    "results/floral_space_20261106/direct/species_profiles.csv.gz": {
+      "sha256": "359da274fd80446a62529037252ac446996db1272a1b79aa2f8c0197be386890",
+      "bytes": 116639
+    }
+  },
+  "references": [
+    {
+      "id": "maire2015",
+      "citation": "Maire, E., Grenouillet, G., Brosse, S. & Vill\u00e9ger, S. (2015). How many dimensions are needed to accurately assess functional diversity? A pragmatic approach for assessing the quality of functional spaces. Global Ecology and Biogeography 24:728\u2013740.",
+      "url": "https://doi.org/10.1111/geb.12299",
+      "use": "Evaluate functional-space fidelity rather than assume a visually convenient dimension is adequate."
+    },
+    {
+      "id": "blonder2018",
+      "citation": "Blonder, B. et al. (2018). New approaches for delineating n-dimensional hypervolumes. Methods in Ecology and Evolution 9:305\u2013319.",
+      "url": "https://doi.org/10.1111/2041-210X.12865",
+      "use": "Section 2 and Table 2: input geometry, KDE dimensionality guidance, and comparability of bandwidths and sample sizes."
+    },
+    {
+      "id": "ape_pcoa",
+      "citation": "ape package: Principal Coordinate Analysis (pcoa), official CRAN reference manual.",
+      "url": "https://search.r-project.org/CRAN/refmans/ape/html/pcoa.html",
+      "use": "Classical PCoA and Lingoes correction definition; our c is the eigenvalue shift, so the squared-distance addition is 2c."
+    }
+  ]
+}

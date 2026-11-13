@@ -1,0 +1,13 @@
+scope,trait_set,n_species,population_species,fraction
+snapshot_all,colour_form,14494,106295,0.13635636671527354
+snapshot_all,colour_form_symmetry,7824,106295,0.07360647255280117
+snapshot_all,colour_form_symmetry_depth,851,106295,0.008006020979349923
+snapshot_direct,colour_form,6262,106295,0.058911519826896845
+snapshot_direct,colour_form_symmetry,3157,106295,0.029700362199539018
+snapshot_direct,colour_form_symmetry_depth,561,106295,0.0052777647114163415
+restored_all,colour_form,16764,106295,0.1577120278470295
+restored_all,colour_form_symmetry,8864,106295,0.08339056399642504
+restored_all,colour_form_symmetry_depth,1289,106295,0.012126628721953055
+restored_direct,colour_form,8468,106295,0.07966508302366057
+restored_direct,colour_form_symmetry,4183,106295,0.03935274471988334
+restored_direct,colour_form_symmetry_depth,998,106295,0.00938896467378522

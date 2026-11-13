@@ -1,0 +1,22 @@
+{
+  "status": "complete",
+  "n_scope_region": 16,
+  "n_pair_rows": 24360,
+  "source": "results/floral_space_pairs_20261106/pairwise_observed_and_null.csv.gz",
+  "source_sha256": "0e66913747ff551cb3d41d82a308ce9addb8de3b665e90c782433bc4f9bd2cdb",
+  "output_sha256": {
+    "pairwise_beta_partition.csv.gz": "9d37e25aa95882bf9c9236dda0e95cb2ac1b4a8e53ae8405ca821a9d9bce4644",
+    "beta_partition_summary.csv": "f9e642fe80df0cc3886a0eea79606aa2962c03d9ccdbcd8ea07afe4ecb0d135d"
+  },
+  "endpoint": "shared-taxon-name-exclusive observed profile sets",
+  "identity": "beta_jaccard = beta_turnover + beta_nestedness PER PAIR",
+  "richness_normalized_jaccard": "observed J divided by [min(KA,KB)/max(KA,KB)]; not a null",
+  "weights": "pair medians plus degree-balanced equal-island means",
+  "inference": "descriptive only; no new significance tests or causal identification",
+  "limitations": [
+    "All/Direct and island pairs overlap",
+    "Coarse categorical profiles",
+    "No genus/source/observation-process-conditioned null for these components",
+    "No hypervolume or evolutionary-convergence inference"
+  ]
+}
