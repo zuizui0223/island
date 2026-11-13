@@ -71,10 +71,24 @@ def main() -> None:
     # SOURCE original data checks are strict: user-facing older 1,162,109
     # record description predates the actual deduplicated v1.3.0 source.
     source=pd.read_csv(a.euppollnet_interactions,
-                       compression="gzip",dtype=str,low_memory=False)
-    if not (600000<=len(source)<=650000):
+                       compression="gzip",dtype=str,low_memory=False,
+                       encoding="utf-8",encoding_errors="replace")
+    n_original_source_rows=int(len(source))
+    if not (600000<=n_original_source_rows<=650000):
         raise ValueError("EuPPollNet original v1.3.0 no longer has corrected-row support")
-    source_meta=pd.read_csv(a.euppollnet_metadata,dtype=str)
+    # A few accented original fields can include legacy invalid UTF8 bytes.
+    # Count such rows, but never guess or use corrupted botanical IDs,
+    # coordinates, study IDs, dates, taxa or visitor names in the join.
+    text_fields=source.select_dtypes(include=["object"]).columns
+    bad_encoding=pd.Series(False,index=source.index)
+    for k in text_fields:
+        bad_encoding |= source[k].fillna("").str.contains("\ufffd",regex=False)
+    n_bad_encoding=int(bad_encoding.sum())
+    if n_bad_encoding/n_original_source_rows > 0.01:
+        raise ValueError("More than 1% EuPPollNet rows have undecodable UTF8: stop")
+    source=source.loc[~bad_encoding].copy()
+    source_meta=pd.read_csv(a.euppollnet_metadata,dtype=str,
+                            encoding="utf-8",encoding_errors="strict")
     if not {"Study_id","Sampling_method"}.issubset(source_meta):
         raise ValueError("EuPPollNet v1.3.0 metadata schema drift")
     visits=validate_original_visits(source)
@@ -105,7 +119,9 @@ def main() -> None:
         source_git_ref="v1.3.0",
         original_source_interaction_csv_SHA256=sha256(a.euppollnet_interactions),
         original_source_metadata_csv_SHA256=sha256(a.euppollnet_metadata),
-        original_input_interaction_rows=int(len(source)),
+        original_input_interaction_rows=n_original_source_rows,
+        original_source_rows_with_invalid_UTF8_excluded=n_bad_encoding,
+        source_rows_qualified_after_encoding_quality=int(len(source)),
         original_source_studies=int(source_meta.Study_id.nunique()),
         original_source_longitude_latitude_sites=int(len(positions)),
         n_source_visiting_sites_on_original_GSHHG_island_polygons=int(len(site_to_island)),
