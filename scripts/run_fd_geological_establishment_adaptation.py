@@ -85,6 +85,9 @@ def run(original:Path,wcvp_status:Path,island_tdwg:Path,crosswalk:Path,*,
         direct,classified,geo,geology,five,by,seed=seed,boots=1999)
     if out["n_original_all_928_Direct_island_floras"]!=928:
         raise ValueError("Original source 928 island support was lost")
+    assert any("median_source_distinct_genera" in q for q in out["groups"])
+    assert any(q["response"]=="expected_10genus_share" for q in out["geological_origin_associations"])
+    assert all("n_islands_with_any_Direct_endemic" in q for q in out["groups"] if q["scope"]=="all_recorded")
     out["original_seed"]=seed
     return out
 
