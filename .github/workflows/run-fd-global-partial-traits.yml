@@ -90,7 +90,7 @@ jobs:
           p=Path(os.environ["STAGE"])/(
               "anonymous_original_partial_fd_"+os.environ["ANALYSIS_SEED"]+".json")
           q=json.loads(p.read_text())
-          assert q["status"]=="GLOBAL_8K_ISLAND_PARTIAL_DIRECT_TRAIT_FD_WITHOUT_COMPLETE_CASE"
+          assert q["status"]=="GLOBAL_GIFT_FLORA_PARTIAL_DIRECT_TRAITS_NO_COMPLETE_CASE"
           assert q["n_original_global_distinct_island_floras"]>=4000
           assert q["n_original_flora_islands_without_independent_GSHHG_geography"]<=30
           assert q["n_original_three_trait_complete30_islands_retained_for_SENSITIVITY"]==928
@@ -103,6 +103,10 @@ jobs:
           assert q["source_design"]["original_full_flora_taxa_removed_from_candidate_mainland_sources"]
           assert len(q["marginal_trait_and_pairwise_coverage"])>=26
           assert len(q["oceanic_minus_continental_conditional_traits"])>=40
+          assert any(x["metric"]=="observed_direct_coverage"
+                     for x in q["oceanic_minus_continental_conditional_traits"])
+          assert q["source_design"]["original_direct_trait_observation_fraction_by_island_and_scope"]
+          assert q["source_design"]["native_status_scope_without_original_native_species_is_NA_not_zero"]
           assert not any('"'+k+'"' in p.read_text() for k in (
               "island_id","accepted_species","entity_ID","work_species",
               "source_signature","spatial_block","source_genus","source_family",
