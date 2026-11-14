@@ -1,0 +1,116 @@
+name: fd full-global partial direct traits Rao and pairwise floral coupling no triple complete-case
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_global_partial_trait_fd.py
+      - .github/workflows/run-fd-global-partial-traits.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-wcvp-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [20261114, 20261115]
+    env:
+      STAGE: /tmp/fd-original-wcvp-native
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+      ANALYSIS_SEED: ${{ matrix.seed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install full-island categorical direct-trait diversity and original geography dependencies
+        run: python -m pip install pandas numpy scipy pytest
+      - name: Checkout unmerged fd analytical module and original tests
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Test no complete-case gate, finite Rao/observed genus balancing and two-trait-only coupling
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_global_partial_trait_flora_fd.py work/fd/tests/test_regional_native_flora_fd.py
+          python -m compileall -q work/fd/src/fd/global_partial_trait_flora_fd.py scripts/run_fd_global_partial_trait_fd.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore original frozen Direct 2234 flora and GIFT candidate mainland sources
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Build independently published geological-origin source crosswalk inside protected workflow
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geology_private"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geology_private")'
+          test -s "$STAGE/geology_private/island_origin_crosswalk.csv"
+          test -s "$STAGE/geology_private/crosswalk_audit.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          a=json.loads((Path(os.environ["STAGE"])/"geology_private/crosswalk_audit.json").read_text())
+          assert a["target_gshhg"] >= 8264
+          assert a["roeble_2024_geological_records"] >= 500
+          assert a["geological_counts"]["continental"]>=150
+          assert a["geological_counts"]["oceanic"]>=200
+          assert a["interpretation_limit"] == "LGM-unconnected does not imply geologically oceanic"
+          print("Audited independent Roeble/Zizka geology source counts only",a["geological_counts"])
+          PY
+      - name: Analyse all original GIFT island floras per direct trait and pairwise source-relative categorical FD
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python scripts/run_fd_global_partial_trait_fd.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geology_private/island_origin_crosswalk.csv" \
+            --seed "$ANALYSIS_SEED" \
+            --output "$STAGE/anonymous_original_partial_fd_${ANALYSIS_SEED}.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/(
+              "anonymous_original_partial_fd_"+os.environ["ANALYSIS_SEED"]+".json")
+          q=json.loads(p.read_text())
+          assert q["status"]=="GLOBAL_8K_ISLAND_PARTIAL_DIRECT_TRAIT_FD_WITHOUT_COMPLETE_CASE"
+          assert q["n_original_global_distinct_island_floras"]>=4000
+          assert q["n_original_three_trait_complete30_islands_retained_for_SENSITIVITY"]==928
+          assert q["n_original_complete_case_three_trait_sensitivity_islands"]==928
+          assert len(q["n_original_direct_plant_species_per_trait"])==10
+          assert q["source_design"]["full_original_island_flora_not_just_928"]
+          assert q["source_design"]["original_island_complete_case_gate_removed_for_main_analysis"]
+          assert q["source_design"]["no_three_trait_required_for_pairwise_trait_association"]
+          assert q["source_design"]["no_imputation_or_single_trait_missing_as_absence"]
+          assert q["source_design"]["original_full_flora_taxa_removed_from_candidate_mainland_sources"]
+          assert len(q["marginal_trait_and_pairwise_coverage"])>=26
+          assert len(q["oceanic_minus_continental_conditional_traits"])>=40
+          assert not any('"'+k+'"' in p.read_text() for k in (
+              "island_id","accepted_species","entity_ID","work_species",
+              "source_signature","spatial_block","source_genus","source_family",
+              "latitude","longitude","taxon_id","trait_value"))
+          print("Original global flora, 10 independent source Direct traits and three pairwise category Rao effects audited")
+          PY
+      - name: Upload only anonymous original 8k island per-trait regional and geological source FD aggregate
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-full-global-partial-FD-${{ matrix.seed }}-${{ github.run_id }}
+          path: /tmp/fd-original-wcvp-native/anonymous_original_partial_fd_${{ matrix.seed }}.json
+          if-no-files-found: error
+          retention-days: 90
