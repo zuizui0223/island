@@ -1,4 +1,4 @@
-name: fd original paired tropical island endemic iNaturalist photorecord pilot
+name: fd original full 13 tropical endemic genus pairs iNaturalist photo source pilot
 on:
   push:
     branches: [analysis/fd-discrete-functional-volume-20261113]
@@ -76,7 +76,7 @@ jobs:
           PYTHONPATH="src:work/fd/src" python scripts/run_fd_oc_endemic_inat_photo_pilot.py \
             --original-root "$ORIGINAL_ROOT" \
             --geology-crosswalk "$STAGE/geology_private/island_origin_crosswalk.csv" \
-            --max-pairs 8 \
+            --max-pairs 13 \
             --output "$STAGE/anonymous_original_photo_provider_pilot.json"
           python - <<'PY'
           import os,json
@@ -85,8 +85,8 @@ jobs:
           s=json.loads(p.read_text())
           assert s["status"]=="GENUINE_PUBLIC_INAT_EXACT_SOURCE_TAXON_GEOPHOTO_PAIRED_PILOT"
           assert s["n_original_GSHHG_geologically_typed_islands"]==434
-          assert s["n_original_tropical_endemic_candidates_chosen_before_API"]==16
-          assert s["original_selection_before_photo_query"]["n_selected_original_distinct_genera"]==8
+          assert s["n_original_tropical_endemic_candidates_chosen_before_API"]==26
+          assert s["original_selection_before_photo_query"]["n_selected_original_distinct_genera"]==13
           assert s["source_query_protocol"]["no_original_photo_pixels_downloaded"]
           assert s["source_query_protocol"]["no_genuine_flower_photo_ROI_measured"]
           assert s["source_query_protocol"]["restricted_taxon_and_observation_IDs_NOT_exported"]
