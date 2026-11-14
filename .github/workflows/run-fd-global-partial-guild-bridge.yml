@@ -86,6 +86,7 @@ jobs:
           GUILD_EVIDENCE="$(find "$STAGE/guild" -name nee_projected_channel_state.csv -type f -print -quit)"
           test -n "$GUILD_EVIDENCE" && test -s "$GUILD_EVIDENCE"
           echo "GUILD_EVIDENCE=$GUILD_EVIDENCE" >> "$GITHUB_ENV"
+          export GUILD_EVIDENCE
           python - <<'PY'
           import os,pandas as pd
           z=pd.read_csv(os.environ["GUILD_EVIDENCE"],usecols=[
