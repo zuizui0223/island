@@ -36,10 +36,11 @@ jobs:
           ref: analysis/discrete-functional-hypervolume-20261113
           path: work/fd
           persist-credentials: false
+      # Re-evaluate the same frozen source after excluding missing geography; never impute climate PCs.
       - name: Test source/origin/provenance and strict full-island floral data
         run: |
           set -euo pipefail
-          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_geological_establishment_adaptation.py work/fd/tests/test_regional_native_flora_fd.py work/fd/tests/test_regional_native_provenance_volume.py work/fd/tests/test_native_taxon_matched_pairing.py
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_geological_establishment_adaptation.py work/fd/tests/test_geological_disjoint_matched.py work/fd/tests/test_regional_native_flora_fd.py work/fd/tests/test_regional_native_provenance_volume.py work/fd/tests/test_native_taxon_matched_pairing.py
           python -m compileall -q work/fd/src/fd/geological_establishment_adaptation.py scripts/run_fd_geological_establishment_adaptation.py
           git -C work/fd rev-parse HEAD
       - name: Restore original frozen Direct 2234 flora and GIFT candidate mainland sources
