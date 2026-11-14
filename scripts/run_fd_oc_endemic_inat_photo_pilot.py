@@ -2,7 +2,7 @@
 
 Original island native/endemic names, GIFT exact mainland source IDs,
 geological archipelago and Direct plant colour source data stay in CI.
-A bounded iNaturalist official REST lookup queries at most 8 matched
+A bounded iNaturalist official REST lookup queries at most 13 matched
 genera (16 target accepted endemic species); NO pixels are downloaded
 or classified; no observation IDs, photo IDs or endemic taxon names
 leave source CI. Missing provider data is NOT absence of wild photos.
@@ -57,7 +57,7 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--original-root",type=Path,required=True)
     p.add_argument("--geology-crosswalk",type=Path,required=True)
-    p.add_argument("--max-pairs",type=int,default=8)
+    p.add_argument("--max-pairs",type=int,default=13)
     p.add_argument("--output",type=Path,required=True)
     a=p.parse_args()
     result=run(a.original_root,a.geology_crosswalk,max_pairs=a.max_pairs)
