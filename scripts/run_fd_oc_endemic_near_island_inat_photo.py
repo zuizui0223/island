@@ -84,7 +84,7 @@ def main():
     print(json.dumps({
         "status":result["status"],
         "n_source_paired_genera":result[
-            "original_selection_before_photo_query"]["n_selected_original_distinct_genera"],
+            "original_target_selection"]["n_selected_original_distinct_genera"],
         "n_public_near_centroid_photo_taxa_by_geology":{
             t:z["n_public_near_island_centroid_qualified_photo_taxa"]
             for t,z in result["original_public_geo_photo_provider_by_island_type"].items()},
