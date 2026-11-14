@@ -111,7 +111,7 @@ jobs:
           assert d["no_raw_island_species_or_geological_row_exported"]
           assert d["endemicity_source_provenance"]["endemicity_is_separate_original_endemic_status_column"]
           assert d["endemicity_source_provenance"]["floristic_endemic_requires_native_origin_and_verified_endemic_state"]
-          assert "n_endemic_original_direct" in str(d["groups"])
+          assert any("n_source_endemic_direct_species" in q for q in d["groups"] if q["scope"]=="all_recorded")
           assert d["analysis"]["candidate_GIFT_native_mainland_checklist_not_actual_propagule_source"]
           assert d["analysis"]["endemic_source_congener_comparison_is_not_adaptation_or_sister_phylogeny"]
           assert d["analysis"]["geography_ancillary_Roeble_vs_Zizka_geology_not_LGM"]
