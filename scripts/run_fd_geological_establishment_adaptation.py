@@ -23,7 +23,8 @@ def run(original:Path,wcvp_status:Path,island_tdwg:Path,crosswalk:Path,*,
                            "evidence_scope","evidence_quality"])
     raw=pd.read_csv(
         original/"fixed/canonical/input/chapter1_status_flora.csv.gz",
-        dtype=str,usecols=["island_id","accepted_species","origin_status"])
+        dtype=str,usecols=["island_id","accepted_species","origin_status",
+                           "endemic_status","floristic_status"])
     eligible,gate=strict_direct_928_flora(ledger,raw)
     if gate["n_original_eligible_islands"]!=928:
         raise ValueError("Original 928 Direct floral islands altered")
@@ -47,6 +48,19 @@ def run(original:Path,wcvp_status:Path,island_tdwg:Path,crosswalk:Path,*,
     if len(tdwg)!=8265 or status.accepted_species.nunique()!=55137:
         raise ValueError("Archived WCVP source crosswalk changed")
     classified=regional_native_candidates(eligible,tdwg,status)
+    # strict_direct_928_flora deliberately returns only 3 columns,
+    # so restore the INDEPENDENT original endemicity column by exact
+    # original island×accepted-species identity rather than guess from native.
+    original_endemic=raw[["island_id","accepted_species",
+                           "endemic_status","floristic_status"]]
+    if original_endemic.duplicated(["island_id","accepted_species"]).any():
+        raise ValueError("Original endemic source status pairs duplicate")
+    classified=classified.merge(original_endemic,
+        on=["island_id","accepted_species"],how="left",validate="one_to_one")
+    if classified.endemic_status.isna().any() or classified.floristic_status.isna().any():
+        raise ValueError("Missing original endemic-status source evidence in 928 islands")
+    if not classified.endemic_status.isin(("endemic","nonendemic","unresolved")).all():
+        raise ValueError("Invalid separate endemicity source ledger codes")
     n=classified.groupby("island_id")[
         ["strict_source_native","regional_native_compatible"]].sum()
     if int((n.strict_source_native>=30).sum())!=87 or (
@@ -92,6 +106,12 @@ def run(original:Path,wcvp_status:Path,island_tdwg:Path,crosswalk:Path,*,
                for q in out["geology_matched_geography_and_archipelago_diagnostics"])
     assert all("n_islands_with_any_Direct_endemic" in q for q in out["groups"] if q["scope"]=="all_recorded")
     out["original_seed"]=seed
+    out["endemicity_source_provenance"]={
+        "endemicity_is_separate_original_endemic_status_column":True,
+        "floristic_endemic_requires_native_origin_and_verified_endemic_state":True,
+        "no_endemism_inferred_from_WCVP_TDWG_native_range_alone":True,
+        "original_direct_flora_endemic_not_assumed_absent_if_source_endemic_zero":True,
+    }
     return out
 
 
