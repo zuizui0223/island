@@ -94,6 +94,16 @@ jobs:
           assert z["method"]["accepted_plant_species_not_island_records_are_taxon_units"]
           assert z["method"]["same_accepted_species_in_both_geological_classes_excluded"]
           assert z["method"]["original_focal_trait_variation_required_for_effect_reporting"]
+          trop=next((r for r in z["original_shared_genus_geological_comparisons"]
+                     if r["region"]=="tropical"
+                     and r["trait"]=="flower_primary_color"),None)
+          assert trop is not None
+          if trop["qualified_to_compare_source_endemic_discordance_within_shared_genera"]:
+              sens=trop["descriptive_exact_genus_sign_and_loo_sensitivity"]
+              assert sens["n_exact_sign_reassignments"]==2**trop[
+                  "n_same_genus_shared_across_geological_types"]
+              assert 0 <= sens["exact_two_sided_genus_label_sign_flip_p"] <= 1
+              assert len(sens["leave_one_genus_out_effect_range"])==2
           assert z["method"]["no_privileged_botanical_taxa_or_island_IDs_exported"]
           assert len(z["original_shared_genus_geological_comparisons"])>=20
           assert not any('"'+term+'"' in p.read_text() for term in (
