@@ -36,6 +36,7 @@ jobs:
           ref: analysis/discrete-functional-hypervolume-20261113
           path: work/fd
           persist-credentials: false
+      # The synthetic frame explicitly keeps 3072 colour-only island floras without faking floral form.
       - name: Test no complete-case gate, finite Rao/observed genus balancing and two-trait-only coupling
         run: |
           set -euo pipefail
