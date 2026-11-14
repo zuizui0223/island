@@ -210,7 +210,7 @@ def main():
         "tree_version":args.tree_version,
         "seed":args.seed,
         "n_original_eligible_islands":928,
-        "n_published_true_tip_Direct_species":len(set(result["regional_conditional_phylo_pairing"])),
+        "n_published_true_tip_Direct_species":result["n_original_true_tip_source_species"],
         "n_region_condition_panels":len(panels),
         "n_exploratory_supported_panels":sum(
             x["exploratory_support_10island_5block_5source"] for x in panels),
