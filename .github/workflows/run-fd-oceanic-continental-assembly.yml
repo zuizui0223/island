@@ -74,7 +74,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$STAGE/geology_private"
-          PYTHONPATH=work/fd/src python -m fd.origin --output "$STAGE/geology_private"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geology_private")'
           test -s "$STAGE/geology_private/island_origin_crosswalk.csv"
           test -s "$STAGE/geology_private/crosswalk_audit.json"
           python - <<'PY'
