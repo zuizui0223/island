@@ -95,6 +95,8 @@ jobs:
           assert q["source_provenance"]["donor_state_frequency_discordance_is_not_adaptation"]
           assert len(q["primary_single_trait_hypotheses"])==2
           assert len(q["endemic_vs_native_same_island_congener_support"])>=40
+          assert all("n_islands_with_at_least_two_same_genus_endemic_nonendemic_pairs" in row
+                     for row in q["endemic_vs_native_same_island_congener_support"])
           assert q["no_raw_species_island_genus_or_source_id_exported"]
           assert not any('"'+col+'"' in p.read_text() for col in (
               "island_id","accepted_species","origin_status","endemic_status",
