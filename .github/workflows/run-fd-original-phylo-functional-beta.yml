@@ -1,0 +1,158 @@
+name: fd original phylogenetic beta vs functional beta 928 islands
+on:
+  push:
+    branches:
+      - analysis/fd-discrete-functional-volume-20261113
+    paths:
+      - 'scripts/run_fd_original_phylo_functional_beta.py'
+      - 'scripts/fd_gbotb_export_private_edges.R'
+      - '.github/workflows/run-fd-original-phylo-functional-beta.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-dated-tree-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    strategy:
+      fail-fast: false
+      matrix:
+        tree_version: [TPL, LCVP, WP]
+    env:
+      STAGE: /tmp/fd-original-phylo-functional-beta
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+      TREE_VERSION: ${{ matrix.tree_version }}
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+      - name: SciPy mathematical matching and categorical profile-null dependencies
+        run: python -m pip install pandas numpy scipy pytest
+      - name: Checkout fd original exact-tree phylogeny-only algorithm and synthetic tests
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Checkout published fixed GBOTB LCVP dated original plant tree
+        uses: actions/checkout@v4
+        with:
+          repository: jinyizju/V.PhyloMaker2
+          ref: 7af3fb5152f691af2e4ec9d5e2e467d1b50505e9
+          path: work/V.PhyloMaker2
+          persist-credentials: false
+      - name: Verify original phylogeny and exact-tip mathematical pair matching
+        run: |
+          set -euo pipefail
+          echo '9ac19e04d6016c9e7ee8758524996f40a089271b2fd34371a5dbd607b5dbf2a3  work/V.PhyloMaker2/data/GBOTB.extended.TPL.rda' | sha256sum --check
+          echo '30fd7e9e67bdfff427b336d3b35983f63e284ef118e91f76a7f51a884c9b4e5b  work/V.PhyloMaker2/data/GBOTB.extended.LCVP.rda' | sha256sum --check
+          echo '7fc97970fcd9e69f6506b0c860b1296f4a797635193a8ce4bcb052a83fd1f965  work/V.PhyloMaker2/data/GBOTB.extended.WP.rda' | sha256sum --check
+          PYTHONPATH=work/fd/src python -m pytest -q \
+            work/fd/tests/test_true_backbone_phylo_distance.py \
+            work/fd/tests/test_phylo_beta_functional_beta_macro.py
+          python -m compileall -q work/fd/src/fd/true_backbone_phylo_distance.py \
+            work/fd/src/fd/phylo_beta_functional_beta_macro.py \
+            scripts/run_fd_original_phylo_functional_beta.py
+      - name: Restore original protected 2234 source Direct flower traits, original GIFT
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          ARTIFACT_ID=10058653212
+          SOURCE_RUN="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.workflow_run.id')"
+          SOURCE_NAME="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.name')"
+          test -n "$SOURCE_RUN" && test -n "$SOURCE_NAME"
+          gh run download "$SOURCE_RUN" --repo zuizui0223/island --name "$SOURCE_NAME" --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          if [ -z "$LEDGER" ]; then
+            NESTED="$(find "$STAGE/original" -name '*.zip' -type f -print -quit)"
+            if [ -n "$NESTED" ]; then
+              mkdir -p "$STAGE/unpacked"
+              unzip -q "$NESTED" -d "$STAGE/unpacked"
+              LEDGER="$(find "$STAGE/unpacked" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+            fi
+          fi
+          test -n "$LEDGER" && test -s "$LEDGER"
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Recover independent frozen original CoL XR candidate taxonomy
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/colxr"
+          gh run download 34668274725 --repo zuizui0223/island \
+            --name island-plant-database-2.0.0-alpha2-taxonomy-34668274725 \
+            --dir "$STAGE/colxr"
+          COLXR="$(find "$STAGE/colxr" -name taxonomy_crosswalk.csv.gz -type f -print -quit)"
+          test -n "$COLXR" && test -s "$COLXR"
+          echo "079d9c27b0ca3aa51f0c7310f43ad4901b07a319d6063eab5a7d62b291bdd9e3  $COLXR" | sha256sum --check --strict
+          echo "COLXR=$COLXR" >> "$GITHUB_ENV"
+      - name: Estimate source-independent published-tree PhyloSor beta versus floral categorical beta
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python scripts/run_fd_original_phylo_functional_beta.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --colxr-crosswalk "$COLXR" \
+            --published-backbone-checkout work/V.PhyloMaker2 \
+            --version "$TREE_VERSION" \
+            --workdir "$STAGE" \
+            --original-island-repeats 20 --profile-k-null 199 --bootstrap 999 \
+            --output "$STAGE/anonymous_phylo_functional_beta_${TREE_VERSION}.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          path=Path(os.environ["STAGE"])/f"anonymous_phylo_functional_beta_{os.environ['TREE_VERSION']}.json"
+          d=json.loads(path.read_text())
+          assert d["status"]=="ORIGINAL_TRUE_DATED_PHYLO_BETA_VS_CATEGORICAL_FUNCTIONAL_BETA"
+          assert d["original_tree_backbone_version"]==os.environ["TREE_VERSION"]
+          assert d["n_original_928_direct_island_population"]==928
+          assert d["n_original_global_direct_flower_species"]==2234
+          assert d["n_original_true_phylogenetic_tip_species"]=={"TPL":1187,"LCVP":1162,"WP":1160}[os.environ["TREE_VERSION"]]
+          assert d["original_design"]["one_original_physical_island_one_regression_row"]
+          assert d["original_design"]["same_15_true_dated_plant_tips_on_island_and_GIFT_source"]
+          assert d["original_design"]["family_genus_source_area_isolation_adjusted_regressions"]
+          assert d["original_design"]["functional_Jaccard_beta_exact_island_source_profile_k_nulls"]
+          assert d["original_design"]["null_reference_uniform_and_global_direct_species_frequency"]
+          assert any(
+              "functional_beta_excess_given_exact_profile_k_adjusted_block" in r
+              for r in d["region_support_and_categorical_beta_relationships"]
+              if r["regime"]=="tropical" and r["scope"]=="all_recorded")
+          assert d["no_original_true_phylogeny_backbone_or_taxon_record_redistributed"]
+          audit=d["family_preserving_whole_flower_trait_permutation_audit"]
+          assert audit["n_whole_three_trait_profile_within_family_shuffles"]==99
+          assert audit["preserve_exact_original_within_family_phenotype_counts"]
+          assert audit["keep_island_and_GIFT_membership_and_phylogenetic_tree_fixed"]
+          assert len(d["original_family_preserving_flower_trait_null_by_region"])>=4
+          assert d["original_design"]["family_preserving_original_whole_triple_profile_permutation_is_posthoc"]
+          assert d["original_source_tip_genus_family_island_or_coordinate_ids_not_exported"]
+          assert d["no_actual_pollinator_guild_decline_or_evolutionary_trait_change_measured"]
+          assert len(d["region_support_and_categorical_beta_relationships"])>=4
+          assert any(p["regime"]=="tropical" and p["scope"]=="all_recorded"
+                     and p["n_original_eligible_islands"]>=75
+                     for p in d["region_support_and_categorical_beta_relationships"])
+          assert all(0 <= row["median_original_phylo_beta"] <= 1 and
+                     0 <= row["median_original_functional_beta"] <= 1
+                     for row in d["region_support_and_categorical_beta_relationships"])
+          assert not any('"'+k+'"' in path.read_text() for k in (
+             "accepted_species","island_id","source_genus","source_family",
+             "candidate_family","entity_ID","source_signature","spatial_block",
+             "work_species","family","genus","tip_node_id"))
+          print("True original tree branch PhyloSor and floral category Jaccard computed on identical original floras")
+          PY
+      - name: Upload only anonymous region/source-cluster phylogenetic-functional beta statistics
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-phylo-functional-beta-${{ matrix.tree_version }}-928-${{ github.run_id }}
+          path: /tmp/fd-original-phylo-functional-beta/anonymous_phylo_functional_beta_${{ matrix.tree_version }}.json
+          if-no-files-found: error
+          retention-days: 90
