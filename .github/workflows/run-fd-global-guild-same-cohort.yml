@@ -125,6 +125,8 @@ jobs:
           assert q["n_source_cohort_contrast_panels"]>=400
           assert q["source_limits"]["original_global_4505_flora_denominator_not_cut_to_50_islands"]
           assert q["source_limits"]["exact_same_islands_raw_and_source_reference_compared"]
+          assert q["source_limits"]["previous_separately_clustered_comparisons_do_not_prove_any_within_block_overlap"]
+          assert q["source_limits"]["full_original_raw_cohort_and_source_comparable_subcohort_both_receive_mixed_block_diagnostic"]
           assert q["source_limits"]["sign_flip_not_a_randomized_or_causal_p_value"]
           assert q["source_limits"]["untestable_primary_slots_conservatively_counted_as_p_equals_1_for_BH"]
           assert q["source_limits"]["restricted_island_taxon_GBIF_source_group_IDs_stay_private"]
