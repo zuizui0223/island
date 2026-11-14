@@ -92,6 +92,7 @@ jobs:
           q=json.loads(p.read_text())
           assert q["status"]=="GLOBAL_8K_ISLAND_PARTIAL_DIRECT_TRAIT_FD_WITHOUT_COMPLETE_CASE"
           assert q["n_original_global_distinct_island_floras"]>=4000
+          assert q["n_original_flora_islands_without_independent_GSHHG_geography"]<=30
           assert q["n_original_three_trait_complete30_islands_retained_for_SENSITIVITY"]==928
           assert q["n_original_complete_case_three_trait_sensitivity_islands"]==928
           assert len(q["n_original_direct_plant_species_per_trait"])==10
