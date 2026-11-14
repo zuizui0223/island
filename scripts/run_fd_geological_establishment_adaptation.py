@@ -87,6 +87,9 @@ def run(original:Path,wcvp_status:Path,island_tdwg:Path,crosswalk:Path,*,
         raise ValueError("Original source 928 island support was lost")
     assert any("median_source_distinct_genera" in q for q in out["groups"])
     assert any(q["response"]=="expected_10genus_share" for q in out["geological_origin_associations"])
+    assert len(out["geology_matched_geography_and_archipelago_diagnostics"])==6
+    assert all(q["n_spatial_and_verified_archipelago_disjoint_pairs"]>=0
+               for q in out["geology_matched_geography_and_archipelago_diagnostics"])
     assert all("n_islands_with_any_Direct_endemic" in q for q in out["groups"] if q["scope"]=="all_recorded")
     out["original_seed"]=seed
     return out
