@@ -51,6 +51,7 @@ jobs:
           ref: 7af3fb5152f691af2e4ec9d5e2e467d1b50505e9
           path: work/V.PhyloMaker2
           persist-credentials: false
+      # The fd checkout includes the original CI-corrected source-distance argument interface.
       - name: Verify immutable phylogeny plus synthetic true-tip matching and source guard tests
         run: |
           set -euo pipefail
