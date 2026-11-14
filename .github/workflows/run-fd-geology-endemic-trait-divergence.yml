@@ -93,6 +93,10 @@ jobs:
           assert q["source_provenance"]["original_endemic_status_separate_from_native"]
           assert q["source_provenance"]["source_genus_congeners_selected_without_trait_outcome_matching"]
           assert q["source_provenance"]["donor_state_frequency_discordance_is_not_adaptation"]
+          assert q["source_provenance"]["same_genus_zero_contrast_power_audited_with_original_focal_state_variation"]
+          assert all("n_status_variable_endemic_nonendemic_genus_island_units" in panel
+                     and "n_genus_island_units_with_nonzero_source_discordance" in panel
+                     for panel in q["endemic_vs_native_same_island_congener_support"])
           assert len(q["primary_single_trait_hypotheses"])==2
           assert len(q["endemic_vs_native_same_island_congener_support"])>=40
           assert all("n_islands_with_at_least_two_same_genus_endemic_nonendemic_pairs" in row
