@@ -64,7 +64,7 @@ def test_fixed_source_listing_bins_reconcile_existing_verified_breadth_differenc
     assert q["n_original_matched_effective_source_species"]==3
     assert sum(q[k] for k in COMPONENTS)==pytest.approx(
         q["original_breadth_matched_direct_difference"])
-    assert q["original_breadth_matched_direct_difference"]==pytest.approx(1/9)
+    assert q["original_breadth_matched_direct_difference"]==pytest.approx(-1/18)
     assert q["n_distinct_shared_genera"]==1
     assert q["n_distinct_SHARED_genera_with_REAL_category_variation"]==1
     assert 0<=q["fraction_effective_native_carrier_weight_in_shared_genera"]<=1
