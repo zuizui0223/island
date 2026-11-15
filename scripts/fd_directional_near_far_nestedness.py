@@ -204,7 +204,7 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
             m=membership([v["full"] for v in z],
                          sorted(set().union(*(v["full"] for v in z))))
             shared=(m@m.T).toarray()
-            block,labels=pd.factorize([v["block"] for v in z])
+            block,labels=pd.factorize(np.asarray([v["block"] for v in z],dtype=str))
             d=np.array([v["d"] for v in z])
             km=geographical_distance(
                 np.array([v["lat"] for v in z]),
