@@ -68,6 +68,8 @@ def test_focal_carriers_observed_and_unmatched_genus_fallback_not_zero():
     assert z["matched_genus_donor_names_sampled_per_side"]>=2
     assert np.isfinite(z["local_minus_external_proper_logloss_gain_per_comparable_plant"])
     assert np.isfinite(z["local_minus_external_proper_Brier_gain_per_comparable_plant"])
+    assert np.isfinite(z["external_genus_vs_blind_proper_logloss_gain_per_comparable_plant"])
+    assert np.isfinite(z["external_genus_vs_blind_proper_Brier_gain_per_comparable_plant"])
     assert z["local_exclusive_frequency_D2"]>=0
     assert z["external_exclusive_frequency_D2"]>=0
 
@@ -79,6 +81,8 @@ def test_no_matched_genus_keeps_local_external_predictions_identical():
     assert z["n_matched_genus_direct_carriers"]==0
     assert z["locally_exclusive_minus_externally_exclusive_frequency_D2_gain"]==pytest.approx(0)
     assert z["local_minus_external_proper_logloss_gain_per_comparable_plant"] is None
+    assert z["external_genus_vs_blind_proper_logloss_gain_per_comparable_plant"] is None
+    assert z["external_genus_vs_external_blind_frequency_D2_gain"]==pytest.approx(0)
     with pytest.raises(ValueError):
         island_heldout_comparison({"A local1"},{"A focal"},states,idx,prior,local,other)
 
@@ -99,7 +103,10 @@ def test_group_equal_original_block_contrast_and_source_support_gates():
         rows.append(dict(spatial_block=f"block{i//2}",
             locally_exclusive_minus_externally_exclusive_frequency_D2_gain=.03,
             local_minus_external_proper_logloss_gain_per_comparable_plant=.02,
-            local_minus_external_proper_Brier_gain_per_comparable_plant=.01))
+            local_minus_external_proper_Brier_gain_per_comparable_plant=.01,
+            external_genus_vs_blind_proper_logloss_gain_per_comparable_plant=.015,
+            external_genus_vs_blind_proper_Brier_gain_per_comparable_plant=.008,
+            external_genus_vs_external_blind_frequency_D2_gain=.019))
     q=group_equal_pair_stats(pd.DataFrame(rows),"spatial_block",
                               seed=20261115,nboot=99)
     assert q["status"]=="ORIGINAL_CONDITIONAL_REGION_EXCLUSIVE_DONOR_COMPARISON"
@@ -107,6 +114,7 @@ def test_group_equal_original_block_contrast_and_source_support_gates():
     assert q["n_clusters"]==30
     assert q["locally_exclusive_minus_externally_exclusive_frequency_D2_gain_group_equal_mean"]==pytest.approx(.03)
     assert q["local_minus_external_proper_logloss_gain_per_comparable_plant_group_resample_95"]==pytest.approx([.02,.02])
+    assert q["external_genus_vs_blind_proper_logloss_gain_per_comparable_plant_group_equal_mean"]==pytest.approx(.015)
     no=group_equal_pair_stats(pd.DataFrame(rows[:12]),"spatial_block",
                               seed=20261115,nboot=99)
     assert no["status"]=="NOT_IDENTIFIABLE_INDEPENDENT_ORIGINAL_GROUP_SUPPORT"
