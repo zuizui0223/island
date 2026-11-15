@@ -188,6 +188,16 @@ def analyse(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,assign:pd.DataFrame,
         raise ValueError("Duplicate original mainland source rank")
     first=source.loc[source.source_rank.eq(1)].set_index(
         "island_id").entity_ID.to_dict()
+    # Do not silently discard original GIFT floras with other verified
+    # geographic regimes: every one of the 4505 appears in a source bin.
+    region_of={
+        i:(str(geo.at[i,"analysis_regime"])
+           if pd.notna(geo.at[i,"analysis_regime"])
+           and str(geo.at[i,"analysis_regime"]).strip()
+           else "geography_unresolved")
+        for i in full}
+    region_counts=Counter(region_of.values())
+    all_regions=list(REGIONS)+sorted(set(region_counts)-set(REGIONS))
     ep=source_endpoints(states)
     output=[]
     coverage={}
@@ -199,9 +209,8 @@ def analyse(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,assign:pd.DataFrame,
                 len(lookup.get(i,set())&names)>=MIN_DIRECT for i in full)
             category={c:j for j,c in enumerate(sorted(set(trait.values()),key=repr))}
             global_donor=compile_donors(trait,names,category)
-            for region in REGIONS:
-                source_ids=[i for i in sorted(full)
-                            if geo.at[i,"analysis_regime"]==region]
+            for region in all_regions:
+                source_ids=[i for i in sorted(full) if region_of[i]==region]
                 pool=set().union(*(lookup.get(i,set()) for i in source_ids))&names
                 regional_donor=compile_donors(trait,pool,category)
                 for mode in MODE:
@@ -265,6 +274,14 @@ def analyse(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,assign:pd.DataFrame,
                                 (scope+endpoint+region+mode+key).encode()).digest()[:8],"big"))
                         row[key]=stats
                     output.append(row)
+    for coverage_key,expected_n in coverage.items():
+        scope,endpoint=coverage_key.split("__",1)
+        observed_n=sum(x["n_n5_trait_opportunity_islands"]
+                       for x in opportunity if x["scope"]==scope and
+                       x["trait_endpoint"]==endpoint and
+                       x["reference_donor_mode"]=="regional_source_only")
+        if observed_n!=expected_n:
+            raise AssertionError("Full original 4505 source geography not accounted for")
     if (coverage["all_recorded__flower_primary_color__floral_form"]!=2324 or
             coverage["original_native__flower_primary_color__floral_form"]!=327):
         raise ValueError("Original true Direct paired trait opportunity changed")
@@ -295,6 +312,10 @@ def analyse(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,assign:pd.DataFrame,
        n_original_direct_trait_endpoints=13,
        source_full_4505_island_endpoint_eligibility=coverage,
        source_original_region_name_disjoint_donor_support=opportunity,
+       original_4505_botanical_GSHHG_region_universe=[
+           dict(region=r,n_original_botanical_floras=int(region_counts[r]),
+                primary_preset_region=bool(r in REGIONS))
+           for r in all_regions],
        original_name_heldout_genus_vs_prior_island_scores=output,
        pooled_nonindependent_region_weighted_summary=summaries,
        claims=dict(
