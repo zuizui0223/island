@@ -72,6 +72,9 @@ jobs:
           assert q["n_original_source_direct_sectors"]==7
           assert sum(x["n_original_botanical_floras"] for x in q["original_region_population"])==4505
           assert q["claims"]["native_endemic_label_requires_concordant_original_three_status_fields"]
+          assert q["claims"]["strict_native_nonendemic_GIFT_source_shared_subset_separately_computed"]
+          assert len(q["original_direct_three_stage_comparisons"])==(
+              q["n_original_geographic_regimes_including_unresolved"]*7*5)
           assert q["claims"]["source_only_species_are_absent_from_recorded_full_flora_not_true_failed_arrivals"]
           assert q["claims"]["genus_invariant_zero_not_evidence_against_adaptive_evolution"]
           print("Original actual 4505 GIFT plant status and source morphology direct comparisons completed")
