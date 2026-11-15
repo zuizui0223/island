@@ -18,7 +18,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from fd_island_functional_beta import strict_traits
+from fd_island_functional_beta import strict_traits, membership, geographical_distance
 
 SHRINKAGE=8.0
 MIN_TARGETS=30
@@ -254,6 +254,50 @@ def predict_one_cohort(cohort:str,island_list:list[str],
     return dict(**base,**values)
 
 
+def short_distance_block_disjoint_endpoint_union(ids:list[str],full:dict,
+                                                  geog:pd.DataFrame,
+                                                  *,low=500.,high=2000.) -> tuple[list[str],int,int]:
+    """Outcome-blind exact eligibility graph for the original 456 dyads.
+
+    All original accepted plant names, NOT just flower-known/native records,
+    define the species-disjoint island-pair condition. The focal genus/flower
+    outcome states do not enter this selection.
+    """
+    if not ids or low<0 or high<=low:
+        raise ValueError("Invalid original target island support/distance window")
+    required={"island_id","analysis_regime","spatial_block",
+              "island_latitude","island_longitude"}
+    if not required<=set(geog) or geog.island_id.duplicated().any():
+        raise ValueError("Audited physical island geography required")
+    ge=geog.set_index("island_id").reindex(ids)
+    if len(set(ids))!=len(ids) or len(ids)<2:
+        raise ValueError("Duplicate/missing target original islands")
+    rosters=[full[i] for i in ids]
+    universe=sorted(set().union(*rosters))
+    A=membership(rosters,universe)
+    same_species=(A@A.T).toarray()
+    lat=pd.to_numeric(ge.island_latitude,errors="coerce").to_numpy()
+    lon=pd.to_numeric(ge.island_longitude,errors="coerce").to_numpy()
+    dist=geographical_distance(lat,lon,0,len(ids))
+    blocks=ge.spatial_block.to_numpy()
+    regions=ge.analysis_regime.to_numpy()
+    I,J=np.triu_indices(len(ids),1)
+    valid=(
+        (same_species[I,J]==0) & (regions[I]==regions[J]) &
+        pd.notna(regions[I]) & pd.notna(regions[J]) &
+        pd.notna(blocks[I]) & pd.notna(blocks[J]) &
+        (blocks[I]!=blocks[J]) &
+        (dist[I,J]>=low) & (dist[I,J]<high) &
+        np.isfinite(lat[I]) & np.isfinite(lat[J]) &
+        np.isfinite(lon[I]) & np.isfinite(lon[J]) &
+        (np.abs(lat[I])<=90) & (np.abs(lat[J])<=90) &
+        (np.abs(lon[I])<=180) & (np.abs(lon[J])<=180))
+    ii,jj=I[valid],J[valid]
+    endpoint=sorted(set(ids[x] for x in np.r_[ii,jj]))
+    visited=set(np.r_[blocks[ii],blocks[jj]])
+    return endpoint,int(valid.sum()),len(visited)
+
+
 def analyze(traits,flora,assignment,mainland,geo):
     if not {"island_id","accepted_species","origin_status"}<=set(flora):
         raise ValueError("Original flora fields missing")
@@ -284,10 +328,13 @@ def analyze(traits,flora,assignment,mainland,geo):
     if len(n5)!=2324 or len(native_n5)!=327:
         raise ValueError("Original full 2324/native 327 Direct supports changed")
     if not n10:raise ValueError("Original n10 northern-mid opportunity unavailable")
+    short_union,n_short_pairs,n_short_blocks=short_distance_block_disjoint_endpoint_union(
+        n10,full,geo)
     samples=[
         ("global_all_n5",n5,"all_recorded"),
         ("global_original_native_n5",native_n5,"original_native"),
         ("northmid_n10_coverage10",n10,"all_recorded"),
+        ("northmid_500_2000km_exact456_endpoint_union",short_union,"all_recorded"),
     ]
     result=[]
     for title,ids,scope in samples:
@@ -297,6 +344,9 @@ def analyze(traits,flora,assignment,mainland,geo):
     outside=donors.loc[~donors.work_species.isin(global_all)]
     universal=dict(
         n_original_botanical_islands=len(names),
+        n_original_short_distance_full_species_disjoint_pairs=n_short_pairs,
+        n_original_short_distance_endpoint_islands=len(short_union),
+        n_original_short_distance_spatial_blocks=n_short_blocks,
         n_direct_pair_unique_accepted_species=len(labelled),
         n_original_mainland_native_source_rows=len(mainland),
         n_original_distinct_source_regions=mainland.entity_ID.nunique(),
@@ -364,7 +414,8 @@ def main():
     mainland=pd.read_csv(files["source"],dtype=str,usecols=[
         "entity_ID","work_species"])
     geo=pd.read_csv(args.geology,dtype=str,usecols=[
-        "island_id","analysis_regime","spatial_block"])
+        "island_id","analysis_regime","spatial_block",
+        "island_latitude","island_longitude"])
     if flora.island_id.nunique()!=4505:
         raise ValueError("Source original 4505 island flora count changed")
     if mainland.entity_ID.nunique()!=748:
@@ -372,6 +423,9 @@ def main():
     if len(mainland)!=1666186:
         raise ValueError("Original mainland GIFT native source row count changed")
     result=analyze(traits,flora,assignment,mainland,geo)
+    if (result["n_original_short_distance_full_species_disjoint_pairs"]!=456
+            or result["n_original_short_distance_endpoint_islands"]!=215):
+        raise ValueError("Frozen exact 456-pair/215-island source support drift")
     result["pinned_source_sha256"]={
         "direct_traits":signatures["traits"],
         "original_flora":signatures["flora"],
