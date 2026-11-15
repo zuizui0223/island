@@ -327,8 +327,18 @@ def main():
             raise ValueError("Original archived GIFT/Direct SHA pin changed: "+name)
     blob=nhm_git_blob_sha(args.nhm_combined)
     if blob!=NHM_BLOB:raise ValueError("Independent NHM CSV Git blob SHA drift")
+    original_public_columns=set(pd.read_csv(args.nhm_combined,nrows=0).columns)
+    missing=set(EXTERNAL_COLUMNS)-original_public_columns
+    # The combined archive can lack the per-row source label found in the
+    # separately released BHL/eFloras/Ecoflora files. Never invent a provider.
+    if missing and missing!={"source"}:
+        raise ValueError("NHM combined original CSV missing required trait fields: "+
+                         ", ".join(sorted(missing)))
     frame=pd.read_csv(args.nhm_combined,dtype=str,keep_default_na=False,
-                      low_memory=False,usecols=list(EXTERNAL_COLUMNS))
+                      low_memory=False,usecols=sorted(
+                          set(EXTERNAL_COLUMNS)&original_public_columns))
+    if "source" not in frame.columns:
+        frame["source"]="combined_source_unresolved"
     if not 50000<=len(frame)<=120000:
         raise ValueError("Unexpected NHM combined source row universe")
     traits=strict_traits(pd.read_csv(original["traits"],dtype=str,usecols=[
@@ -354,6 +364,7 @@ def main():
         NHM_combined_source_path=NHM_PATH,
         NHM_combined_git_blob_sha=blob,
         NHM_license=NHM_LICENSE,
+        NHM_original_combined_row_provider_available="source" in original_public_columns,
         NHM_original_csv_sha256=sha256(args.nhm_combined),
         original_GIFT_archive_source_sha256=pins,
     )
