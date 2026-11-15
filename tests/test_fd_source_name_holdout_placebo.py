@@ -94,7 +94,7 @@ def test_equal_block_resampling_not_215_independent_lineages():
     data=[]
     for i in range(40):
         data.append(dict(
-            block=f"B{i//2}",n_carriers=10,
+            block=f"B{i//2}",source_cluster=f"S{i//4}",n_carriers=10,
             actual_logloss=1.0,actual_brier=.3,
             placebo_logloss=1.1,placebo_brier=.35,
             coverage_difference=.01,
@@ -102,6 +102,8 @@ def test_equal_block_resampling_not_215_independent_lineages():
     q=summarize(data,seed=3,n_boot=199)
     assert q["n_source_matched_islands"]==40
     assert q["n_physical_blocks"]==20
+    assert q["n_distinct_first_rank_GIFT_source_clusters"]==10
+    assert q["first_GIFT_source_bootstrap_logloss_interval_95"]==pytest.approx([.1,.1])
     assert q["fraction_islands_actual_source_better_than_matched_placebos"]==1
     assert q["mean_actual_minus_placebo_improvement_logloss"]==pytest.approx(.1)
     assert q["block_bootstrap_logloss_interval_95"]==pytest.approx([.1,.1])
