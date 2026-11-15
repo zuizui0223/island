@@ -20,6 +20,7 @@ import hashlib
 import json
 import math
 from collections import Counter,defaultdict
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -41,6 +42,7 @@ MIN_BLOCKS=10
 MIN_ISLANDS=30
 
 
+@lru_cache(maxsize=200000)
 def no_category_draw_probability(N,K,n):
     """P(no success category on sample of n distinct names), exact finite pool."""
     if not all(isinstance(x,(int,np.integer)) for x in (N,K,n)):
