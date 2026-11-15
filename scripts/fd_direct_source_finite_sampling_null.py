@@ -378,7 +378,7 @@ def run(states,flora,geo,assign,mainland,*,bootstrap=BOOT):
                     mean_original_matched_breadth_effective_Direct_carriers=float(
                         df.n_original_effectively_breadth_matched_Direct_species.mean()),
                     mean_original_actual_state_variable_shared_genera=float(
-                        df.n_original_actual_source_genera_with_variable_species_categories_and_both_memberships.mean())))
+                        df.n_original_actual_source_genera_with_variable_species_categories_and_both_memberships.mean()))
                 for label,subset in (
                     ("all_matched_direct_source",records),
                     ("recording_coverage_gap_le5pp",[
