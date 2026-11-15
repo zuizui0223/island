@@ -54,49 +54,60 @@ def no_category_draw_probability(N,K,n):
     return float(hypergeom.pmf(0,N,K,n))
 
 
-def null_expectation_one_island(known:set,joint:dict,
-                                pool_names:set,sector_name:str):
-    """Actual category breadth compared with fixed-k, prevalence, genus null."""
+def prepare_regional_reference(joint:dict,pool_names:set,sector_name:str):
+    if sector_name not in SECTORS or not pool_names or not pool_names<=set(joint):
+        raise ValueError("No real original same-species region joint traits")
+    categories=sorted({joint[s] for s in pool_names})
+    specialist=[c for c in categories if SECTORS[sector_name](c)]
+    if not specialist:return None
+    bycat=Counter(joint[sp] for sp in pool_names)
+    bygenus=defaultdict(Counter)
+    for sp in pool_names:
+        g=sp.split()[0] if len(sp.split())>=2 else "fixed:"+sp
+        bygenus[g][joint[sp]]+=1
+    return dict(
+        pool_names=pool_names,sector_name=sector_name,categories=categories,
+        specialist=specialist,bycat=bycat,bygenus=bygenus,
+        genus_total={g:sum(v.values()) for g,v in bygenus.items()},
+        genotype={sp:sp.split()[0] if len(sp.split())>=2 else "fixed:"+sp
+                  for sp in pool_names},
+    )
+
+
+def null_expectation_one_island(known:set,joint:dict,pool_names:set,
+                                sector_name:str,*,reference=None):
+    """Recorded specialist-sector occupancy against EXACT analytical nulls."""
     if sector_name not in SECTORS or not known or not known<=pool_names:
         raise ValueError("Original real within-region category source missing")
-    reference={sp:joint[sp] for sp in pool_names}
-    categories=sorted(set(reference.values()))
-    predicate=SECTORS[sector_name]
-    specialist=[c for c in categories if predicate(c)]
-    if len(specialist)==0:return None
-    region_source=Counter(reference.values())
-    obs=set(joint[s] for s in known)
-    K=len(categories)
-    R=len(specialist)
-    k=len(obs)
-    n=len(known)
-    N=len(pool_names)
-    observed_r=sum(c in obs for c in specialist)
+    ref=reference or prepare_regional_reference(joint,pool_names,sector_name)
+    if ref is None:return None
+    specialist=ref["specialist"]
+    categories=ref["categories"]
+    R=len(specialist);K=len(categories)
+    k=len({joint[s] for s in known})
+    n=len(known);N=len(pool_names)
+    actual={joint[s] for s in known}
+    observed_r=sum(c in actual for c in specialist)
     uniform_exp=k*R/K
     uniform_no=no_category_draw_probability(K,R,k)
-    prev_exp=sum(1.-no_category_draw_probability(
-        N,region_source[c],n) for c in specialist)
-    prevalence_no=no_category_draw_probability(
-        N,sum(region_source[c] for c in specialist),n)
-    genus_names=defaultdict(list)
-    for sp in pool_names:
-        genus=sp.split()[0] if len(sp.split())>=2 else "fixed:"+sp
-        genus_names[genus].append(sp)
-    k_i=Counter((sp.split()[0] if len(sp.split())>=2 else "fixed:"+sp)
-                for sp in known)
-    # Exact finite genus profile permutations, NO Monte Carlo pseudo-replication.
-    if any(k_i[g]>len(genus_names[g]) for g in k_i):
-        raise AssertionError("Island genus has more original species than its region")
-    def missing_probability(accept):
-        ans=1.
-        for g,n_take in k_i.items():
-            members=genus_names[g]
-            hits=sum(accept(joint[s]) for s in members)
-            ans*=no_category_draw_probability(len(members),hits,n_take)
-        return ans
-    genus_exp=sum(1.-missing_probability(lambda c,target=c:c==target)
-                  for c in specialist)
-    genus_no=missing_probability(predicate)
+    bycat=ref["bycat"]
+    freq_exp=sum(1.-no_category_draw_probability(N,bycat[c],n)
+                 for c in specialist)
+    freq_no=no_category_draw_probability(
+        N,sum(bycat[c] for c in specialist),n)
+    genus_n=Counter(ref["genotype"][s] for s in known)
+    bygenus=ref["bygenus"];genus_total=ref["genus_total"]
+    if any(genus_n[g]>genus_total[g] for g in genus_n):
+        raise AssertionError("Unknown original reference genus species")
+    def p_missing(accept):
+        v=1.
+        for g,num in genus_n.items():
+            hits=sum(count for profile,count in bygenus[g].items()
+                     if accept(profile))
+            v*=no_category_draw_probability(genus_total[g],hits,num)
+        return v
+    genus_exp=sum(1.-p_missing(lambda x,t=c:x==t) for c in specialist)
+    genus_no=p_missing(SECTORS[sector_name])
     return dict(
         n_direct_species=n,n_observed_joint_profiles=k,
         n_region_reference_joint_profiles=K,
@@ -106,12 +117,12 @@ def null_expectation_one_island(known:set,joint:dict,
         observed_sector_absence=int(observed_r==0),
         expected_occupied_special_uniform_given_k=uniform_exp,
         expected_absence_uniform_given_k=uniform_no,
-        expected_occupied_special_category_prevalence_fixed_n=prev_exp,
-        expected_absence_category_prevalence_fixed_n=prevalence_no,
+        expected_occupied_special_category_prevalence_fixed_n=freq_exp,
+        expected_absence_category_prevalence_fixed_n=freq_no,
         expected_occupied_special_regional_genus_swap=genus_exp,
         expected_absence_regional_genus_swap=genus_no,
         excess_special_missing_uniform_given_k=(uniform_exp-observed_r)/R,
-        excess_special_missing_prevalence_fixed_n=(prev_exp-observed_r)/R,
+        excess_special_missing_prevalence_fixed_n=(freq_exp-observed_r)/R,
         excess_special_missing_genus_fixed_n=(genus_exp-observed_r)/R,
         excess_complete_sector_absence_genus_fixed_n=(
             int(observed_r==0)-genus_no),
@@ -159,6 +170,8 @@ def run(states,flora,geo,assign,*,n_boot=999):
             source_names=set().union(*source)&joint_species
             if not source_names:continue
             for sector_name in SECTORS:
+                prepared=prepare_regional_reference(joint,source_names,sector_name)
+                if prepared is None:continue
                 rows=[]
                 for island in ri:
                     orig=lookup.get(island,set())
@@ -174,7 +187,7 @@ def run(states,flora,geo,assign,*,n_boot=999):
                         dist<0 or area<=0 or abs(lat)>90 or pd.isna(geo_i.spatial_block)):
                         continue
                     out=null_expectation_one_island(
-                        known,joint,source_names,sector_name)
+                        known,joint,source_names,sector_name,reference=prepared)
                     if out is None:continue
                     rows.append(dict(
                         **out,
