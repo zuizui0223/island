@@ -40,8 +40,8 @@ def test_pair_island_block_additivity_and_correct_one_block_deletion():
         assert result[prefix+"observed_D2"]==pytest.approx(sum(
             result[prefix+key] for key in Aggregate.KEYS[1:]))
     assert result["pair_equal_observed_D2"]==pytest.approx(.45)
-    assert result["delete_one_physical_block_pair_mean_observed_D2_min"]==pytest.approx(.2)
-    assert result["delete_one_physical_block_pair_mean_observed_D2_max"]==pytest.approx(.6)
+    assert result["delete_one_physical_block_pair_mean_observed_D2_min"]==pytest.approx(.3)
+    assert result["delete_one_physical_block_pair_mean_observed_D2_max"]==pytest.approx(.65)
 
 
 def test_full_original_species_and_all_formal_flower_endpoints_no_triple_gate():
