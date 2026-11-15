@@ -90,7 +90,7 @@ def test_no_triple_gate_and_private_names_removed():
 
 def test_full_original_species_overlap_masks_native_too():
     states,flora,geo=_source()
-    rows=[dict(island_id='I0',accepted_species='Alien shared',
+    rows=[dict(island_id='I1',accepted_species='Alien shared',
                origin_status='unresolved'),
           dict(island_id='I2',accepted_species='Alien shared',
                origin_status='unresolved')]
