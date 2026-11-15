@@ -318,7 +318,7 @@ def analyze(original:pd.DataFrame,geo:pd.DataFrame,assign:pd.DataFrame,
                   ("northern_midlatitude","zygomorphic"):230,
                   ("northern_midlatitude","tube_or_bell"):224}
         for reg,scope,cohort in wanted:
-            actual=sum(len(rowbags) for rowbags in []) if False else next(
+            actual=next(
                 p["n_original_source_listed_islands_with_valid_full_name_null"]
                 for p in panels if p["region"]==reg and
                 p["source_status_scope"]==scope and p["island_cohort"]==cohort)
