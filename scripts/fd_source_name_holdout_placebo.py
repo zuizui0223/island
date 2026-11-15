@@ -131,14 +131,47 @@ def summarize(rows:list[dict],*,seed:int=20261115,n_boot:int=1999):
     group={b:advantage[frame.block.to_numpy()==b].mean(0)
            for b in blocks}
     block_mean=np.stack([group[b] for b in blocks])
+    # Same first-ranked GIFT mainland source is a second, distinct dependence
+    # structure; never treat many physical blocks sharing one region as
+    # independent mainland source histories.
+    source_keys=sorted(frame.source_cluster.dropna().unique())
+    source_equal=np.stack([
+        advantage[frame.source_cluster.to_numpy()==b].mean(0)
+        for b in source_keys])
     rng=np.random.default_rng(seed)
     chosen=rng.integers(len(blocks),size=(n_boot,len(blocks)))
     samples=block_mean[chosen].mean(1)
-    trim=np.sort(advantage[:,0])
+    if len(source_keys)>1:
+        pick_source=np.random.default_rng(seed+1).integers(
+            len(source_keys),size=(n_boot,len(source_keys)))
+        source_samples=source_equal[pick_source].mean(1)
+        source_logloss_ci=[
+            float(np.quantile(source_samples[:,0],.025)),
+            float(np.quantile(source_samples[:,0],.975))]
+        source_brier_ci=[
+            float(np.quantile(source_samples[:,1],.025)),
+            float(np.quantile(source_samples[:,1],.975))]
+        source_loo=[
+            float(source_equal[np.arange(len(source_keys))!=j,0].mean())
+            for j in range(len(source_keys))]
+    else:
+        source_logloss_ci=None
+        source_brier_ci=None
+        source_loo=[]
     d=dict(
         status="POSTHOC_SUPPORT_MATCHED_SOURCE_ASSIGNMENT_PLACEBO",
         n_source_matched_islands=len(frame),
         n_physical_blocks=len(blocks),
+        n_distinct_first_rank_GIFT_source_clusters=len(source_keys),
+        first_GIFT_source_equal_logloss_advantage=float(source_equal[:,0].mean()),
+        first_GIFT_source_equal_brier_advantage=float(source_equal[:,1].mean()),
+        first_GIFT_source_bootstrap_logloss_interval_95=source_logloss_ci,
+        first_GIFT_source_bootstrap_brier_interval_95=source_brier_ci,
+        first_GIFT_source_leave_one_out_logloss_min=(
+            float(min(source_loo)) if source_loo else None),
+        first_GIFT_source_leave_one_out_logloss_max=(
+            float(max(source_loo)) if source_loo else None),
+        first_GIFT_source_clusters_ge_10=bool(len(source_keys)>=10),
         mean_actual_minus_placebo_improvement_logloss=float(advantage[:,0].mean()),
         mean_actual_minus_placebo_improvement_brier=float(advantage[:,1].mean()),
         block_equal_logloss_advantage=float(block_mean[:,0].mean()),
@@ -245,6 +278,7 @@ def analyze(traits,flora,assignment,mainland,geo,*,n_boot:int=1999):
             cov=coverage(g,actual["genera"])
             source_matched.append(dict(
                 block=geo.at[id,"spatial_block"],
+                source_cluster=near[id][0] if near.get(id) else None,
                 n_carriers=len(target),
                 actual_logloss=obs[0],actual_brier=obs[1],
                 placebo_logloss=same[0],placebo_brier=same[1],
@@ -274,6 +308,7 @@ def analyze(traits,flora,assignment,mainland,geo,*,n_boot:int=1999):
             placebo_source_evidence_matched_not_ancestral_assignment=True,
             known_target_genus_is_posthoc_oracle=True,
             physical_blocks_not_independent_phylogenetic_histories=True,
+            first_GIFT_source_clustering_is_additional_sensitivity=True,
             no_island_local_trait_evolution_pollen_fitness_or_guild_shift=True,
             no_private_plant_island_GIFT_entity_or_geography_ids_exported=True))
 
