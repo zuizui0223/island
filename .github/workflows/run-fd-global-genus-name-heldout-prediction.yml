@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [analysis/fd-discrete-functional-volume-20261113]
-    paths: [.github/workflows/run-fd-global-genus-name-heldout-prediction.yml, scripts/fd_global_genus_name_heldout_prediction.py, tests/test_fd_global_genus_name_heldout_prediction.py]
+    paths: [.github/workflows/run-fd-global-genus-name-heldout-prediction.yml, scripts/fd_global_genus_name_heldout_prediction.py, scripts/fd_global_genus_assembly_geometry.py, tests/test_fd_global_genus_name_heldout_prediction.py, tests/test_fd_global_genus_assembly_geometry.py]
 permissions:
   contents: read
   actions: read
