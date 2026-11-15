@@ -176,6 +176,24 @@ def analyze(states,flora,geo,assign,*,n_boot=999):
                 n_islands_with_n5_BOTH_separate_reproductive_trait_rosters=len(both_available),
                 n_unique_original_source_species_with_BOTH_strict_binary_labels=len(species_both),
                 not_same_species_or_independent_trait_observation_by_island=True))
+    # Explicitly adjust the complete eight all-recorded region×trait
+    # exploratory (not pre-registered) binary-reproduction tests. Native
+    # subsets overlap and do not count as independent biological replications.
+    observed_family=[r for r in rows if r["scope"]=="all_recorded"]
+    if len(observed_family)!=8:
+        raise AssertionError("Incomplete eight exploratory reproductive contrasts")
+    for name in ("observed","genus_relative"):
+        prefix=name+"__physical_block__"
+        if all(r.get(prefix+"status")==
+               "ORIGINAL_ISLAND_BLOCK_EQUAL_DESCRIPTIVE_REGRESSION"
+               for r in observed_family):
+            vals=holm([r[prefix+"block_robust_two_sided_t_p_exploratory"]
+                       for r in observed_family])
+            for r,v in zip(observed_family,vals):
+                r[name+"__physical_block__Holm_8_posthoc_p"]=float(v)
+        else:
+            for r in observed_family:
+                r[name+"__physical_block__Holm_8_posthoc_p"]=None
     return dict(
         status="ORIGINAL_SEPARATE_SELF_COMPATIBILITY_AND_AUTONOMOUS_SELFING_ISOLATION",
         n_original_botanical_islands=n_original,
