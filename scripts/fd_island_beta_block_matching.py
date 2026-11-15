@@ -188,7 +188,9 @@ def analyze(states, flora, geo, *, draws=N_DRAWS,
                 np.isfinite(distance[left,right])&
                 (distance[left,right]>=low)&(distance[left,right]<high)&
                 np.isfinite(latitude[left])&np.isfinite(latitude[right])&
-                np.isfinite(longitude[left])&np.isfinite(longitude[right]))
+                np.isfinite(longitude[left])&np.isfinite(longitude[right])&
+                (np.abs(latitude[left])<=90)&(np.abs(latitude[right])<=90)&
+                (np.abs(longitude[left])<=180)&(np.abs(longitude[right])<=180))
             if not eligible_graph.any():continue
             for gate in GATES:
                 keep=eligible_graph.copy()
