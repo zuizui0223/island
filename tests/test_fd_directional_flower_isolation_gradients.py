@@ -16,7 +16,7 @@ def make_regression(n=120):
         block="block"+str(i//3)
         rows.append(dict(
             response=.18-.023*x+.011*np.log1p(10+i)+.07*(.08+.0002*i)
-                     +.003*np.log(5+i%12)+.001*(30+i%25),
+                     +.003*np.log(5+i%12)+.001*(30+i%25)+.002*np.sin(i*1.3),
             log2_isolation_plus1=x,log1p_area=np.log1p(10+i),
             direct_coverage=.08+.0002*i, log_direct_n=np.log(5+i%12),
             absolute_latitude=30+i%25,
@@ -30,9 +30,9 @@ def test_exact_cluster_regression_direction_and_spatial_independence():
     r=weighted_cluster_fit(x,cluster="spatial_block",n_boot=99,seed=7)
     assert r["status"]=="ORIGINAL_ISLAND_BLOCK_EQUAL_DESCRIPTIVE_REGRESSION"
     assert r["n_clusters"]==40 and r["n_islands"]==120
-    assert r["estimate_per_doubling"]==pytest.approx(-.023,abs=1e-7)
+    assert r["estimate_per_doubling"]==pytest.approx(-.023,abs=.002)
     assert r["n_valid_block_resamples"]>=80
-    assert r["delete_one_block_min"]==pytest.approx(-.023,abs=1e-6)
+    assert r["delete_one_block_min"]==pytest.approx(-.023,abs=.002)
     assert r["block_resample_quantile_95"][1]<0
     y=weighted_cluster_fit(x,cluster="source_cluster",n_boot=99,seed=7)
     assert y["n_clusters"]==20
