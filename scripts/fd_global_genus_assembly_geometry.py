@@ -156,6 +156,18 @@ def analyse(states,flora,geo,*,batch=96,
         "island_id").accepted_species.agg(set).to_dict()
     if len(full)!=4505:raise ValueError("The complete original GIFT flora changed")
     geo=geo.set_index("island_id")
+    # Retain EVERY original GIFT flora's true GSHHG source regime.
+    # Three original broad regimes remain primary; all additional,
+    # independently labelled geographies are explicitly SECONDARY.
+    region_of={
+        i:(str(geo.at[i,"analysis_regime"])
+           if i in geo.index and pd.notna(geo.at[i,"analysis_regime"])
+           and str(geo.at[i,"analysis_regime"]).strip()
+           else "geography_unresolved")
+        for i in full}
+    from collections import Counter
+    region_counts=Counter(region_of.values())
+    all_regions=list(REGIONS)+sorted(set(region_counts)-set(REGIONS))
     ep=source_endpoints(states)
     coverage={}
     results=[]
@@ -164,9 +176,8 @@ def analyse(states,flora,geo,*,batch=96,
         for name,phenotypes in ep.items():
             support=sum(len(source.get(i,set())&set(phenotypes))>=5 for i in full)
             coverage[scope+"__"+name]=int(support)
-            for region in REGIONS:
-                region_ids=[i for i in sorted(full) if i in geo.index
-                            and geo.at[i,"analysis_regime"]==region]
+            for region in all_regions:
+                region_ids=[i for i in sorted(full) if region_of[i]==region]
                 region_roster=[source.get(i,set()) for i in region_ids]
                 source_pool=set().union(*region_roster)&set(phenotypes)
                 carrier=[source.get(i,set())&set(phenotypes) for i in region_ids]
@@ -243,6 +254,13 @@ def analyse(states,flora,geo,*,batch=96,
                         results.append(dict(**entry,geographic_pair_band=band,
                                             **row))
                 eligibility.append(entry)
+    for coverage_key,expected_n in coverage.items():
+        scope,endpoint=coverage_key.split("__",1)
+        observed_n=sum(x["n_original_direct_n5_islands"]
+                       for x in eligibility if x["scope"]==scope and
+                       x["trait_endpoint"]==endpoint)
+        if observed_n!=expected_n:
+            raise AssertionError("Some original 4505 source floras were silently omitted")
     if (coverage["all_recorded__flower_primary_color__floral_form"]!=2324 or
         coverage["original_native__flower_primary_color__floral_form"]!=327):
         raise ValueError("Frozen 2324/327 original Direct paired endpoint drift")
@@ -253,6 +271,10 @@ def analyse(states,flora,geo,*,batch=96,
         n_actual_Direct_joint_two_trait_endpoints=3,
         original_endpoint_coverage_n5=coverage,
         source_region_genus_opportunity=eligibility,
+        original_4505_botanical_GSHHG_region_universe=[
+            dict(region=r,n_original_botanical_floras=int(region_counts[r]),
+                 primary_preset_region=bool(r in REGIONS))
+            for r in all_regions],
         original_exact_signed_category_distance_decompositions=results,
         claims=dict(
             pair_additive_squares_and_signed_cross_always_reconcile=True,
