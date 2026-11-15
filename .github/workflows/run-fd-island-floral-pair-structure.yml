@@ -1,0 +1,84 @@
+name: fd same-mask island floral joint versus marginal composition
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths: [.github/workflows/run-fd-island-floral-pair-structure.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-pair-structure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      STAGE: /tmp/fd-island-pair-structure
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install numpy pandas scipy pytest
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: 9f33dcdc057ff91b1112776ce6aa5f516890b125
+          path: work/fd
+          persist-credentials: false
+      - name: Validate marginal-product identities and unchanged pair graph
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/checks"
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_island_floral_beta.py work/fd/tests/test_island_floral_pair_structure.py | tee "$STAGE/checks/targeted_tests.txt"
+      - name: Restore original botanical source and independently archived island beta result
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/beta"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          gh run download 43662732106 --repo zuizui0223/island --name fd-island-floral-beta-43662732106 --dir "$STAGE/beta"
+          test -s "$STAGE/beta/anonymous_island_floral_beta.json"
+      - name: Restore original independently classified geography inside source runner
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+      - name: Evaluate exactly same observed two-trait species and island pairs
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m fd.island_floral_pair_structure \
+            --original-root "$ORIGINAL_ROOT" \
+            --geography "$STAGE/geography/island_origin_crosswalk.csv" \
+            --beta-baseline "$STAGE/beta/anonymous_island_floral_beta.json" \
+            --output "$STAGE/anonymous_same_mask_pair_structure.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          q=json.loads((Path(os.environ['STAGE'])/'anonymous_same_mask_pair_structure.json').read_text())
+          assert q['n_original_flora_islands']==4505
+          assert len(q['same_mask_pair_endpoints'])==6
+          assert q['claims']['marginals_recomputed_on_identical_two_trait_species_and_pairs']
+          assert q['claims']['product_reference_is_not_imputation_or_a_sampled_null_distribution']
+          print('Original six paired endpoints reconciled; aggregate category contributions only')
+          PY
+      - name: Capture bounded full repository test result
+        run: |
+          set +e
+          (cd work/fd && PYTHONPATH=src timeout 180 python -m pytest -q --maxfail=3) > "$STAGE/checks/full_suite.txt" 2>&1
+          CODE=$?
+          echo "full_repository_suite_exit_code=$CODE" | tee "$STAGE/checks/full_suite_status.txt"
+          tail -35 "$STAGE/checks/full_suite.txt"
+          exit 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fd-island-pair-structure-${{ github.run_id }}
+          path: |
+            /tmp/fd-island-pair-structure/anonymous_same_mask_pair_structure.json
+            /tmp/fd-island-pair-structure/checks/
+          if-no-files-found: error
+          retention-days: 30
