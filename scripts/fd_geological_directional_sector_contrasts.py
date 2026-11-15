@@ -175,8 +175,8 @@ def source_group_cluster_fit(df:pd.DataFrame,response:str,cluster:str,
         trial=gram-M[j]
         if np.linalg.matrix_rank(trial,tol=1e-9)==p:
             loo.append(float(np.linalg.solve(trial,b.sum(0)-b[j])[1]))
-    means=df.groupby("origin")[response].mean()
-    group_equal=df.groupby([cluster,"origin"])[response].mean().reset_index()
+    means=d.groupby("origin")[response].mean()
+    group_equal=d.groupby([cluster,"origin"])[response].mean().reset_index()
     group_means=group_equal.groupby("origin")[response].mean()
     cov_matrix=np.corrcoef(X[:,1:].T)[0,1:]
     return dict(**nb,
