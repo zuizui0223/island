@@ -4,7 +4,8 @@ import pandas as pd
 import pytest
 
 from fd_source_name_heldout_macro_preflight import (
-    genus,donor_probability,score,exact_join_and_source,predict_one_cohort
+    genus,donor_probability,score,exact_join_and_source,predict_one_cohort,
+    short_distance_block_disjoint_endpoint_union
 )
 
 
@@ -116,3 +117,29 @@ def test_unrelated_work_species_does_not_inflate_profile_donors():
                          all_f,native_f,labels,donor,near,geo,
                          test_scope="all_recorded")
     assert q["n_unique_source_direct_pair_donor_species_before_holdout"]==230
+
+
+def test_outcome_blind_original_distance_source_mask_selects_exact_pair_endpoints():
+    full={
+        'A':{'One a','One b'},
+        'B':{'Two a','Two b'},
+        'C':{'Three a','Three b'},
+        'D':{'Four a','Four b'},
+    }
+    geo=pd.DataFrame([
+        dict(island_id=i,analysis_regime='northern_midlatitude',
+             spatial_block=f'block{i}',island_latitude=0,
+             island_longitude=j*10)
+        for j,i in enumerate(['A','B','C','D'])])
+    endpoints,n_pairs,n_blocks=short_distance_block_disjoint_endpoint_union(
+        list(full),full,geo)
+    assert (endpoints,n_pairs,n_blocks)==(['A','B','C','D'],3,4)
+    full['A'].add('Shared source plant')
+    full['B'].add('Shared source plant')
+    endpoints,n_pairs,n_blocks=short_distance_block_disjoint_endpoint_union(
+        list(full),full,geo)
+    assert n_pairs==2
+    assert endpoints==['B','C','D']
+    with pytest.raises(ValueError):
+        short_distance_block_disjoint_endpoint_union(
+            list(full),full,geo.drop(columns=['island_latitude']))
