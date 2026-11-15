@@ -204,7 +204,7 @@ def analyze(states:dict,original:pd.DataFrame,geo:pd.DataFrame,
     if len(panels)!=len(REGIONS)*len(labels):
         raise AssertionError("Original source trait geography omitted")
     return dict(
-        status="ORIGINAL_4505_END_EMIC_SAME_GENUS_CANDIDATE_MAINLAND_STATE_CONTRAST",
+        status="ORIGINAL_4505_ENDEMIC_SAME_GENUS_CANDIDATE_MAINLAND_STATE_CONTRAST",
         n_original_botanical_island_floras=4505,
         n_original_Direct_traits_sectors=len(labels),
         original_complete_flora_GSHHG_geography=[
