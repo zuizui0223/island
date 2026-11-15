@@ -330,7 +330,7 @@ def analyze(flora,geo,assign,mainland,states,*,boots=BOOT):
                     actual_names,candidates,strata)
                 if null is None:continue
                 k,used_u,used_c=null
-                if k["n_original_matched_effective_source_species"]<MIN_MATCH:
+                if k["original_matched_effective_source_species"]<MIN_MATCH:
                     continue
                 k=exact_same_names_breadth_baseline(
                     k,used_u,used_c,gift_breadth)
