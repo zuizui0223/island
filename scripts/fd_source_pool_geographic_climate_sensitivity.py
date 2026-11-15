@@ -160,11 +160,13 @@ def analyze(original,geo,assign,mainland,states,*,n_boot=BOOT):
         direct_masks=defaultdict(set)
         for id in ids:
             item=F[id]
+            potential_by_mode={}
             for mode in MODES:
                 neighbor=source_modes[id].get(mode,[])
                 if not neighbor:continue
                 min_dist=source_species_min_km(neighbor,membership)
                 all_names=set(min_dist)
+                potential_by_mode[mode]=all_names
                 outside=all_names-item["full"]
                 # Original GEO mode defines pre-analytical eligible ISLAND
                 # identity for each Direct trait, not the climate result.
@@ -203,10 +205,12 @@ def analyze(original,geo,assign,mainland,states,*,n_boot=BOOT):
                         original_source_candidate_species_count=len(outside),
                         original_source_mode=mode)
                     buffers[(scope,mode)][id]=q
-                if mode=="geo_k5":
-                    buffers[("private_source_potential",mode)][id]=all_names
-                if mode=="geo50_climate10":
-                    buffers[("private_source_potential",mode)][id]=all_names
+            if all(m in potential_by_mode for m in MODES):
+                a_set=potential_by_mode["geo_k5"]
+                b_set=potential_by_mode["geo50_climate10"]
+                buffers[("private_source_jaccard","both")][id]=(
+                    len(a_set&b_set)/len(a_set|b_set)
+                    if a_set|b_set else 0.)
         for scope in SCOPES:
             scope_cohorts=(["all_original_source_taxa"]+
                 ["same_geo5_islands_as_Direct_"+name for name in sectors]
@@ -245,9 +249,7 @@ def analyze(original,geo,assign,mainland,states,*,n_boot=BOOT):
                 for id in sorted(common):
                     a=buffers[(scope,"geo_k5")][id]
                     b=buffers[(scope,"geo50_climate10")][id]
-                    speciesA=buffers[("private_source_potential","geo_k5")].get(id,set())
-                    speciesB=buffers[("private_source_potential","geo50_climate10")].get(id,set())
-                    jaccard=len(speciesA&speciesB)/len(speciesA|speciesB) if speciesA|speciesB else 0
+                    jaccard=buffers[("private_source_jaccard","both")].get(id,0.)
                     paired.append(dict(
                         physical_block=a["physical_block"],
                         source_region_cluster=a["source_region_cluster"],
