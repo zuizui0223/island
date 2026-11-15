@@ -181,9 +181,12 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
     d=status_groups(flora)
     if len(d)!=4505:raise ValueError("Main 4505 original island floras changed")
     vocab=source_sectors(states)
-    region_geo=geo.set_index("island_id")
-    if not set(d)<=set(region_geo.index):
-        raise ValueError("Original island physical geography crosswalk missing")
+    # Exactly one botanical island has unresolved physical GSHHG geography.
+    # Preserve it in the 4,505 population and account for it explicitly;
+    # do not assign a fictitious mainland location or a regional test group.
+    region_geo=geo.set_index("island_id").reindex(sorted(d))
+    if int(region_geo.analysis_regime.notna().sum())!=4504:
+        raise ValueError("Original 4504 geographically matched botanical floras changed")
     source=assignments.loc[assignments.source_mode.eq("geo_k5")].copy()
     source.source_rank=pd.to_numeric(source.source_rank,errors="raise")
     source=source.loc[source.source_rank.between(1,5)]
