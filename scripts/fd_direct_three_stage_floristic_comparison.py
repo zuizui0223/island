@@ -248,7 +248,7 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                 "endemic","introduced","mainland_not_recorded",
                 "native_endemism_unresolved")}
             overall_source_breadth=defaultdict(list)
-            g_var=set()
+            informative_distinct_genera=set()
             observed_shared=set()
             for id in ids:
                 groups=d[id]
@@ -305,7 +305,14 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                             difference=m[
                                 "mean_genus_equal_endemic_minus_native_nonendemic_share"]))
                     for g in set(genus(s) for s in e)&set(genus(s) for s in nnon):
-                        observed_shared.add(g)
+                        if any(s in trait for s in e if genus(s)==g) and (
+                            any(s in trait for s in nnon if genus(s)==g)):
+                            observed_shared.add(g)
+                            trait_values={
+                                trait[s] for s in (e|nnon)
+                                if s in trait and genus(s)==g}
+                            if len(trait_values)>=2:
+                                informative_distinct_genera.add(g)
             entry=dict(region=region,trait_sector=endpoint,
                        n_original_region_floras=len(ids),
                        original_source_three_status_groups=[
@@ -325,7 +332,8 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                            "n_same_island_matched_genera_with_category_variation"],
                        n_original_islands_with_informative_genus_match=support[
                            "n_islands_with_informative_matched_status_genus"],
-                       n_original_distinct_shared_endemic_nonendemic_genera=len(observed_shared))
+                       n_original_distinct_shared_endemic_nonendemic_genera=len(observed_shared),
+                       n_original_distinct_shared_endemic_nonendemic_genera_with_category_variation=len(informative_distinct_genera))
             census.append(entry)
             for label,rec in records.items():
                 block=grouped_interval(rec,"block",boots=boots,
@@ -334,11 +342,26 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                 source_grp=grouped_interval(rec,"first_source",boots=boots,
                     seed=int.from_bytes(hashlib.sha256((
                         region+endpoint+label+"source").encode()).digest()[:8],"big"))
+                if "same_island_genus" in label and (
+                        entry["n_original_distinct_shared_endemic_nonendemic_genera_with_category_variation"]<10):
+                    block=dict(status="NOT_IDENTIFIABLE_TOO_FEW_DISTINCT_VARIABLE_STATUS_GENERA",
+                               n_comparable_floras=len(rec),
+                               n_source_clusters=block.get("n_source_clusters",0),
+                               n_original_distinct_variable_genera=entry[
+                                   "n_original_distinct_shared_endemic_nonendemic_genera_with_category_variation"])
+                    source_grp=dict(status="NOT_IDENTIFIABLE_TOO_FEW_DISTINCT_VARIABLE_STATUS_GENERA",
+                               n_comparable_floras=len(rec),
+                               n_source_clusters=source_grp.get("n_source_clusters",0),
+                               n_original_distinct_variable_genera=entry[
+                                   "n_original_distinct_shared_endemic_nonendemic_genera_with_category_variation"])
                 analyses.append(dict(
                     region=region,trait_sector=endpoint,contrast=label,
                     n_original_islands_with_both_Direct_groups=len(rec),
                     n_original_genus_informative_matched_source_units=(
                         entry["n_original_same_island_genus_endemic_native_units_with_ANY_true_category_variation"]
+                        if "same_island_genus" in label else None),
+                    n_original_DISTINCT_status_matched_variable_genera=(
+                        entry["n_original_distinct_shared_endemic_nonendemic_genera_with_category_variation"]
                         if "same_island_genus" in label else None),
                     original_physical_block_equal=block,
                     original_first_GIFT_source_equal=source_grp))
@@ -367,6 +390,7 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
             establishment_sorting_raw_effect_NOT_genus_conditioned=True,
             endemic_genus_effect_observed_same_island_both_status_not_sisters=True,
             genus_invariant_zero_not_evidence_against_adaptive_evolution=True,
+            same_island_matched_endemic_inference_requires_at_least_10_distinct_variable_genera=True,
             biological_source_breadth_proxy_is_GIFT_reporting_not_true_range=True,
             source_species_and_traits_are_literature_wide_not_local_population_phenotypes=True,
             original_any_source_POLLINATOR_service_or_seed_set_NOT_observed=True,
