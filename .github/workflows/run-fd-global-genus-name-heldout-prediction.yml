@@ -69,6 +69,7 @@ jobs:
           q=json.loads((Path(os.environ["STAGE"])/"anonymous_fd_genus_name_heldout_predictions.json").read_text())
           assert q["status"]=="ORIGINAL_GLOBAL_13_ENDPOINT_FULL_FLORA_NAME_HELDOUT_GENUS_PREDICTION"
           assert q["n_original_source_botanical_island_floras"]==4505
+          assert sum(r["n_original_botanical_floras"] for r in q["original_4505_botanical_GSHHG_region_universe"])==4505
           assert q["n_original_direct_trait_endpoints"]==13
           assert q["source_full_4505_island_endpoint_eligibility"]["all_recorded__flower_primary_color__floral_form"]==2324
           assert q["source_full_4505_island_endpoint_eligibility"]["original_native__flower_primary_color__floral_form"]==327
