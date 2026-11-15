@@ -74,7 +74,7 @@ jobs:
                    and x["region"]=="tropical" and x["support"]=="n5"]
           assert len(primary)==1 and primary[0]["n_candidate_pairs"]==318
           assert q["claims"]["selection_uses_no_flower_trait_outcomes"]
-          assert q["claims"]["199_matching_reselections_not_independent_geographic_histories"]
+          assert q["claims"]["matching_199_reselections_not_independent_geographic_histories"]
           print("Original posthoc spatial independence stress completed")
           PY
       - name: Export only anonymous descriptive regional/profile aggregate
