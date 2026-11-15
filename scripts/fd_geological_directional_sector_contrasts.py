@@ -48,7 +48,9 @@ SECTORS=(
     ("strict_self_compatible","self_incompatibility","SC",True),
     ("strict_autonomous_selfing","autonomous_selfing_capacity","autonomous",True),
     ("joint_bilateral_tube_or_bell","floral_form__floral_symmetry","joint_special",True),
-    ("joint_open_radial_actinomorphic","floral_form__floral_symmetry","joint_open",False))
+    ("joint_open_radial_actinomorphic","floral_form__floral_symmetry","joint_open",False),
+    ("joint_special_sector_absent_among_Direct","floral_form__floral_symmetry",
+     "joint_special_absence",False))
 STRICT_BINARY={
     "self_incompatibility":{"SC","SI"},
     "autonomous_selfing_capacity":{"autonomous","absent"},
@@ -238,7 +240,12 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
             region_all=[id for id in full if idx.at[id,"analysis_regime"]==region]
             pool=set().union(*(source.get(x,set()) for x in region_all))
             for name,(endpoint,label,states_sector,_) in codebook.items():
-                ref=genus_ref(states_sector,pool,label,endpoint)
+                if label=="joint_special_absence":
+                    ref=prepare_regional_reference(
+                        states_sector,pool&set(states_sector),
+                        "bilateral_tube_or_bell")
+                else:
+                    ref=genus_ref(states_sector,pool,label,endpoint)
                 controls[(scope,region,name)]=ref
     original_typed=[]
     out=[]
@@ -275,9 +282,18 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                     region_ref=str(obs.analysis_regime)
                     ref=controls.get((scope,region_ref,name))
                     if not ref:continue
-                    p=float(np.mean([valid_sector_state(endpoint,label,trait_values[sp])
-                                     for sp in actual]))
-                    g=genus_expected_share(actual,ref)
+                    if label=="joint_special_absence":
+                        ev=null_expectation_one_island(
+                            actual,trait_values,ref["pool_names"],
+                            "bilateral_tube_or_bell",reference=ref)
+                        if ev is None:continue
+                        p=float(ev["observed_sector_absence"])
+                        g=float(ev["expected_absence_regional_genus_swap"])
+                    else:
+                        p=float(np.mean([
+                            valid_sector_state(endpoint,label,trait_values[sp])
+                            for sp in actual]))
+                        g=genus_expected_share(actual,ref)
                     first_source=first.get(id)
                     frames.append(dict(
                         origin=str(obs.geological_origin),
