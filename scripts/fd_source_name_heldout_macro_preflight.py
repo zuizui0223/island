@@ -43,6 +43,31 @@ def donor_probability(counts, prior:np.ndarray, shrink:float=SHRINKAGE):
     return p
 
 
+def source_enriched_genus_probability(global_counts, local_counts, prior,
+                                       shrink:float=SHRINKAGE):
+    """Zero-sum source-reweighting; NEVER double-count source donors.
+
+    Local source donor names are a SUBSET of unique global donor names. Add the
+    observed local composition deviation to global counts, preserving the
+    original genus donor total exactly. When the source covers all/none of
+    the donor genus, the candidate equals the global-genus baseline.
+    This is a fixed descriptive recalibration, not an ancestral model.
+    """
+    g=np.asarray(global_counts,dtype=float)
+    l=np.asarray(local_counts,dtype=float)
+    if (g.shape!=l.shape or np.any(g<0) or np.any(l<0)
+            or np.any(l>g+1e-9) or not np.isfinite(g+l).all()):
+        raise ValueError("Local source names must be a subset of global donors")
+    n=float(g.sum())
+    if n==0:
+        return donor_probability(g,prior,shrink)
+    alpha=float(l.sum()/n)
+    corrected=(1-alpha)*g+l
+    if not np.isclose(corrected.sum(),n,atol=1e-9):
+        raise AssertionError("Source enrichment changed genus donor sample size")
+    return donor_probability(corrected,prior,shrink)
+
+
 def score(p,truth):
     """Exact categorical full colour×form log-loss and Brier (lower is better)."""
     if not np.isfinite(p).all() or np.any(p<=0) or not np.isclose(p.sum(),1):
@@ -159,8 +184,10 @@ def predict_one_cohort(cohort:str,island_list:list[str],
             g=genus(sp)
             gt=donor_probability(np.array([gcounts[g].get(i,0) for i in range(k)]),
                                  prior)
-            lt=donor_probability(np.array([source_genus[g].get(i,0)
-                                            for i in range(k)]),gt)
+            lt=source_enriched_genus_probability(
+                np.array([gcounts[g].get(i,0) for i in range(k)]),
+                np.array([source_genus[g].get(i,0) for i in range(k)]),
+                prior)
             models=(prior,gt,local_prior,lt)
             for j,p in enumerate(models):
                 losses[j]+=score(p,label)
@@ -289,6 +316,7 @@ def analyze(traits,flora,assignment,mainland,geo):
             local_five_source_assignments_not_historical_ancestors=True,
             genus_known_is_a_posthoc_oracle_not_colonization_prediction=True,
             prior_genus_local_predictive_model_is_small_posthoc_sensitivity=True,
+            no_double_counting_of_local_donors_overlapping_global_genus=True,
             trait_measurement_species_wide_and_originally_island_derived=True,
             missing_genus_donor_is_unknown_not_true_trait_or_colonization_absence=True,
             direct_source_named_categories_not_true_pollinator_guilds=True,
