@@ -311,7 +311,7 @@ def main():
     print(json.dumps(dict(status=report["status"],
                           n_original_floras=4505,
                           n_anonymous_decomposition_rows=len(
-                            report["original_exact_signed_category_distance_decompositions"])))
+                            report["original_exact_signed_category_distance_decompositions"]))))
 
 
 if __name__=="__main__":
