@@ -57,7 +57,8 @@ def compile_donors(state:dict,source:set,category_to_idx:dict):
     if int(total.sum())!=len(valid):
         raise AssertionError("Original Direct source donor duplicated")
     return dict(names=valid,n=len(valid),total=total,genus=by_genus,
-                code=encoded,n_categories=K)
+                code=encoded,n_categories=K,category_to_idx=category_to_idx,
+                state_names=set(state))
 
 
 def predict_original_flora(accepted_entire_full_flora:set,
@@ -65,14 +66,13 @@ def predict_original_flora(accepted_entire_full_flora:set,
                            state:dict,donor:dict,
                            *,alpha:float=ALPHA):
     """Exclude every focal accepted source plant NAME from the donor universe."""
-    if not directly_documented_carriers or not directly_documented_carriers<=set(state):
+    if not directly_documented_carriers or not directly_documented_carriers<=donor["state_names"]:
         raise ValueError("True Direct states required, no imputed source traits")
     if not directly_documented_carriers<=accepted_entire_full_flora:
         raise ValueError("Original Direct target carrier not in original full flora")
     if alpha<=0:raise ValueError("Prior shrinkage must be positive")
     K=donor["n_categories"]
-    measured=Counter(state[x] for x in directly_documented_carriers)
-    cat_index={c:i for i,c in enumerate(sorted(set(state.values()),key=repr))}
+    cat_index=donor["category_to_idx"]
     observed=np.zeros(K)
     for s in directly_documented_carriers:
         observed[cat_index[state[s]]]+=1
@@ -192,7 +192,6 @@ def analyse(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,assign:pd.DataFrame,
     output=[]
     coverage={}
     opportunity=[]
-    private_rows=[]
     for scope,lookup in (("all_recorded",full),("original_native",native)):
         for endpoint,trait in ep.items():
             names=set(trait)
@@ -266,9 +265,6 @@ def analyse(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,assign:pd.DataFrame,
                                 (scope+endpoint+region+mode+key).encode()).digest()[:8],"big"))
                         row[key]=stats
                     output.append(row)
-                    private_rows.extend([
-                        dict(scope=scope,endpoint=endpoint,region=region,
-                             mode=mode,**r) for r in scored])
     if (coverage["all_recorded__flower_primary_color__floral_form"]!=2324 or
             coverage["original_native__flower_primary_color__floral_form"]!=327):
         raise ValueError("Original true Direct paired trait opportunity changed")
