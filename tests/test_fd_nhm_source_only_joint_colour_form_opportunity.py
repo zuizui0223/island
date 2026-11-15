@@ -9,11 +9,11 @@ from fd_nhm_source_only_joint_colour_form_opportunity import (
 def _provider():
     return {
         "BHL_text":dict(
-            primary={"A a":"white","B b":"yellow_orange","C c":"white","D d":"red_pink"},
+            primary={"A a":"white","B b":"yellow_orange","C c":"white","D d":"red_pink","E e":"blue_purple"},
             form={"A a":"tubular","C c":"open_radial","D d":"tubular"}),
         "FloraChina_text":dict(
             primary={"A a":"white","B b":"yellow_orange","C c":"blue_purple"},
-            form={"A a":"tubular","B b":"open_radial"}),
+            form={"A a":"tubular","B b":"open_radial","E e":"salverform"}),
     }
 
 
@@ -22,11 +22,15 @@ def test_exact_same_source_pair_restricted_vs_complementary_corpora():
     same=hierarchical["same_published_corpus_both_traits"]
     joint=hierarchical["any_separate_corpora_consistent_both_traits"]
     twice=hierarchical["two_distinct_named_corpora_both_traits_agree"]
-    assert same=={"A a":("white","tubular"),"D d":("red_pink","tubular")}
-    assert joint=={
+    assert same=={
         "A a":("white","tubular"),
         "B b":("yellow_orange","open_radial"),
         "D d":("red_pink","tubular")}
+    assert joint=={
+        "A a":("white","tubular"),
+        "B b":("yellow_orange","open_radial"),
+        "D d":("red_pink","tubular"),
+        "E e":("blue_purple","salverform")}
     assert twice=={"A a":("white","tubular")}
     assert qa["n_conflicted_primary_colour_species"]==1
     assert qa["n_dual_corpus_form_species"]==1
