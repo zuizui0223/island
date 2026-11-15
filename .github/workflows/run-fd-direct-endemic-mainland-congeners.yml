@@ -1,0 +1,85 @@
+name: fd original strict endemic versus GIFT mainland actual same-genus flower sectors
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths: [.github/workflows/run-fd-direct-endemic-mainland-congeners.yml, scripts/fd_direct_endemic_vs_mainland_congeners.py, tests/test_fd_direct_endemic_vs_mainland_congeners.py]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-floral-beta
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install exact sparse scientific runtime
+        run: python -m pip install -q numpy scipy pandas pytest
+      - name: Protect strict endemic source congener actual category signed comparisons
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts pytest -q tests/test_fd_direct_endemic_vs_mainland_congeners.py tests/test_fd_direct_three_stage_floristic_comparison.py
+          python -m compileall -q scripts/fd_direct_endemic_vs_mainland_congeners.py scripts/fd_direct_three_stage_floristic_comparison.py
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c8ad76798fd84635ff5014dc781741c43492e936
+          path: work/fd-reference
+          persist-credentials: false
+      - name: Restore SHA-locked GIFT floral sources and independent saved baseline
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/baseline" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          gh run download 43586977772 --repo zuizui0223/island \
+            --name fd-original-full-global-partial-FD-20261114-43586977772 --dir "$STAGE/baseline"
+          BASELINE="$(find "$STAGE/baseline" -name anonymous_original_partial_fd_20261114.json -type f -print -quit)"
+          test -n "$BASELINE" && test -s "$BASELINE"
+          echo "BASELINE=$BASELINE" >> "$GITHUB_ENV"
+      - name: Rebuild independently published geological source crosswalk
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd-reference/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Compare direct documented original endemic and nonendemic species with GIFT candidate mainland congeners
+        run: |
+          set -euo pipefail
+          python scripts/fd_direct_endemic_vs_mainland_congeners.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_fd_direct_endemic_source_congener.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          q=json.loads((Path(os.environ["STAGE"])/"anonymous_fd_direct_endemic_source_congener.json").read_text())
+          assert q["status"]=="ORIGINAL_4505_ENDEMIC_SAME_GENUS_CANDIDATE_MAINLAND_STATE_CONTRAST"
+          assert q["n_original_botanical_island_floras"]==4505
+          assert q["n_original_Direct_traits_sectors"]==7
+          assert sum(x["n_original_botanical_island_floras"] for x in q["original_complete_flora_GSHHG_geography"])==4505
+          assert q["claims"]["original_focal_entire_island_accepted_plant_names_excluded_from_donors"]
+          assert q["claims"]["comparisons_use_actual_source_congener_species_direct_state_not_predictive_accuracy"]
+          assert len(q["original_signed_endemic_and_native_same_genus_mainland_source_panels"])==35
+          print("Original source true same-genus endemic flora Direct trait contrast completed")
+          PY
+      - name: Export only anonymous descriptive regional/profile aggregate
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-direct-three-stage-floristic-${{ github.run_id }}
+          path: /tmp/fd-floral-beta/anonymous_fd_direct_endemic_source_congener.json
+          if-no-files-found: error
+          retention-days: 30
