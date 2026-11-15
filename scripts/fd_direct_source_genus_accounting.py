@@ -105,6 +105,8 @@ def exact_breadth_genus_decomposition(native:set[str],mainland:set[str],
         raise ValueError("No original accepted native/source disjoint pair of groups")
     if not native|mainland<=set(trait):
         raise ValueError("Cannot impute missing Direct trait category")
+    if not (native|mainland)<=set(GIFT_native_region_breadth):
+        raise ValueError("Original source listing breadth unavailable for candidate accepted plant")
     pools={side:{p:set() for p in BINS} for side in ("native","candidate")}
     for sp in native:
         pools["native"][listing_breadth_bin(GIFT_native_region_breadth[sp])].add(sp)
