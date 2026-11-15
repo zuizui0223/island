@@ -108,7 +108,7 @@ def genus_expected_share(species:set,ref:dict):
 def source_group_cluster_fit(df:pd.DataFrame,response:str,cluster:str,
                              *,n_boot:int=N_BOOT,seed:int=20261115):
     """Origin coefficient under equal original physical 10-degree block weights."""
-    required={"origin","spatial_block","first_source",
+    required={"origin","spatial_block",
               "x_continent_distance","x_area","x_coverage",
               "x_direct_n","x_latitude",response,cluster}
     if not required<=set(df):raise ValueError("Original model fields incomplete")
@@ -176,7 +176,7 @@ def source_group_cluster_fit(df:pd.DataFrame,response:str,cluster:str,
     means=df.groupby("origin")[response].mean()
     group_equal=df.groupby([cluster,"origin"])[response].mean().reset_index()
     group_means=group_equal.groupby("origin")[response].mean()
-    cov_matrix=np.corrcoef(X[:,1],X[:,2:])[0,1:]
+    cov_matrix=np.corrcoef(X[:,1:].T)[0,1:]
     return dict(**nb,
                 status="EXPLORATORY_ADJUSTED_GEOLOGICAL_ORIGIN_CATEGORY_CONTRAST",
                 adjusted_oceanic_minus_continental_fraction=float(beta[1]),
