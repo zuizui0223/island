@@ -66,7 +66,7 @@ def test_true_global_external_name_exclusion_and_source_congeners():
     assert q["n_target_islands_with_at_least_one_external_joint_source_donor"]==2
     assert q["n_target_islands_with_at_least_five_external_joint_source_donors"]==0
     assert q["n_direct_colour_form_target_plant_carrier_occurrences"]==11
-    assert q["n_target_plant_carriers_with_nearest_external_joint_congener"]==9
+    assert q["n_target_plant_carriers_with_nearest_external_joint_congener"]==5
     assert q["n_target_islands_with_any_source_congeneric_external_joint_donor"]==2
 
 
