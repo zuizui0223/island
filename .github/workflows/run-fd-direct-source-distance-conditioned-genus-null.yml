@@ -1,0 +1,88 @@
+name: fd original GIFT native mainland source-distance conditioned genus null
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths: [.github/workflows/run-fd-direct-source-distance-conditioned-genus-null.yml, scripts/fd_direct_source_distance_conditioned_genus_null.py, tests/test_fd_direct_source_distance_conditioned_genus_null.py]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-floral-beta
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install exact sparse scientific runtime
+        run: python -m pip install -q numpy scipy pandas pytest
+      - name: Verify exact known-geographic GIFT source distance and source taxon genus candidate null under finite draws
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts pytest -q tests/test_fd_direct_source_distance_conditioned_genus_null.py tests/test_fd_original_source_trait_free_genus_null.py tests/test_fd_direct_source_finite_sampling_null.py
+          python -m compileall -q scripts/fd_direct_source_distance_conditioned_genus_null.py scripts/fd_original_source_trait_free_genus_null.py scripts/fd_direct_source_finite_sampling_null.py
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c8ad76798fd84635ff5014dc781741c43492e936
+          path: work/fd-reference
+          persist-credentials: false
+      - name: Restore SHA-locked GIFT floral sources and independent saved baseline
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/baseline" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          gh run download 43586977772 --repo zuizui0223/island \
+            --name fd-original-full-global-partial-FD-20261114-43586977772 --dir "$STAGE/baseline"
+          BASELINE="$(find "$STAGE/baseline" -name anonymous_original_partial_fd_20261114.json -type f -print -quit)"
+          test -n "$BASELINE" && test -s "$BASELINE"
+          echo "BASELINE=$BASELINE" >> "$GITHUB_ENV"
+      - name: Rebuild independently published geological source crosswalk
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd-reference/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Compare original accepted island-source genera against real mainland source km and botanical GIFT listing breadth
+        run: |
+          set -euo pipefail
+          python scripts/fd_direct_source_distance_conditioned_genus_null.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_fd_true_GIFT_source_distance_genus_null.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          q=json.loads((Path(os.environ["STAGE"])/"anonymous_fd_true_GIFT_source_distance_genus_null.json").read_text())
+          assert q["status"]=="ORIGINAL_4505_DIRECT_GIFT_KM_BREADTH_CONDITIONED_GENUS_SOURCE_NULL"
+          assert q["n_original_botanical_GIFT_island_floras"]==4505
+          assert q["n_original_GIFT_mainland_native_source_regions"]==748
+          assert q["n_independent_geo_k5_island_source_distance_records"]==41325
+          assert sum(x["n_original_botanical_floras"] for x in q["original_GIFT_geography_flora_population"])==4505
+          assert q["n_real_original_Direct_trait_only_island_mask_types"]==7
+          assert len(q["original_source_genus_null_distance_vs_breadth_same_taxa"])>=90
+          assert q["claims"]["distance_and_breadth_models_evaluate_identical_accepted_plant_names"]
+          assert q["claims"]["source_distance_IS_real_GIFT_source_region_distance_not_dispersal_kernel"]
+          assert q["claims"]["no_floral_traits_used_in_primary_botanical_genus_response"]
+          print("Original true source geographic distance and listing breadth native flora genus null validated")
+          PY
+      - name: Export only anonymous descriptive regional/profile aggregate
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-direct-three-stage-floristic-${{ github.run_id }}
+          path: /tmp/fd-floral-beta/anonymous_fd_true_GIFT_source_distance_genus_null.json
+          if-no-files-found: error
+          retention-days: 30
