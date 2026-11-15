@@ -108,7 +108,7 @@ def predictor_losses(target_names,global_profiles,prior,genus_counts,
     for sp in target_names:
         g=genus(sp)
         global_count=np.array(
-            [genus_counts[g].get(i,0) for i in range(nclass)],float)
+            [genus_counts.get(g,{}).get(i,0) for i in range(nclass)],float)
         local_count=np.array(
             [local_counts[g].get(i,0) for i in range(nclass)],float)
         p=source_enriched_genus_probability(
