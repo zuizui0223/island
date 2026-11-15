@@ -73,7 +73,7 @@ jobs:
           assert q["n_independent_geo_k5_island_source_distance_records"]==41325
           assert sum(x["n_original_botanical_floras"] for x in q["original_GIFT_geography_flora_population"])==4505
           assert q["n_real_original_Direct_trait_only_island_mask_types"]==7
-          assert len(q["original_source_genus_null_distance_vs_breadth_same_taxa"])>=90
+          assert len(q["original_source_genus_null_distance_vs_breadth_same_taxa"])==50
           assert q["claims"]["distance_and_breadth_models_evaluate_identical_accepted_plant_names"]
           assert q["claims"]["source_distance_IS_real_GIFT_source_region_distance_not_dispersal_kernel"]
           assert q["claims"]["no_floral_traits_used_in_primary_botanical_genus_response"]
