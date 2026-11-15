@@ -261,7 +261,6 @@ def analyse(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
     traits=source_sectors(states)
     summary=[]
     rawsupport=[]
-    n_five=0
     for region in REGIONS:
         ids=sorted(i for i in full if region_of[i]==region)
         for trait,traitlabel in traits.items():
@@ -272,7 +271,6 @@ def analyse(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
             for island in ids:
                 q=full[island]
                 five=source_by_island.get(island,())
-                if len(five)==5:n_five+=int(trait==next(iter(traits)))
                 available=set().union(*(source_names.get(e,set()) for e in five))
                 native=(q["native_nonendemic"]&available)&set(traitlabel)
                 absent=(available-q["full"])&set(traitlabel)
@@ -304,9 +302,7 @@ def analyse(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
             for group,alias in (
                 ("spatial_block","original_10degree_geographic_block_equal"),
                 ("first_source","original_first_GIFT_mainland_source_equal")):
-                panel[alias]=group_summary(qualified,group,n_boot,
-                     seed=int.from_bytes(hashlib.sha256(
-                         (region+trait+alias).encode()).digest()[:8],"big")) if False else group_summary(
+                panel[alias]=group_summary(
                     qualified,group,boot=n_boot,
                     seed=int.from_bytes(hashlib.sha256(
                         (region+trait+alias).encode()).digest()[:8],"big"))
