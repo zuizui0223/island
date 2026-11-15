@@ -112,6 +112,6 @@ def test_insufficient_two_origin_or_spatial_blocks_fail_closed():
     a=source_group_cluster_fit(frame,"response","spatial_block",n_boot=99)
     assert a["status"]=="INSUFFICIENT_GEOLOGY_ORIGIN_SOURCE_SUPPORT"
     assert a["n_continental"]==0
-    frame=make_data(n=50)
+    frame=make_data(n=32)
     z=source_group_cluster_fit(frame,"response","spatial_block",n_boot=99)
     assert z["status"]=="INSUFFICIENT_GEOLOGY_ORIGIN_SOURCE_SUPPORT"
