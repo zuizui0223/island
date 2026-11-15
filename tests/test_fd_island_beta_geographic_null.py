@@ -98,7 +98,7 @@ def test_coverage_gate_is_outcome_blind():
              origin_status='unresolved')
         for i in range(12) for k in range(60)])
     more = pd.concat([flora, extra], ignore_index=True)
-    changed = analyze(states, more, min_pairs=1,
+    changed = analyze(states, more, geo, min_pairs=1,
                       min_islands=2, min_blocks=2)
     assert not any(x['support']=='both_direct_fraction_ge_0p10'
                    for x in changed['comparisons'] if x['scope']=='all_recorded')
