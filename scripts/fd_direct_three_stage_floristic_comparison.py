@@ -199,6 +199,7 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
     # Build each island source opportunity once, not by trait or status;
     # every matched source species belongs to GIFT native mainland listings.
     byisland={}
+    byisland_mainland_shared={}
     coverage=Counter()
     for id,entry in d.items():
         five=near.get(id,())
@@ -209,6 +210,7 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
         coverage["n_islands_with_qualifying_source_only_names"]+=int(bool(only))
         coverage["n_candidate_source_island_plant_occurrences"]+=len(only)
         byisland[id]=only&all_direct
+        byisland_mainland_shared[id]=total&entry["full"]
     # Direct carrier status counts remain per original source individual island.
     byregion=Counter()
     status_counts=Counter()
@@ -233,6 +235,7 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
             state_names=set(trait)
             records={key:[] for key in (
                 "native_nonendemic_minus_mainland_not_recorded",
+                "native_nonendemic_GIFT_source_shared_minus_mainland_not_recorded",
                 "introduced_minus_mainland_not_recorded",
                 "endemic_minus_native_nonendemic_raw",
                 "endemic_minus_native_nonendemic_same_island_genus")}
@@ -249,6 +252,8 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                     "native_nonendemic","endemic","introduced",
                     "native_endemism_unresolved")}
                 names["mainland_not_recorded"]=byisland[id]&state_names
+                names["native_nonendemic_GIFT_source_shared"]=(
+                    names["native_nonendemic"] & byisland_mainland_shared[id])
                 for label,x in names.items():
                     support[label+"_islands_with_any_Direct"]+=int(len(x)>0)
                     support[label+"_islands_Direct_n5"]+=int(len(x)>=5)
@@ -259,6 +264,7 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                             source_count.get(s,0) for s in x])))
                 source_only=names["mainland_not_recorded"]
                 nnon=names["native_nonendemic"]
+                nnon_mainland=names["native_nonendemic_GIFT_source_shared"]
                 e=names["endemic"]
                 intro=names["introduced"]
                 block=region_geo.at[id,"spatial_block"]
@@ -267,6 +273,8 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                 cluster=dict(block=block,first_source=keysource[0] if keysource else None)
                 for label,one in (
                     ("native_nonendemic_minus_mainland_not_recorded",nnon),
+                    ("native_nonendemic_GIFT_source_shared_minus_mainland_not_recorded",
+                     nnon_mainland),
                     ("introduced_minus_mainland_not_recorded",intro)):
                     if len(one)>=MIN_DIRECT_ISLAND and len(source_only)>=MIN_DIRECT_SOURCE:
                         records[label].append(dict(**cluster,
@@ -330,7 +338,7 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                         if "same_island_genus" in label else None),
                     original_physical_block_equal=block,
                     original_first_GIFT_source_equal=source_grp))
-    if sum(byregion.values())!=4505 or len(analyses)!=len(byregion)*len(vocab)*4:
+    if sum(byregion.values())!=4505 or len(analyses)!=len(byregion)*len(vocab)*5:
         raise AssertionError("Original 4505 source three-stage population not complete")
     return dict(
         status="ORIGINAL_DIRECT_THREE_STAGE_FLORAL_STATUS_SOURCE_COMPARISONS",
@@ -350,6 +358,7 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
             no_WCVP_regional_presence_upgraded_to_local_endemism=True,
             introduced_origin_is_original_source_not_confirmed_naturalization=True,
             source_only_species_are_absent_from_recorded_full_flora_not_true_failed_arrivals=True,
+            strict_native_nonendemic_GIFT_source_shared_subset_separately_computed=True,
             potential_nearest_five_GIFT_native_mainland_source_not_seed_rain=True,
             establishment_sorting_raw_effect_NOT_genus_conditioned=True,
             endemic_genus_effect_observed_same_island_both_status_not_sisters=True,
