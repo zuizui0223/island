@@ -127,8 +127,8 @@ def island_heldout_comparison(whole_flora:set,target_roster:set,
     observed/=len(target_roster)
     local=np.zeros(K);external=np.zeros(K)
     comparable_n=0
-    comparable_ll_local=comparable_ll_external=0.
-    comparable_brier_local=comparable_brier_external=0.
+    comparable_ll_local=comparable_ll_external=comparable_ll_prior=0.
+    comparable_brier_local=comparable_brier_external=comparable_brier_prior=0.
     variable_local=variable_external=0
     nmatched_total=0
     focal_n=len(target_roster)
@@ -146,8 +146,10 @@ def island_heldout_comparison(whole_flora:set,target_roster:set,
             for j in codes:
                 comparable_ll_local-=np.log(l[j])
                 comparable_ll_external-=np.log(e[j])
+                comparable_ll_prior-=np.log(prior[j])
                 comparable_brier_local+=1+np.dot(l,l)-2*l[j]
                 comparable_brier_external+=1+np.dot(e,e)-2*e[j]
+                comparable_brier_prior+=1+np.dot(prior,prior)-2*prior[j]
     if not np.allclose(local.sum(),1) or not np.allclose(external.sum(),1):
         raise AssertionError("Original matched outside-region genus compositional sum failed")
     result=dict(
@@ -164,23 +166,36 @@ def island_heldout_comparison(whole_flora:set,target_roster:set,
             np.square(observed-local).sum()),
         local_exclusive_frequency_D2=float(np.square(observed-local).sum()),
         external_exclusive_frequency_D2=float(np.square(observed-external).sum()),
+        external_genus_vs_external_blind_frequency_D2_gain=float(
+            np.square(observed-prior).sum()-np.square(observed-external).sum()),
+        local_genus_vs_external_blind_frequency_D2_gain=float(
+            np.square(observed-prior).sum()-np.square(observed-local).sum()),
     )
     if comparable_n:
         result.update(
             local_minus_external_proper_logloss_gain_per_comparable_plant=float(
                 (comparable_ll_external-comparable_ll_local)/comparable_n),
             local_minus_external_proper_Brier_gain_per_comparable_plant=float(
-                (comparable_brier_external-comparable_brier_local)/comparable_n))
+                (comparable_brier_external-comparable_brier_local)/comparable_n),
+            external_genus_vs_blind_proper_logloss_gain_per_comparable_plant=float(
+                (comparable_ll_prior-comparable_ll_external)/comparable_n),
+            external_genus_vs_blind_proper_Brier_gain_per_comparable_plant=float(
+                (comparable_brier_prior-comparable_brier_external)/comparable_n))
     else:
         result.update(local_minus_external_proper_logloss_gain_per_comparable_plant=None,
-                      local_minus_external_proper_Brier_gain_per_comparable_plant=None)
+                      local_minus_external_proper_Brier_gain_per_comparable_plant=None,
+                      external_genus_vs_blind_proper_logloss_gain_per_comparable_plant=None,
+                      external_genus_vs_blind_proper_Brier_gain_per_comparable_plant=None)
     return result
 
 
 def group_equal_pair_stats(frame:pd.DataFrame,group:str,*,seed:int,nboot:int=N_CLUSTER_BOOT):
     cols=("locally_exclusive_minus_externally_exclusive_frequency_D2_gain",
           "local_minus_external_proper_logloss_gain_per_comparable_plant",
-          "local_minus_external_proper_Brier_gain_per_comparable_plant")
+          "local_minus_external_proper_Brier_gain_per_comparable_plant",
+          "external_genus_vs_blind_proper_logloss_gain_per_comparable_plant",
+          "external_genus_vs_blind_proper_Brier_gain_per_comparable_plant",
+          "external_genus_vs_external_blind_frequency_D2_gain")
     q=frame.dropna(subset=[group,*cols])
     n=len(q)
     groups=q[group].nunique()
@@ -338,7 +353,10 @@ def analyse(traits:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                 for col in (
                     "locally_exclusive_minus_externally_exclusive_frequency_D2_gain",
                     "local_minus_external_proper_logloss_gain_per_comparable_plant",
-                    "local_minus_external_proper_Brier_gain_per_comparable_plant"):
+                    "local_minus_external_proper_Brier_gain_per_comparable_plant",
+                    "external_genus_vs_blind_proper_logloss_gain_per_comparable_plant",
+                    "external_genus_vs_blind_proper_Brier_gain_per_comparable_plant",
+                    "external_genus_vs_external_blind_frequency_D2_gain"):
                     q[col+"_island_equal_mean"]=float(data[col].mean())
                     q[col+"_positive_island_fraction"]=float(np.mean(data[col]>0))
                 for key,out_name in (
@@ -377,6 +395,7 @@ def analyse(traits:dict,flora:pd.DataFrame,geo:pd.DataFrame,
             donor_species_selected_by_original_name_hash_not_by_trait_state=True,
             same_exclusive_external_species_category_prior_for_both_models=True,
             unmatched_target_genera_neutral_same_prior_for_both_models=True,
+            out_of_region_genus_is_tested_against_genus_blind_external_source_prior=True,
             strict_native_source_status_is_nested_nonindependent_scope=True,
             different_regions_and_traits_not_independent_evolutionary_replications=True,
             no_independent_mainland_or_phylogenetic_trait_source_or_adaptation_test=True,
