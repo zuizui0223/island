@@ -43,7 +43,7 @@ def test_exact_taxonomic_genus_rank_distance_null_reconciles_uniform_case():
     focal={"A one","B one"}
     candidate={"A two","C one"}
     strata={s:("source_once","lt250km") for s in focal|candidate}
-    v=exact_taxon_stratum_genus_reference(focal,candidate,strata)
+    v=exact_taxon_stratum_genus_reference(focal,candidate,strata,min_effective=1)
     assert v is not None
     result,u,s=v
     assert u==focal and s==candidate
@@ -68,7 +68,7 @@ def test_exact_two_distance_strata_conditioned_taxonomic_expectation():
         "A far":("source_once","750_2000km"),
         "C far":("source_once","750_2000km"),
     }
-    v=exact_taxon_stratum_genus_reference(focal,candidate,strata)
+    v=exact_taxon_stratum_genus_reference(focal,candidate,strata,min_effective=1)
     assert v is not None
     q,u,s=v
     assert q["n_original_joint_source_breadth_distance_strata"]==2
@@ -104,7 +104,7 @@ def test_source_clustering_and_bootstrap_on_anonymous_exact_terms():
     plants={"A one","B one"}
     names={"A two","C one"}
     b={sp:("source_once","lt250km") for sp in plants|names}
-    q,u,s=exact_taxon_stratum_genus_reference(plants,names,b)
+    q,u,s=exact_taxon_stratum_genus_reference(plants,names,b,min_effective=1)
     q=exact_same_names_breadth_baseline(q,u,s,{s:1 for s in plants|names})
     r=[dict(**q,block="B"+str(i//2)) for i in range(60)]
     z=group_equal(r,"block",boots=99)
