@@ -25,7 +25,8 @@ N_DRAWS=199
 MIN_PAIRS,MIN_ISLANDS,MIN_BLOCKS=100,30,10
 STRATA=(("tropical","500_to_2000km",500.,2000.),
         ("northern_midlatitude","500_to_2000km",500.,2000.))
-GATES=("n5","both_n10","both_direct_fraction_ge_0p10")
+GATES=("n5","both_n10","both_direct_fraction_ge_0p10",
+       "both_n10_and_direct_fraction_ge_0p10")
 
 
 def match_blocks(block_a, block_b, *, seed:int=1)->np.ndarray:
@@ -197,6 +198,9 @@ def analyze(states, flora, geo, *, draws=N_DRAWS,
                 if gate=='both_n10':
                     keep&=(n_direct[left]>=10)&(n_direct[right]>=10)
                 elif gate=='both_direct_fraction_ge_0p10':
+                    keep&=(frac[left]>=.10)&(frac[right]>=.10)
+                elif gate=='both_n10_and_direct_fraction_ge_0p10':
+                    keep&=(n_direct[left]>=10)&(n_direct[right]>=10)
                     keep&=(frac[left]>=.10)&(frac[right]>=.10)
                 if not keep.any():continue
                 ii,jj=left[keep],right[keep]
