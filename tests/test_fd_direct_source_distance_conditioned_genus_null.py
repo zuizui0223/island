@@ -47,7 +47,7 @@ def test_exact_taxonomic_genus_rank_distance_null_reconciles_uniform_case():
     assert v is not None
     result,u,s=v
     assert u==focal and s==candidate
-    assert result["n_original_matched_effective_source_species"]==2
+    assert result["original_matched_effective_source_species"]==2
     assert result["n_original_joint_source_breadth_distance_strata"]==1
     assert result["original_actual_focal_shared_source_genera"]==1
     assert result["expected_shared_genera_under_breadth_distance_exact_source_null"]==pytest.approx(2/3)
@@ -72,7 +72,7 @@ def test_exact_two_distance_strata_conditioned_taxonomic_expectation():
     assert v is not None
     q,u,s=v
     assert q["n_original_joint_source_breadth_distance_strata"]==2
-    assert q["n_original_matched_effective_source_species"]==2
+    assert q["original_matched_effective_source_species"]==2
     assert q["original_observed_focal_genus_pair_concentration"]==1
     assert q["expected_focal_genus_pair_concentration_under_breadth_distance_exact_null"]==pytest.approx(.25)
     assert q["original_actual_focal_shared_source_genera"]==0
