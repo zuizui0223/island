@@ -64,11 +64,11 @@ jobs:
             test "$actual" = "$expected"
             echo "NHM provider $(basename "$file") independent source file validated"
           done <<'NHM_PINS'
-bhl.csv|f46e15b95e92b1daad5c0ebf2145df73173505be
-ecoflora.csv|dbdc6b4469583743b8b35e26912d21d05b550f32
-efloras.flora_of_china.csv|ec87a99eee2cc1bf9a8868e1d5425654e7974897
-efloras.flora_of_north_america.csv|3710b08d7b041205a6cb5e7b811c08de317e006d
-efloras.flora_of_pakistan.csv|7f506417a3ae31fc4daa959a27976ed62c7b1449
+          bhl.csv|f46e15b95e92b1daad5c0ebf2145df73173505be
+          ecoflora.csv|dbdc6b4469583743b8b35e26912d21d05b550f32
+          efloras.flora_of_china.csv|ec87a99eee2cc1bf9a8868e1d5425654e7974897
+          efloras.flora_of_north_america.csv|3710b08d7b041205a6cb5e7b811c08de317e006d
+          efloras.flora_of_pakistan.csv|7f506417a3ae31fc4daa959a27976ed62c7b1449
           NHM_PINS
       - name: Audit exact original five source names and GIFT island category provenance without releasing names
         run: |
