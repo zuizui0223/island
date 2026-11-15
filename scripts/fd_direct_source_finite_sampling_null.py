@@ -18,6 +18,7 @@ import argparse
 import hashlib
 import json
 from collections import Counter,defaultdict
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -25,7 +26,7 @@ import pandas as pd
 
 from fd_island_functional_beta import strict_traits
 from fd_direct_three_stage_floristic_comparison import (
-    genus,source_sectors,status_groups
+    genus as _parse_genus,source_sectors,status_groups
 )
 from fd_direct_source_breadth_matched import (
     BINS,REGIONS,listing_breadth_bin,breadth_matched_sector_difference
@@ -37,6 +38,11 @@ MIN_EFFECTIVE=5
 MIN_ISLANDS=30
 MIN_BLOCKS=10
 BOOT=999
+@lru_cache(maxsize=120000)
+def genus(sp:str)->str:
+    return _parse_genus(sp)
+
+
 METRICS=(
     "original_direct_native_minus_candidate_category_difference",
     "expected_direct_difference_genus_fixed_original_source_null",
@@ -59,6 +65,7 @@ def hypergeom_count_variance(N:int,K:int,n:int)->float:
     return float(n*(N-n)/(N-1)*p*(1-p))
 
 
+@lru_cache(maxsize=250000)
 def prob_no_original_genus_in_native_or_candidate(
         N:int,n_native:int,m_genus:int)->tuple[float,float]:
     """P(native has NONE of genus), P(candidate has NONE); exact finite pool."""
