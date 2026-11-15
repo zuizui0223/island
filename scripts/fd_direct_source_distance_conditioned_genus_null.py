@@ -72,12 +72,15 @@ def closest_km_bin(km:float)->str:
 
 
 def exact_taxon_stratum_genus_reference(focal:set[str],candidate:set[str],
-                                       strata:dict[str,tuple[str,str]]):
+                                       strata:dict[str,tuple[str,str]],
+                                       *,min_effective:int=MIN_MATCH):
     """Exact independent finite name draw per fixed breadth-by-distance stratum.
 
     The returned two sets are private in-process botanical accepted names;
     callers must export ONLY the numerical anonymous result dictionary.
     """
+    if not isinstance(min_effective,int) or min_effective<1:
+        raise ValueError("Invalid source eligible effective species gate")
     if not focal or not candidate or focal&candidate:
         raise ValueError("Original focal/source accepted plants must be disjoint")
     if not focal|candidate<=set(strata):
@@ -98,7 +101,7 @@ def exact_taxon_stratum_genus_reference(focal:set[str],candidate:set[str],
         used.append((key,u,v))
     if not used:return None
     effective=sum(min(len(u),len(v)) for _,u,v in used)
-    if effective<MIN_MATCH:return None
+    if effective<min_effective:return None
     actual_fgen={genus(s) for s in focal_used}
     actual_sgen={genus(s) for s in candidate_used}
     allg=actual_fgen|actual_sgen
@@ -161,9 +164,6 @@ def exact_taxon_stratum_genus_reference(focal:set[str],candidate:set[str],
         observed_minus_distance_expected_genus_concentration=float(
             observed_concentration-expected_concentration),
     )
-    breadth_only=exact_taxonomic_source_null(
-        focal_used,candidate_used,
-        {sp:int(0) for sp in []}) if False else None
     # The exact same accepted species sets are returned for the caller to
     # recompute the previous original breadth-only null; never materialized
     # in the anonymous output artifact.
