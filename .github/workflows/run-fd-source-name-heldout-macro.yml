@@ -71,7 +71,9 @@ jobs:
           assert q["n_original_botanical_islands"]==4505
           assert q["n_original_distinct_source_regions"]==748
           assert q["n_original_mainland_native_source_rows"]==1666186
-          assert len(q["cohorts"])==3
+          assert len(q["cohorts"])==4
+          assert q["n_original_short_distance_full_species_disjoint_pairs"]==456
+          assert q["n_original_short_distance_endpoint_islands"]==215
           assert q["claims"]["same_name_removed_from_ALL_mainland_regions_before_training"]
           assert q["claims"]["no_double_counting_of_local_donors_overlapping_global_genus"]
           print("Original GIFT source identity and name-leakage audit complete")
