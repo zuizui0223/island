@@ -241,8 +241,9 @@ def analyze(states:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                 "endemic_minus_native_nonendemic_same_island_genus")}
             support=Counter()
             status_species={r:set() for r in (
-                "native_nonendemic","endemic","introduced",
-                "mainland_not_recorded","native_endemism_unresolved")}
+                "native_nonendemic","native_nonendemic_GIFT_source_shared",
+                "endemic","introduced","mainland_not_recorded",
+                "native_endemism_unresolved")}
             overall_source_breadth=defaultdict(list)
             g_var=set()
             observed_shared=set()
