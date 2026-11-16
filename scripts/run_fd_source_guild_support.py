@@ -212,6 +212,8 @@ def run(root: Path, geo_path: Path, channels_path: Path) -> dict:
     support = audit_source_guild_support(rows)
     if support["n_unique_islands_in_input"] != 4505:
         raise AssertionError("full source-GIFT island frame invalid")
+    if not all("mixed_spatial_blocks" in row for row in support["strata"]):
+        raise AssertionError("independent within-physical-block overlap guard absent")
     source_only = summarize_source_only(rows)
     return {
         "status": "SOURCE_GUILD_FUNCTIONAL_SECTOR_POSITIVITY_ORIGINAL_4505",
