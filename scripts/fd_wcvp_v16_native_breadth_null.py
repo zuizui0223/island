@@ -484,6 +484,10 @@ def main():
         raise ValueError("Original mainland GIFT candidate region source changed")
     target=set(mainland.work_species)|set(flora.accepted_species)
     native,manifest=accepted_wcvp_native_l3_range(a.wcvp_zip,target)
+    expected_WCVP_v16_source_sha256=(
+        "d32ea2b3a85e489b14e83bcc9eae7274532e1d113753f7be290d4b2dfde573fa")
+    if manifest["wcvp_official_archive_sha256"]!=expected_WCVP_v16_source_sha256:
+        raise ValueError("Original published Kew WCVP v16 source archive fingerprint changed")
     result=analyze(flora,geo,assignment,mainland,traits,native,manifest)
     body=json.dumps(result,indent=2,sort_keys=True,allow_nan=False)
     for secret in ('"island_id"','"accepted_species"','"work_species"',
