@@ -90,6 +90,7 @@ def build_original_private_decomposition(
             all_sources[mode]=pooled(ranks) if ranks else frozenset()
         if all_sources["geo50_climate10"]:
             n_climate+=1
+        candidate_rosters={name:set(all_sources[name])-full for name in MODES}
         region=str(georef.at[id,"analysis_regime"]) if pd.notna(
             georef.at[id,"analysis_regime"]) else "geography_unresolved"
         if region not in REGIMES:raise ValueError("GSHHG original region unknown")
@@ -109,7 +110,7 @@ def build_original_private_decomposition(
             scored=sectors[sector]
             known=set(scored)
             candidates={
-                name:(set(all_sources[name])-full)&known
+                name:candidate_rosters[name]&known
                 for name in MODES
             }
             for scope,plants in scopes.items():
@@ -122,7 +123,7 @@ def build_original_private_decomposition(
                 )
                 for mode,(label,_) in MODES.items():
                     donors=candidates[mode]
-                    row[label+"__n_source_total"]=len(set(all_sources[mode])-full)
+                    row[label+"__n_source_total"]=len(candidate_rosters[mode])
                     row[label+"__n_source_direct"]=len(donors)
                     for field in ("observed_difference",*TERMS):
                         row[label+"__"+field]=np.nan
