@@ -4,7 +4,9 @@ No real GIFT plant names, source IDs, island IDs, providers or coordinates.
 """
 import pytest
 
-from run_fd_independent_nhm_radial_depth_support import external_hybrid_donors
+from run_fd_independent_nhm_radial_depth_support import (
+    external_hybrid_donors,external_donors_for_focal,
+)
 
 
 def test_independent_A_and_original_Direct_depth_B_same_species_only():
@@ -78,3 +80,19 @@ def test_all_original_island_species_removed_regardless_of_status():
         set(a),frozenset({"actinomorphic"})
     )
     assert out=={}
+
+
+def test_focal_only_name_exclusion_keeps_external_species_from_other_islands():
+    # A plant on island #1 can be a valid source reference for island #2
+    # if and only if it is absent from the focal #2 accepted flora.
+    eligible={"Alpha island1","Alpha mainland1","Beta mainland1"}
+    selected_source={"Alpha island1","Alpha mainland1"}
+    focal={"Beta island2"}
+    q=external_donors_for_focal(selected_source,eligible,focal)
+    assert q=={"Alpha island1","Alpha mainland1"}
+    assert external_donors_for_focal(
+        selected_source,eligible,{"Alpha island1"}
+    )=={"Alpha mainland1"}
+    assert not external_donors_for_focal(
+        selected_source,eligible,{"Alpha island1"}
+    )&{"Alpha island1"}
