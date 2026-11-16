@@ -81,6 +81,10 @@ jobs:
           assert obj["n_original_GIFT_botanical_islands"]==4505
           assert obj["n_original_private_island_scope_pair_rows"]==4505*3*3
           assert obj["n_region_scope_structural_pair_panels"]==45
+          assert all("n_islands_with_informative_genus_on_island" in p
+                     and "n_islands_with_informative_genus_in_geo5_source" in p
+                     and "n_islands_with_informative_genus_in_climate10_source" in p
+                     for p in obj["panels"])
           assert obj["original_source_748_GIFT_native_mainland_regions"]==748
           assert obj["epistemic_limits"]["analytic_within_genus_fixed_margin_null_no_random_seeds"]
           assert obj["epistemic_limits"]["posthoc_after_tropical_symmetry_depth_result"]
