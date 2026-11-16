@@ -58,7 +58,7 @@ def strict_single_length(vmin:str,vmax:str)->float|None:
         t=str(v).strip()
         # NHM original values are e.g. '0.5 cm'; strip ONLY the
         # explicitly recorded centimetre suffix, never infer other units.
-        t=re.sub(r"\\s*cm\\s*$","",t,flags=re.I)
+        t=re.sub(r"\s*cm\s*$","",t,flags=re.I)
         if not re.fullmatch(r"(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?",t):
             return None
         z=float(t)
