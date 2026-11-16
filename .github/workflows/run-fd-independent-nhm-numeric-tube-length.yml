@@ -105,6 +105,12 @@ jobs:
           assert z["n_original_botanical_flora_islands"]==4505
           assert z["n_original_mainland_GIFT_source_entities"]==748
           assert len(z["original_five_NHM_raw_provider_tables"])==6
+          assert z["not_six_corpora_after_combined_release_deduplication"]
+          assert z["real_numeric_source_corpora_for_consensus"]==5
+          assert z["scientific_limits"]["combined_release_excluded_from_two_original_provider_voting"]
+          assert z["combined_vs_five_independent_corpora_numeric_receipt"][
+            "combined_counts_only_a_checksum_not_an_extra_source_provider"
+          ]
           assert z["combined_numeric_release_not_original_provider_independence"]
           assert z["scientific_limits"]["combined_numeric_NHM_release_lacks_original_study_identification"]
           assert z["n_island_scope_provider_region_panels"]==5*3*2
