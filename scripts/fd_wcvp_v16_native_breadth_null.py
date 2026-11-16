@@ -151,7 +151,11 @@ def exact_genus_strata(focal:set[str],candidate:set[str],
     expected_none_n=defaultdict(lambda:1.)
     expected_none_c=defaultdict(lambda:1.)
     within_pairs=0.
-    cross=[]
+    # O(number of documented genus-by-stratum occurrences) exact
+    # expectation of cross-stratum same-genus pairs; no O(B^2) over
+    # as many as 100 source-list/kilometre/native-range strata.
+    genus_first_moment=defaultdict(float)
+    genus_within_stratum_first_moment_sq=defaultdict(float)
     for key,names,source in used:
         if len(key) not in (2,3) or key[0] not in BINS or (
                 key[1] not in DISTANCE_BINS) or (
@@ -167,11 +171,16 @@ def exact_genus_strata(focal:set[str],candidate:set[str],
             expected_none_c[g]*=p_c
         if n>1 and N>1:
             within_pairs+=comb(n,2)*sum(m*(m-1) for m in genus_ct.values())/(N*(N-1))
-        cross.append((n,N,genus_ct))
-    cross_pairs=0.
-    for i,(n,N,counts) in enumerate(cross):
-        for m,M,other in cross[i+1:]:
-            cross_pairs+=(n*m)*sum(c*other.get(g,0) for g,c in counts.items())/(N*M)
+        for g,m in genus_ct.items():
+            mu=n*m/N
+            genus_first_moment[g]+=mu
+            genus_within_stratum_first_moment_sq[g]+=mu*mu
+    cross_pairs=.5*sum(
+        mu*mu-genus_within_stratum_first_moment_sq[g]
+        for g,mu in genus_first_moment.items())
+    if cross_pairs < -1e-7:
+        raise AssertionError("Negative original exact cross-source-stratum expected genus pairs")
+    cross_pairs=max(0.,cross_pairs)
     gnames=set(expected_none_n)
     actual_gen_n={genus(x) for x in alln}
     actual_gen_c={genus(x) for x in allc}
