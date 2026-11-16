@@ -74,6 +74,12 @@ jobs:
           efloras.flora_of_north_america.csv|3710b08d7b041205a6cb5e7b811c08de317e006d
           efloras.flora_of_pakistan.csv|7f506417a3ae31fc4daa959a27976ed62c7b1449
           NHM_PINS
+          # The constituent five OCR tables contain no numeric corolla tube
+          # fields. NHM's pinned combined.csv DOES; no invented study labels.
+          curl -fLSs --retry 5 --retry-delay 2 --connect-timeout 15 --max-time 300 \
+            "https://raw.githubusercontent.com/NaturalHistoryMuseum/plant-traits/4843c22bb2fc91018d9828dcddebf067c83b1097/output/raw/ocr-traits/combined.csv" \
+            -o "$STAGE/nhm-corpora/combined.csv"
+          test "$(git hash-object --no-filters "$STAGE/nhm-corpora/combined.csv")" = "e1cfd2d5c518c2061ec91d1a9e8b64fc7ca69389"
       - name: Rebuild independent original GSHHG physical island spatial blocks
         run: |
           set -euo pipefail
@@ -98,7 +104,9 @@ jobs:
           assert z["status"]=="ORIGINAL_4505_INDEPENDENT_NHM_NUMERIC_COROLLA_TUBE_LENGTH_PREFLIGHT"
           assert z["n_original_botanical_flora_islands"]==4505
           assert z["n_original_mainland_GIFT_source_entities"]==748
-          assert len(z["original_five_NHM_raw_provider_tables"])==5
+          assert len(z["original_five_NHM_raw_provider_tables"])==6
+          assert z["combined_numeric_release_not_original_provider_independence"]
+          assert z["scientific_limits"]["combined_numeric_NHM_release_lacks_original_study_identification"]
           assert z["n_island_scope_provider_region_panels"]==5*3*2
           assert z["scientific_limits"]["tube_length_cm_not_equipollent_to_original_ordinal_depth_without_calibration"]
           assert z["scientific_limits"]["source_species_absent_from_focal_original_island_checklist"]
