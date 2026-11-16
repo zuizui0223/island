@@ -106,6 +106,8 @@ def build_original_private_decomposition(
                 F["native_nonendemic"] &
                 all_sources["geo_k5"] & all_sources["geo50_climate10"],
         }
+        if set(scopes)!=set(SCOPES):
+            raise AssertionError("four fixed original botanical status scopes changed")
         for sector in MORPHOLOGY:
             scored=sectors[sector]
             known=set(scored)
