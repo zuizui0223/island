@@ -27,6 +27,9 @@ from fd.nhm_numeric_source_congener_predict import (
 from fd.nhm_numeric_provider_holdout import (
     SCOPES,REGIMES,PROVIDER_NAMES,summarize_provider_disjoint,
 )
+from fd.nhm_provider_matched_source import (
+    PAIR,summarize_paired_nhm_providers,
+)
 from run_fd_independent_nhm_numeric_tube_length import (
     combine_external_provider_lengths,parse_nhm_numeric_file,
 )
@@ -132,6 +135,7 @@ def original_provider_model_and_source_support(
         return frozenset().union(*(entities.get(v,set()) for v in ids))
 
     records=[]
+    matched_rows=[]
     nclimate=0
     for island in sorted(islands):
         info=islands[island]
@@ -206,10 +210,99 @@ def original_provider_model_and_source_support(
                         rec[mode+"__brier_genus"]=z["brier_length_genus"]
                         rec[mode+"__brier_pooled"]=z["brier_length_pooled"]
                 records.append(rec)
+
+        # Secondary AFTER-FIRST-RESULT identification check: BHL vs China
+        # original numerical donor corpus on EXACT same focal plant species,
+        # avoiding the first cohort mismatch (281 vs 316 tropical floras).
+        allowed_genera=None
+        for p in PAIR:
+            for mode in ("geo5","climate10"):
+                available={
+                    botanical_genus(sp) for sp in sources[mode]
+                    if sp in nhm_by_corpus[p]
+                }
+                if models[p] is None:
+                    available=set()
+                else:
+                    # Report explicit genus-specific model failures as
+                    # unsupported, never as zero source/deep phenotypes.
+                    available-=models[p][1]
+                allowed_genera=available if allowed_genera is None else (
+                    allowed_genera & available
+                )
+        allowed_genera=allowed_genera or set()
+        fixed={scope:{s for s in names if botanical_genus(s) in allowed_genera}
+               for scope,names in scopes.items()}
+        pair_est={}
+        for p in PAIR:
+            if models[p] is None:
+                pair_est[p]=None
+            else:
+                pair_est[p]=source_predict_same_island(
+                    full_island=full,plant_scopes=fixed,
+                    source_geo5=sources["geo5"],
+                    source_climate10=sources["climate10"],
+                    target_depth=depth,length_cm=nhm_by_corpus[p],
+                    cal=models[p][0],
+                )
+        for scope in SCOPES:
+            nvals=[
+                pair_est[p][scope]["n_same_island_direct_target_species"]
+                if pair_est[p] is not None else 0 for p in PAIR
+            ]
+            if len(set(nvals))!=1:
+                # Whole provider-specific taxonomy can remain incomplete:
+                # do not score two different target plant cohorts.
+                n_target=0
+            else:
+                n_target=nvals[0]
+            if n_target:
+                q=pair_est[PAIR[0]][scope]
+                nt=q["n_same_island_direct_target_species"]
+                ng=q["n_original_target_genera"]
+                if (ng!=pair_est[PAIR[1]][scope]["n_original_target_genera"]):
+                    raise AssertionError("matched numeric source changed botanical target genera")
+                doc=q["island_documentation_fraction"]
+            else:
+                nt=ng=0;doc=np.nan
+            row=dict(
+                island_id=island,region=regime,scope=scope,
+                spatial_block=block,first_source=source_signature,
+                n_target=nt,n_target_genera=ng,
+                island_documentation_fraction=doc,
+            )
+            for p in PAIR:
+                for mode in ("geo5","climate10"):
+                    if nt and pair_est[p] is not None:
+                        z=pair_est[p][scope][mode]
+                        row[f"{p}__{mode}__n_numeric"]=z[
+                            "n_distinct_original_source_numeric_congeners"
+                        ]
+                        row[f"{p}__{mode}__source_coverage"]=z[
+                            "source_direct_numeric_coverage"
+                        ]
+                        row[f"{p}__{mode}__brier_genus"]=z["brier_length_genus"]
+                        row[f"{p}__{mode}__brier_pooled"]=z["brier_length_pooled"]
+                        row[f"{p}__{mode}__n_accepted_donor_species_shared_with_other_provider"]=sum(
+                            sp in nhm_by_corpus[PAIR[0]]
+                            and sp in nhm_by_corpus[PAIR[1]]
+                            and botanical_genus(sp) in allowed_genera
+                            for sp in sources[mode]
+                        )
+                    else:
+                        row[f"{p}__{mode}__n_numeric"]=0
+                        row[f"{p}__{mode}__source_coverage"]=np.nan
+                        row[f"{p}__{mode}__brier_genus"]=np.nan
+                        row[f"{p}__{mode}__brier_pooled"]=np.nan
+                        row[f"{p}__{mode}__n_accepted_donor_species_shared_with_other_provider"]=0
+            matched_rows.append(row)
+
     if nclimate!=4485:
         raise ValueError("original climate-nearest10 source assignment lost")
     if len(records)!=4505*len(SCOPES)*len(PROVIDER_NAMES):
         raise AssertionError("full original GIFT study population contracted")
+    if len(matched_rows)!=4505*len(SCOPES):
+        raise AssertionError("original botanical full 4505 paired NHM provider study population lost")
     for row in summary:
         label=row["donor_numeric_named_corpus"]
         item=models[label]
@@ -218,6 +311,9 @@ def original_provider_model_and_source_support(
         )
     result=summarize_provider_disjoint(
         pd.DataFrame.from_records(records),population=4505,draws=999
+    )
+    result["original_same_focal_species_two_provider_prediction"]=summarize_paired_nhm_providers(
+        pd.DataFrame.from_records(matched_rows),population=4505,draws=999
     )
     result.update(
         n_original_748_mainland_source_regions=748,
