@@ -7,6 +7,7 @@ that shared-genus differences are independent evolutionary adaptations.
 from __future__ import annotations
 import argparse
 from functools import lru_cache
+from collections import defaultdict
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -16,7 +17,7 @@ import pandas as pd
 
 from fd_island_functional_beta import strict_traits
 from fd_direct_three_stage_floristic_comparison import (
-    status_groups, source_sectors,
+    status_groups, source_sectors, genus as botanical_genus,
 )
 from fd_direct_source_genus_accounting import exact_genus_bin_decomposition
 from fd.source_genus_exact_partition_modes import (
@@ -39,6 +40,70 @@ def digest(path:Path)->str:
         for z in iter(lambda:f.read(1<<20),b""):
             h.update(z)
     return h.hexdigest()
+
+
+def source_genus_counts(direct_donors:set[str],scored:dict[str,int]):
+    """One original source-mode genus summary reused across four plant scopes."""
+    z=defaultdict(lambda:[0,0])
+    for name in direct_donors:
+        if name not in scored:
+            raise ValueError("unrecorded original mainland candidate trait invented")
+        v=int(scored[name])
+        if v not in (0,1):raise ValueError("source sector not truly binary")
+        rec=z[botanical_genus(name)]
+        rec[0]+=1
+        rec[1]+=v
+    return dict(z)
+
+
+def exact_genus_from_source_counts(target:set[str],source_genus:dict,
+                                   scored:dict[str,int])->dict:
+    """Algebraically identical to exact_genus_bin_decomposition.
+
+    No source plant names or assumed ancestor need be reconstructed in each
+    nested native-status subset; all donors already exclude focal island.
+    """
+    a=defaultdict(lambda:[0,0])
+    for name in target:
+        if name not in scored:
+            raise ValueError("unrecorded original island trait used as zero")
+        v=int(scored[name])
+        if v not in (0,1):raise ValueError("source sector not binary")
+        rec=a[botanical_genus(name)]
+        rec[0]+=1
+        rec[1]+=v
+    n=sum(z[0] for z in a.values())
+    m=sum(z[0] for z in source_genus.values())
+    if n==0 or m==0:
+        raise ValueError("empty original island/source direct categories")
+    comp=within=nonly=sonly=0.
+    shared=set(a)&set(source_genus)
+    for g in shared:
+        nc,pc=a[g]
+        nd,pd=source_genus[g]
+        wa,wb=nc/n,nd/m
+        qa,qb=pc/nc,pd/nd
+        comp+=(wa-wb)*(qa+qb)/2
+        within+=(wa+wb)*(qa-qb)/2
+    for g in set(a)-set(source_genus):
+        nc,pc=a[g]
+        nonly+=pc/n
+    for g in set(source_genus)-set(a):
+        nd,pd=source_genus[g]
+        sonly-=pd/m
+    raw=sum(z[1] for z in a.values())/n - sum(
+        z[1] for z in source_genus.values())/m
+    if abs(raw-(comp+within+nonly+sonly))>1e-10:
+        raise AssertionError("exact original four-term genus partition unreconciled")
+    return {
+        "original_direct_binary_sector_difference":float(raw),
+        "shared_genus_composition":float(comp),
+        "shared_genus_within_species_states":float(within),
+        "native_exclusive_genus":float(nonly),
+        "source_exclusive_genus_negative":float(sonly),
+        "n_both_status_shared_genera":len(shared),
+        "n_native_source_carriers_from_shared_genera":sum(a[g][0] for g in shared),
+    }
 
 
 def build_original_private_decomposition(
@@ -115,6 +180,13 @@ def build_original_private_decomposition(
                 name:candidate_rosters[name]&known
                 for name in MODES
             }
+            # Compute original mainland source genus frequencies only once
+            # per morphological sector and source definition, not once per
+            # nested plant provenance group.
+            donor_by_mode={
+                mode:source_genus_counts(candidates[mode],scored)
+                for mode in MODES
+            }
             for scope,plants in scopes.items():
                 target=plants&known
                 n=len(target)
@@ -133,7 +205,19 @@ def build_original_private_decomposition(
                     row[label+"__n_native_carriers_from_shared_genera"]=0
                     if n<5 or len(donors)<10:
                         continue
-                    part=exact_genus_bin_decomposition(target,donors,scored)
+                    part=exact_genus_from_source_counts(
+                        target,donor_by_mode[mode],scored
+                    )
+                    # Independently audited original accepted-name genus code
+                    # remains the reference for a deterministic small subset.
+                    seed=sha256(f"{id}|{sector}|{scope}|{mode}".encode()).digest()
+                    if seed[0]==0:
+                        ref=exact_genus_bin_decomposition(target,donors,scored)
+                        for val in ("original_direct_binary_sector_difference",*TERMS):
+                            if abs(part[val]-ref[val])>1e-10:
+                                raise AssertionError(
+                                    "cached source genus count partition differs from verified original formula"
+                                )
                     row[label+"__observed_difference"]=part[
                         "original_direct_binary_sector_difference"
                     ]
