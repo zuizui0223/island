@@ -1,0 +1,119 @@
+name: fd original 4505 independent NHM symmetry versus original Direct tube-depth support
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_independent_nhm_radial_depth_support.py
+      - tests/test_fd_independent_nhm_radial_depth_support.py
+      - .github/workflows/run-fd-independent-nhm-radial-depth-support.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-NHM-hybrid-source-feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-independent-NHM-radial-depth
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install source-sha and exact trait parser dependencies
+        run: python -m pip install -q numpy scipy pandas pytest networkx
+      - name: Checkout original fd accepted species TRUE pair ontology
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Validate exact-source-name donor independence and mixed-trait provenance guards
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python -m pytest -q \
+            tests/test_fd_independent_nhm_radial_depth_support.py \
+            tests/test_fd_nhm_original_provider_audit.py \
+            work/fd/tests/test_real_joint_syndrome_access.py
+          python -m compileall -q scripts/run_fd_independent_nhm_radial_depth_support.py
+      - name: Restore frozen source-original GIFT 4505 floras and Direct species evidence
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Restore and check 5 independently released NHM flower description corpora
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/nhm-corpora"
+          while IFS='|' read -r file expected; do
+            test -n "$file" || continue
+            curl -fLSs --retry 5 --retry-delay 2 --connect-timeout 15 --max-time 300 \
+              "https://raw.githubusercontent.com/NaturalHistoryMuseum/plant-traits/4843c22bb2fc91018d9828dcddebf067c83b1097/output/raw/ocr-traits/$file" \
+              -o "$STAGE/nhm-corpora/$file"
+            actual="$(git hash-object --no-filters "$STAGE/nhm-corpora/$file")"
+            test "$actual" = "$expected"
+          done <<'NHM_PINS'
+          bhl.csv|f46e15b95e92b1daad5c0ebf2145df73173505be
+          ecoflora.csv|dbdc6b4469583743b8b35e26912d21d05b550f32
+          efloras.flora_of_china.csv|ec87a99eee2cc1bf9a8868e1d5425654e7974897
+          efloras.flora_of_north_america.csv|3710b08d7b041205a6cb5e7b811c08de317e006d
+          efloras.flora_of_pakistan.csv|7f506417a3ae31fc4daa959a27976ed62c7b1449
+          NHM_PINS
+      - name: Restore independently published Roeble Zizka GSHHG source geography
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path;import os;from fd.origin import run_crosswalk;run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Test independent NHM symmetry/form plus original Direct depth overlap without fitting unsupported guild effects
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_independent_nhm_radial_depth_support.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --nhm-directory "$STAGE/nhm-corpora" \
+            --output "$STAGE/anonymous_original_nhm_radial_depth_support.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_nhm_radial_depth_support.json"
+          text=p.read_text()
+          z=json.loads(text)
+          assert z["status"]=="ORIGINAL_GIFT_4505_EXTERNAL_NHM_SYMMETRY_FORM_PLUS_DIRECT_DEPTH_COVERAGE_AUDIT"
+          assert z["n_original_GIFT_island_floras"]==4505
+          assert z["n_original_native_mainland_source_regions"]==748
+          assert z["n_regional_status_sector_provider_panels"]==5*3*3*2
+          assert z["limitations"]["NHM_does_not_supply_independently_recorded_tube_depth"]
+          assert z["limitations"]["source_only_accepted_species_absent_from_ANY_island_flora"]
+          assert z["limitations"]["score_or_effect_never_fitted_below_identification_gates"]
+          assert len(z["hybrid_external_source_only_donor_counts"])==3*2
+          assert not any('"'+key+'"' in text for key in (
+            "island_id","accepted_species","work_species","entity_ID",
+            "spatial_block","source_signature","source_genus",
+            "source_family","latitude","longitude","GBIF_id","photo_id","taxon_id"))
+          print("Original 4505 NHM independent symmetry/form plus Direct depth identification audited")
+          PY
+      - name: Upload anonymous original hybrid external morphology source support only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-4505-external-NHM-radial-depth-support-${{ github.run_id }}
+          path: /tmp/fd-independent-NHM-radial-depth/anonymous_original_nhm_radial_depth_support.json
+          if-no-files-found: error
+          retention-days: 90
