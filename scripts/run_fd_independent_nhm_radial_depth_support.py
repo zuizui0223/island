@@ -34,6 +34,8 @@ FLORAL_PAIRS={
 }
 TIERS=("one_or_more_consistent_NHM_corpora",
        "two_distinct_consistent_NHM_corpora")
+EXCLUSIONS=("all_original_island_species_globally",
+            "only_focal_island_species")
 MODES={"geo_k5":("geo5",5),"geo50_climate10":("climate10",10)}
 SCOPES=("all_recorded","strict_native","strict_native_nonendemic")
 REGIMES=("northern_midlatitude","tropical","southern_extratropical",
@@ -72,6 +74,16 @@ def external_hybrid_donors(external_axis:dict[str,str],
     scored={name:int(external_axis[name] in selected_positive and
                      original_depth[name]=="deep") for name in candidates}
     return scored
+
+
+def external_donors_for_focal(candidate:set[str],qualified:set[str],
+                              full_focal_island_accepted_names:set[str]):
+    """A species used on OTHER islands may still be an independent DONOR
+    for this focal island, but NEVER its own focal accepted species."""
+    result=(candidate & qualified) - full_focal_island_accepted_names
+    if result & full_focal_island_accepted_names:
+        raise AssertionError("focal accepted plant leaked into donor model")
+    return result
 
 
 def original_feasibility(
@@ -127,20 +139,28 @@ def original_feasibility(
     original_donor_records=[]
     for name,(axis,positive) in FLORAL_PAIRS.items():
         for tier in TIERS:
-            result=external_hybrid_donors(
-                ext[axis][tier],original_depth,GIFT,original_islands,positive
-            )
-            pool[(name,tier)]=result
-            original_donor_records.append(dict(
-                sector=name,external_source_provider_tier=tier,
-                n_original_same_name_external_A_and_original_Direct_depth_B=len(result),
-                n_independent_external_Direct_depth_axis=0,
-                n_original_hybrid_source_positive_joint=sum(result.values()),
-                n_original_hybrid_source_botanical_genera=len({
-                    genus(x) for x in result
-                }),
-                n_external_same_name_gift_accepted_sources_not_local_evolution=True
-            ))
+            for exclusion in EXCLUSIONS:
+                # This new focal-only sensitivity was introduced after the
+                # 2026-11-16 whole-population exclusion yielded zero names.
+                # Never call it a pre-outcome preregistered result.
+                removed=(original_islands if
+                         exclusion=="all_original_island_species_globally"
+                         else set())
+                result=external_hybrid_donors(
+                    ext[axis][tier],original_depth,GIFT,removed,positive
+                )
+                pool[(name,tier,exclusion)]=result
+                original_donor_records.append(dict(
+                    sector=name,external_source_provider_tier=tier,
+                    accepted_species_exclusion_scope=exclusion,
+                    n_original_same_name_external_A_and_original_Direct_depth_B=len(result),
+                    n_independent_external_Direct_depth_axis=0,
+                    n_original_hybrid_source_positive_joint=sum(result.values()),
+                    n_original_hybrid_source_botanical_genera=len({
+                        genus(x) for x in result
+                    }),
+                    n_external_same_name_gift_accepted_sources_not_local_evolution=True,
+                ))
 
     A=assign.loc[assign.source_mode.isin(MODES)].copy()
     A.source_rank=pd.to_numeric(A.source_rank,errors="raise").astype(int)
@@ -183,12 +203,17 @@ def original_feasibility(
                 target=roster&target_known
                 n=len(target)
                 for tier in TIERS:
-                    key=(reg,scope,sector,tier)
+                  for exclusion in EXCLUSIONS:
+                    key=(reg,scope,sector,tier,exclusion)
                     c=counters[key]
                     c["n_full_region_islands"]+=1
                     if n>=5:c["n_at_least_five_real_island_pair_carriers"]+=1
-                    qsrc={mode:(source&set(pool[(sector,tier)]))
-                          for mode,source in sources.items()}
+                    qsrc={
+                        mode:external_donors_for_focal(
+                            source,set(pool[(sector,tier,exclusion)]),
+                            q["full"]
+                        ) for mode,source in sources.items()
+                    }
                     for mode in ("geo5","climate10"):
                         nd=len(qsrc[mode])
                         for limit in (1,5,10):
@@ -213,7 +238,8 @@ def original_feasibility(
         for scope in SCOPES:
             for sector in FLORAL_PAIRS:
                 for tier in TIERS:
-                    key=(region,scope,sector,tier)
+                  for exclusion in EXCLUSIONS:
+                    key=(region,scope,sector,tier,exclusion)
                     c=counters[key]
                     nqual=c[
                         "n_islands_with_5plus_same_island_target_congeners_and_2plus_genera_both_source10"
@@ -223,6 +249,7 @@ def original_feasibility(
                     rows.append(dict(
                         region=region,scope=scope,structural_pair=sector,
                         source_provider_tier=tier,
+                        accepted_species_exclusion_scope=exclusion,
                         **{v:int(c[v]) for v in (
                             "n_full_region_islands",
                             "n_at_least_five_real_island_pair_carriers",
@@ -242,7 +269,7 @@ def original_feasibility(
                                 if nqual>=30 and nblock>=10 and nsource>=5
                                 else "NOT_IDENTIFIABLE_EXTERNAL_FULL_SYNDROME_VALIDATION"),
                     ))
-    if len(rows)!=len(REGIMES)*len(SCOPES)*len(FLORAL_PAIRS)*len(TIERS):
+    if len(rows)!=(len(REGIMES)*len(SCOPES)*len(FLORAL_PAIRS)*len(TIERS)*len(EXCLUSIONS)):
         raise ValueError("original region×native×source hybrid support collapsed")
     return dict(
         status="ORIGINAL_GIFT_4505_EXTERNAL_NHM_SYMMETRY_FORM_PLUS_DIRECT_DEPTH_COVERAGE_AUDIT",
@@ -264,7 +291,9 @@ def original_feasibility(
             mixed_provider_symmetry_form_and_original_Direct_tube_depth_not_independent_pair=True,
             original_4505_islands_retained_as_denominator=True,
             no_missing_gift_plant_trait_or_absence_imputed=True,
-            source_only_accepted_species_absent_from_ANY_island_flora=True,
+            global_species_exclusion_strict_sensitivity_separate=True,
+            focal_island_accepted_species_never_used_as_their_own_source=True,
+            focal_only_exception_transparent_postzero_support_sensitivity=True,
             outside_source_provider_is_independent_release_not_independent_field_study=True,
             actual_pollinator_guild_or_effective_pollen_not_measured=True,
             score_or_effect_never_fitted_below_identification_gates=True,
