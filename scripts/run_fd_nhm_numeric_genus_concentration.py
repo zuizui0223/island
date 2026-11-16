@@ -266,6 +266,10 @@ def main():
         full,roster,population=4505,bootstrap=999
     )
     old=json.loads(a.original_anonymous_benchmark.read_text())
+    if (old.get("status")!="ORIGINAL_4505_NHM_NUMERIC_LENGTH_SOURCE_CONGENER_DEEP_PREDICTION"
+        or old.get("n_original_botanical_flora_islands")!=4505
+        or old.get("n_original_GIFT_native_mainland_source_entities")!=748):
+        raise ValueError("original successful source benchmark does not match frozen original GIFT flora")
     result["exact_original_release_equivalence"]=compare_original_anonymous_reference(
         result,old
     )
