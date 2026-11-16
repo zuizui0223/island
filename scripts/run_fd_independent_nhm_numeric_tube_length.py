@@ -303,6 +303,7 @@ def study(ledger:pd.DataFrame,flora:pd.DataFrame,geo:pd.DataFrame,
             no_new_effect_or_causal_fit_until_source_overlap_audited=True,
             independent_released_text_corpus_not_independent_original_studies=True,
             combined_numeric_NHM_release_lacks_original_study_identification=True,
+            combined_release_excluded_from_two_original_provider_voting=True,
             constituent_five_corpora_and_combined_numeric_release_separate=True,
         ),
     )
@@ -339,24 +340,43 @@ def main():
             raise ValueError("NHM independent released source git blob changed")
         numeric_provider[label],meta=parse_nhm_numeric_file(file,label)
         metadata.append(meta)
-    # The five original individual OCR tables lack numeric corolla-tube
-    # columns. The independently released combined file (separately pinned
-    # to its immutable Git BLOB) contains the numeric trait fields.
-    # This combined release is NOT treated as a second independent study.
+    # All five original constituent CSVs contain explicitly labelled
+    # 'x cm' corolla-tube lengths. The separately released combined.csv
+    # reproduces/aggregates them; NEVER add it as a sixth independent
+    # 'provider' or manufacture a two-provider consensus from duplicates.
     combined=args.nhm_directory/"combined.csv"
     if not combined.is_file() or nhm_git_blob_sha(combined)!=NHM_BLOB:
         raise ValueError("NHM combined numeric corolla tube Git blob changed")
-    numeric_provider["NHM_combined_opaque_numeric_release"],meta=(
-        parse_nhm_numeric_file(combined,"NHM_combined_opaque_numeric_release")
-    )
+    combined_values,meta=parse_nhm_numeric_file(
+        combined,"NHM_combined_opaque_numeric_release")
     metadata.append(meta)
+    original_union,two_original,_=combine_external_provider_lengths(
+        numeric_provider
+    )
+    paired_overlap=set(original_union)&set(combined_values)
+    numeric_reconciliation=dict(
+        n_original_constituent_provider_union=len(original_union),
+        n_combined_report_accepted_species=len(combined_values),
+        n_exact_name_overlap=len(paired_overlap),
+        n_original_constituent_only=len(set(original_union)-set(combined_values)),
+        n_combined_only=len(set(combined_values)-set(original_union)),
+        n_original_real_two_provider_consensus_species=len(two_original),
+        n_overlap_length_disagreement_gt50pct=sum(
+            max(original_union[sp],combined_values[sp])/
+            min(original_union[sp],combined_values[sp])>1.5
+            for sp in paired_overlap),
+        combined_counts_only_a_checksum_not_an_extra_source_provider=True,
+    )
     output=study(ledger,flora,geo,mainland,assignments,numeric_provider,metadata)
+    output["combined_vs_five_independent_corpora_numeric_receipt"]=numeric_reconciliation
     output["original_Direct_ledger_SHA256"]=sha(ledger_path)
     output["original_GIFT_4505_flora_SHA256"]=sha(flora_path)
     output["NHM_pinned_git_corpus_blobs"]={
         **BLOB_PINS,"NHM_combined_opaque_numeric_release":NHM_BLOB
     }
     output["combined_numeric_release_not_original_provider_independence"]=True
+    output["real_numeric_source_corpora_for_consensus"]=len(numeric_provider)
+    output["not_six_corpora_after_combined_release_deduplication"]=True
     raw=json.dumps(output,ensure_ascii=False,sort_keys=True,indent=2,allow_nan=False)
     forbidden=("island_id","accepted_species","work_species","entity_ID",
                "spatial_block","source_signature","source_region_id",
