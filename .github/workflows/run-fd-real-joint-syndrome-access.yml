@@ -76,10 +76,11 @@ jobs:
           assert z["n_full_original_botanical_islands"]==4505
           assert z["n_original_climate10_covered_botanical_floras"]==4485
           assert z["n_original_748_mainland_source_entities"]==748
-          assert z["n_original_island_scope_joint_sector_rows"]==4505*3*9
-          assert z["n_source_mode_provenance_region_panels"]==5*3*9
+          assert z["n_original_island_scope_joint_sector_rows"]==4505*3*11
+          assert z["n_source_mode_provenance_region_panels"]==5*3*11
           assert z["limits"]["marginal_flower_traits_never_multiplied_across_different_plants"]
           assert z["limits"]["no_guild_identity_predicted_from_morphology"]
+          assert z["limits"]["color_bins_originally_red_pink_yellow_orange_white_not_separate_red_orange"]
           assert not any('"'+k+'"' in raw for k in (
               "island_id","accepted_species","source_signature","spatial_block",
               "work_species","entity_ID","latitude","longitude","source_genus",
