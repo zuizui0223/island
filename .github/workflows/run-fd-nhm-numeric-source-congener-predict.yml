@@ -100,11 +100,12 @@ jobs:
           assert z["n_original_island_status_source_tier_rows"]==4505*3*2
           assert z["n_region_status_tier_panels"]==5*3*2
           assert z["n_original_GIFT_native_mainland_source_entities"]==748
-          cal=z["calibration_without_any_original_island_names"]
-          assert cal["original_island_accepted_species_fully_excluded"]
-          assert cal["n_calibration_distinct_original_accepted_species"]>=100
-          assert cal["log1p_cm_slope"]>0
-          assert z["limitations"]["original_island_ordinal_target_never_used_in_calibration"]
+          cal=z["calibration_excluding_each_target_botanical_genus"]
+          assert cal["n_source_accepted_species_with_NHM_numeric_and_Direct_depth"]>=100
+          assert cal["complete_source_only_calibration_absent_any_original_island_is_not_available"]
+          assert cal["every_prediction_excludes_its_own_genus_from_all_original_direct_training"]
+          assert z["limitations"]["each_predicted_genus_direct_ordinal_labels_excluded_from_its_calibration"]
+          assert z["limitations"]["other_genera_from_island_floras_can_be_in_calibration"]
           assert z["limitations"]["no_directly_measured_bird_butterfly_moth_visitors"]
           assert not any('"'+key+'"' in txt for key in (
              "island_id","accepted_species","work_species","entity_ID",
