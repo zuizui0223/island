@@ -320,7 +320,7 @@ def main():
     a.output.write_text(body+"\n",encoding="utf-8")
     print(json.dumps(dict(
         status=result["status"],original_islands=4505,
-        provider_comparison_panels=len(rows) if False else result[
+        provider_comparison_panels=result[
             "n_regional_status_sector_provider_panels"],
         n_identifiable_hybrid_external_source_panels=result[
             "n_hybrid_source_panels_meeting_actual_comparison_gates"],
