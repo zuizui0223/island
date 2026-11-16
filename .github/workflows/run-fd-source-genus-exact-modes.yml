@@ -4,6 +4,7 @@ on:
     branches: [analysis/fd-discrete-functional-volume-20261113]
     paths:
       - scripts/run_fd_source_genus_exact_modes.py
+      - tests/test_fd_source_genus_exact_modes.py
       - .github/workflows/run-fd-source-genus-exact-modes.yml
   workflow_dispatch:
 permissions:
@@ -38,7 +39,8 @@ jobs:
           PYTHONPATH=work/fd/src python -m pytest -q \
             work/fd/tests/test_source_genus_exact_partition_modes.py
           PYTHONPATH=scripts python -m pytest -q \
-            tests/test_fd_direct_source_genus_accounting.py
+            tests/test_fd_direct_source_genus_accounting.py \
+            tests/test_fd_source_genus_exact_modes.py
           python -m compileall -q \
             work/fd/src/fd/source_genus_exact_partition_modes.py \
             scripts/run_fd_source_genus_exact_modes.py
