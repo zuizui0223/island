@@ -98,11 +98,13 @@ jobs:
           assert z["status"]=="ORIGINAL_GIFT_4505_EXTERNAL_NHM_SYMMETRY_FORM_PLUS_DIRECT_DEPTH_COVERAGE_AUDIT"
           assert z["n_original_GIFT_island_floras"]==4505
           assert z["n_original_native_mainland_source_regions"]==748
-          assert z["n_regional_status_sector_provider_panels"]==5*3*3*2
+          assert z["n_regional_status_sector_provider_panels"]==5*3*3*2*2
           assert z["limitations"]["NHM_does_not_supply_independently_recorded_tube_depth"]
-          assert z["limitations"]["source_only_accepted_species_absent_from_ANY_island_flora"]
+          assert z["limitations"]["focal_island_accepted_species_never_used_as_their_own_source"]
+          assert z["limitations"]["global_species_exclusion_strict_sensitivity_separate"]
+          assert z["limitations"]["focal_only_exception_transparent_postzero_support_sensitivity"]
           assert z["limitations"]["score_or_effect_never_fitted_below_identification_gates"]
-          assert len(z["hybrid_external_source_only_donor_counts"])==3*2
+          assert len(z["hybrid_external_source_only_donor_counts"])==3*2*2
           assert not any('"'+key+'"' in text for key in (
             "island_id","accepted_species","work_species","entity_ID",
             "spatial_block","source_signature","source_genus",
