@@ -83,6 +83,7 @@ def macro_exact_928_locality_gate(
         verified_geometry_path:Path,
         verified_geometry_receipt_path:Path,
         *, largest_global_archive_first_label:str|None=None,
+    return_private_linked:bool=False,
 )->dict:
     """Source-provenance-preserving polygon × exact plant name match.
 
@@ -181,7 +182,7 @@ def macro_exact_928_locality_gate(
                 documented_guild=guild,n_islands_with_same_flora_species_locality=0,
                 n_locality_matched_plant_species=0,
                 n_strict_native_islands_with_same_species_guild=0))
-        return out
+        return (out,pd.DataFrame(columns=list(raw.columns))) if return_private_linked else out
     if (raw.isna().any().any()
             or (~raw.guild.isin(GUILDS)).any()
             or (~raw.evidence_class.isin(("flower_visit","pollination"))).any()
@@ -284,4 +285,4 @@ def macro_exact_928_locality_gate(
             "n_strict_native_islands_with_same_species_guild":
                 int(nsub.island_id.nunique()),
         })
-    return out
+    return (out,linked) if return_private_linked else out
