@@ -231,6 +231,14 @@ def original_provider_model_and_source_support(
                     allowed_genera & available
                 )
         allowed_genera=allowed_genera or set()
+        same_name_donor_overlap={
+            mode:sum(
+                sp in nhm_by_corpus[PAIR[0]]
+                and sp in nhm_by_corpus[PAIR[1]]
+                and botanical_genus(sp) in allowed_genera
+                for sp in sources[mode]
+            ) for mode in ("geo5","climate10")
+        }
         fixed={scope:{s for s in names if botanical_genus(s) in allowed_genera}
                for scope,names in scopes.items()}
         pair_est={}
@@ -283,12 +291,7 @@ def original_provider_model_and_source_support(
                         ]
                         row[f"{p}__{mode}__brier_genus"]=z["brier_length_genus"]
                         row[f"{p}__{mode}__brier_pooled"]=z["brier_length_pooled"]
-                        row[f"{p}__{mode}__n_accepted_donor_species_shared_with_other_provider"]=sum(
-                            sp in nhm_by_corpus[PAIR[0]]
-                            and sp in nhm_by_corpus[PAIR[1]]
-                            and botanical_genus(sp) in allowed_genera
-                            for sp in sources[mode]
-                        )
+                        row[f"{p}__{mode}__n_accepted_donor_species_shared_with_other_provider"]=same_name_donor_overlap[mode]
                     else:
                         row[f"{p}__{mode}__n_numeric"]=0
                         row[f"{p}__{mode}__source_coverage"]=np.nan
