@@ -135,6 +135,13 @@ def exact_genus_strata(focal:set[str],candidate:set[str],
     pools=defaultdict(lambda:[set(),set()])
     for s in focal:pools[strata[s]][0].add(s)
     for s in candidate:pools[strata[s]][1].add(s)
+    # Validate the pre-frozen source categories even if effective sample
+    # support later proves too sparse. Invalid bins must fail closed.
+    for key in pools:
+        if (len(key) not in (2,3) or key[0] not in BINS
+            or key[1] not in DISTANCE_BINS
+            or (len(key)==3 and key[2] not in WCVP_BINS)):
+            raise ValueError("Undefined or posthoc WCVP/native GIFT source stratum")
     used=[(k,a,b) for k,(a,b) in pools.items() if a and b]
     if not used:return None
     effective=sum(min(len(a),len(b)) for _,a,b in used)
