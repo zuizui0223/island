@@ -1,0 +1,112 @@
+name: fd original 4505 same-island geo5 versus climate10 floral guild robustness
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_source_guild_source_mode_robustness.py
+      - .github/workflows/run-fd-source-guild-mode-robustness.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-source-mode-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-source-mode
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install categorical and source opportunity runtime
+        run: python -m pip install -q pandas numpy scipy pytest
+      - name: Checkout source-versioned fd module without releasing original GIFT sources
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Validate synthetic paired-island, guild and documentation controls
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q \
+            work/fd/tests/test_source_mode_robustness.py \
+            work/fd/tests/test_source_guild_support.py
+          python -m compileall -q \
+            scripts/run_fd_source_guild_source_mode_robustness.py \
+            work/fd/src/fd/source_mode_robustness.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore SHA-frozen original GIFT flora and directly recorded flower evidence
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Rebuild independent Roeble Zizka island geography and spatial blocks
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Restore independently effort-qualified original five-guild GBIF states
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/guild"
+          gh run download 34750153702 --repo zuizui0223/island \
+            --name chapter1-nee-channel-qualification-34750153702 \
+            --dir "$STAGE/guild"
+          GUILD_EVIDENCE="$(find "$STAGE/guild" -name nee_projected_channel_state.csv -type f -print -quit)"
+          test -n "$GUILD_EVIDENCE" && test -s "$GUILD_EVIDENCE"
+          echo "GUILD_EVIDENCE=$GUILD_EVIDENCE" >> "$GITHUB_ENV"
+      - name: Compute original same-island source-mode trait and native-status contrasts
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_source_guild_source_mode_robustness.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --channel-evidence-csv "$GUILD_EVIDENCE" \
+            --output "$STAGE/anonymous_same_island_source_mode_comparison.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          f=Path(os.environ["STAGE"])/"anonymous_same_island_source_mode_comparison.json"
+          raw=f.read_text()
+          x=json.loads(raw)
+          assert x["status"]=="ORIGINAL_4505_SAME_ISLAND_GEO5_VS_CLIMATE10_FLORAL_SECTORS"
+          assert x["n_original_botanical_islands"]==4505
+          assert x["n_original_mainland_candidate_source_entities"]==748
+          p=x["same_island_source_definitions"]
+          assert p["n_original_islands_with_climate10_source_assignment"]==4485
+          assert p["n_original_island_scope_sector_rows"]==4505*3*5
+          assert p["n_scope_sector_regional_panels"]==75
+          assert x["qualified_guild_robustness_on_exact_paired_sources"][
+            "n_preserved_original_scope_guild_sector_regional_slots"]==375
+          protected=("island_id","accepted_species","source_signature","spatial_block",
+            "entity_ID","work_species","latitude","longitude","GBIF_id",
+            "source_region_id","taxon_id","source_genus","source_family")
+          assert not any('"'+key+'"' in raw for key in protected)
+          print("Original source-hash-verified fixed-island source-mode and guild analysis passed")
+          PY
+      - name: Upload anonymized island-source mode and guild overlap statistics only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-source-mode-4505-${{ github.run_id }}
+          path: /tmp/fd-source-mode/anonymous_same_island_source_mode_comparison.json
+          if-no-files-found: error
+          retention-days: 90
