@@ -24,6 +24,7 @@ from pathlib import Path
 from math import comb
 import numpy as np
 import pandas as pd
+from fd_island_functional_beta import strict_traits
 from fd_direct_source_finite_sampling_null import genus,prob_no_original_genus_in_native_or_candidate
 from fd_direct_source_breadth_matched import BINS,REGIONS,listing_breadth_bin
 from fd_direct_source_distance_conditioned_genus_null import closest_km_bin,DISTANCE_BINS
