@@ -22,7 +22,7 @@ import pandas as pd
 from fd_island_functional_beta import strict_traits
 from fd_direct_three_stage_floristic_comparison import status_groups
 from fd_nhm_external_flora_preflight import (
-    accepted_exact_binomial,nhm_git_blob_sha,
+    accepted_exact_binomial,nhm_git_blob_sha, NHM_BLOB,
 )
 from fd_nhm_original_provider_audit import PROVIDERS,BLOB_PINS
 from fd.source_genus_same_island import genus
@@ -299,6 +299,8 @@ def study(ledger:pd.DataFrame,flora:pd.DataFrame,geo:pd.DataFrame,
             no_source_biological_arrival_establishment_or_island_trait_evolution_inferred=True,
             no_new_effect_or_causal_fit_until_source_overlap_audited=True,
             independent_released_text_corpus_not_independent_original_studies=True,
+            combined_numeric_NHM_release_lacks_original_study_identification=True,
+            constituent_five_corpora_and_combined_numeric_release_separate=True,
         ),
     )
 
@@ -334,10 +336,24 @@ def main():
             raise ValueError("NHM independent released source git blob changed")
         numeric_provider[label],meta=parse_nhm_numeric_file(file,label)
         metadata.append(meta)
+    # The five original individual OCR tables lack numeric corolla-tube
+    # columns. The independently released combined file (separately pinned
+    # to its immutable Git BLOB) contains the numeric trait fields.
+    # This combined release is NOT treated as a second independent study.
+    combined=args.nhm_directory/"combined.csv"
+    if not combined.is_file() or nhm_git_blob_sha(combined)!=NHM_BLOB:
+        raise ValueError("NHM combined numeric corolla tube Git blob changed")
+    numeric_provider["NHM_combined_opaque_numeric_release"],meta=(
+        parse_nhm_numeric_file(combined,"NHM_combined_opaque_numeric_release")
+    )
+    metadata.append(meta)
     output=study(ledger,flora,geo,mainland,assignments,numeric_provider,metadata)
     output["original_Direct_ledger_SHA256"]=sha(ledger_path)
     output["original_GIFT_4505_flora_SHA256"]=sha(flora_path)
-    output["NHM_pinned_git_corpus_blobs"]=BLOB_PINS
+    output["NHM_pinned_git_corpus_blobs"]={
+        **BLOB_PINS,"NHM_combined_opaque_numeric_release":NHM_BLOB
+    }
+    output["combined_numeric_release_not_original_provider_independence"]=True
     raw=json.dumps(output,ensure_ascii=False,sort_keys=True,indent=2,allow_nan=False)
     forbidden=("island_id","accepted_species","work_species","entity_ID",
                "spatial_block","source_signature","source_region_id",
