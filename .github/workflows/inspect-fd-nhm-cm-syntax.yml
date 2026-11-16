@@ -1,0 +1,49 @@
+name: fd inspect published NHM numeric corolla tube cell syntax, no source taxa
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - .github/workflows/inspect-fd-nhm-cm-syntax.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  format-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q pandas
+      - name: Read SHA-frozen public NHM numeric cell values only
+        run: |
+          set -euo pipefail
+          curl -fLSs --retry 4 --connect-timeout 15 --max-time 300 \
+            "https://raw.githubusercontent.com/NaturalHistoryMuseum/plant-traits/4843c22bb2fc91018d9828dcddebf067c83b1097/output/raw/ocr-traits/combined.csv" \
+            -o /tmp/combined.csv
+          test "$(git hash-object --no-filters /tmp/combined.csv)" = "e1cfd2d5c518c2061ec91d1a9e8b64fc7ca69389"
+          python - <<'PY'
+          import pandas as pd,json,collections,re
+          p="/tmp/combined.csv"
+          cols=["corolla tube min. length [cm]","corolla tube max. length [cm]"]
+          f=pd.read_csv(p,dtype=str,keep_default_na=False,usecols=cols)
+          for c in cols:
+            nonempty=[str(x) for x in f[c] if str(x).strip()]
+            freq=collections.Counter(nonempty)
+            sample=[dict(value=k[:80],count=v) for k,v in freq.most_common(15)]
+            forms=collections.Counter(
+              ("pure_num" if re.fullmatch(r"\d+(?:\.\d+)?",x.strip())
+               else "has_angle_bracket" if any(z in x for z in "<>")
+               else "has_comma" if "," in x
+               else "has_semicolon" if ";" in x
+               else "has_colon" if ":" in x
+               else "has_hyphen" if "-" in x
+               else "has_letters" if any(z.isalpha() for z in x)
+               else "other") for x in nonempty
+            )
+            print(json.dumps(dict(column=c,n=len(nonempty),
+                format_counts=forms.most_common(),value_examples=sample),
+                ensure_ascii=False,sort_keys=True))
+          PY
