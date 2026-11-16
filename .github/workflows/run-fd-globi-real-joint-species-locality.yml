@@ -103,7 +103,7 @@ jobs:
           assert t["n_original_GIFT_botanical_island_population"]==4505
           assert t["n_original_geometrically_verifiable_islands"]==927
           assert t["n_source_guild_trait_plant_origin_support_cells"]==3*3*2*2*5
-          assert t["limitations"]["GloBI_lepidoptera_butterfly_and_moth_separation_not_supported"]
+          assert t["limitations"]["lepidoptera_butterfly_and_moth_separation_not_supported"]
           assert t["limitations"]["animal_nondetection_is_never_inferred"]
           assert not any('"'+key+'"' in raw for key in (
             "island_id","accepted_species","reference_id","provider_id",
