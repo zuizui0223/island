@@ -136,3 +136,20 @@ def test_original_grouping_conditional_resampling_and_support_gate():
     assert z["observed_minus_range_and_source_expected_shared_genera_conditional_group_95"]==pytest.approx([-2,-2])
     small=grouped_summary(rows[:10],"spatial_block",boots=99)
     assert small["status"]=="INSUFFICIENT_NATIVE_RANGE_SOURCE_SUPPORT"
+
+
+def test_exact_cross_stratum_genus_pair_expectation_matches_full_enumeration():
+    native={"A one","A two"}
+    source={"B one","C two"}
+    strata={
+      "A one":("source_once","lt250km","nativeL3_1"),
+      "B one":("source_once","lt250km","nativeL3_1"),
+      "A two":("source_11_30","750_2000km","nativeL3_2_3"),
+      "C two":("source_11_30","750_2000km","nativeL3_2_3")
+    }
+    z=exact_genus_strata(native,source,strata,min_effective=2)
+    assert z is not None
+    v=z[0]
+    assert v["n_original_source_native_breadth_km_WCVP_strata"]==2
+    assert v["observed_minus_expected_focal_genus_concentration"]==pytest.approx(.75)
+    assert v["expected_shared_botanical_genera_exact_finite_source"]==pytest.approx(.5)
