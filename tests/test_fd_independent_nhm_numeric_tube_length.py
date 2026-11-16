@@ -11,6 +11,8 @@ from run_fd_independent_nhm_numeric_tube_length import (
 
 def test_strict_cm_numeric_range_and_OCR_ambiguity():
     assert np.isclose(strict_single_length("1.0","3.0"),2.)
+    assert np.isclose(strict_single_length("1.0 cm","3.0 cm"),2.)
+    assert strict_single_length("1.0 mm","3.0 mm") is None
     assert np.isclose(strict_single_length("1.5",""),1.5)
     assert strict_single_length("3.0","1.0") is None
     assert strict_single_length("1.0-3.0","") is None
