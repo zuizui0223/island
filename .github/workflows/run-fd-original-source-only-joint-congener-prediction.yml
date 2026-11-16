@@ -85,6 +85,11 @@ jobs:
           assert z["limits"]["focal_accepted_species_names_excluded_from_both_source_pools"]
           assert z["limits"]["all_methods_evaluated_on_exact_same_supported_island_plants"]
           assert z["limits"]["source_coverage_and_nativeness_nonrandomly_missing"]
+          assert z["limits"]["prediction_increment_of_true_joint_over_independent_marginal_products_tested"]
+          assert z["limits"]["within_source_genus_both_traits_variable_support_explicit"]
+          assert all("n_islands_with_source_genus_variable_in_both_axes_and_modes" in p
+              and "source_trait_variation_both__spatial_block" in p
+              for p in z["panels"])
           forbidden=("island_id","accepted_species","work_species","entity_ID",
             "spatial_block","source_signature","source_region_id","source_genus",
             "source_family","latitude","longitude","taxon_id","GBIF_id","photo_id")
