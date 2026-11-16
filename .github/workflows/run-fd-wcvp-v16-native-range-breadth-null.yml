@@ -1,0 +1,106 @@
+name: fd original 4505 GIFT species native WCVP v16 range breadth source genus null
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths: [.github/workflows/run-fd-wcvp-v16-native-range-breadth-null.yml, scripts/fd_wcvp_v16_native_breadth_null.py, tests/test_fd_wcvp_v16_native_breadth_null.py]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-floral-beta
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install exact sparse scientific runtime
+        run: python -m pip install -q numpy scipy pandas pytest
+      - name: Test exact official WCVP v16 accepted native L3 area breadth and real source co-occurrence NULL
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts pytest -q tests/test_fd_wcvp_v16_native_breadth_null.py tests/test_fd_original_source_trait_free_genus_null.py tests/test_fd_direct_source_distance_conditioned_genus_null.py
+          python -m compileall -q scripts/fd_wcvp_v16_native_breadth_null.py
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c8ad76798fd84635ff5014dc781741c43492e936
+          path: work/fd-reference
+          persist-credentials: false
+      - name: Restore SHA-locked GIFT floral sources and independent saved baseline
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/baseline" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          gh run download 43586977772 --repo zuizui0223/island \
+            --name fd-original-full-global-partial-FD-20261114-43586977772 --dir "$STAGE/baseline"
+          BASELINE="$(find "$STAGE/baseline" -name anonymous_original_partial_fd_20261114.json -type f -print -quit)"
+          test -n "$BASELINE" && test -s "$BASELINE"
+          echo "BASELINE=$BASELINE" >> "$GITHUB_ENV"
+      - name: Rebuild independently published geological source crosswalk
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd-reference/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Restore independent Kew WCVP 16 June 2026 exact accepted names and native region distribution
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/wcvp"
+          curl --fail --location --retry 3 --retry-delay 10 --connect-timeout 30 --max-time 1800 \
+            --output "$STAGE/wcvp/wcvp_v16_source.zip" \
+            "https://sftp.kew.org/pub/data-repositories/WCVP/wcvp.zip"
+          test -s "$STAGE/wcvp/wcvp_v16_source.zip"
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,zipfile,os
+          p=Path(os.environ["STAGE"])/"wcvp/wcvp_v16_source.zip"
+          assert p.stat().st_size>60000000, "Original Kew WCVP download unexpectedly small"
+          with zipfile.ZipFile(p) as z:
+              names=set(z.namelist())
+              assert any(n.endswith("wcvp_names.csv") for n in names)
+              assert any(n.endswith("wcvp_distribution.csv") for n in names)
+          h=hashlib.sha256(p.read_bytes()).hexdigest()
+          print("Official Kew WCVP SOURCE SHA256",h)
+          PY
+      - name: Analyze original 4505 botanical GIFT island genus source with independently native WCVP L3 range breadth
+        run: |
+          set -euo pipefail
+          python scripts/fd_wcvp_v16_native_breadth_null.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology "$STAGE/geography/island_origin_crosswalk.csv" \
+            --wcvp-zip "$STAGE/wcvp/wcvp_v16_source.zip" \
+            --output "$STAGE/anonymous_fd_WCVP_native_L3_genus_null.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          q=json.loads((Path(os.environ["STAGE"])/"anonymous_fd_WCVP_native_L3_genus_null.json").read_text())
+          assert q["status"]=="ORIGINAL_4505_INDEPENDENT_Kew_WCVP_NATIVE_RANGE_BREADTH_SOURCE_GENUS_NULL"
+          assert q["n_original_botanical_GIFT_island_floras"]==4505
+          assert q["n_original_independent_GIFT_native_mainland_source_regions"]==748
+          assert q["n_original_individually_Direct_sector_masks"]==4
+          assert q["claims"]["same_actual_accepted_name_cohorts_used_for_two_vs_three_stratum_null"]
+          assert q["claims"]["no_unmatched_WCVP_species_as_zero_native_range"]
+          assert len(q["source_original_native_WCVP_range_genus_coverage_and_null"])>=10
+          print("Original 4505 WCVP-range-matched source genus null and source attrition VALIDATED")
+          PY
+      - name: Export only anonymous descriptive regional/profile aggregate
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-native-wcvp-range-null-${{ github.run_id }}
+          path: /tmp/fd-floral-beta/anonymous_fd_WCVP_native_L3_genus_null.json
+          if-no-files-found: error
+          retention-days: 45
