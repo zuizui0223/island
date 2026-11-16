@@ -22,6 +22,7 @@ from fd.global_partial_pollinator_guild_bridge import (
     CHANNELS, normalize_guild_evidence,
 )
 from fd.source_guild_support import audit_source_guild_support
+from fd.global_guild_source_same_cohort_audit import matched_block_delta
 
 # Morphology only; SC/SI and autonomous seed set have separate reproductive scales.
 MORPHOLOGY = (
@@ -184,6 +185,69 @@ def summarize_source_only(rows: pd.DataFrame) -> list[dict]:
     return out
 
 
+def inspect_matched_observational_channels(
+    rows: pd.DataFrame, support: dict
+) -> list[dict]:
+    """Compare original observed shares and source-only shares on SAME islands.
+
+    These are *within-geographic-block, within-first-source and joint*
+    contrasts, not a beta for guild loss or a plant-specific visitor effect.
+    All 125 discovered source×guild×sector cells count as the discovery family.
+    """
+    out = []
+    eligible = [x for x in support["strata"]
+                if x["status"] == "ELIGIBLE_FOR_EXPLORATORY_ASSOCIATION"]
+    for x in eligible:
+        q = rows.loc[
+            rows.regime.eq(x["regime"]) &
+            rows.guild.eq(x["guild"]) &
+            rows.sector.eq(x["sector"]) &
+            rows.source_state.eq("available") &
+            rows.channel_state.isin(["retained", "disrupted"]) &
+            rows.n_direct_carriers.ge(5) &
+            rows.n_source_direct_carriers.ge(10) &
+            rows.source_sector_share.notna() &
+            rows.island_sector_share.notna()
+        ].copy()
+        if len(q) != x["n_retained"] + x["n_adequately_nondetected"]:
+            raise ValueError("source×guild cohort changed between gate and outcome")
+        q["island_minus_candidate_source"] = (
+            q.island_sector_share - q.source_sector_share
+        )
+        q["source_and_block_group"] = (
+            q.spatial_block.fillna("no_block").astype(str) + "::" +
+            q.source_signature.fillna("no_source").astype(str)
+        )
+        profile = dict(
+            region=x["regime"], guild=x["guild"], morphological_sector=x["sector"],
+            n_source_positive_retained=x["n_retained"],
+            n_source_positive_adequately_nondetected=x["n_adequately_nondetected"],
+            same_island_records_for_raw_and_source_reference=True,
+            exploratory_selected_from_125_source_guild_sector_slots=True,
+            no_true_pollinator_loss_or_visitor_pollen_effect_estimated=True,
+        )
+        for axis, name in (
+            ("spatial_block", "original_physical_block"),
+            ("source_signature", "first_GIFT_source_signature"),
+            ("source_and_block_group", "joint_source_and_spatial_block"),
+        ):
+            for metric in (
+                "island_sector_share", "source_sector_share",
+                "island_minus_candidate_source",
+            ):
+                seed = int.from_bytes(hashlib.sha256((
+                    x["regime"] + "|" + x["guild"] + "|" + x["sector"] +
+                    "|" + name + "|" + metric
+                ).encode()).digest()[:8], "big")
+                d = matched_block_delta(
+                    q, metric, axis, bootstrap=1999, seed=seed
+                )
+                # The comparison is RETAINED minus ADEQUATELY NONDETECTED.
+                profile[name + "__retained_minus_nondetected__" + metric] = d
+        out.append(profile)
+    return out
+
+
 def run(root: Path, geo_path: Path, channels_path: Path) -> dict:
     ledger_path = root / "fixed/source/current/evidence/direct_only_trait_ledger.csv.gz"
     flora_path = root / "fixed/canonical/input/chapter1_status_flora.csv.gz"
@@ -215,6 +279,7 @@ def run(root: Path, geo_path: Path, channels_path: Path) -> dict:
     if not all("mixed_spatial_blocks" in row for row in support["strata"]):
         raise AssertionError("independent within-physical-block overlap guard absent")
     source_only = summarize_source_only(rows)
+    within_block = inspect_matched_observational_channels(rows, support)
     return {
         "status": "SOURCE_GUILD_FUNCTIONAL_SECTOR_POSITIVITY_ORIGINAL_4505",
         "original_global_botanical_flora_population": 4505,
@@ -225,6 +290,7 @@ def run(root: Path, geo_path: Path, channels_path: Path) -> dict:
         "n_original_joint_trait_states_imputed": 0,
         "n_source_island_guild_sector_rows_private": int(len(rows)),
         "guild_support": support,
+        "observational_mixed_block_guild_diagnostics": within_block,
         "unconditioned_observed_sector_source_comparison": source_only,
         "provenance": {
             "direct_ledger_sha256": digest(ledger_path),
