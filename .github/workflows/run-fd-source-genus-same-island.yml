@@ -1,0 +1,100 @@
+name: fd original 4505 same-island genus-matched independent mainland floral source check
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_source_genus_same_island.py
+      - .github/workflows/run-fd-source-genus-same-island.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-real-congener-source-matched:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-genus-source-reference
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original source and synthetic test dependencies
+        run: python -m pip install -q pandas numpy scipy pytest
+      - name: Checkout unmerged original genus-source reference implementation
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Validate fixed original island membership, shared-genus-only donor names and incomplete data safeguards
+        run: |
+          set -euo pipefail
+          PYTHONPATH="work/fd/src" python -m pytest -q \
+            work/fd/tests/test_source_genus_same_island.py \
+            work/fd/tests/test_source_mode_robustness.py
+          python -m compileall -q \
+            work/fd/src/fd/source_genus_same_island.py \
+            scripts/run_fd_source_genus_same_island.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore original exact SHA-verified species-direct floral and accepted GIFT floras
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Rebuild independently sourced Roeble Zizka original island spatial blocks
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Compare real fixed-island source-list excluded congeneric flora across geo5 climate10 and native scopes
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_source_genus_same_island.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_fd_4505_source_genus_same_island.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          f=Path(os.environ["STAGE"])/"anonymous_fd_4505_source_genus_same_island.json"
+          raw=f.read_text()
+          r=json.loads(raw)
+          assert r["status"]=="ORIGINAL_4505_GIFT_SOURCE_MODE_SHARED_GENUS_REAL_NAME_COMPARISON"
+          assert r["n_original_botanical_island_floras"]==4505
+          assert r["n_GIFT_native_mainland_source_entities"]==748
+          assert r["n_original_island_scope_morphology_rows"]==4505*4*5
+          assert r["n_regime_scope_morphology_panels"]==100
+          assert r["original_4_505_flora_and_taxa_never_exported"]
+          assert r["claim_limits"]["genuine_distinct_accepted_mainland_congener_species_only"]
+          assert r["claim_limits"]["all_4505_botanical_islands_retained_even_when_unassessable"]
+          protected=("island_id","accepted_species","entity_ID","work_species",
+            "source_signature","spatial_block","source_region_id","longitude",
+            "latitude","GBIF_id","taxon_id","observer_id","source_genus","source_family")
+          assert not any('"'+x+'"' in raw for x in protected)
+          print("True same-island donor congener audit passed with anonymized output only")
+          PY
+      - name: Upload only anonymous regional genus-source reference tests
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-fixed-island-genus-source-${{ github.run_id }}
+          path: /tmp/fd-genus-source-reference/anonymous_fd_4505_source_genus_same_island.json
+          if-no-files-found: error
+          retention-days: 90
