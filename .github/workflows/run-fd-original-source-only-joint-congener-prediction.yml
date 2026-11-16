@@ -1,0 +1,101 @@
+name: fd original 4505 source-only mainland congener real joint phenotype prediction
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_source_only_joint_congener_prediction.py
+      - .github/workflows/run-fd-original-source-only-joint-congener-prediction.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-source-name-excluded-phenotype-prediction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-source-only-real-joints
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install categorical source model and test dependencies
+        run: python -m pip install -q pandas numpy scipy pytest
+      - name: Checkout source-matched real-pair original FD model
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Validate non-leakage and exact same-island real-pair source-congener predictions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q \
+            work/fd/tests/test_source_only_real_joint_congener_prediction.py \
+            work/fd/tests/test_real_joint_syndrome_access.py
+          python -m compileall -q \
+            scripts/run_fd_original_source_only_joint_congener_prediction.py \
+            work/fd/src/fd/source_only_real_joint_congener_prediction.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore original source-hash-frozen GIFT floral species and native mainland candidate region archives
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Reconstruct independent original GSHHG 10 degree physical geography and source blocks
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Predict true island floral symmetry depth pair from mainland distinct-name congener source states
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_original_source_only_joint_congener_prediction.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_original_congener_pair_predictions.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          f=Path(os.environ["STAGE"])/"anonymous_original_congener_pair_predictions.json"
+          raw=f.read_text()
+          z=json.loads(raw)
+          assert z["status"]=="ORIGINAL_4505_SOURCE_ONLY_REAL_FLORAL_PAIR_CONGENER_PREDICTION"
+          assert z["n_original_GIFT_botanical_flora_islands"]==4505
+          assert z["n_original_GIFT_native_mainland_source_regions"]==748
+          assert z["n_original_island_scope_sector_donor_cells"]==4505*3*3*2
+          assert z["n_region_scope_sector_donor_panels"]==5*3*3*2
+          assert z["limits"]["focal_accepted_species_names_excluded_from_both_source_pools"]
+          assert z["limits"]["all_methods_evaluated_on_exact_same_supported_island_plants"]
+          assert z["limits"]["source_coverage_and_nativeness_nonrandomly_missing"]
+          forbidden=("island_id","accepted_species","work_species","entity_ID",
+            "spatial_block","source_signature","source_region_id","source_genus",
+            "source_family","latitude","longitude","taxon_id","GBIF_id","photo_id")
+          assert not any('"'+name+'"' in raw for name in forbidden)
+          print("Original independently source-only accepted congener floral pair forecasts validated")
+          PY
+      - name: Upload source-safe anonymous model comparisons and documented eligible denominators
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-real-pair-source-congener-prediction-${{ github.run_id }}
+          path: /tmp/fd-source-only-real-joints/anonymous_original_congener_pair_predictions.json
+          if-no-files-found: error
+          retention-days: 90
