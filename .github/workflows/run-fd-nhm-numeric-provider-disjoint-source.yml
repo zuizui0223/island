@@ -37,6 +37,7 @@ jobs:
           set -euo pipefail
           PYTHONPATH="scripts:work/fd/src" python -m pytest -q \
             work/fd/tests/test_nhm_numeric_provider_holdout.py \
+            work/fd/tests/test_nhm_provider_matched_source.py \
             work/fd/tests/test_nhm_numeric_source_congener_predict.py \
             tests/test_fd_independent_nhm_numeric_tube_length.py
           python -m compileall -q \
@@ -100,6 +101,12 @@ jobs:
           assert x["n_original_GIFT_island_floras"]==4505
           assert x["n_original_island_scope_provider_rows"]==4505*3*5
           assert x["n_regional_status_source_provider_panels"]==5*3*5
+          p=x["original_same_focal_species_two_provider_prediction"]
+          assert p["status"]=="ORIGINAL_4505_SAME_PLANT_BHL_VS_FLORACHINA_TUBE_SOURCE"
+          assert p["n_original_botanical_GIFT_islands"]==4505
+          assert p["n_original_private_island_scope_matched_provider_rows"]==4505*3
+          assert p["n_original_region_provenance_panels"]==5*3
+          assert p["limitations"]["original_same_target_species_within_island_across_both_corpora"]
           assert x["n_original_748_mainland_source_regions"]==748
           assert x["n_climate10_covered_original_botanical_floras"]==4485
           assert x["limitations"]["each_NHM_source_donor_length_from_one_heldout_named_corpus"]
