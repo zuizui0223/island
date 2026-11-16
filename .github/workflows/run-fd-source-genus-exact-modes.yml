@@ -38,7 +38,7 @@ jobs:
           set -euo pipefail
           PYTHONPATH=work/fd/src python -m pytest -q \
             work/fd/tests/test_source_genus_exact_partition_modes.py
-          PYTHONPATH=scripts python -m pytest -q \
+          PYTHONPATH="scripts:work/fd/src" python -m pytest -q \
             tests/test_fd_direct_source_genus_accounting.py \
             tests/test_fd_source_genus_exact_modes.py
           python -m compileall -q \
