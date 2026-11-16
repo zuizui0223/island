@@ -24,7 +24,7 @@ from fd_island_functional_beta import strict_traits
 from fd_direct_three_stage_floristic_comparison import status_groups
 from fd.nhm_numeric_source_congener_predict import (
     REGIMES,SCOPES,TIERS,
-    fit_source_only_length_calibrator,source_predict_same_island,
+    make_genus_heldout_length_calibrator,source_predict_same_island,
     aggregate_external_source_numeric_prediction,
 )
 from run_fd_independent_nhm_numeric_tube_length import (
@@ -72,8 +72,12 @@ def fit_original_and_predict(
     traits=strict_traits(ledger)
     original_depth=traits["tube_depth_class"]
     external,two,prov=combine_external_provider_lengths(numeric_provider)
-    cal=fit_source_only_length_calibrator(
-        external,original_depth,gift,all_plant_names
+    # The original strictly OUTSIDE-ALL-ISLANDS named-species
+    # calibration failed with precisely zero numeric×ordinal overlap.
+    # Use exact leave-one-BOTANICAL-GENUS-out calibration, with no target
+    # genus categorical labels included in its numeric-to-depth mapping.
+    cal,calibration_meta=make_genus_heldout_length_calibrator(
+        external,original_depth,gift
     )
     source_modes=assigned.loc[assigned.source_mode.isin(MODES)].copy()
     source_modes.source_rank=pd.to_numeric(
@@ -155,7 +159,7 @@ def fit_original_and_predict(
         pd.DataFrame.from_records(records),population=4505,bootstrap=999
     )
     report.update(
-        calibration_without_any_original_island_names=cal,
+        calibration_excluding_each_target_botanical_genus=calibration_meta,
         original_nhm_numeric_source_provider_summary=prov,
         n_external_numeric_original_NHM_species=len(external),
         n_external_numeric_two_corpus_consistent_species=len(two),
@@ -222,8 +226,8 @@ def main():
     print(json.dumps({
         "status":report["status"],
         "original_islands":report["n_original_botanical_flora_islands"],
-        "calibration_species":report["calibration_without_any_original_island_names"][
-            "n_calibration_distinct_original_accepted_species"],
+        "calibration_species":report["calibration_excluding_each_target_botanical_genus"][
+            "n_source_accepted_species_with_NHM_numeric_and_Direct_depth"],
         "eligible_original_source_panels":sum(
             x["all__spatial_block"]["status"]==
             "EXPLORATORY_EXTERNAL_NUMERIC_SOURCE_PREDICTION"
