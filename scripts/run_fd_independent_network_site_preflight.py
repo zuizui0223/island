@@ -154,7 +154,8 @@ def run(original_root:Path,geo:Path,receipt:Path)->dict:
         "evidence_scope","evidence_quality"
     ])
     flora=pd.read_csv(florapath,dtype=str,usecols=[
-        "island_id","accepted_species","origin_status"
+        "island_id","accepted_species","origin_status",
+        "endemic_status","floristic_status"
     ])
     polygon,full=strict_source_geometry(geo,receipt,traits,flora)
     original_direct=strict_traits(traits)
