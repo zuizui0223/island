@@ -16,11 +16,13 @@
 - [x] GEB-specific cover letter drafted with a short novelty paragraph.
 - [x] Rights-aware Data and Code Availability proposal prepared.
 - [ ] Verify fully anonymous DOCX/PDF metadata and author disclosures in text, figures, file names and reference links.
-- [ ] Confirm running title under 40 characters, panel labels lowercase, captions colocated with figures.
-- [ ] **Replace global location/distribution maps with a documented equal-area projection (Mollweide/Aitoff)**.
-- [ ] Embed six main figures in the blinded manuscript; verify high-quality PDF/Word export and page QA.
-- [ ] Export Supporting Information as an independent file with correct captions, tables and figure cross-references.
-- [ ] Produce the cover letter as a separate PDF and verify final reader-facing files.
+- [x] Running title under 40 characters and GEB panel-label transform incorporated in review figure renderer; Figures 1a–b visually confirmed. **Full journal-size artwork and page-by-page caption colocation still require final author proof.**
+- [x] GEB-specific **Mollweide equal-area world map** generated from the frozen locations, with a 5,000-km equatorial scale; Figure 1 preview inspected (review version).
+- [x] Six main figure PDFs embedded into GEB blind **review** DOCX/PDF and verified by CI; first-page manuscript preview inspected. Final all-page author proof remains pending.
+- [x] GEB SI exported as a separate blind **review** DOCX/PDF with seven SI figures; first-page preview inspected. Detailed final SI citations/captions require author review.
+- [x] GEB cover letter exported as a **separate unapproved review PDF**; editorial-interest paragraph contains 171 words. Corresponding-author approval is still pending.
+
+- [ ] Complete final GEB anonymous manuscript metadata/DOI verification and **all-page visual proof** prior to actual upload.
 
 ## Requires coauthor/editor input
 - [ ] Final author order, affiliations and exactly one corresponding author.
