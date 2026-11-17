@@ -1,0 +1,73 @@
+name: fd original paired congener floral architecture contrast
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_paired_congener_gain.py
+      - .github/workflows/run-fd-original-paired-congener-gain.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  paired-original-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-paired-source
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q pandas numpy scipy pytest
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Validate source and model contracts
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_source_only_real_joint_congener_prediction.py
+          PYTHONPATH="scripts:work/fd/src" python -m compileall -q scripts/run_fd_original_paired_congener_gain.py
+      - name: Restore SHA-verified original botanical archives
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Reconstruct independent GSHHG geography
+        run: |
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Original 4505 GIFT same-island matched morphology contrast
+        run: |
+          PYTHONPATH="scripts:work/fd/src" python scripts/run_fd_original_paired_congener_gain.py --original-root "$ORIGINAL_ROOT" --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" --output "$STAGE/paired_anonymous.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          z=json.loads((Path(os.environ["STAGE"])/"paired_anonymous.json").read_text())
+          assert z["status"]=="ORIGINAL_4505_COMMON_ISLAND_PAIRED_CONGENER_GAIN"
+          assert z["n_original_botanical_islands"]==4505
+          assert z["n_panels"]==5*3*2*2
+          assert z["limits"]["archipelago_and_provider_holdout_not_done"]
+          print("Anonymous paired botanical source results validated")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fd-original-paired-congener
+          path: /tmp/fd-paired-source/paired_anonymous.json
+          if-no-files-found: error
+          retention-days: 90
