@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: a3b07873893723755bef4d56f27f3915bac778ff
+          ref: c8ee0e9635d19843abc6b49564ec475885a74a13
           path: work/fd
           persist-credentials: false
       - name: Check actual source group and within-study motif contrast algebra
@@ -37,6 +37,7 @@ jobs:
           PYTHONPATH="scripts:work/fd/src:work/fd/scripts" python -m pytest -q \
             work/fd/tests/test_dopi_gift_guild_motif_bridge.py \
             work/fd/tests/test_dopi_v2_positive_visitors.py \
+            work/fd/tests/test_dopi_real_motif_multiresolution.py \
             work/fd/tests/test_syndrome_ensemble_source.py
           PYTHONPATH="scripts:work/fd/src:work/fd/scripts" python -m compileall -q \
             scripts/run_fd_original_dopi_gift_guild_motifs.py \
@@ -80,12 +81,13 @@ jobs:
           assert z["status"]=="EXTERNAL_DOPI_V2_GIFT_REAL_MOTIF_WITHIN_PUBLICATION_GUILD_SCREEN"
           assert z["n_original_GIFT_botanical_islands"]==4505
           assert z["n_original_DOPI_source_rows"]==676900
-          assert z["n_motif_profiles"]==12
+          assert z["n_motif_profiles"]==27
           assert z["n_visitor_guild_pairs"]==5
-          assert z["n_qualification_panels"]==12*5*4
+          assert z["n_qualification_panels"]==27*5*4
           assert z["limits"]["nonpollinating_grade4_excluded"]
           assert z["limits"]["no_true_guild_absence_inferred"]
           assert z["limits"]["minimum_positive_motif_source_studies_enforced"]
+          assert z["n_motifs_by_number_of_observed_axes"]=={"1":4,"2":11,"3":9,"4":3}
           forbidden=("island_id","accepted_species","plant_species","doi","publication","work_species","source_signature","spatial_block")
           assert not any('"'+k+'"' in raw for k in forbidden)
           print("Original 4505 accepted island floras x DoPI v2 REAL positive visitor records verified")
