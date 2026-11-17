@@ -19,6 +19,7 @@ from fd_direct_three_stage_floristic_comparison import status_groups
 from fd.dopi_real_motif_multiresolution import make_real_multiresolution_motifs
 from fd.dopi_study_genus_equal import genus_equal_dopi_audit
 from fd.dopi_site_period_guild import site_time_positive_index,site_period_audit
+from fd.dopi_positive_coaccess import summarize_positive_coaccess
 from fd.dopi_gift_guild_motif_bridge import (
     screen_positive_dopi_rows,summarize_study_guild_motifs,
 )
@@ -83,6 +84,14 @@ def original_island_flora_dopi_guild_motifs(
         )
     report["same_published_site_period"] = site_period_audit(
         geo_index,motifs=motifs,draws=draws,
+    )
+    # Positive visits by BOTH real guilds on the SAME accepted plant species,
+    # inside an exact original publication+published site+year/month.
+    # Never turn a missing guild record into ecological absence.
+    report["positive_multiguild_flower_coaccess"] = (
+        summarize_positive_coaccess(
+            geo_index,motifs=motifs,draws=draws,
+        )
     )
     if report["same_published_site_period"]["n_original_DOPI_source_rows"]!=676900:
         raise ValueError("original DoPI 2.0 source row count changed in site/time audit")
@@ -161,6 +170,16 @@ def main():
             "DESCRIPTIVE_POSITIVE_GUILD_COMMON_SITE_PERIOD"
             for p in result["same_published_site_period"]["panels"]
             if p["resolution"]=="same_study_site_year"
+        ),
+        n_positive_coaccess_supported=sum(
+            p["co_documented_vs_positive_union"]["status"]==
+            "DESCRIPTIVE_REAL_GUILD_CO_DOCUMENTATION"
+            for p in result["positive_multiguild_flower_coaccess"]["panels"]
+        ),
+        n_genus_fixed_coaccess_supported=sum(
+            p["genus_fixed_co_documentation_excess"]["status"]==
+            "DESCRIPTIVE_GENUS_CONDITIONED_CO_DOCUMENTATION_EXCESS"
+            for p in result["positive_multiguild_flower_coaccess"]["panels"]
         ),
         only_positive_study_guild_comparisons=True
     ),sort_keys=True))
