@@ -109,7 +109,7 @@ jobs:
               out.write("Rights safe: only anonymous aggregates. Frozen Oct scientific results untouched.\n\n")
               out.write(json.dumps(summary, indent=2) + "\n\n")
               out.write("## Matched-interval within-genus SC-adjusted effects\n\n")
-              out.write(focused.to_markdown(index=False) + "\n")
+              out.write(focused.to_csv(index=False) + "\n")
           PY
           cat ~/summary.md >> "$GITHUB_STEP_SUMMARY"
 
