@@ -16,7 +16,7 @@ import pandas as pd
 
 from fd_island_functional_beta import strict_traits
 from fd_direct_three_stage_floristic_comparison import status_groups
-from fd.syndrome_ensemble_source import make_motifs
+from fd.dopi_real_motif_multiresolution import make_real_multiresolution_motifs
 from fd.dopi_gift_guild_motif_bridge import (
     screen_positive_dopi_rows,summarize_study_guild_motifs,
 )
@@ -51,9 +51,9 @@ def original_island_flora_dopi_guild_motifs(
     all_accepted=set().union(*(z["full"] for z in plants.values()))
     if not all_accepted:
         raise ValueError("original island plant species rosters unavailable")
-    motifs=make_motifs(strict_traits(direct))
-    if len(motifs)!=12:
-        raise ValueError("original GIFT 12 genuine three/four-axis floral motifs missing")
+    motifs=make_real_multiresolution_motifs(strict_traits(direct))
+    if len(motifs)!=27:
+        raise ValueError("original GIFT full 4 single, 11 paired, 12 three/four-axis floral motifs missing")
     if digest(public_dopi_csv)!=SOURCE_HASHES["DoPI_dataset_2.0.csv"]:
         raise ValueError("DoPI original v2 public source SHA256 drifted")
     if public_dopi_csv.stat().st_size!=ORIGINAL_DOPI_CSV_SIZE:
