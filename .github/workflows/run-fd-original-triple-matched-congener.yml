@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: analysis/discrete-functional-hypervolume-20261113
+          ref: 6664627b32c84d52b8ecb54e7afaa5583a51ceb7
           path: work/fd
           persist-credentials: false
       - name: Verify same-species triple and missing support contracts
@@ -80,6 +80,7 @@ jobs:
           assert z["limits"]["same_target_species_for_both_endpoints"]
           assert z["limits"]["same_source_species_for_both_endpoints_within_source_mode"]
           assert z["limits"]["provider_and_archipelago_heldout"] is False
+          assert any(p.get("block__normalized_status")=="SAME_COHORT_BASELINE_RISK_NORMALIZED" for p in z["panels"])
           print("Original 4,505 botanical floras and source-protected true triply Direct model validated")
           PY
       - uses: actions/upload-artifact@v4
