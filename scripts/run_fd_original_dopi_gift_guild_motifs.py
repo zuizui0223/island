@@ -20,6 +20,9 @@ from fd.dopi_real_motif_multiresolution import make_real_multiresolution_motifs
 from fd.dopi_study_genus_equal import genus_equal_dopi_audit
 from fd.dopi_site_period_guild import site_time_positive_index,site_period_audit
 from fd.dopi_positive_coaccess import summarize_positive_coaccess
+from fd.dopi_guild_portfolio_effort_null import (
+    positive_visitor_effort_index,guild_richness_motif_audit
+)
 from fd.dopi_gift_guild_motif_bridge import (
     screen_positive_dopi_rows,summarize_study_guild_motifs,
 )
@@ -92,6 +95,23 @@ def original_island_flora_dopi_guild_motifs(
         summarize_positive_coaccess(
             geo_index,motifs=motifs,draws=draws,
         )
+    )
+    # Fixed observation-exposure null: each plant keeps its distinct
+    # recorded visitor taxon count, each original published site-month keeps
+    # its empirically documented guild distribution. No unreported visitor
+    # or a source non-visit is inferred.
+    with public_dopi_csv.open("r",encoding="utf-8-sig",
+                              errors="replace",newline="") as handle:
+        reader3=csv.DictReader(handle)
+        effort_index=positive_visitor_effort_index(
+            reader3,fields=set(reader3.fieldnames or []),
+            GIFT_accepted_names=all_accepted,motifs=motifs,
+            visitor_classifier=identify_visitor_group,
+        )
+    if effort_index["source_row_counts"]["original_DoPI_v2_source_rows"]!=676900:
+        raise ValueError("source DoPI raw positive visitor effort rows changed")
+    report["visitor_guild_portfolio_effort_null"] = (
+        guild_richness_motif_audit(effort_index,motifs=motifs,draws=draws)
     )
     if report["same_published_site_period"]["n_original_DOPI_source_rows"]!=676900:
         raise ValueError("original DoPI 2.0 source row count changed in site/time audit")
@@ -180,6 +200,16 @@ def main():
             p["genus_fixed_co_documentation_excess"]["status"]==
             "DESCRIPTIVE_GENUS_CONDITIONED_CO_DOCUMENTATION_EXCESS"
             for p in result["positive_multiguild_flower_coaccess"]["panels"]
+        ),
+        n_guild_richness_fixed_exposure_supported=sum(
+            p["study_site"]["status"]==
+            "DESCRIPTIVE_EFFORT_CONDITIONED_POSITIVE_VISITOR_GUILD_PORTFOLIO"
+            for p in result["visitor_guild_portfolio_effort_null"]["panels"]
+        ),
+        n_guild_richness_genus_fixed_supported=sum(
+            p["same_genus_study_site"]["status"]==
+            "DESCRIPTIVE_EFFORT_CONDITIONED_POSITIVE_VISITOR_GUILD_PORTFOLIO"
+            for p in result["visitor_guild_portfolio_effort_null"]["panels"]
         ),
         only_positive_study_guild_comparisons=True
     ),sort_keys=True))
