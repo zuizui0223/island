@@ -18,6 +18,7 @@ from fd_island_functional_beta import strict_traits
 from fd_direct_three_stage_floristic_comparison import status_groups
 from fd.dopi_real_motif_multiresolution import make_real_multiresolution_motifs
 from fd.dopi_study_genus_equal import genus_equal_dopi_audit
+from fd.dopi_site_period_guild import site_time_positive_index,site_period_audit
 from fd.dopi_gift_guild_motif_bridge import (
     screen_positive_dopi_rows,summarize_study_guild_motifs,
 )
@@ -69,6 +70,23 @@ def original_island_flora_dopi_guild_motifs(
             visitor_classifier=identify_visitor_group,
         )
     report=summarize_study_guild_motifs(index,motifs=motifs,draws=draws)
+    # Repeat the exact public positive source stream with genuine publication,
+    # published-site and observation-year/month constraints; never infer a
+    # location or guild non-detection from absent metadata.
+    with public_dopi_csv.open("r",encoding="utf-8-sig",
+                              errors="replace",newline="") as handle:
+        reader2=csv.DictReader(handle)
+        geo_index=site_time_positive_index(
+            reader2,fields=set(reader2.fieldnames or []),
+            island_names=all_accepted,motifs=motifs,
+            classifier=identify_visitor_group,
+        )
+    report["same_published_site_period"] = site_period_audit(
+        geo_index,motifs=motifs,draws=draws,
+    )
+    if report["same_published_site_period"]["n_original_DOPI_source_rows"]!=676900:
+        raise ValueError("original DoPI 2.0 source row count changed in site/time audit")
+
     # New source-study/plant-genus equal-weight validation: same private
     # documented positive units; no source plant/study identifiers exported.
     report["within_publication_equal_genus"]=(
@@ -137,6 +155,12 @@ def main():
         n_variable_genus_supported=sum(
             q["genus_equal_informative"]["status"]=="DESCRIPTIVE_POSITIVE_VISITOR_STUDY_EQUAL_GENUS_FIXED"
             for q in result["within_publication_equal_genus"]["panels"]
+        ),
+        n_same_published_site_year_supported=sum(
+            p["same_site_positive_visitor"]["status"]==
+            "DESCRIPTIVE_POSITIVE_GUILD_COMMON_SITE_PERIOD"
+            for p in result["same_published_site_period"]["panels"]
+            if p["resolution"]=="same_study_site_year"
         ),
         only_positive_study_guild_comparisons=True
     ),sort_keys=True))
