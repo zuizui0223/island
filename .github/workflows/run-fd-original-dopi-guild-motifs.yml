@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: c8ee0e9635d19843abc6b49564ec475885a74a13
+          ref: 9c80fce1193b4f6085faab0863d4f1bcb85a007a
           path: work/fd
           persist-credentials: false
       - name: Check actual source group and within-study motif contrast algebra
@@ -38,6 +38,7 @@ jobs:
             work/fd/tests/test_dopi_gift_guild_motif_bridge.py \
             work/fd/tests/test_dopi_v2_positive_visitors.py \
             work/fd/tests/test_dopi_real_motif_multiresolution.py \
+            work/fd/tests/test_dopi_study_genus_equal.py \
             work/fd/tests/test_syndrome_ensemble_source.py
           PYTHONPATH="scripts:work/fd/src:work/fd/scripts" python -m compileall -q \
             scripts/run_fd_original_dopi_gift_guild_motifs.py \
@@ -88,6 +89,12 @@ jobs:
           assert z["limits"]["no_true_guild_absence_inferred"]
           assert z["limits"]["minimum_positive_motif_source_studies_enforced"]
           assert z["n_motifs_by_number_of_observed_axes"]=={"1":4,"2":11,"3":9,"4":3}
+          eg=z["within_publication_equal_genus"]
+          assert eg["status"]=="DOPI_2026_GIFT_TRUE_FLORAL_WITHIN_STUDY_GENUS_EQUAL_AUDIT"
+          assert eg["n_original_GIFT_botanical_islands"]==4505
+          assert eg["n_original_flower_motifs"]==27
+          assert eg["n_panels"]==540
+          assert eg["interpretation"]["compares_same_study_and_equal_weights_each_shared_genus"]
           forbidden=("island_id","accepted_species","plant_species","doi","publication","work_species","source_signature","spatial_block")
           assert not any('"'+k+'"' in raw for k in forbidden)
           print("Original 4505 accepted island floras x DoPI v2 REAL positive visitor records verified")
