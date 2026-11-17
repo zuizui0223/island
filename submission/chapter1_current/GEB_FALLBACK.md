@@ -1,3 +1,5 @@
+> **HISTORICAL EDITORIAL MEMO:** GEB was a fallback until 17 November 2026; it is now the active first-shot journal. See [the current GEB submission package](../geb_current/README.md). Do not use the older unconverted counts or abstract below as active GEB materials.
+
 # Global Ecology and Biogeography fallback package
 
 Checked against the current GEB author guidelines on 27 September 2026.
