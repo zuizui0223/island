@@ -36,7 +36,7 @@ def test_geb_structured_abstract_keywords_and_blind_text():
     assert len(body.split()) <= 5000
     running = text.split("**Running title:**", 1)[1].split("\n", 1)[0].strip()
     assert len(running) < 40
-    assert not re.search(r"zuizui0223|github\.com/zuizui|@gmail", text, re.I)
+    assert not re.search(r"zuizui0223|github\.com/zuizui|@gmail", text, re.IGNORECASE)
     assert "Data and Code Availability Statement" in text
     assert "176,414" in text and "46,274" in text
     assert "PENDING" in text
