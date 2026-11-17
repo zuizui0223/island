@@ -28,13 +28,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: 6664627b32c84d52b8ecb54e7afaa5583a51ceb7
+          ref: 6062c053dbd33e165bf5c1e137b0739fcc567e0c
           path: work/fd
           persist-credentials: false
       - name: Verify same-species triple and missing support contracts
         run: |
           set -euo pipefail
-          PYTHONPATH="scripts:work/fd/src" python -m pytest -q work/fd/tests/test_triple_matched_congener.py
+          PYTHONPATH="scripts:work/fd/src" python -m pytest -q work/fd/tests/test_triple_matched_congener.py work/fd/tests/test_source_loo_flower_placebo.py
           PYTHONPATH="scripts:work/fd/src" python -m compileall -q \
             work/fd/src/fd/triple_matched_congener.py \
             scripts/run_fd_original_triple_matched_congener.py
@@ -80,6 +80,8 @@ jobs:
           assert z["limits"]["same_target_species_for_both_endpoints"]
           assert z["limits"]["same_source_species_for_both_endpoints_within_source_mode"]
           assert z["limits"]["provider_and_archipelago_heldout"] is False
+          assert z["source_loo_negative_control"]["status"]=="ORIGINAL_4505_TRUE_FLORAL_SOURCE_LOO_NEGATIVE_CONTROL"
+          assert z["source_loo_negative_control"]["n_reporting_panels"]==5*3*2*2*2
           assert any(p.get("block__normalized_status")=="SAME_COHORT_BASELINE_RISK_NORMALIZED" for p in z["panels"])
           print("Original 4,505 botanical floras and source-protected true triply Direct model validated")
           PY
