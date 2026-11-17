@@ -19,6 +19,12 @@
 
 The GEB Research Article instructions request around 5,000 main-text words, a seven-field structured abstract of at most 300 words, 6–10 alphabetic keywords, a separate identifying title page and double-anonymous manuscript, line numbers, and a cover letter uploaded separately as PDF. Worldwide distribution maps must use an equal-area projection. Official instructions: https://onlinelibrary.wiley.com/page/journal/14668238/homepage/forauthors.html
 
+## Verified author-review package
+
+[GitHub Actions run #44005447514](https://github.com/zuizui0223/island/actions/runs/44005447514) completed successfully and produced a GEB review-only ZIP and QA preview artifacts. The bundle contains separate anonymous manuscript/SI and identifying-only title-page/cover-letter DOCX/PDF copies, six GEB main figure PDFs including a Mollweide world map, seven SI figures and aggregate result tables. Automated text/blinding, word-count, figure, source-lock and PDF checks passed. Figure 1 and the manuscript/SI first pages were visually inspected on 17 November 2026; temporary in-repo QA screenshots were removed.
+
+The CI output **does not** mean the manuscript is ready for actual journal submission or that all pages have undergone final author proofing.
+
 ## Not closed
 
 - **Data permissions:** 222,688 analysed trait-axis cells; only 46,274 currently authorized for public redistribution. The other 176,414 cells include both third-party legal restrictions and review-required records. Wiley's data-sharing policy permits discretionary exceptions for legal restrictions, not blanket release of all data. This must be resolved with the editor.
