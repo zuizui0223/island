@@ -36,7 +36,8 @@ def paired_aggregate(frame:pd.DataFrame,*,draws:int=999)->dict:
                     a[mode+"__supported"]=(n>=5)&(donor>=10)&np.isfinite(b)&np.isfinite(g)
                 for mode in MODES:
                     valid=a.loc[a[mode+"__supported"]].copy()
-                    p=valid.pivot(index="island_id",columns="sector",values=mode+"__gain").dropna()
+                    p=(valid.pivot(index="island_id",columns="sector",values=mode+"__gain")
+                       .reindex(columns=SECTORS).dropna())
                     original=a.drop_duplicates("island_id").set_index("island_id")
                     z=original.loc[p.index,["spatial_block","source_signature"]].copy()
                     z["delta"]=p[SECTORS[0]]-p[SECTORS[1]]
