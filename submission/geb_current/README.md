@@ -10,6 +10,7 @@
 - [Identifying title-page template](TITLE_PAGE_IDENTIFYING_TEMPLATE.md) — requires verified corresponding/coauthor information
 - [GEB cover-letter draft](COVER_LETTER_GEB.md) — editorial significance under 250 words, approval pending
 - [Rights-aware Data and Code Availability](DATA_CODE_AVAILABILITY.md) — source permissions and editor decision are not presumed
+- [Pre-submission editorial data-access inquiry](EDITORIAL_DATA_INQUIRY_UNSENT.md) — drafted only, not sent
 - [GEB submission checklist](SUBMISSION_CHECKLIST_GEB.md) — completion versus external blockers
 - [GEB review exporter](../../scripts/submission/build_chapter1_geb_review.py) and [Mollweide figure renderer](../../scripts/submission/render_chapter1_geb_figures.py)
 
