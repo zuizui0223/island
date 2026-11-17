@@ -1,7 +1,7 @@
 # GEB main figure legends — double-anonymous manuscript
 
 ## Figure 1 | Global scope and corrected geographic exposure
-**Review-figure rule:** global island and GloPL location plots are redrawn in a **Mollweide equal-area projection**, not longitude/latitude Cartesian axes. Figure 1c–d retain the original data-coverage and geography audit panels. Scale is indicated by degrees; projected area is equal-area. This is a presentation-only map transformation.
+World maps use a **Mollweide equal-area projection**; equatorial map scale is indicated in each map panel. All map values and locations derive from the corrected frozen geography data.
 (a) Global distribution of the **8,264 corrected island units** used in the plant analysis, grouped by the four predeclared geographic strata. (b) Global distribution of the 1,248 unique sites in the independent GloPL pollen-supplementation dataset. (c) Summary of data coverage across the island trait database and GloPL. (d) Geography-audit summary: 1,113 spurious island zero distances were repaired using source-matched GSHHG 2.3.7 coastlines, one Eurasian continental split component was excluded, and 996 true continental GloPL zero distances were retained.
 
 ## Figure 2 | Database construction and analytical workflow
@@ -19,5 +19,3 @@ Regional isolation coefficients for reproductive assurance (`selfing_core`), gen
 ## Figure 6 | H3 and H4: ecological pressure and functional bridge
 (a) Supporting ecological evidence from corrected GloPL: the full continental-plus-offshore isolation slope is positive (beta = 0.09191, SE = 0.03806, finite-publication two-sided p = 0.01594), as is the post-hoc offshore-only slope (beta = 0.22031, SE = 0.09704, finite-publication p = 0.02459). The main panel shows both gradients, with distance independently standardized in the full and offshore samples; coefficient magnitudes are therefore not directly comparable. Measurement-definition and binary mainland/offshore sensitivities remain in Supplementary Table S5 and Figure S5. Offshore means positive distance from the mapped continent, not independently verified island membership. Neither slope estimates pollinator population decline. (b) Exact-species H4 associations for the literal Direct-only H2 reproductive-assurance score (beta = -0.29830, finite-publication p = 0.00417) and generalized-accessibility score (beta = -0.29566, finite-publication p = 0.02334). (c) Primary atomic-trait sensitivities. Negative H4 coefficients indicate association with lower current pollen limitation; they do not establish historical mediation.
 
-
-**GEB artwork QA:** Figure 1's map projection and panel-label casing must be regenerated in the GEB-specific rendering workflow, keeping the original scientific data and coefficients unchanged. The original Ecology Letters figure PDFs do not automatically meet GEB map/label conventions.
