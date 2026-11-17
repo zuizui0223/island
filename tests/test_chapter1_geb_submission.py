@@ -118,4 +118,30 @@ def test_geb_h1_h4_results_unchanged_and_gbif_limits_explicit():
         assert "688/688" not in text
         assert "0/344" not in text
     body = "## Introduction" + manuscript.split("## Introduction", 1)[1].split("## References", 1)[0]
-    assert len(body.split()) == 4944
+    assert len(body.split()) == 4921
+
+
+def test_geb_intro_frames_existing_theory_and_no_new_mechanism():
+    """Introduction must motivate H1/H2 first and avoid overclaiming H3/H4."""
+    manuscript = (GEB / "MANUSCRIPT_BLINDED.md").read_text(encoding="utf-8")
+    intro = manuscript.split("## Introduction", 1)[1].split("## Materials and Methods", 1)[0]
+    for statement in (
+        "Baker's law predicts an advantage for colonists",
+        "Self-compatibility permits self-fertilization but does not necessarily entail autonomous selfing",
+        "not a novel result to rediscover",
+        "selfing syndrome",
+        "Pollination syndromes",
+        "without uniquely identifying effective pollinators",
+        "incomplete statistical explanation",
+        "not a direct measure of pollinator abundance or historical change",
+        "GBIF-observed island floras",
+        "H1 examines",
+        "H2 asks",
+        "H3 tests",
+        "H4 makes a post-hoc",
+        "not causal mediation",
+    ):
+        assert statement in intro, statement
+    assert "PR #327" not in intro
+    assert len(("## Introduction" + intro).split()) == 622
+
