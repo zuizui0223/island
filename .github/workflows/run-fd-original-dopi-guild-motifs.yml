@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: 3ebf6d0697d917b01d083d0015d99535eb31e660
+          ref: 05951f6a9255a31864db946a4ef35b0201dc8a34
           path: work/fd
           persist-credentials: false
       - name: Check actual source group and within-study motif contrast algebra
