@@ -1,5 +1,7 @@
 # Island — Chapter 1 corrected submission baseline
 
+> **Active journal first-shot (17 November 2026): Global Ecology and Biogeography**. See [submission/geb_current](submission/geb_current/README.md) and [config/chapter1_geb_submission.json](config/chapter1_geb_submission.json) for editorial files. The scientific H1–H4 selector remains `config/chapter1_submission_current.json` and its frozen data are unchanged. The former Ecology Letters material remains as historical editorial provenance.
+
 > **Current scientific surface: corrected geography + traitwise H1, no composite score (4 October 2026).**
 > Use `config/chapter1_submission_current.json` as the machine-readable selector.
 > The uncorrected v14 and v13 surfaces are preserved only as provenance.
