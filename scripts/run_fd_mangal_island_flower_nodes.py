@@ -26,6 +26,10 @@ from fd.independent_mangal_pollination_links import (
     strict_mangal_pollination_candidate_metadata,
     extract_mangal_positive_plant_links,
 )
+from fd.gbif_mangal_visitor_taxonomy import (
+    target_original_morphology_partner_keys,
+    summarize_gbif_resolved_source,
+)
 from run_fd_independent_network_site_preflight import (
     ORIGINAL_SHA,strict_source_geometry,same_original_island_network_points,
     get_all_mangal,get_bytes,MANGAL_BASE,
@@ -33,6 +37,7 @@ from run_fd_independent_network_site_preflight import (
 
 MAX_NETWORKS=120
 MAX_PAGES_PER_NETWORK=4
+MAX_TARGET_GBIF_TAXON_LOOKUPS=160
 
 
 def fetch_scoped(session,section,network_id):
@@ -113,6 +118,7 @@ def run(original_root:Path,geometry:Path,receipt:Path)->dict:
     # This is source-level study title/classification, NOT verified visit.
     status=Counter()
     positive=[]
+    original_floral_target_partners=[]
     n_interactions=0
     n_source_node=0
     bytype=Counter()
@@ -138,6 +144,13 @@ def run(original_root:Path,geometry:Path,receipt:Path)->dict:
             bytype.update(documented.interaction_type.value_counts().to_dict())
             if len(documented):
                 documented["island_id"]=item.island_id
+                # Only the source-positive partner taxa of plants with
+                # BOTH original Direct floral axes are GBIF-taxonomy targets.
+                checked=target_original_morphology_partner_keys(
+                    documented,traits
+                )
+                if len(checked):
+                    original_floral_target_partners.append(checked)
                 positive.append(documented[["network_id","island_id","plant","guild"]])
         except (requests.RequestException,ValueError,KeyError) as exc:
             status["n_original_networks_source_unavailable_or_unsupported"]+=1
@@ -148,6 +161,61 @@ def run(original_root:Path,geometry:Path,receipt:Path)->dict:
     existing=source_bounded_site_plant_audit(
         rows,flora,traits,global_original_islands=4505
     )
+    if original_floral_target_partners:
+        private_morph=pd.concat(
+            original_floral_target_partners,ignore_index=True
+        )
+    else:
+        private_morph=pd.DataFrame(columns=[
+            "network_id","island_id","plant","partner_gbif_key",
+            "source_interaction_id","actinomorphic_deep_true",
+            "zygomorphic_deep_true","tube_bell_deep_true",
+        ])
+    original_status=flora.rename(
+        columns={"accepted_species":"plant"}
+    )[["island_id","plant","origin_status","endemic_status"]]
+    private_morph=private_morph.merge(
+        original_status,on=["island_id","plant"],
+        how="left",validate="many_to_one"
+    )
+    if len(private_morph) and private_morph.origin_status.isna().any():
+        raise ValueError("Mangal positive floral visitor link lacks true original flora native status")
+    all_keys=sorted(
+        {int(x) for x in private_morph.partner_gbif_key.dropna()}
+    )
+    selected_keys=all_keys[:MAX_TARGET_GBIF_TAXON_LOOKUPS]
+    gbif_taxonomy={}
+    gbif_errors=Counter()
+    for original_key in selected_keys:
+        try:
+            blob=get_bytes(
+                session,f"https://api.gbif.org/v1/species/{original_key}",
+                max_bytes=300000
+            )
+            datum=json.loads(blob)
+            if (not isinstance(datum,dict) or
+                int(datum.get("key",0))!=original_key):
+                raise ValueError("GBIF taxon source key did not match original Mangal ID")
+            gbif_taxonomy[original_key]=datum
+        except (requests.RequestException,ValueError,KeyError) as exc:
+            gbif_errors[type(exc).__name__]+=1
+    gbif_audit=summarize_gbif_resolved_source(
+        private_morph,gbif_taxonomy,total_original_islands=4505
+    )
+    gbif_audit["source_lookup_coverage"]={
+        "n_original_true_flower_pair_links_without_source_gbif_key":int(
+            private_morph.partner_gbif_key.isna().sum()
+        ),
+        "n_original_true_flower_pair_unique_gbif_keys":len(all_keys),
+        "n_requested_taxon_id_lookups":len(selected_keys),
+        "n_original_source_taxa_over_explicit_lookup_cap":max(
+            0,len(all_keys)-MAX_TARGET_GBIF_TAXON_LOOKUPS
+        ),
+        "n_GBIF_taxon_lookups_failed":sum(gbif_errors.values()),
+        "n_GBIF_lookup_error_classes":dict(gbif_errors),
+        "n_valid_GBIF_taxon_lookups":len(gbif_taxonomy),
+        "unmatched_or_missing_original_taxon_keys_not_negative_visitors":True,
+    }
     return dict(
         status="ORIGINAL_GIFT_4505_INDEPENDENT_MANGAL_NETWORK_INTERACTION_PREFLIGHT",
         n_original_botanical_GIFT_island_population=4505,
@@ -184,6 +252,7 @@ def run(original_root:Path,geometry:Path,receipt:Path)->dict:
             Mangal_source_dataset_not_independent_original_study=True,
         ),
         exact_island_plant_guild_and_real_flower_traits=existing,
+        original_Mangal_flower_partner_GBIF_classification=gbif_audit,
         original_direct_trait_ledger_SHA256=sha256(original_ledger.read_bytes()).hexdigest(),
         original_GIFT_island_flora_SHA256=sha256(original_flora.read_bytes()).hexdigest(),
         epistemic_limits=dict(
@@ -227,6 +296,9 @@ def main():
         n_original_mangal_positive_original_island_plant_network_links=out[
             "exact_island_plant_guild_and_real_flower_traits"][
                 "n_original_species_network_plant_guild_units"],
+        n_original_real_flower_pair_visitors_with_GBIF_taxon_keys=out[
+            "original_Mangal_flower_partner_GBIF_classification"][
+                "source_lookup_coverage"]["n_original_true_flower_pair_unique_gbif_keys"],
         no_unobserved_visitor_absence_or_shift_inferred=True,
     ),sort_keys=True))
 
