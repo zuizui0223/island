@@ -1,0 +1,116 @@
+name: GEB first-shot double-anonymous review package
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "submission/geb_current/**"
+      - "config/chapter1_geb_submission.json"
+      - "scripts/submission/render_chapter1_geb_figures.py"
+      - "scripts/submission/build_chapter1_geb_review.py"
+      - "tests/test_chapter1_geb_submission.py"
+      - ".github/workflows/build-chapter1-geb-review.yml"
+  push:
+    branches: [submission/ch1-geb-firstshot-20261117]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  geb-review-bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install document and figure dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install -e ".[figures]" python-docx pymupdf pytest ruff
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libreoffice-writer
+
+      - name: Validate unchanged results and GEB-specific text
+        run: |
+          ruff check scripts/submission/render_chapter1_geb_figures.py scripts/submission/build_chapter1_geb_review.py tests/test_chapter1_geb_submission.py
+          pytest -q tests/test_chapter1_geb_submission.py
+
+      - name: Render anonymous manuscript, SI and equal-area GEB figures
+        run: |
+          set -euo pipefail
+          python scripts/submission/build_chapter1_geb_review.py \
+            --root . \
+            --output-dir "$RUNNER_TEMP/geb-package" \
+            --source-commit "$GITHUB_SHA" > "$RUNNER_TEMP/geb-result.json"
+
+      - name: Inspect generated manuscript structure and reviewer-blinding
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import zipfile
+          from pathlib import Path
+          import fitz
+          from docx import Document
+
+          root=Path(os.environ["RUNNER_TEMP"]) / "geb-package"
+          zpath=root/"Chapter1_GEB_DoubleAnonymous_REVIEW_ONLY.zip"
+          assert zpath.is_file() and zpath.stat().st_size>100000
+          with zipfile.ZipFile(zpath) as z:
+              names=z.namelist()
+              assert any(x.endswith("/BLINDED_REVIEW/Manuscript_GEB_BLINDED_REVIEW.docx") for x in names)
+              assert any(x.endswith("/BLINDED_REVIEW/Manuscript_GEB_BLINDED_REVIEW.pdf") for x in names)
+              assert any(x.endswith("/IDENTIFYING_ONLY/Title_Page_IDENTIFYING_INCOMPLETE.pdf") for x in names)
+              assert sum("/FIGURES_GEB/" in x and x.endswith(".pdf") for x in names)==6
+              assert not any("restricted_trait_ledger" in x or "raw_sources" in x for x in names)
+
+          blind=root/"GEB_REVIEW_ONLY/BLINDED_REVIEW"
+          doc=Document(blind/"Manuscript_GEB_BLINDED_REVIEW.docx")
+          assert doc.core_properties.author=="Anonymous"
+          assert doc.core_properties.last_modified_by=="Anonymous"
+          text="\n".join(x.text for x in doc.paragraphs)
+          for marker in ("Aim:", "Location:", "Time period:", "Major taxa studied:",
+                         "Methods:", "Results:", "Main conclusions:"):
+              assert marker in text
+          assert "22,000" not in text
+          assert "Island isolation is associated" in text
+          assert "Data and Code Availability Statement" in text
+          assert "GEB" in (root/"GEB_REVIEW_ONLY/README_DO_NOT_SUBMIT.txt").read_text()
+          with fitz.open(blind/"Manuscript_GEB_BLINDED_REVIEW.pdf") as pdf:
+              assert 7<=len(pdf)<90
+              assert "Island isolation" in "\n".join(x.get_text() for x in pdf[:2])
+          with fitz.open(blind/"Supporting_Information_GEB_BLINDED_REVIEW.pdf") as pdf:
+              assert len(pdf)>=5
+              assert "Supplementary Information" in "\n".join(x.get_text() for x in pdf[:2])
+          audit=json.loads((blind/"FIGURES_GEB/GEB_FIGURE_AUDIT.json").read_text())
+          assert audit["figure1_projection"]=="Mollweide"
+          assert audit["scientific_refit"] is False
+          manifest=json.loads((root/"GEB_REVIEW_ONLY/MANIFEST_REVIEW_ONLY.json").read_text())
+          assert manifest["contains_restricted_trait_ledger"] is False
+          assert manifest["ready_to_submit"] is False
+          assert manifest["abstract_main_word_counts"]["abstract"] <= 300
+          assert manifest["figure_count"]==6
+          print({"files":len(manifest["files"]),"pages_checked":True,
+                 "main_words":manifest["abstract_main_word_counts"]["body"]})
+          PY
+
+      - name: Upload GEB author-review ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: geb-editorial-review-${{ github.run_id }}
+          path: ${{ runner.temp }}/geb-package/Chapter1_GEB_DoubleAnonymous_REVIEW_ONLY.zip
+          if-no-files-found: error
+          retention-days: 21
+
+      - name: Upload visual QA screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: geb-review-page-qa-${{ github.run_id }}
+          path: ${{ runner.temp }}/geb-package/PREVIEW_QA/*.png
+          if-no-files-found: error
+          retention-days: 14

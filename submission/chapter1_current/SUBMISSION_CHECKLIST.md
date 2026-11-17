@@ -1,3 +1,5 @@
+> **EL-ERA JOURNAL CHECKLIST, NOT THE ACTIVE GEB CHECKLIST.** Use [GEB-specific checklist](../geb_current/SUBMISSION_CHECKLIST_GEB.md) for current tasks from 17 November 2026 onward.
+
 # Submission checklist
 
 ## Scientific package

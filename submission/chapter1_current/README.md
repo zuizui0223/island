@@ -1,3 +1,5 @@
+> **EL-ERA EDITORIAL PACKAGE (provenance only).** The selected first-shot journal changed to GEB on 17 November 2026; see [active GEB files](../geb_current/README.md). The corrected scientific H1–H4 results remain unchanged.
+
 > **Current scientific surface: final traitwise H1 + corrected geography (4 October 2026).**  
 > No pooled or domain H1 score is active. Use config/chapter1_submission_current.json and results/h1_final_traitwise_t_20261004/.
 

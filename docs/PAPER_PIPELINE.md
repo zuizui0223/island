@@ -1,5 +1,7 @@
 # Current submission pipeline — corrected geography
 
+> **Journal routing:** first-shot GEB as of 17 November 2026. The new editorial GEB package is [submission/geb_current/README.md](../submission/geb_current/README.md) and is selected by [config/chapter1_geb_submission.json](../config/chapter1_geb_submission.json). The locked *scientific* H1–H4 results selector below is unchanged. Ecology Letters submission materials are retained only for editorial provenance.
+
 The **only active Chapter 1 submission selector** is
 `config/chapter1_submission_current.json`.
 

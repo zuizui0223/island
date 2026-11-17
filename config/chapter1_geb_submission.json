@@ -1,0 +1,51 @@
+{
+  "contract": "chapter1_geb_editorial_package_20261117_v1",
+  "target_journal": "Global Ecology and Biogeography",
+  "article_type": "Research Article",
+  "status": "GEB_FIRST_SHOT_DRAFT_NOT_SUBMISSION_READY",
+  "science_selector": "config/chapter1_submission_current.json",
+  "source_manuscript": "submission/chapter1_current/MANUSCRIPT.md",
+  "blinded_manuscript": "submission/geb_current/MANUSCRIPT_BLINDED.md",
+  "identifying_title_page": "submission/geb_current/TITLE_PAGE_IDENTIFYING_TEMPLATE.md",
+  "cover_letter": "submission/geb_current/COVER_LETTER_GEB.md",
+  "data_and_code": "submission/geb_current/DATA_CODE_AVAILABILITY.md",
+  "figures": "submission/chapter1_current/figures",
+  "figure_captions": "submission/geb_current/FIGURE_CAPTIONS_GEB.md",
+  "existing_si": "submission/chapter1_current/SUPPLEMENTARY_INFORMATION.md",
+  "science_lock_unchanged": true,
+  "abstract": {
+    "max_words": 300,
+    "headings": [
+      "Aim",
+      "Location",
+      "Time period",
+      "Major taxa studied",
+      "Methods",
+      "Results",
+      "Main conclusions"
+    ]
+  },
+  "keywords": {
+    "min": 6,
+    "max": 10,
+    "alphabetical": true
+  },
+  "peer_review": "double_anonymous",
+  "blinding": {
+    "manuscript_author_metadata": "anonymous",
+    "title_page_separate": true,
+    "review_repository_url": "pending"
+  },
+  "submission_gates": {
+    "rights_editorial_approval": "pending",
+    "authors_metadata_approval": "pending",
+    "anonymous_review_link": "pending",
+    "permanent_release_doi": "pending",
+    "equal_area_global_map": "pending",
+    "figure_panel_labels_lowercase": "pending"
+  },
+  "notes": [
+    "No external journal submission or software release",
+    "GEB editorial package not a new scientific result lock"
+  ]
+}
