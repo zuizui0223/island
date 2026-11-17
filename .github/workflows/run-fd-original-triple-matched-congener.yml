@@ -1,0 +1,91 @@
+name: fd original 4505 same-plant triple Direct floral donor comparison
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_triple_matched_congener.py
+      - .github/workflows/run-fd-original-triple-matched-congener.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-floral-triple:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-triple
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original categorical source inference dependencies
+        run: python -m pip install -q pandas numpy scipy pytest
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Verify same-species triple and missing support contracts
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python -m pytest -q work/fd/tests/test_triple_matched_congener.py
+          PYTHONPATH="scripts:work/fd/src" python -m compileall -q \
+            work/fd/src/fd/triple_matched_congener.py \
+            scripts/run_fd_original_triple_matched_congener.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore exact original 4505 island GIFT floral archives
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Reconstruct original independent GSHHG geography
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Compute true same-target same-donor floral triple Brier contrasts
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_original_triple_matched_congener.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_original_triple_matched.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_original_triple_matched.json").read_text()
+          z=json.loads(raw)
+          assert z["status"]=="ORIGINAL_ISLAND_SAME_SPECIES_THREE_DIRECT_TRAIT_SENSITIVITY"
+          assert z["n_original_botanical_islands"]==4505
+          assert z["n_original_scope_gate_stratum_rows"]==4505*3*2*2
+          assert z["n_panels"]==5*3*2*2*2*2
+          assert z["limits"]["same_target_species_for_both_endpoints"]
+          assert z["limits"]["same_source_species_for_both_endpoints_within_source_mode"]
+          assert z["limits"]["provider_and_archipelago_heldout"] is False
+          print("Original 4,505 botanical floras and source-protected true triply Direct model validated")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fd-original-4505-triple-direct-${{ github.run_id }}
+          path: /tmp/fd-original-triple/anonymous_original_triple_matched.json
+          if-no-files-found: error
+          retention-days: 90
