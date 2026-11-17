@@ -37,6 +37,10 @@ def test_original_full_population_matched_results():
     assert all(x["n_common_source_supported_islands"]==40 for x in t)
     assert all(x["status"]=="DESCRIPTIVE_SOURCE_ONLY_COMMON_ISLAND_PAIRED" for x in t)
     assert all(abs(x["block_equal_delta_gain_radial_minus_tubular"]-.4)<1e-12 for x in t)
+    assert all(abs(x["block_equal_gain_radial"]-.2)<1e-12 for x in t)
+    assert all(abs(x["block_equal_gain_tubular"]+.2)<1e-12 for x in t)
+    assert all(abs(x["block_equal_gain_radial"]-x["block_equal_gain_tubular"]-
+                   x["block_equal_delta_gain_radial_minus_tubular"])<1e-12 for x in t)
     north=[x for x in z["panels"] if x["region"]=="northern_midlatitude"]
     assert all(x["n_common_source_supported_islands"]==0 for x in north)
     assert all(x["status"]=="NOT_IDENTIFIABLE_COMMON_ISLAND_SUPPORT" for x in north)
@@ -45,3 +49,4 @@ def test_no_pair_support_is_not_evidence_of_zero_effect():
     z=paired_aggregate(_frame(n_supported=0),draws=199)
     assert all(x["status"]=="NOT_IDENTIFIABLE_COMMON_ISLAND_SUPPORT" for x in z["panels"])
     assert all("block_equal_delta_gain_radial_minus_tubular" not in x for x in z["panels"])
+    assert all("block_equal_gain_radial" not in x for x in z["panels"])
