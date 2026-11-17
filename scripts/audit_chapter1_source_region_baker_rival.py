@@ -170,9 +170,18 @@ def run(scores: pd.DataFrame, cov: pd.DataFrame, assignments: pd.DataFrame) -> p
                         donors = {}
                         for region in REGIONS:
                             section = part.loc[part.context.eq(region)]
-                            donors[region] = int(section.donor_signature.nunique())
+                            complete_columns = [
+                                component, "log_distance_to_continent_km",
+                                *COVARS, "spatial_block", "donor_signature",
+                            ]
+                            if adjust_sc:
+                                complete_columns.append("sc_proxy")
+                            eligible = section.replace(
+                                [np.inf, -np.inf], np.nan
+                            ).dropna(subset=complete_columns)
+                            donors[region] = int(eligible.donor_signature.nunique())
                             result = ols_cluster(
-                                section, component, adjust_sc=adjust_sc,
+                                eligible, component, adjust_sc=adjust_sc,
                             )
                             if donors[region] < 5:
                                 result["status"] = "insufficient_donors"
@@ -213,6 +222,8 @@ def run(scores: pd.DataFrame, cov: pd.DataFrame, assignments: pd.DataFrame) -> p
                             )
                         rows.append(record)
     out = pd.DataFrame(rows)
+    if "contrast_p" not in out:
+        out["contrast_p"] = np.nan
     out["contrast_q_bh"] = np.nan
     # BH only within a single sensitivity surface; modes are correlated.
     keys = [
