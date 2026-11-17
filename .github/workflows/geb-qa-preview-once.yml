@@ -1,0 +1,34 @@
+name: Temporary GEB first-shot visual QA checkout
+
+on:
+  push:
+    branches: [submission/ch1-geb-firstshot-20261117]
+    paths: [".github/workflows/geb-qa-preview-once.yml"]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  qa-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch fresh CI visual QA pages for manual inspection
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/gebqa
+          gh run download 44005447514 -n geb-review-page-qa-44005447514 -D /tmp/gebqa
+          test -s /tmp/gebqa/GEB_Figure1_Mollweide.png
+          test -s /tmp/gebqa/Manuscript_GEB_BLINDED_REVIEW_PAGE1.png
+          test -s /tmp/gebqa/Supporting_Information_GEB_BLINDED_REVIEW_PAGE1.png
+          mkdir -p submission/geb_current/_qa_temp
+          cp /tmp/gebqa/*.png submission/geb_current/_qa_temp/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add submission/geb_current/_qa_temp
+          git commit -m "qa(geb): temporary figure map and page review previews"
+          git push origin HEAD:submission/ch1-geb-firstshot-20261117
