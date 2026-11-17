@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: 6062c053dbd33e165bf5c1e137b0739fcc567e0c
+          ref: d998e71d53e639522b3194c73ec728c7c2bf72ed
           path: work/fd
           persist-credentials: false
       - name: Verify same-species triple and missing support contracts
