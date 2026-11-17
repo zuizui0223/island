@@ -4,6 +4,7 @@ on:
     branches: [analysis/fd-discrete-functional-volume-20261113]
     paths:
       - scripts/run_fd_original_paired_congener_gain.py
+      - tests/test_fd_original_paired_congener_gain.py
       - .github/workflows/run-fd-original-paired-congener-gain.yml
   workflow_dispatch:
 permissions:
@@ -34,6 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_source_only_real_joint_congener_prediction.py
+          PYTHONPATH="scripts:work/fd/src" python -m pytest -q tests/test_fd_original_paired_congener_gain.py
           PYTHONPATH="scripts:work/fd/src" python -m compileall -q scripts/run_fd_original_paired_congener_gain.py
       - name: Restore SHA-verified original botanical archives
         run: |
