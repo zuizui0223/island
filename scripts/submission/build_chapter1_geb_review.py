@@ -22,8 +22,8 @@ from docx.oxml.ns import qn
 from docx.shared import Inches
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_chapter1_editorial_review import _add_markdown, _setup_document  # noqa: E402
-from render_chapter1_geb_figures import render as render_geb_figures  # noqa: E402
+from build_chapter1_editorial_review import _add_markdown, _setup_document
+from render_chapter1_geb_figures import render as render_geb_figures
 
 ABSTRACT_TITLES = ("Aim", "Location", "Time period", "Major taxa studied",
                    "Methods", "Results", "Main conclusions")
