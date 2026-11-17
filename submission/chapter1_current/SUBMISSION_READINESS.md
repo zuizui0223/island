@@ -1,11 +1,10 @@
-# Chapter 1 submission readiness — updated 2026-11-12 (PR #324 review package)
+# Chapter 1 science readiness — historical EL-era snapshot, GEB first shot from 2026-11-17
 
 ## Current decision
 
 The scientific submission surface is **corrected geography + final separate-trait H1**. Composite/domain H1 scores are historical provenance only.
 
-First-shot journal: **Ecology Letters**, conditional on closing the journal's data-policy gate.  
-Fallback: **Global Ecology and Biogeography** if the data-sharing restriction cannot be accepted.
+**Active first-shot journal: Global Ecology and Biogeography**, selected 17 November 2026; GEB-specific editorial files and current pre-submission gates live under `submission/geb_current/`. The following file is retained as a historical Ecology Letters-era scientific readiness snapshot. No GEB editor has yet approved a data-sharing exception.
 
 ## Complete
 
