@@ -74,6 +74,6 @@ def test_geb_package_claim_limits_preserved():
     checklist = (GEB / "SUBMISSION_CHECKLIST_GEB.md").read_text()
     assert "No external Wiley submission" in checklist
     manuscript = (GEB / "MANUSCRIPT_BLINDED.md").read_text()
-    assert "historical pollinator declines and causal mediation" in manuscript
+    assert "historical pollinator declines or causal mediation" in manuscript
     assert "post-hoc" in manuscript
     assert "WCVP" in manuscript
