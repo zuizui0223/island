@@ -91,6 +91,13 @@ jobs:
           assert x["status"]=="SOURCE_NETWORK_EXACT_SITE_SAME_SPECIES_FLORAL_TRAIT_SUPPORT"
           assert x["n_original_global_GIFT_botanical_islands"]==4505
           assert len(x["cells"])==4*3*7
+          cells={(v["botanical_scope"],v["verified_real_joint_morphology"],
+                  v["source_network_visitor_taxonomy"]):v
+                  for v in x["cells"]}
+          for (scope,shape,guild),v in cells.items():
+              if scope=="endemic_label":
+                  assert v["n_plant_guild_network_documented_units"] <= (
+                      cells[("native_label",shape,guild)]["n_plant_guild_network_documented_units"])
           assert z["methodological_ceiling"]["no_unobserved_visitors_treated_as_negative_records"]
           assert z["methodological_ceiling"]["source_web_of_life_and_mangal_different_aggregators_not_proven_new_original_studies"]
           forbidden=("island_id","accepted_species","source_signature",
