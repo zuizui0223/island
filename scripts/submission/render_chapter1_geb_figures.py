@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import render_chapter1_main_figures as base  # noqa: E402
+import render_chapter1_main_figures as base
 
 PROJECTION = "Mollweide"
 EQUATOR_5KKM_DEGREES = 5000.0 / 111.195
