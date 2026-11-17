@@ -1,0 +1,122 @@
+name: Chapter 1 strict source-pool regional Baker-rival diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/CH1_SOURCE_REGION_BAKER_RIVAL_20261117.md"
+      - "scripts/audit_chapter1_source_region_baker_rival.py"
+      - "tests/test_chapter1_source_region_baker_rival.py"
+      - ".github/workflows/audit-chapter1-source-region-baker-rival.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ch1-source-region-baker-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install and validate strict diagnostic
+        run: |
+          pip install -e ".[dev]"
+          python -m py_compile scripts/audit_chapter1_source_region_baker_rival.py
+          ruff check scripts/audit_chapter1_source_region_baker_rival.py tests/test_chapter1_source_region_baker_rival.py
+          pytest -q tests/test_chapter1_source_region_baker_rival.py
+
+      - name: Recover frozen original island, trait and GIFT source evidence
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ch1-source-rival/original /tmp/ch1-source-rival/private
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/ch1-source-rival/original
+          for p in \
+            fixed/canonical/input/chapter1_status_flora.csv.gz \
+            snapshot/chapter1_trait_state_audit_all.csv.gz \
+            snapshot/chapter1_trait_state_audit_direct.csv.gz \
+            snapshot/chapter1_trait_ledger_all_analysis.csv.gz \
+            snapshot/chapter1_trait_ledger_direct_only.csv.gz \
+            fixed/source/source/gift_native_mainland_flora.csv.gz \
+            fixed/source/result/island_source_assignments.csv.gz; do
+            test -s "/tmp/ch1-source-rival/original/$p"
+          done
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Rebuild strict native nonendemic source-conditional scores
+        run: |
+          python -m island_v2.chapter1_species_sorting_identifiability \
+            --state-audit-all-csv /tmp/ch1-source-rival/original/snapshot/chapter1_trait_state_audit_all.csv.gz \
+            --state-audit-direct-csv /tmp/ch1-source-rival/original/snapshot/chapter1_trait_state_audit_direct.csv.gz \
+            --trait-ledger-all-csv /tmp/ch1-source-rival/original/snapshot/chapter1_trait_ledger_all_analysis.csv.gz \
+            --trait-ledger-direct-csv /tmp/ch1-source-rival/original/snapshot/chapter1_trait_ledger_direct_only.csv.gz \
+            --status-flora-csv /tmp/ch1-source-rival/original/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/ch1-source-rival/original/fixed/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/ch1-source-rival/original/fixed/source/result/island_source_assignments.csv.gz \
+            --corrected-covariates-csv results/geography_20260924/corrected_geography_covariates.csv \
+            --probability-config-path config/chapter1_v14_all_data_probability.yml \
+            --analysis-config-path config/chapter1_species_sorting_identifiability.yml \
+            --output-dir /tmp/ch1-source-rival/private
+
+      - name: Regional direct contrasts and Baker SC rival (anonymous only)
+        run: |
+          mkdir -p /tmp/ch1-source-rival/public
+          python scripts/audit_chapter1_source_region_baker_rival.py \
+            --scores /tmp/ch1-source-rival/private/species_sorting_scores.csv \
+            --covariates results/geography_20260924/corrected_geography_covariates.csv \
+            --assignments /tmp/ch1-source-rival/original/fixed/source/result/island_source_assignments.csv.gz \
+            --out /tmp/ch1-source-rival/public
+
+      - name: Verify strict output rights and summarize
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+          root = Path("/tmp/ch1-source-rival/public")
+          df = pd.read_csv(root / "anonymous_region_source_rivals.csv")
+          summary = json.loads((root / "summary.json").read_text())
+          assert summary["status"] == "post_hoc_diagnostic_not_submission_inference"
+          assert summary["independent_channel_evidence_passed"] is False
+          assert set(df.source_mode.dropna().unique()) == {
+              "geo_k5", "geo_k10", "geo_k20", "geo50_climate10"
+          }
+          private = {"island_id", "entity_ID", "accepted_species", "genus", "latitude", "longitude", "donor_signature"}
+          assert private.isdisjoint(df.columns)
+          assert len(list(root.iterdir())) == 2
+          focused = df.loc[df.window.eq("common_05_95") & df.sc_adjusted & df.component.eq("within_genus_species_sorting_enrichment")]
+          print("Valid common-support, same-sample SC-adjusted within-genus panels:", len(focused))
+          print(focused.to_string(index=False))
+          with open(Path.home() / "summary.md", "w") as out:
+              out.write("# Post-hoc source-pool vs Baker regional direct comparison\n\n")
+              out.write("Rights safe: only anonymous aggregates. Frozen Oct scientific results untouched.\n\n")
+              out.write(json.dumps(summary, indent=2) + "\n\n")
+              out.write("## Matched-interval within-genus SC-adjusted effects\n\n")
+              out.write(focused.to_markdown(index=False) + "\n")
+          PY
+          cat ~/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ch1-source-region-baker-anonymous-${{ github.run_id }}
+          path: /tmp/ch1-source-rival/public/
+          if-no-files-found: error
+          retention-days: 30
