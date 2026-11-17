@@ -40,10 +40,13 @@ def paired_aggregate(frame:pd.DataFrame,*,draws:int=999)->dict:
                        .reindex(columns=SECTORS).dropna())
                     original=a.drop_duplicates("island_id").set_index("island_id")
                     z=original.loc[p.index,["spatial_block","source_signature"]].copy()
-                    z["delta"]=p[SECTORS[0]]-p[SECTORS[1]]
+                    z["gain_radial"]=p[SECTORS[0]]
+                    z["gain_tubular"]=p[SECTORS[1]]
+                    z["delta"]=z["gain_radial"]-z["gain_tubular"]
                     z=z.dropna(subset=["spatial_block","source_signature"])
-                    block=z.groupby("spatial_block",sort=True).delta.mean()
-                    source=z.groupby("source_signature",sort=True).delta.mean()
+                    gain_fields=["gain_radial","gain_tubular","delta"]
+                    block=z.groupby("spatial_block",sort=True)[gain_fields].mean()
+                    source=z.groupby("source_signature",sort=True)[gain_fields].mean()
                     cell={"region":region,"scope":scope,"donor_gate":gate,"source_mode":mode,
                           "n_original_botanical_islands_in_region":int(a.island_id.nunique()),
                           "n_common_source_supported_islands":len(z),
@@ -56,9 +59,14 @@ def paired_aggregate(frame:pd.DataFrame,*,draws:int=999)->dict:
                         for key,v in (("block",block),("source",source)):
                             arr=v.to_numpy(float)
                             rng=np.random.default_rng(20261117+(0 if key=="block" else 1))
-                            boot=arr[rng.integers(len(arr),size=(draws,len(arr)))].mean(1)
-                            cell[key+"_equal_delta_gain_radial_minus_tubular"]=float(arr.mean())
-                            cell[key+"_bootstrap95"]=[float(x) for x in np.quantile(boot,[.025,.975])]
+                            boot=arr[rng.integers(len(arr),size=(draws,len(arr)))].mean(axis=1)
+                            for j,label in enumerate(("radial","tubular")):
+                                cell[key+"_equal_gain_"+label]=float(arr[:,j].mean())
+                                cell[key+"_gain_"+label+"_bootstrap95"]=[
+                                    float(x) for x in np.quantile(boot[:,j],[.025,.975])]
+                            cell[key+"_equal_delta_gain_radial_minus_tubular"]=float(arr[:,2].mean())
+                            cell[key+"_bootstrap95"]=[
+                                float(x) for x in np.quantile(boot[:,2],[.025,.975])]
                     results.append(cell)
     return {"status":"ORIGINAL_4505_COMMON_ISLAND_PAIRED_CONGENER_GAIN",
             "n_original_botanical_islands":4505,
