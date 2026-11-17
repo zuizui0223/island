@@ -17,6 +17,7 @@ import pandas as pd
 from fd_island_functional_beta import strict_traits
 from fd_direct_three_stage_floristic_comparison import status_groups
 from fd.dopi_real_motif_multiresolution import make_real_multiresolution_motifs
+from fd.dopi_study_genus_equal import genus_equal_dopi_audit
 from fd.dopi_gift_guild_motif_bridge import (
     screen_positive_dopi_rows,summarize_study_guild_motifs,
 )
@@ -68,6 +69,11 @@ def original_island_flora_dopi_guild_motifs(
             visitor_classifier=identify_visitor_group,
         )
     report=summarize_study_guild_motifs(index,motifs=motifs,draws=draws)
+    # New source-study/plant-genus equal-weight validation: same private
+    # documented positive units; no source plant/study identifiers exported.
+    report["within_publication_equal_genus"]=(
+        genus_equal_dopi_audit(index,motifs=motifs,draws=draws)
+    )
     if report["n_original_DOPI_source_rows"]!=676900:
         raise ValueError("published DoPI source-original row count changed")
     report.update(original_GIFT_flora_sha256=SOURCE_HASHES["chapter1_status_flora.csv.gz"],
@@ -123,6 +129,14 @@ def main():
             p["all_study"]["status"]==
             "DESCRIPTIVE_POSITIVE_VISITORS_WITHIN_PUBLICATION"
             for p in result["panels"]
+        ),
+        n_equal_genus_supported=sum(
+            q["genus_equal_all"]["status"]=="DESCRIPTIVE_POSITIVE_VISITOR_STUDY_EQUAL_GENUS_FIXED"
+            for q in result["within_publication_equal_genus"]["panels"]
+        ),
+        n_variable_genus_supported=sum(
+            q["genus_equal_informative"]["status"]=="DESCRIPTIVE_POSITIVE_VISITOR_STUDY_EQUAL_GENUS_FIXED"
+            for q in result["within_publication_equal_genus"]["panels"]
         ),
         only_positive_study_guild_comparisons=True
     ),sort_keys=True))
