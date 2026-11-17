@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: 711bb962bf7b154048e791117b0f61ce28c928b1
+          ref: bb5436ce5bb94770d68bcd60c44123fab31c206a
           path: work/fd
           persist-credentials: false
       - name: Verify independent true same-species floral motifs and algebraic genus partitions
@@ -80,6 +80,7 @@ jobs:
           assert z["n_reporting_panels"]==5*3*12
           assert z["limits"]["no_specific_bird_butterfly_hawkmoth_bee_pollinator_labels"]
           assert z["limits"]["four_signed_genus_terms_not_causal"]
+          assert z["limits"]["genus_conditioned_direct_documentation_balance_both_sources"]
           assert all(p["n_islands_two_source_supported"]<=p["n_original_region_islands"] for p in z["panels"])
           forbidden=("island_id","accepted_species","work_species","entity_ID",
                      "spatial_block","first_source","latitude","longitude")
