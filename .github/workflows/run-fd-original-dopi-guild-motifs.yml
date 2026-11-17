@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: 38042cdcd5aafdb69220b7191a231e80f1f0d3b2
+          ref: 310d63c5a5f87432f4dc1b2a24ef86ca93be9e6c
           path: work/fd
           persist-credentials: false
       - name: Check actual source group and within-study motif contrast algebra
@@ -40,6 +40,7 @@ jobs:
             work/fd/tests/test_dopi_real_motif_multiresolution.py \
             work/fd/tests/test_dopi_study_genus_equal.py \
             work/fd/tests/test_dopi_site_period_guild.py \
+            work/fd/tests/test_dopi_positive_coaccess.py \
             work/fd/tests/test_syndrome_ensemble_source.py
           PYTHONPATH="scripts:work/fd/src:work/fd/scripts" python -m compileall -q \
             scripts/run_fd_original_dopi_gift_guild_motifs.py \
@@ -103,6 +104,13 @@ jobs:
           assert site["n_direct_flower_profiles"]==27
           assert site["n_reporting_panels"]==27*5*2*2
           assert site["limitations"]["unknown_site_or_time_not_imputed"]
+          co=z["positive_multiguild_flower_coaccess"]
+          assert co["status"]=="DOPI_V2_GIFT_POSITIVE_MULTI_GUILD_COMMON_SITE_MORPHOLOGY"
+          assert co["original_GIFT_botanical_flora_population"]==4505
+          assert co["n_original_DoPI_records"]==676900
+          assert co["n_original_motifs"]==27
+          assert co["n_panels"]==27*5*2*2
+          assert co["limitations"]["guild_not_reported_on_same_plant_is_not_true_absence"]
           forbidden=("island_id","accepted_species","plant_species","doi","publication","work_species","source_signature","spatial_block")
           assert not any('"'+k+'"' in raw for k in forbidden)
           print("Original 4505 accepted island floras x DoPI v2 REAL positive visitor records verified")
