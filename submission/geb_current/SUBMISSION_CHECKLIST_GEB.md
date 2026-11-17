@@ -6,7 +6,7 @@
 - [x] H3 primary and post-hoc offshore estimates retain source and causal restrictions.
 - [x] H4 autonomous selfing functional association reported as post-hoc.
 - [x] Six existing figure PDFs and seven supplementary figure PDFs available.
-- [x] Original research manuscript body contains 4,958 words.
+- [x] GEB H1–H4 main text contains **4,944 words** by repository Markdown count after Discussion-only GBIF limitations revision; **Results remain byte-identical** to the frozen Chapter 1 scientific manuscript.
 
 ## GEB editorial conversion
 - [x] GEB chosen as first-shot journal; EL is no longer the active target.
@@ -15,6 +15,7 @@
 - [x] Separate identifying title-page template and blinded manuscript text created.
 - [x] GEB-specific cover letter drafted with a short novelty paragraph.
 - [x] Rights-aware Data and Code Availability proposal prepared.
+- [x] Discussion and SI now explicitly address GBIF observation bias, non-standardized effort, trait missingness, geolocation and native-origin uncertainties (Meyer et al. 2016; Daru et al. 2018). No supplemental exploratory regional contrasts were added.
 - [ ] Verify fully anonymous DOCX/PDF metadata and author disclosures in text, figures, file names and reference links.
 - [x] Running title under 40 characters and GEB panel-label transform incorporated in review figure renderer; Figures 1a–b visually confirmed. **Full journal-size artwork and page-by-page caption colocation still require final author proof.**
 - [x] GEB-specific **Mollweide equal-area world map** generated from the frozen locations, with a 5,000-km equatorial scale; Figure 1 preview inspected (review version).

@@ -77,3 +77,45 @@ def test_geb_package_claim_limits_preserved():
     assert "historical pollinator declines or causal mediation" in manuscript
     assert "post-hoc" in manuscript
     assert "WCVP" in manuscript
+
+
+def test_geb_h1_h4_results_unchanged_and_gbif_limits_explicit():
+    """GBIF weaknesses belong in Methods/Discussion/SI, not in a new H1–H4 fit."""
+    manuscript = (GEB / "MANUSCRIPT_BLINDED.md").read_text(encoding="utf-8")
+    baseline = (
+        ROOT / "submission/chapter1_current/MANUSCRIPT.md"
+    ).read_text(encoding="utf-8")
+    si = (GEB / "SUPPLEMENTARY_INFORMATION.md").read_text(encoding="utf-8")
+
+    def results(text: str) -> str:
+        return text.split("## Results", 1)[1].split("## Discussion", 1)[0]
+
+    assert results(manuscript) == results(baseline)
+    assert "These are reports of presence, not standardized absence" in manuscript
+    discussion = manuscript.split("## Discussion", 1)[1].split("## References", 1)[0]
+    for term in (
+        "opportunistic GBIF occurrence records",
+        "not standardized, effort-matched surveys",
+        "lack of a record does not establish absence",
+        "neither estimate detection probability",
+        "direction and magnitude of such bias remain unknown",
+        "missing-at-random coverage",
+        "WCVP regional-native compatibility addresses origin",
+        "Meyer et al. 2016; Daru et al. 2018",
+    ):
+        assert term in discussion, term
+    for ref in (
+        "Meyer, C., Weigelt, P. & Kreft, H. (2016).",
+        "Daru, B.H., Park, D.S., Primack, R.B.",
+    ):
+        assert ref in manuscript
+    assert "### S2.1 Interpretation of GBIF-observed island floras" in si
+    assert "### S2.2 Trait evidence, missingness and floristic origin" in si
+    assert "do not estimate occurrence-detection probabilities" in si
+    assert "not standardized equal-effort species inventories" in si
+    for text in (manuscript, si):
+        assert "PR #327" not in text
+        assert "688/688" not in text
+        assert "0/344" not in text
+    body = "## Introduction" + manuscript.split("## Introduction", 1)[1].split("## References", 1)[0]
+    assert len(body.split()) == 4944

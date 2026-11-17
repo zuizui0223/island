@@ -59,6 +59,17 @@ The numerical validation checks the implementation, not metre-scale accuracy of 
 
 Observed island floras were assembled from GBIF occurrence records assigned to island units. Trait evidence was normalized to a fixed accepted-species axis and retained source provenance.
 
+### S2.1 Interpretation of GBIF-observed island floras
+
+GBIF occurrence records document reported presences and are not standardized equal-effort species inventories, measures of plant abundance or reliable evidence that an unreported species is absent. The island-by-species layer therefore describes **recorded assemblages**, not complete island-wide species lists. Islands with no usable records were not converted to trait zeros.
+
+Coverage can vary with access to islands and collecting institutions, research history, digitization, survey season and taxonomic interest. Non-random collecting practices can also be related to the traits of plants that observers collect or identify (Meyer et al. 2016; Daru et al. 2018). Thus the probability that a species enters the observed flora may depend on island isolation and the traits being analysed. On small islands, species-identification or coordinate uncertainty may affect assignment to a particular island polygon; this is a distinct problem from the GSHHG coastline-distance repair.
+
+The present H1 regressions include island area, climate and spatial-block robust uncertainty, but **do not estimate occurrence-detection probabilities, equalize survey effort or establish comparable sampling completeness**. These controls do not remove effort-related observation bias. Neither the size nor sign of residual bias is estimable from the occurrence compilation alone. Independent floristic checklists or standardized repeat surveys would be required to assess coverage and detection directly.
+
+### S2.2 Trait evidence, missingness and floristic origin
+
+
 The scientific trait database contains 106,295 accepted angiosperm species and three raw evidence axes:
 
 1. flower colour;
