@@ -38,7 +38,7 @@ Here we combine global island floras with independent pollen-supplementation exp
 
 We used a corrected global analysis universe of **8,264 island units**. Candidate units originated from GSHHG 2.3.7 high-resolution island geometry. A geography audit identified one continental split component that had been retained as an island; excluding it yielded the corrected 8,264-unit universe and a broad H1 union of 4,379 islands. The trait database retained the same taxonomic and provenance structure, containing 106,295 accepted angiosperm species.
 
-Observed island floras were assembled from GBIF occurrence records assigned to island units. Trait evidence was assembled source by source from floras, monographs, public trait resources and primary literature. Every accepted record retained source provenance. Species-direct high- and medium-confidence evidence had priority, while validated lower-confidence evidence was used only where direct evidence was unavailable. Missing trait information was retained as missing rather than converted to trait absence, and family-level inference was not used as a general fill rule.
+Observed island floras were assembled from GBIF occurrence records assigned to island units. These are reports of presence, not standardized absence or abundance measurements. Trait evidence was assembled source by source from floras, monographs, public trait resources and primary literature. Every accepted record retained source provenance. Species-direct high- and medium-confidence evidence had priority, while validated lower-confidence evidence was used only where direct evidence was unavailable. Missing trait information was retained as missing rather than converted to trait absence, and family-level inference was not used as a general fill rule.
 
 The final trait dataset contained 222,688 resolved cells of 318,885 possible species-by-axis cells (69.83%) across three raw evidence axes: flower colour, floral structural complexity and reproductive assurance. The broad all-analysis-eligible evidence scope was used as the primary plant analysis, with species-direct high/medium evidence retained as a Direct-only sensitivity.
 
@@ -152,7 +152,7 @@ The clearest result is an asymmetry in repeatability. Reproductive traits, espec
 
 This pattern shifts the ecological meaning of a floral island syndrome. The most repeatable component is not a universal flower appearance but a recurrent change in reproductive function. That result is consistent with Baker-type filtering, in which reproductive independence can improve establishment under uncertain mate or pollen availability (Baker 1955; Pannell et al. 2015; Grossenbacher et al. 2017). It is also consistent with recent evidence that breeding system and floral generalization jointly influence island colonization probability (Zell et al. 2025). Our analysis extends those studies from the binary question of island occurrence to continuous variation among already assembled island floras: increasing source isolation continues to be associated with the representation of reproductive-assurance traits, whereas the floral phenotype through which insularity is expressed remains region dependent.
 
-The distinction matters because functional repeatability does not require phenotypic uniformity. If isolated floras repeatedly face uncertain compatible pollen delivery, self-compatibility may be favoured or filtered in many regions even when the local interaction community, source flora and colonization history produce different colour or structural outcomes. The data therefore argue against treating an island syndrome as a fixed morphological checklist. A more defensible formulation is a recurrent reproductive function with geographically contingent floral realization.
+Source floras, colonization histories and interaction communities can yield distinct floral assemblages even where reproductive independence is repeatedly associated with isolation. The data therefore do not imply a universal morphological checklist.
 
 ### Floral reorganization is not exhausted by the selfing syndrome
 
@@ -180,15 +180,17 @@ One edge of the triangle remains deliberately open. We do not observe historical
 
 ### Island syndromes may be more repeatable in function than in form
 
-A functional interpretation helps reconcile why island studies often recover some elements of a reproductive syndrome without converging on one floral morphology. Isolation can repeatedly increase the value of reproductive independence while the floral consequences depend on regional source pools, climate, interaction communities and the traits already available for colonization. Under that view, regional heterogeneity is not noise around an otherwise universal flower type; it is part of the biological result.
+Regional heterogeneity is biological information, not noise around a universal flower type. Differences in source floras, climate, colonization and potential pollinator communities may yield diverse trait assemblages. These explanations remain alternatives, not mechanisms identified here.
 
-This perspective also clarifies how island macroecology and pollination biology connect. Functional island biogeography emphasizes that insularity filters colonization and persistence through traits rather than acting directly on species richness alone (Schrader et al. 2021). Our results suggest that plant reproduction follows the same logic at two levels. A recurrent functional axis—reduced dependence on uncertain compatible pollen delivery—is visible across broad geography, while the structural and colour traits through which that function is realized vary among regions. The next mechanistic step is therefore not to infer a universal pollinator from floral phenotype, but to measure realized visitor communities, pollen transfer, mating outcomes and lineage histories in systems where the macroecological response is strongest.
+This interpretation is compatible with functional island biogeography, where insularity filters assemblages through trait-dependent colonization and persistence (Schrader et al. 2021). Testing whether particular pollinators cause floral changes will require source-matched population measurements, standardized visitor observations, pollen transfer experiments and lineage histories.
 
 ### Limitations and inferential boundary
 
 Several limits are central to interpretation. First, because the plant-trait states are defined at the species level, their associations with isolation are necessarily compositional and cannot separate three nested processes: between-lineage assemblage sorting, within-species founder-genotype filtering, and post-colonization evolution. Even same-species island–mainland divergence cannot distinguish the latter two, because founders may already carry island-associated states. Resolving this hierarchy requires population-level reproductive measurements with source-matched sampling and, ultimately, genomic tests of whether causal variants predate or postdate colonization.
 
-Second, GBIF occurrences are not complete floristic inventories. Absence from GBIF was never treated as species absence, and H1 therefore estimates trait composition among observed island records rather than complete island floras. Isolation slopes could be biased if observation probability covaries jointly with geographic isolation and reproductive or floral traits; the present data cannot fully exclude geographically structured collecting effort or detectability.
+Second, island floras were assembled from opportunistic GBIF occurrence records, not standardized, effort-matched surveys. A record documents a species occurrence, not its abundance; lack of a record does not establish absence. Collecting effort, accessibility, digitization, seasonal coverage and taxonomic attention differ across regions and may covary with isolation; herbarium samples can also be biased by plant traits (Meyer et al. 2016; Daru et al. 2018). Coordinate and identification errors may be particularly consequential on small islands. Our models neither estimate detection probability nor establish comparable inventory completeness. Spatial-block uncertainty accounts for correlated errors, not observation bias. Therefore H1 estimates trait composition in GBIF-observed island floras, and isolation coefficients may be biased if occurrence inclusion depends jointly on geography and reproductive or floral traits; the direction and magnitude of such bias remain unknown.
+
+Trait availability introduces a distinct filter: 222,688 of 318,885 species-by-axis cells were resolved (69.83%), but this does not establish representative coverage on every island. Well-studied taxa may be overrepresented. Missing values were not coded as absence, and Direct-only evidence tests source quality, not missing-at-random coverage. WCVP regional-native compatibility addresses origin, not GBIF detection or effort.
 
 Third, floristic origin is incompletely resolved. The broad analysis intentionally retains contemporary observed flora because 83.65% of island-by-species records lacked source-backed origin status. WCVP regional-native compatibility provides a stricter sensitivity and preserves the four regional self-compatibility associations, but it establishes native compatibility only at TDWG level 3, not exact focal-island nativeness. Differences between broad and WCVP results can reflect composition, coverage and precision and do not by themselves identify an introduced-species mechanism.
 
@@ -218,6 +220,8 @@ Burns, J.H., Bennett, J.M., Li, J., Xia, J., Arceo-Gómez, G., Burd, M. et al. (
 
 Cheptou, P.-O. (2012). Clarifying Baker's Law. *Ann. Bot.*, 109, 633–641.
 
+Daru, B.H., Park, D.S., Primack, R.B., Willis, C.G., Barrington, D.S., Whitfeld, T.J.S. et al. (2018). Widespread sampling biases in herbaria revealed from large-scale digitization. *New Phytol.*, 217, 939–955.
+
 Dawson-Glass, E. & Hargreaves, A.L. (2022). Does pollen limitation limit plant ranges? Evidence and implications. *Philos. Trans. R. Soc. B*, 377, 20210014.
 
 Delavaux, C.S., Crowther, T.W., Bever, J.D., Weigelt, P. & Gora, E.M. (2024). Mutualisms weaken the latitudinal diversity gradient among oceanic islands. *Nature*, 627, 335–339.
@@ -237,6 +241,8 @@ Hiraiwa, M.K. & Ushimaru, A. (2017). Low functional diversity promotes niche cha
 Hiraiwa, M.K. & Ushimaru, A. (2024). Loss of functional diversity rather than species diversity of pollinators decreases community-wide trait matching and pollination function. *Funct. Ecol.*, 38, 1296–1308.
 
 Knight, T.M., Steets, J.A., Vamosi, J.C., Mazer, S.J., Burd, M., Campbell, D.R. et al. (2005). Pollen limitation of plant reproduction: pattern and process. *Annu. Rev. Ecol. Evol. Syst.*, 36, 467–497.
+
+Meyer, C., Weigelt, P. & Kreft, H. (2016). Multidimensional biases, gaps and uncertainties in global plant occurrence information. *Ecol. Lett.*, 19, 992–1006.
 
 Pannell, J.R., Auld, J.R., Brandvain, Y., Burd, M., Busch, J.W., Cheptou, P.-O. et al. (2015). The scope of Baker's law. *New Phytol.*, 208, 656–667.
 
