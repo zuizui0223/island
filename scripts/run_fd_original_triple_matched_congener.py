@@ -19,6 +19,7 @@ from fd.real_joint_syndrome_access import make_joint_species
 from fd.triple_matched_congener import (
     SCOPES, REGIMES, triple_matched_island, aggregate_triple,
 )
+from fd.source_loo_flower_placebo import summarize_source_loo_placebo
 
 EXPECTED_SHA = {
     "direct_only_trait_ledger.csv.gz":
@@ -151,6 +152,9 @@ def main() -> None:
     )
     frame=real_triple_frame(direct,flora,geography,assignments,mainland)
     result=aggregate_triple(frame,population=4505,draws=999)
+    result["source_loo_negative_control"]=(
+        summarize_source_loo_placebo(frame,population=4505,draws=999)
+    )
     result.update(
         original_ledger_sha256=digest(direct_path),
         original_flora_sha256=digest(flora_path),
@@ -170,6 +174,11 @@ def main() -> None:
     print(json.dumps(dict(status=result["status"],
         n_original_botanical_islands=result["n_original_botanical_islands"],
         n_panels=result["n_panels"],
+        n_source_loo_panels=result["source_loo_negative_control"]["n_reporting_panels"],
+        n_source_loo_identifiable=sum(
+            p["status"]=="DESCRIPTIVE_REAL_ISLAND_VS_SOURCE_LOO"
+            for p in result["source_loo_negative_control"]["panels"]
+        ),
         identifiable_panels=sum(
             p["status"]=="DESCRIPTIVE_TRIPLE_DIRECT_MATCHED_SOURCE"
             for p in result["panels"]
