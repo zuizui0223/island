@@ -37,6 +37,7 @@ jobs:
           set -euo pipefail
           PYTHONPATH="src:work/fd/src" python -m pytest -q \
             work/fd/tests/test_independent_mangal_pollination_links.py \
+            work/fd/tests/test_gbif_mangal_visitor_taxonomy.py \
             work/fd/tests/test_independent_pollination_networks.py
           python -m compileall -q \
             scripts/run_fd_mangal_island_flower_nodes.py \
@@ -90,6 +91,12 @@ jobs:
           assert c["status"]=="SOURCE_NETWORK_EXACT_SITE_SAME_SPECIES_FLORAL_TRAIT_SUPPORT"
           assert c["n_original_global_GIFT_botanical_islands"]==4505
           assert len(c["cells"])==4*3*7
+          gbif=z["original_Mangal_flower_partner_GBIF_classification"]
+          assert gbif["status"]=="ORIGINAL_MANGAL_SAME_PLANT_FLORAL_PAIR_GBIF_TAXONOMY_EVIDENCE"
+          assert gbif["n_original_GIFT_botanical_islands"]==4505
+          assert gbif["n_source_guild_support_cells"]==4*3*7
+          assert gbif["limitations"]["original_Mangal_node_gbif_taxonomy_is_not_independent_visitor_observation"]
+          assert gbif["source_lookup_coverage"]["unmatched_or_missing_original_taxon_keys_not_negative_visitors"]
           assert z["epistemic_limits"]["original_source_networks_may_be_in_GloBI_or_Web_of_Life"]
           assert z["epistemic_limits"]["zero_source_edge_strength_never_pseudoabsent_visit"]
           protected=("island_id","accepted_species","reference_id","provider_id",
