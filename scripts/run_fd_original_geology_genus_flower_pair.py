@@ -72,9 +72,11 @@ def main()->None:
         "matched_oceanic_continental_disjoint_pair_causality_not_claimed":True,
     }
     raw=json.dumps(report,indent=2,ensure_ascii=False,sort_keys=True,allow_nan=False)
+    # "spatial_block" and "first_source" are harmless GROUPING labels
+    # in the public aggregate; never serialize the actual identity values.
     forbidden=(
         "island_id","accepted_species","work_species","entity_ID",
-        "spatial_block","first_source","source_genus",
+        "source_genus",
         "latitude","longitude","weigelt_record_id","geological_record_id",
         "original_species","archipelago","observer_id"
     )
