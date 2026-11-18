@@ -125,6 +125,55 @@ def _connected_components(edges):
     return len({find(x) for x in parent})
 
 
+def _greedy_block_disjoint_stress(triples, blocks, observed_contrast,
+                                  *, draws=199):
+    """Outcome-blind three-block-disjoint hyperedge reselections.
+
+    Every selected focal, G0 and G1 donor occupies a unique spatial 10deg
+    block globally within one reselection. Distinct matches never reuse a
+    block. Greedy choices use independent seeded priorities only, NEVER
+    observed floral states. The reselection interval is NOT a sampling CI.
+    """
+    b=np.asarray(blocks,dtype=object)
+    contrast=np.asarray(observed_contrast,float)
+    if len(triples)!=len(contrast):
+        raise ValueError("Unmatched source outcome and original candidate triplets")
+    admissible=[]
+    for k,(i,j0,j1,score) in enumerate(triples):
+        ids=(str(b[i]),str(b[j0]),str(b[j1]))
+        if all(pd.notna(b[x]) for x in (i,j0,j1)) and len(set(ids))==3:
+            admissible.append((k,ids))
+    if not admissible:
+        return dict(n_three_block_eligible_triplets=0,
+            n_greedy_reselections=draws,
+            three_block_disjoint_support_unavailable=True)
+    rng=np.random.default_rng(RANDOM_SEED+17)
+    n=[];effect=[]
+    for iteration in range(draws):
+        selected=[]
+        occupied=set()
+        for pos in rng.permutation(len(admissible)):
+            k,ids=admissible[int(pos)]
+            if not occupied.intersection(ids):
+                selected.append(k)
+                occupied.update(ids)
+        if not selected:raise AssertionError("Original geographic disjoint match empty")
+        n.append(len(selected))
+        effect.append(float(contrast[selected].mean()))
+    return dict(n_three_block_eligible_triplets=len(admissible),
+        n_greedy_reselections=draws,
+        independent_block_triplets_min=int(min(n)),
+        independent_block_triplets_median=float(np.median(n)),
+        independent_block_triplets_max=int(max(n)),
+        independent_block_triplet_effect_median=float(np.median(effect)),
+        independent_block_triplet_effect_p05=float(np.quantile(effect,.05)),
+        independent_block_triplet_effect_p95=float(np.quantile(effect,.95)),
+        proportion_outcome_blind_reselections_positive=float(
+            np.mean(np.asarray(effect)>0)),
+        reselection_interval_not_statistical_confidence_interval=True,
+        spatial_blocks_disjoint_not_independent_genus_or_source_histories=True)
+
+
 def _summarize(triples,prepared,blocks,archipelago,*,boot=499):
     if not triples:return None
     I=np.array([x[0] for x in triples],int)
@@ -157,6 +206,7 @@ def _summarize(triples,prepared,blocks,archipelago,*,boot=499):
         mean_outcome_blind_matching_score=float(
             np.mean([x[3] for x in triples])),
         source_gift_first_mainland_region_unavailable=True,
+        **_greedy_block_disjoint_stress(triples,blocks,d),
     )
     if len(unique)>=10 and boot>=99:
         rng=np.random.default_rng(RANDOM_SEED)
