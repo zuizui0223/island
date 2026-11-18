@@ -1,0 +1,95 @@
+name: fd full 4505 GIFT verified GSHHG WOL positive floral visitor networks
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - .github/workflows/run-fd-original-full4505-wol-locality.yml
+      - scripts/run_fd_original_full4505_wol_guild.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  full-original-polygon-network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 125
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-full4505-wol
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original source/GSHHG geometry and botanical numerical dependencies
+        run: python -m pip install -q numpy pandas scipy pytest requests "geopandas>=1.0" "shapely>=2" "pyogrio>=0.9"
+      - name: Check out frozen source-only visitor validation and explicit direct-trait ontology
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/full4505-local-visitor-guild-20261118
+          path: work/fd
+          persist-credentials: false
+      - name: Test historical 928 source baseline and new whole-4505 hash-and-site gates
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src:scripts" pytest -q work/fd/tests/test_fullframe_wol_network_bridge.py work/fd/tests/test_independent_pollination_networks.py
+          python -m compileall -q scripts/run_fd_original_full4505_wol_guild.py work/fd/src/fd/fullframe_wol_network_bridge.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore SHA-pinned all 4505 original GIFT floras and independent direct flower traits
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Restore source-verified exact historical GSHHG 2.3.7 common-hash polygons
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/gshhg"
+          gh run download 43162949729 --repo zuizui0223/island --name fd-globi-revalidated-exact-gshhg-43162949729 --dir "$STAGE/gshhg"
+          GSHHG_GPKG="$(find "$STAGE/gshhg" -name 'original_gshhg_v237_h_candidate21_exact_shared_ids.gpkg' -type f -print -quit)"
+          GSHHG_RECEIPT="$(find "$STAGE/gshhg" -name 'original_gshhg_geometry_receipt.json' -type f -print -quit)"
+          test -s "$GSHHG_GPKG" && test -s "$GSHHG_RECEIPT"
+          echo "GSHHG_GPKG=$GSHHG_GPKG" >> "$GITHUB_ENV"
+          echo "GSHHG_RECEIPT=$GSHHG_RECEIPT" >> "$GITHUB_ENV"
+      - name: Build original independently sourced GIFT biological regions and spatial blocks
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Re-fetch publication-WOL networks and join exact sites and real species-direct floral pairs globally
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src:scripts" python scripts/run_fd_original_full4505_wol_guild.py --original-root "$ORIGINAL_ROOT" --original-gshhg-geometry "$GSHHG_GPKG" --original-geometry-receipt "$GSHHG_RECEIPT" --original-geography "$STAGE/geography/island_origin_crosswalk.csv" --output "$STAGE/anonymous_full4505_WOL_network_same_species_flower.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_full4505_WOL_network_same_species_flower.json").read_text()
+          x=json.loads(raw)
+          assert x["status"]=="ORIGINAL_GIFT_4505_EXACT_HASH_FULLFRAME_WOL_LOCAL_POLLINATOR_SUPPORT"
+          assert x["parent_botanical_floras_original"]==4505
+          assert x["original_real_botanical_geometry_coverage"]["n_historical_928_direct_floras_with_exact_polygon"]==927
+          assert x["verified_published_network_site_coverage"]["n_original_927_polygon_network_sites_reproduced"]==75
+          assert x["historical_927_source_pair_reconciliation"]["original_accepted_plant_network_guild_units"]==2469
+          assert x["source_WOL_study_independence_from_GloBI_Mangal_NOT_established"]
+          assert x["original_global_GSHHG_nine_unreproduced_IDs_not_imputed"]
+          for key in ("island_id","accepted_species","network_id","latitude","longitude","source_region_id","spatial_block","source_genus","visitor_species"):
+              assert '"'+key+'"' not in raw
+          print("Original full GIFT Web of Life new source polygon intersection and no-pseudoabsence contract PASS")
+          PY
+      - name: Archive only protected-source anonymous WOL site and floral guild receipts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-full4505-WOL-flower-guild-${{ github.run_id }}
+          path: /tmp/fd-full4505-wol/anonymous_full4505_WOL_network_same_species_flower.json
+          if-no-files-found: error
+          retention-days: 90
