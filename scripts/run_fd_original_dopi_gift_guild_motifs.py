@@ -24,6 +24,7 @@ from fd.dopi_guild_portfolio_effort_null import (
     positive_visitor_effort_index,guild_richness_motif_audit
 )
 from fd.dopi_degree_fixed_visitor_null import audit_original_degree_fixed_networks
+from fd.dopi_curveball_paired_degree_null import audit_curveball_vs_swap
 from fd.dopi_gift_guild_motif_bridge import (
     screen_positive_dopi_rows,summarize_study_guild_motifs,
 )
@@ -120,6 +121,14 @@ def original_island_flora_dopi_guild_motifs(
     # preference/absence/pollen efficacy counterfactual.
     report["visitor_species_degree_fixed_network_null"] = (
         audit_original_degree_fixed_networks(
+            effort_index,motifs=motifs,draws=draws,site_draws=80,
+        )
+    )
+    # Independent algorithmic stress test: Curveball vs edge swap on the
+    # *identical original site/month networks*, dropping any sites failing
+    # EITHER source chain qualification. Do not claim a new guild effect.
+    report["visitor_curveball_vs_swap_identical_site"] = (
+        audit_curveball_vs_swap(
             effort_index,motifs=motifs,draws=draws,site_draws=80,
         )
     )
@@ -225,6 +234,10 @@ def main():
             p["status"]==
             "DESCRIPTIVE_SOURCE_VISITOR_DEGREE_FIXED_FLORAL_GUILD_ASSOCIATION"
             for p in result["visitor_species_degree_fixed_network_null"]["panels"]
+        ),
+        n_curveball_vs_swap_same_site_motifs_supported=sum(
+            p["status"]=="DESCRIPTIVE_IDENTICAL_SOURCE_SITE_TWO_DEGREE_NULLS"
+            for p in result["visitor_curveball_vs_swap_identical_site"]["panels"]
         ),
         only_positive_study_guild_comparisons=True
     ),sort_keys=True))
