@@ -39,7 +39,7 @@ def main():
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(body+"\n",encoding="utf-8")
     for row in result["results"]:
-        if row["scope"]=="all_recorded" and row["covariate_factor"]==2.:
+        if row["n_matched_focals"]>=10 and row["n_matched_distinct_focal_blocks"]>=5:
             print("ANONYMOUS_G0_MATCHED="+json.dumps(row,sort_keys=True))
     print(json.dumps(dict(status=result["status"],
         n_original=result["n_source_accepted_island_floras"],
