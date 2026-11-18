@@ -1,0 +1,74 @@
+name: fd original genus-disjoint matched floral beta
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - .github/workflows/run-fd-original-genus-disjoint-matched.yml
+      - scripts/fd_island_genus_disjoint_matched_beta.py
+      - scripts/run_fd_original_genus_disjoint_matched.py
+      - tests/test_fd_island_genus_disjoint_matched_beta.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-matched-beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-genus-disjoint-matched
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install numerical runtime
+        run: python -m pip install -q numpy scipy pandas pytest
+      - name: Synthetic integrity and outcome-blind matching regressions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts pytest -q tests/test_fd_island_functional_beta.py tests/test_fd_island_genus_disjoint_matched_beta.py
+          python -m compileall -q scripts/fd_island_genus_disjoint_matched_beta.py scripts/run_fd_original_genus_disjoint_matched.py
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c8ad76798fd84635ff5014dc781741c43492e936
+          path: work/fd-reference
+          persist-credentials: false
+      - name: Restore immutable GIFT flora traits and independent geography
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          PYTHONPATH=work/fd-reference/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Evaluate immutable outcome-blind triplet comparisons
+        run: |
+          set -euo pipefail
+          python scripts/run_fd_original_genus_disjoint_matched.py --original-root "$ORIGINAL_ROOT" --geology "$STAGE/geography/island_origin_crosswalk.csv" --output "$STAGE/anonymous_original_genus_disjoint_matched.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          r=json.loads((Path(os.environ["STAGE"])/"anonymous_original_genus_disjoint_matched.json").read_text())
+          assert r["n_source_accepted_island_floras"]==4505
+          assert r["eligible_direct_islands"]=={"all_recorded":2324,"original_native":327}
+          assert r["claims"]["matched_outcome_blind"]
+          print("Original matched botanical source checks passed")
+          PY
+      - name: Upload only anonymous source summaries
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-genus-disjoint-matched-${{ github.run_id }}
+          path: /tmp/fd-genus-disjoint-matched/anonymous_original_genus_disjoint_matched.json
+          retention-days: 30
+          if-no-files-found: error
