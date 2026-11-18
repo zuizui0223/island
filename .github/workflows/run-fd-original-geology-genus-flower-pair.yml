@@ -1,0 +1,100 @@
+name: fd original 4505 geology versus LGM genus flower pairing
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_geology_genus_flower_pair.py
+      - .github/workflows/run-fd-original-geology-genus-flower-pair.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-geological-genus-flower-pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-geology-genus-pair
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install numerical and synthetic source-test dependencies
+        run: python -m pip install -q numpy pandas scipy pytest
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: 89d1a250af2ad8cb405bc7b987a697dac3959d94
+          path: work/fd
+          persist-credentials: false
+      - name: Verify independent true same-species floral motifs and algebraic genus partitions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_geology_genus_flower_pair.py work/fd/tests/test_genus_flower_pair_covariance.py
+          PYTHONPATH="scripts:work/fd/src" python -m compileall -q \
+            scripts/run_fd_original_geology_genus_flower_pair.py \
+            work/fd/src/fd/geology_genus_flower_pair.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore source-SHA-verified accepted 4505 GIFT island floras
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Rebuild original independently authenticated GSHHG 10-degree geographical source
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Evaluate 4505 real floral same-plant guild-compatible signatures and native mainland source
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_original_geology_genus_flower_pair.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_original_geology_genus_pair.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_original_geology_genus_pair.json").read_text()
+          z=json.loads(raw)
+          assert z["status"]=="GIFT_4505_GEOLOGICAL_ORIGIN_AND_LGM_SEPARATE_SOURCE_GENUS_PAIRING"
+          assert z["original_global_botanical_island_floras"]==4505
+          assert z["n_original_island_status_true_pair_rows"]==4505*3*11
+          assert z["n_report_panels"]==2*3*3*3
+          assert 400<=z["n_independent_GIFT_islands_with_oceanic_or_continental_geology"]<=450
+          assert z["n_original_islands_with_LGM_mainland_connectivity"]>1000
+          assert z["identification_limits"]["LGM_connectivity_never_substituted_for_geological_origin"]
+          assert z["identification_limits"]["original_4505_botanical_parent_never_shrunk"]
+          assert len([p for p in z["panels"] if
+              p["spatial_block"]["status"]==
+              "DESCRIPTIVE_GIFT_ORIGIN_SOURCE_RELATIVE_FLORAL_PAIRING"])>0
+          for p in z["panels"]:
+              assert p["n_source_pair_eligible_with_both_modes"]<=p["n_independently_classified_island_floras"]
+          forbidden=("island_id","accepted_species","work_species","entity_ID",
+                     "spatial_block","first_source","latitude","longitude","geological_record_id")
+          assert not any('"'+k+'"' in raw for k in forbidden)
+          print("Original 4,505 GIFT geology versus LGM independent true flower pair source: PASS")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fd-original-4505-geology-genus-pair-${{ github.run_id }}
+          path: /tmp/fd-original-genus-pair-coupling/anonymous_original_geology_genus_pair.json
+          if-no-files-found: error
+          retention-days: 90
