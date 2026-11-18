@@ -108,6 +108,6 @@ jobs:
         if: success()
         with:
           name: fd-original-4505-genus-pair-coupling-${{ github.run_id }}
-          path: /tmp/fd-20261117-original-syndrome-motifs/anonymous_original_genus_pair_coupling.json
+          path: /tmp/fd-original-genus-pair-coupling/anonymous_original_genus_pair_coupling.json
           if-no-files-found: error
           retention-days: 90
