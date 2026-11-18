@@ -66,10 +66,13 @@ def original_full_macro(root:Path,globi:Path,
     states=strict_traits(direct)
     original_names=set(flora.accepted_species)
     motifs=genuine_direct_motifs(states)
-    source_names=(set().union(*(set(mapping) for mapping in motifs.values()))
-                  & original_names)
-    if not old_names<=source_names:
-        raise ValueError("Two-axis source design unexpectedly drops historical 928 accepted plant names")
+    genuine_two_axis_names=(set().union(*(set(mapping) for mapping in motifs.values()))
+                            & original_names)
+    # The historical 928 source pilot uses its own frozen strict-three
+    # documentation ontology. Query all those names solely to reproduce its
+    # source baseline, WITHOUT assigning any missing new two-axis phenotype.
+    source_names=genuine_two_axis_names | old_names
+    n_historical_only_names=len(old_names-genuine_two_axis_names)
     # Original full GIFT source 4505 island and incomplete accepted flora
     # records remain in population, although the GloBI species query has a
     # strict MORPHOLOGY-PARTIALLY-MEASURED source-name opportunity.
@@ -129,7 +132,9 @@ def original_full_macro(root:Path,globi:Path,
     return dict(
         status="ORIGINAL_FULL_4505_GIFT_TRUE_PAIR_GLOBI_CITED_LOCAL_GUILD_OPPORTUNITY",
         n_original_parent_GIFT_botanical_island_floras=4505,
-        n_original_source_highmedium_direct_two_axis_candidate_species=len(source_names),
+        n_original_source_highmedium_direct_two_axis_candidate_species=len(genuine_two_axis_names),
+        n_historical_replay_only_names_not_used_as_new_direct_motifs=n_historical_only_names,
+        n_original_source_query_names_including_replay=len(source_names),
         n_original_historical_triple_direct_source_names=len(old_names),
         original_source_GIFT_flora_SHA256=sha256_file(plants),
         original_source_Direct_traits_SHA256=sha256_file(ledger),
