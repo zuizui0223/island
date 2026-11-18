@@ -95,6 +95,6 @@ jobs:
         if: success()
         with:
           name: fd-original-4505-geology-genus-pair-${{ github.run_id }}
-          path: /tmp/fd-original-genus-pair-coupling/anonymous_original_geology_genus_pair.json
+          path: /tmp/fd-original-geology-genus-pair/anonymous_original_geology_genus_pair.json
           if-no-files-found: error
           retention-days: 90
