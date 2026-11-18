@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: ff5d9d8461191e4c625ff5f4dcdfe0a317133100
+          ref: 0de5e50cd510b397e1a13a8f447c0c589276e98b
           path: work/fd
           persist-credentials: false
       - name: Check actual source group and within-study motif contrast algebra
@@ -125,11 +125,19 @@ jobs:
           assert nd["status"]=="DOPI_GIFT_4505_SOURCE_VISITOR_SPECIES_DEGREE_FIXED_NETWORK_NULL"
           assert nd["original_GIFT_botanical_island_population"]==4505
           assert nd["original_DoPI_raw_source_rows"]==676900
-          assert nd["source_site_null_chains"]==2
-          assert nd["source_site_null_snapshots_per_chain"]==40
+          assert nd["source_site_null_chains"]==4
+          assert nd["source_site_null_snapshots_per_chain"]==80
           assert len(nd["tested_flower_profiles"])==4
           assert nd["caveats"]["each_insect_species_positive_host_degree_preserved"]
           assert nd["caveats"]["plant_positive_visitor_species_degrees_preserved"]
+          assert nd["caveats"]["four_profile_study_cluster_multiplicity_only_not_full_prior_search"]
+          assert "selected_four_profile_familywise_source_study_bootstrap" in nd
+          assert len(nd["panels"])==4
+          for p in nd["panels"]:
+              if p["status"]=="DESCRIPTIVE_SOURCE_VISITOR_DEGREE_FIXED_FLORAL_GUILD_ASSOCIATION":
+                  assert "publication_sign_test" in p
+                  assert "source_publication_loo_residual_min" in p
+                  assert "holm_four_focal_publication_sign_p" in p
           forbidden=("island_id","accepted_species","plant_species","doi","publication","work_species","source_signature","spatial_block")
           assert not any('"'+k+'"' in raw for k in forbidden)
           print("Original 4505 accepted island floras x DoPI v2 REAL positive visitor records verified")
