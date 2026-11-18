@@ -68,6 +68,26 @@ def membership(rosters:list[set], species:list[str]) -> sparse.csr_matrix:
     return sparse.csr_matrix((np.ones(len(rows)),(rows,cols)),
                              shape=(len(rosters),len(species)))
 
+def accepted_botanical_genus(name: str) -> str | None:
+    """Quarantine unresolved/non-binomial accepted-name records for strict genus exclusion."""
+    if not isinstance(name, str):
+        return None
+    parts = name.strip().split()
+    if (len(parts)<2 or not parts[0][0].isupper()
+            or not parts[0].replace("-", "").isalpha()
+            or parts[1].lower() in {"sp.", "spp.", "cf.", "aff.", "?"}):
+        return None
+    return parts[0]
+
+def certified_genus_sets(rosters: list[set]) -> tuple[list[set], np.ndarray]:
+    """Full-roster certification: unknown genus on either side cannot prove non-sharing."""
+    genera, complete = [], []
+    for roster in rosters:
+        named = [accepted_botanical_genus(s) for s in roster]
+        genera.append({g for g in named if g is not None})
+        complete.append(bool(roster) and all(g is not None for g in named))
+    return genera, np.asarray(complete, dtype=bool)
+
 def prepare_endpoint(rosters:list[set], states:dict) -> dict:
     """Original species masks and original recorded category combinations.
 
@@ -227,6 +247,10 @@ def analyse(states:dict,flora:pd.DataFrame,geography:pd.DataFrame,*,
         allspecies=sorted(set().union(*rosters))
         fullA=membership(rosters,allspecies)
         fullN=np.asarray(fullA.sum(1)).ravel()
+        # Source accepted species identities only: no phylogenetic or genus imputation.
+        full_genus_rosters, full_genus_certified = certified_genus_sets(rosters)
+        full_genus_names = sorted(set().union(*full_genus_rosters))
+        fullG = membership(full_genus_rosters, full_genus_names)
         for endpoint,st in endpoints:
             names=set(st)
             candidate=[r&names for r in rosters]
@@ -245,6 +269,15 @@ def analyse(states:dict,flora:pd.DataFrame,geography:pd.DataFrame,*,
             coverage.append(record)
             if nn<2:continue
             p=prepare_endpoint([candidate[i] for i in use],st)
+            direct_genus_rosters,direct_genus_certified=certified_genus_sets(
+                [candidate[i] for i in use])
+            directG=membership(direct_genus_rosters,
+                sorted(set().union(*direct_genus_rosters)))
+            FG=fullG[use].tocsr()
+            certified_full=full_genus_certified[use]
+            record['n_certified_full_flora_genus_islands']=int(certified_full.sum())
+            record['n_certified_direct_genus_islands']=int(
+                direct_genus_certified.sum())
             record['n_reference_genera']=p['n_global_genus_groups']
             record['n_reference_genera_with_category_variation']=p['n_variable_genus_groups']
             reg=regions[use];org=origins[use];block=blocks[use];obsN=n[use]
@@ -268,6 +301,8 @@ def analyse(states:dict,flora:pd.DataFrame,geography:pd.DataFrame,*,
                 stop=min(nn,start+block_size)
                 mat=compare_block(p,start,stop)
                 fullshared=(F[start:stop]@F.T).toarray()
+                fullgenusshared=(FG[start:stop]@FG.T).toarray()
+                directgenusshared=(directG[start:stop]@directG.T).toarray()
                 fulltax=incidence_partition(fullshared,FN[start:stop,None],
                                             FN[None,:])[0]
                 ii,jj=np.nonzero(np.arange(nn)[None,:] >
@@ -304,6 +339,13 @@ def analyse(states:dict,flora:pd.DataFrame,geography:pd.DataFrame,*,
                     metrics['geographic_distance_km']=geographical_distance(
                         lat,lon,start,stop)[ii,jj]
                 no_shared=fullshared[ii,jj]==0
+                full_genus_same=fullgenusshared[ii,jj]>0
+                direct_genus_same=directgenusshared[ii,jj]>0
+                certified=(certified_full[I]&certified_full[J])
+                certified_direct=(direct_genus_certified[I]&
+                                  direct_genus_certified[J])
+                no_shared_full_genus=certified&~full_genus_same
+                no_shared_direct_genus=certified_direct&~direct_genus_same
                 distinct_blocks=pd.notna(block[I])&pd.notna(block[J]) & (
                     block[I]!=block[J])
                 sample30=(obsN[I]>=30)&(obsN[J]>=30)
@@ -325,6 +367,14 @@ def analyse(states:dict,flora:pd.DataFrame,geography:pd.DataFrame,*,
                         for subset,extra in (
                             ('all',np.ones(len(I),bool)),
                             ('no_shared_full_flora_species',no_shared),
+                            ('no_shared_full_flora_species_genus_shared',
+                             no_shared&certified&full_genus_same),
+                            ('no_shared_full_flora_genera_strict',
+                             no_shared_full_genus),
+                            ('no_shared_direct_genera',
+                             no_shared_direct_genus),
+                            ('genus_disjoint_different_blocks',
+                             no_shared_full_genus&distinct_blocks),
                             ('both_n30_direct',sample30),
                             ('different_spatial_blocks',distinct_blocks)):
                             keep=base&extra
@@ -360,6 +410,9 @@ def analyse(states:dict,flora:pd.DataFrame,geography:pd.DataFrame,*,
             genus_null_permutates_whole_observed_profile_for_paired_endpoints=True,
             null_expectations_condition_on_shared_species_and_fixed_recording_mask=True,
             genus_null_is_global_recorded_pool_not_ancestral_source=True,
+            genus_disjoint_uses_entire_full_flora_not_only_direct_species=True,
+            unresolved_accepted_genus_quarantined_not_assumed_distinct=True,
+            genus_disjoint_not_phylogenetic_evolutionary_independence=True,
             no_null_pvalues_or_confidence_intervals_inferred_from_expectation=True,
             geological_groups_descriptive_not_climate_or_area_adjusted=True,
             category_turnover_and_nestedness_not_historical_replacement_or_loss=True,
@@ -424,6 +477,24 @@ def main():
             raise ValueError('Private original taxon/island/source key in result')
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(body+'\n',encoding='utf-8')
+    # Only anonymous pre-fixed pooled/regional summaries reach logs; never island/species keys.
+    endpoint='flower_primary_color__floral_form'
+    selected={'all','no_shared_full_flora_species',
+        'no_shared_full_flora_species_genus_shared',
+        'no_shared_full_flora_genera_strict','no_shared_direct_genera',
+        'genus_disjoint_different_blocks'}
+    highlights=[{k:row[k] for k in ('scope','region','subset','n_pairs',
+        'n_unique_islands','n_unique_geographic_blocks',
+        'mean_functional_overlap','mean_squared_frequency_distance',
+        'mean_genus_null_squared_distance',
+        'mean_genus_null_excess_squared_distance')
+        if k in row} for row in result['pair_summaries']
+        if row['endpoint']==endpoint and row['region'] in
+            ('GLOBAL_ALL','tropical','northern_midlatitude',
+             'northern_highlatitude','southern_extratropical')
+        and row['geology_pair']=='all' and row['subset'] in selected]
+    print('ANONYMOUS_GENUS_DISJOINT_COLOUR_FORM='+json.dumps(
+        highlights,sort_keys=True,allow_nan=False))
     print(json.dumps(dict(status=result['status'],
         n_original_islands=result['n_original_islands'],
         n_endpoints=len(result['endpoint_coverage']),
