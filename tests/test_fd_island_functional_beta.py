@@ -179,3 +179,58 @@ def test_missing_trait_coverage_is_observed_information_not_zero_trait():
         x['geology_pair']=='all' and x['subset']=='all')
     assert q['mean_pair_recorded_species_fraction']==pytest.approx(.75)
     assert q['mean_absolute_recording_fraction_difference']==0
+
+
+def test_strict_full_flora_genus_disjoint_vs_species_disjoint():
+    """Synthetic identities: two distinct species-sharing-free comparisons,
+    one genus-sharing pair, and two zero-genus pairs."""
+    from fd_island_functional_beta import accepted_botanical_genus, certified_genus_sets
+    assert accepted_botanical_genus('A one')=='A'
+    assert accepted_botanical_genus('Unresolved') is None
+    assert accepted_botanical_genus('A sp.') is None
+    names={
+        'I0':[f'A a{k}' for k in range(5)],
+        'I1':[f'A b{k}' for k in range(5)],
+        'I2':[f'B c{k}' for k in range(5)]}
+    st={'flower_primary_color':{sp:'white'
+        for plants in names.values() for sp in plants}}
+    flora=pd.DataFrame([dict(island_id=i,accepted_species=sp,
+        origin_status='native') for i,plants in names.items() for sp in plants])
+    geo=pd.DataFrame([dict(island_id=i,analysis_regime='tropical',
+        geological_origin='unresolved',spatial_block=f'block{k}')
+        for k,i in enumerate(names)])
+    r=analyse(st,flora,geo,pairs=(),block_size=1)
+    rows={x['subset']:x for x in r['pair_summaries'] if
+        x['scope']=='all_recorded' and x['endpoint']=='flower_primary_color'
+        and x['region']=='GLOBAL_ALL' and x['geology_pair']=='all'}
+    assert rows['all']['n_pairs']==3
+    assert rows['no_shared_full_flora_species']['n_pairs']==3
+    assert rows['no_shared_full_flora_species_genus_shared']['n_pairs']==1
+    assert rows['no_shared_full_flora_genera_strict']['n_pairs']==2
+    assert rows['no_shared_direct_genera']['n_pairs']==2
+    assert rows['genus_disjoint_different_blocks']['n_pairs']==2
+    assert rows['no_shared_full_flora_genera_strict']['mean_functional_overlap']==1
+    assert r['claims']['unresolved_accepted_genus_quarantined_not_assumed_distinct']
+    gens,qual=certified_genus_sets([{'A one','Unknown'},{'B two'}])
+    assert gens==[{'A'},{'B'}] and qual.tolist()==[False,True]
+
+def test_missing_full_roster_genus_cannot_inflate_strict_disjoint_pairs():
+    names={'I0':[f'A a{k}' for k in range(5)],
+        'I1':[f'B b{k}' for k in range(5)]}
+    st={'flower_primary_color':{sp:'white'
+        for plants in names.values() for sp in plants}}
+    flora=pd.DataFrame([dict(island_id=i,accepted_species=sp,
+        origin_status='native') for i,plants in names.items() for sp in plants])
+    flora=pd.concat([flora,pd.DataFrame([dict(
+        island_id='I1',accepted_species='Unresolved',origin_status='native')])],
+        ignore_index=True)
+    geo=pd.DataFrame([dict(island_id=i,analysis_regime='tropical',
+        geological_origin='unresolved',spatial_block=i)
+        for i in names])
+    r=analyse(st,flora,geo,pairs=(),block_size=1)
+    rows={x['subset']:x for x in r['pair_summaries'] if
+        x['scope']=='all_recorded' and x['endpoint']=='flower_primary_color'
+        and x['region']=='GLOBAL_ALL' and x['geology_pair']=='all'}
+    assert rows['no_shared_full_flora_species']['n_pairs']==1
+    assert 'no_shared_full_flora_genera_strict' not in rows
+    assert rows['no_shared_direct_genera']['n_pairs']==1
