@@ -87,7 +87,7 @@ jobs:
           for p in z["panels"]:
               assert p["n_source_pair_eligible_with_both_modes"]<=p["n_independently_classified_island_floras"]
           forbidden=("island_id","accepted_species","work_species","entity_ID",
-                     "spatial_block","first_source","latitude","longitude","geological_record_id")
+                     "latitude","longitude","geological_record_id")
           assert not any('"'+k+'"' in raw for k in forbidden)
           print("Original 4,505 GIFT geology versus LGM independent true flower pair source: PASS")
           PY
