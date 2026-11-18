@@ -70,3 +70,19 @@ def test_invalid_covariates_do_not_manufacture_matches():
         np.array([5,5,0,5,5]),np.ones(5)*10.,np.ones(5)*2.,
         np.ones(5)*100.,np.ones(5)*.5)
     assert not any(a==0 and j1==2 for a,j0,j1,_ in matches)
+
+
+def test_three_block_disjoint_reselection_never_uses_shared_blocks():
+    from fd_island_genus_disjoint_matched_beta import _greedy_block_disjoint_stress
+    # The first and second candidate triplets are geographically disjoint;
+    # the third shares a focal block with the first.
+    blocks=np.array(["b0","b1","b2","b3","b4","b5","b6"],dtype=object)
+    triplets=[(0,1,2,0.),(3,4,5,0.),(0,4,6,0.)]
+    contrast=np.array([.25,-.15,1.])
+    x=_greedy_block_disjoint_stress(triplets,blocks,contrast,draws=99)
+    assert x["n_three_block_eligible_triplets"]==3
+    assert 1<=x["independent_block_triplets_min"]<=2
+    assert 1<=x["independent_block_triplets_max"]<=2
+    assert x["spatial_blocks_disjoint_not_independent_genus_or_source_histories"]
+    x2=_greedy_block_disjoint_stress(triplets,blocks,contrast,draws=99)
+    assert x==x2
