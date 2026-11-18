@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: zuizui0223/fd
-          ref: 78833adbd25c96d61969d37823a9c299f7c6d3d3
+          ref: 693569ae7571035408b61c4dababc26463c4dbe1
           path: work/fd
           persist-credentials: false
       - name: Verify independent true same-species floral motifs and algebraic genus partitions
@@ -81,6 +81,12 @@ jobs:
           assert z["limits"]["exact_two_flower_traits_on_same_accepted_plant"]
           assert z["limits"]["high_missingness_weakens_identification_not_zero_effect"]
           assert z["limits"]["all_4505_island_parent_floras_preserved"]
+          assert z["limits"]["matched_same_variable_genus_required_for_strongest_contrast"]
+          assert all(
+              p["n_islands_with_same_variable_genus_on_island_and_both_sources"]<=
+              p["n_islands_with_true_variation_on_all_three_rosters"]
+              for p in z["panels"]
+          )
           assert all(p["n_both_mainland_source_supported"]<=p["n_original_region_islands"]
                      for p in z["panels"])
           tropical=next(p for p in z["panels"] if p["region"]=="tropical"
