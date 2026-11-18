@@ -120,7 +120,7 @@ def original_island_flora_dopi_guild_motifs(
     # preference/absence/pollen efficacy counterfactual.
     report["visitor_species_degree_fixed_network_null"] = (
         audit_original_degree_fixed_networks(
-            effort_index,motifs=motifs,draws=draws,site_draws=40,
+            effort_index,motifs=motifs,draws=draws,site_draws=80,
         )
     )
     if report["same_published_site_period"]["n_original_DOPI_source_rows"]!=676900:
