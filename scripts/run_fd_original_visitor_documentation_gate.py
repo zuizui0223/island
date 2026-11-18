@@ -37,6 +37,14 @@ def main():
     output=audit_original_guild_documentation(g,wol=w)
     by={(x["region"],x["botanical_status"]):x for x in
         output["source_qualification_panels"]}
+    print("SOURCE_GATE_RECONCILIATION="+json.dumps({
+        "global_all":{k:by[("GLOBAL_ALL","all_recorded")][k]
+            for k in ("n_preliminary_documentation_gates_passing",
+                "n_provider_removal_documentation_gates_passing")},
+        "tropical_all":{k:by[("tropical","all_recorded")][k]
+            for k in ("n_preliminary_documentation_gates_passing",
+                "n_provider_removal_documentation_gates_passing")},
+    },sort_keys=True),flush=True)
     if (by[("GLOBAL_ALL","all_recorded")][
         "n_preliminary_documentation_gates_passing"]!=12 or
         by[("GLOBAL_ALL","all_recorded")][
