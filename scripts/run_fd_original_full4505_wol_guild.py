@@ -132,6 +132,17 @@ def original_full_study(root:Path,geometry:Path,receipt_path:Path,
     full=source_bounded_site_plant_audit(
         source_edges,supported,strict_traits(original_direct),
         global_original_islands=4505)
+    extra_edges=source_edges.loc[
+        ~source_edges.network_id.isin(old_site_ids)]
+    extra_flora=supported.loc[
+        ~supported.island_id.isin(original_old_ids)]
+    extra_audit=source_bounded_site_plant_audit(
+        extra_edges,extra_flora,strict_traits(original_direct),
+        global_original_islands=4505)
+    if (full["n_original_species_network_plant_guild_units"] -
+            historical_audit["n_original_species_network_plant_guild_units"] !=
+            extra_audit["n_original_species_network_plant_guild_units"]):
+        raise AssertionError("New WOL positive accepted GIFT plants not additive by source network")
     if full["n_original_species_network_plant_guild_units"] < 2469:
         raise AssertionError("Full GIFT frame cannot lose historical visitor support")
     regional=source_scoped_region_network_audit(
@@ -158,6 +169,7 @@ def original_full_study(root:Path,geometry:Path,receipt_path:Path,
             exact_replay_passed=True,
         ),
         full_original_botanical_flora_island_visitor_evidence=full,
+        additional_nonhistorical_original_polygon_site_guild_records=extra_audit,
         original_source_island_regional_guild_and_real_flower_pairs=regional,
         no_effective_pollination_or_plant_local_phenotype_assumption=True,
         strict_native_status_not_inferred_from_unresolved=True,
@@ -184,6 +196,37 @@ def main():
             raise ValueError("Private original botanical/network source identifier leaked")
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(body+"\n",encoding="utf-8")
+    # Only anonymous original published visitor taxonomy and true paired
+    # flower architecture cell counts reach the public Actions log.
+    def _nonzero_cells(audit,scope):
+        return [
+          {k:cell[k] for k in (
+             "botanical_scope","verified_real_joint_morphology",
+             "source_network_visitor_taxonomy",
+             "n_original_islands_with_matching_source_network",
+             "n_verified_site_networks_with_cited_plant_and_visitor",
+             "n_plant_guild_network_documented_units")}
+          for cell in audit["cells"] if (
+             cell["botanical_scope"]==scope and
+             cell["n_plant_guild_network_documented_units"]>0 and
+             cell["source_network_visitor_taxonomy"] in (
+               "bird_family_supported","butterfly_family_supported",
+               "sphingidae_moth","other_lepidoptera",
+               "bees_family_supported"))]
+    print("ANONYMOUS_FULL4505_WOL_GUILD="+json.dumps({
+        "full_all_recorded":_nonzero_cells(result[
+            "full_original_botanical_flora_island_visitor_evidence"],
+            "all_recorded"),
+        "full_strict_native":_nonzero_cells(result[
+            "full_original_botanical_flora_island_visitor_evidence"],
+            "native_label"),
+        "new_sites_only":_nonzero_cells(result[
+            "additional_nonhistorical_original_polygon_site_guild_records"],
+            "all_recorded"),
+        "new_source_accepted_plant_guild_units":result[
+            "additional_nonhistorical_original_polygon_site_guild_records"][
+              "n_original_species_network_plant_guild_units"],
+    },sort_keys=True))
     print("ANONYMOUS_FULL4505_WOL="+json.dumps({
         "geometry":result["original_real_botanical_geometry_coverage"],
         "sites":result["verified_published_network_site_coverage"],
