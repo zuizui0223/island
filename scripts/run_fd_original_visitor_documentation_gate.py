@@ -46,7 +46,7 @@ def main():
                 "n_provider_removal_documentation_gates_passing")},
     },sort_keys=True),flush=True)
     if (by[("GLOBAL_ALL","all_recorded")][
-        "n_preliminary_documentation_gates_passing"]!=12 or
+        "n_preliminary_documentation_gates_passing"]!=14 or
         by[("GLOBAL_ALL","all_recorded")][
         "n_provider_removal_documentation_gates_passing"]!=0 or
         by[("tropical","all_recorded")][
