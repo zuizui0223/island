@@ -23,6 +23,7 @@ from fd.dopi_positive_coaccess import summarize_positive_coaccess
 from fd.dopi_guild_portfolio_effort_null import (
     positive_visitor_effort_index,guild_richness_motif_audit
 )
+from fd.dopi_degree_fixed_visitor_null import audit_original_degree_fixed_networks
 from fd.dopi_gift_guild_motif_bridge import (
     screen_positive_dopi_rows,summarize_study_guild_motifs,
 )
@@ -112,6 +113,15 @@ def original_island_flora_dopi_guild_motifs(
         raise ValueError("source DoPI raw positive visitor effort rows changed")
     report["visitor_guild_portfolio_effort_null"] = (
         guild_richness_motif_audit(effort_index,motifs=motifs,draws=draws)
+    )
+    # STRONGER falsification: preserve degree of EACH actual documented
+    # positive visitor species, not merely its guild total, and exact number
+    # of different recorded visitors per plant. This is NOT a true field
+    # preference/absence/pollen efficacy counterfactual.
+    report["visitor_species_degree_fixed_network_null"] = (
+        audit_original_degree_fixed_networks(
+            effort_index,motifs=motifs,draws=draws,site_draws=40,
+        )
     )
     if report["same_published_site_period"]["n_original_DOPI_source_rows"]!=676900:
         raise ValueError("original DoPI 2.0 source row count changed in site/time audit")
@@ -210,6 +220,11 @@ def main():
             p["same_genus_study_site"]["status"]==
             "DESCRIPTIVE_EFFORT_CONDITIONED_POSITIVE_VISITOR_GUILD_PORTFOLIO"
             for p in result["visitor_guild_portfolio_effort_null"]["panels"]
+        ),
+        n_degree_fixed_network_motifs_supported=sum(
+            p["status"]==
+            "DESCRIPTIVE_SOURCE_VISITOR_DEGREE_FIXED_FLORAL_GUILD_ASSOCIATION"
+            for p in result["visitor_species_degree_fixed_network_null"]["panels"]
         ),
         only_positive_study_guild_comparisons=True
     ),sort_keys=True))
