@@ -1,0 +1,45 @@
+name: Floral profile beta partition
+on:
+  push:
+    branches: [analysis/floral-space-20261106]
+    paths:
+      - 'src/island_v2/floral_beta_partition.py'
+      - 'tests/test_floral_beta_partition.py'
+      - '.github/workflows/floral-beta-partition.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: floral-beta-partition-island
+  cancel-in-progress: false
+
+jobs:
+  partition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check formulas and matched cohorts
+        run: |
+          PYTHONPATH=src python -m unittest discover -s tests -p 'test_floral_beta_partition.py' -v
+          python -m py_compile src/island_v2/floral_beta_partition.py
+      - name: Decompose the 16 prior comparisons
+        run: |
+          PYTHONPATH=src python -m island_v2.floral_beta_partition
+          cat results/floral_space_beta_partition_20261108/README.md
+      - name: Save only the aggregate outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/floral_space_beta_partition_20261108/
+          if ! git diff --cached --quiet; then
+            git commit -m "Record observed floral-profile turnover versus nestedness"
+            git push origin HEAD:analysis/floral-space-20261106
+          fi
