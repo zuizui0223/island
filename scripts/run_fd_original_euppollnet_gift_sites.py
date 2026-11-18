@@ -106,6 +106,8 @@ def study(root:Path,original_geo:Path,receipt_path:Path,regime_path:Path)->dict:
     )
     if audit["n_original_global_GIFT_botanical_floras"]!=4505:
         raise ValueError("GIFT original parent lost during European locality test")
+    if audit.get("source_verified_site_opportunity") is None:
+        raise ValueError("Source-site source eligibility not serialized on both result branches")
 
     return dict(
         status="ORIGINAL_GIFT_4505_EUPPOLLNET_EUROPE_FIELD_NETWORK_CROSSWALK",
