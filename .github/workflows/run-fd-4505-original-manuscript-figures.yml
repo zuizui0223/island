@@ -1,0 +1,82 @@
+name: fd 4505 GIFT original anonymous manuscript figures functional diversity and source genus
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - .github/workflows/run-fd-4505-original-manuscript-figures.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-verified-original-figures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-4505-manuscript-figures
+      MPLBACKEND: Agg
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install reproducible pure aggregate graphics dependencies
+        run: python -m pip install -q numpy matplotlib
+      - name: Checkout draft FD source-only manuscript plotter
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Restore four independent original botanical GIFT protected Action ANONYMOUS aggregates
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/input" "$STAGE/output"
+          gh run download 43667950263 --repo zuizui0223/island \
+            --name fd-island-functional-beta-43667950263 --dir "$STAGE/input"
+          gh run download 43662732106 --repo zuizui0223/island \
+            --name fd-island-floral-beta-43662732106 --dir "$STAGE/input"
+          gh run download 43857181963 --repo zuizui0223/island \
+            --name fd-original-4505-true-floral-syndrome-pairs-43857181963 --dir "$STAGE/input"
+          gh run download 43858303332 --repo zuizui0223/island \
+            --name fd-original-4505-real-syndrome-genus-43858303332 --dir "$STAGE/input"
+          for name in anonymous_island_functional_beta.json \
+            anonymous_island_floral_beta.json \
+            anonymous_original_true_joint_syndrome_access.json \
+            anonymous_joint_syndrome_genus_4505.json; do
+            test -s "$STAGE/input/$name"
+          done
+      - name: Source-hash-check original all-4505 population and exact genus decomposition, render FOUR reproducible figures
+        run: |
+          set -euo pipefail
+          python work/fd/scripts/build_fd_original_4505_manuscript_figures.py \
+            --input "$STAGE/input" --output "$STAGE/output"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=Path(os.environ["STAGE"])/"output"
+          z=json.loads((r/"anonymous_figure_receipt.json").read_text())
+          assert z["status"]=="ORIGINAL_GIFT_4505_SOURCE_PINNED_MANUSCRIPT_FIGURES"
+          assert z["n_original_islands"]==4505
+          assert len(z["original_source_sha256"])==4
+          assert z["limits"]["original_928_complete_case_not_main_population"]
+          assert z["limits"]["no_pollinator_guild_causality"]
+          assert len(list(r.glob("fig*.png")))==4
+          assert len(list(r.glob("fig*.svg")))==4
+          assert len(list(r.glob("figure*.csv")))==4
+          for q in r.iterdir():
+              assert q.stat().st_size>50
+          print("Original SHA-pinned botanical figures, positive/negative source directions and exact additive genus terms PASS")
+          PY
+      - name: Upload only original anonymous graphics, source point tables and receipts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-main-figure-bundle-${{ github.run_id }}
+          path: /tmp/fd-original-4505-manuscript-figures/output/
+          if-no-files-found: error
+          retention-days: 90

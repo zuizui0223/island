@@ -1,0 +1,107 @@
+name: fd original categorical metric-functional hypervolume 928 islands
+on:
+  push:
+    branches:
+      - analysis/fd-discrete-functional-volume-20261113
+    paths:
+      - 'scripts/run_fd_discrete_functional_volume.py'
+      - '.github/workflows/run-fd-discrete-functional-volume.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-direct-finite-volume:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      STAGE: /tmp/fd-real-discrete-volume
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout original source-backed island data methods
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original-only numerical requirements
+        run: python -m pip install pandas numpy pytest
+      - name: Checkout fd categorical volume distinct scientific branch
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Test recorded geometry, k-specific null and colour-shuffle controls
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_discrete_functional_volume.py
+          PYTHONPATH=work/fd/src python -m compileall -q work/fd/src/fd/discrete_functional_volume.py scripts/run_fd_discrete_functional_volume.py
+          git -C work/fd rev-parse HEAD
+      - name: Recover original licensed Direct data from frozen source checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          ARTIFACT_ID=10058653212
+          SOURCE_RUN="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.workflow_run.id')"
+          SOURCE_NAME="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.name')"
+          test -n "$SOURCE_RUN" && test -n "$SOURCE_NAME"
+          gh run download "$SOURCE_RUN" --repo zuizui0223/island \
+            --name "$SOURCE_NAME" --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          if [ -z "$LEDGER" ]; then
+            NESTED="$(find "$STAGE/original" -name '*.zip' -type f -print -quit)"
+            if [ -n "$NESTED" ]; then
+              mkdir -p "$STAGE/original-unpacked"
+              unzip -q "$NESTED" -d "$STAGE/original-unpacked"
+              LEDGER="$(find "$STAGE/original-unpacked" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+            fi
+          fi
+          test -n "$LEDGER" && test -s "$LEDGER"
+          ORIGINAL_ROOT="$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "$LEDGER")")")")")"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          echo "Original source-restricted species/lineage/island evidence remains internal"
+      - name: Run source-verified 928-island categorical radius volume and two profile-number controls
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python scripts/run_fd_discrete_functional_volume.py \
+            --progressive-root "$ORIGINAL_ROOT" \
+            --repeats 60 --null-shuffles 19 --random-profiles 399 --seed 20261114 \
+            --output "$STAGE/anonymous_categorical_floral_volume.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['STAGE'])/'anonymous_categorical_floral_volume.json'
+          d=json.loads(p.read_text())
+          assert d["n_928_direct_islands"]==928
+          assert d["n_original_reference_direct_plant_species"]==2234
+          assert d["n_all_recorded_islands_scored"]==928
+          assert d["measurement"]["fixed_species_per_island_or_source"]==30
+          assert d["measurement"]["species_rarefaction_repeats"]==60
+          assert d["measurement"]["richness_conditional_geometry_null_unique_profiles"]==399
+          assert any("source_equal_mean_source_excluding_same_island_species_delta_metric_volume_r1_weighted" in r for r in d["floral_metric_volume_by_geographic_regime"])
+          assert d["measurement"]["radius0_is_only_unique_observed_profile_richness_over_K"]
+          assert d["measurement"]["null_preserves_observed_colour_margins_and_form_symmetry_pairs"]
+          assert d["measurement"]["richness_conditional_geometry_null_preserves_taxonomic_identity"] is False
+          assert d["no_implicit_source_species_or_island_taxa_export"]
+          assert d["not_a_species_independent_or_phylogenetically_adjusted_null"]
+          assert d["demonstrated_causal_pollinator_loss_or_flower_evolution"] is False
+          s=p.read_text()
+          assert not any('"'+k+'"' in s for k in (
+            'island_id','accepted_species','entity_ID','work_species','spatial_block',
+            'floral_form','floral_symmetry'))
+          print('Finite three-categorical-trait support volume, NOT 17D KDE: anonymous original results only')
+          PY
+      - name: Publish only anonymous source-controlled regional volume result
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-discrete-functional-volume-928-${{ github.run_id }}
+          path: /tmp/fd-real-discrete-volume/anonymous_categorical_floral_volume.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,97 @@
+name: fd all 4505 floras taxonomic same-mask expectations and missing-trait bounds
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths: [.github/workflows/run-fd-global-taxonomic-mask.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-taxonomic-mask:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      STAGE: /tmp/fd-global-taxonomic-mask
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact-moment analysis runtime
+        run: python -m pip install numpy pandas scipy pytest
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: 13dc85e154205bc60ab795947bb8fea43a4db612
+          path: work/fd
+          persist-credentials: false
+      - name: Exhaustive enumeration tests and unchanged original partial-trait regressions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_global_taxonomic_mask_fd.py work/fd/tests/test_global_partial_trait_flora_fd.py
+          python -m compileall -q work/fd/src/fd/global_taxonomic_mask_fd.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore hash-frozen original GIFT membership and directly measured traits
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Restore independent taxonomy candidates and previously saved raw-FD baseline
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/colxr" "$STAGE/baseline"
+          gh run download 34668274725 --repo zuizui0223/island --name island-plant-database-2.0.0-alpha2-taxonomy-34668274725 --dir "$STAGE/colxr"
+          COLXR="$(find "$STAGE/colxr" -name taxonomy_crosswalk.csv.gz -type f -print -quit)"
+          test -n "$COLXR" && test -s "$COLXR"
+          echo "079d9c27b0ca3aa51f0c7310f43ad4901b07a319d6063eab5a7d62b291bdd9e3  $COLXR" | sha256sum --check --strict
+          echo "COLXR=$COLXR" >> "$GITHUB_ENV"
+          gh run download 43586977772 --repo zuizui0223/island --name fd-original-full-global-partial-FD-20261114-43586977772 --dir "$STAGE/baseline"
+          BASELINE="$(find "$STAGE/baseline" -name anonymous_original_partial_fd_20261114.json -type f -print -quit)"
+          test -n "$BASELINE" && test -s "$BASELINE"
+          echo "BASELINE=$BASELINE" >> "$GITHUB_ENV"
+          sha256sum "$BASELINE"
+      - name: Build independently sourced geological crosswalk inside protected runner
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Exact taxonomic moments and missing-category sensitivity on original full floras
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m fd.global_taxonomic_mask_fd \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology "$STAGE/geography/island_origin_crosswalk.csv" \
+            --crosswalk "$COLXR" --baseline "$BASELINE" \
+            --seed 20261114 \
+            --output "$STAGE/anonymous_global_taxonomic_mask.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          q=json.loads((Path(os.environ['STAGE'])/'anonymous_global_taxonomic_mask.json').read_text())
+          assert q['n_original_flora_islands']==4505
+          assert q['n_private_island_scope_endpoint_rows']==117130
+          assert q['n_geologically_typed_actual_flora_islands']==425
+          assert q['original_baseline_reconciliation']['n_reconciled_scope_endpoints']==26
+          assert q['original_baseline_reconciliation']['max_absolute_raw_mean_difference']<1e-10
+          assert all(r['n_n5_observed']==r['n_n5_genus_null']==r['n_n5_family_null'] for r in q['global_endpoint_support'])
+          assert q['claims']['no_missing_trait_filled_as_observed']
+          assert q['claims']['unknown_family_fixed_as_singleton_not_inferred_or_dropped']
+          print('VERIFIED same original island/trait masks and unchanged original raw finite Rao, all 26 endpoints')
+          PY
+      - name: Export anonymous aggregates ONLY, never source taxon or island records
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-global-taxonomic-mask-${{ github.run_id }}
+          path: /tmp/fd-global-taxonomic-mask/anonymous_global_taxonomic_mask.json
+          if-no-files-found: error
+          retention-days: 30

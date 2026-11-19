@@ -1,0 +1,85 @@
+name: fd rarefied ten-flower regional genus spatial validation
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths: [.github/workflows/run-fd-island-beta-n10-rarefaction.yml, scripts/fd_island_functional_beta.py, scripts/fd_island_beta_geographic_null.py, scripts/fd_island_beta_regional_genus.py, scripts/fd_island_beta_block_matching.py, scripts/fd_island_beta_n10_rarefaction.py, tests/test_fd_island_beta_n10_rarefaction.py]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-floral-beta
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install exact sparse scientific runtime
+        run: python -m pip install -q numpy scipy pandas pytest networkx
+      - name: Test repeated 10-species thinning with fixed donor and pair masks
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts pytest -q tests/test_fd_island_functional_beta.py tests/test_fd_island_beta_geographic_null.py tests/test_fd_island_beta_regional_genus.py tests/test_fd_island_beta_block_matching.py tests/test_fd_island_beta_n10_rarefaction.py
+          python -m compileall -q scripts/fd_island_functional_beta.py scripts/fd_island_beta_geographic_null.py scripts/fd_island_beta_regional_genus.py scripts/fd_island_beta_block_matching.py scripts/fd_island_beta_n10_rarefaction.py
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c8ad76798fd84635ff5014dc781741c43492e936
+          path: work/fd-reference
+          persist-credentials: false
+      - name: Restore SHA-locked GIFT floral sources and independent saved baseline
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/baseline" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          gh run download 43586977772 --repo zuizui0223/island \
+            --name fd-original-full-global-partial-FD-20261114-43586977772 --dir "$STAGE/baseline"
+          BASELINE="$(find "$STAGE/baseline" -name anonymous_original_partial_fd_20261114.json -type f -print -quit)"
+          test -n "$BASELINE" && test -s "$BASELINE"
+          echo "BASELINE=$BASELINE" >> "$GITHUB_ENV"
+      - name: Rebuild independently published geological source crosswalk
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd-reference/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Equal ten measured species under exact same 456 original island pairs
+        run: |
+          set -euo pipefail
+          python scripts/fd_island_beta_n10_rarefaction.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_island_beta_n10_rarefaction.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          q=json.loads((Path(os.environ["STAGE"])/"anonymous_island_beta_n10_rarefaction.json").read_text())
+          assert q["status"]=="ORIGINAL_N10_COVERAGE10_EQUAL10_SPATIAL_STRESS"
+          assert q["n_full_botanical_islands"]==4505
+          assert q["n_original_fixed_full_flora_species_disjoint_pairs"]==456
+          assert q["n_deterministic_10species_thinnings"]==29
+          assert q["n_outcome_blind_10degree_block_matchings"]==199
+          assert q["claims"]["exact_same_full_flora_species_disjoint_pair_graph"]
+          assert q["claims"]["no_taxon_island_provider_geography_identifiers_exported"]
+          print("Protected same island-pair equal10 colour×form direct source complete")
+          PY
+      - name: Export only anonymous descriptive regional/profile aggregate
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-island-beta-n10-rarefaction-${{ github.run_id }}
+          path: /tmp/fd-floral-beta/anonymous_island_beta_n10_rarefaction.json
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,85 @@
+name: fd 4505 island source-exclusive region transfer two-proper-score replicated genus signal
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_region_transfer_replication_summary.py
+      - .github/workflows/run-fd-original-region-transfer-replication-summary.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-4505-region-transferred-genus-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-region-transfer-replication
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Pull strict genus-transfer source-only statistical logic
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/full4505-local-visitor-guild-20261118
+          path: work/fd
+          persist-credentials: false
+      - name: Validate multi-region nonoverlapping source/genus + Brier/log-loss group bootstrap support
+        run: |
+          set -euo pipefail
+          python -m pip install -q pytest
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_source_regional_transfer_replication.py
+          python -m compileall -q \
+            work/fd/src/fd/source_regional_transfer_replication.py \
+            scripts/run_fd_original_region_transfer_replication_summary.py
+          git -C work/fd rev-parse HEAD
+      - name: Recover original full 4505 SHA-pinned region-exclusive genus-donor reference from SUCCESS CI
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 43700248327 --repo zuizui0223/island \
+            --name fd-interregional-genus-transfer-43700248327 \
+            --dir "$STAGE/original"
+          SRC="$STAGE/original/anonymous_fd_interregional_genus_transfer.json"
+          test -s "$SRC"
+          got="$(gh api repos/zuizui0223/island/actions/artifacts/14156231290 --jq '.digest')"
+          test "$got" = "sha256:4b91489394109a75cf600bc1248ca1d1013e10ee525b071a7abc790b95163413"
+          sha256sum "$SRC"
+      - name: Independently replay both proper scores and both grouped bootstrap intervals for three geographic regions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python \
+            scripts/run_fd_original_region_transfer_replication_summary.py \
+            --original-anonymous "$STAGE/original/anonymous_fd_interregional_genus_transfer.json" \
+            --output "$STAGE/anonymous_original_4505_interregional_genus_replication.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_4505_interregional_genus_replication.json"
+          raw=p.read_text()
+          d=json.loads(raw)
+          assert d["status"]=="ORIGINAL_4505_GIFT_THREE_REGION_TWO_LOSS_TWO_GROUP_GENUS_TRANSFER_REPLICATION"
+          assert d["n_original_botanical_global_island_floras"]==4505
+          assert d["n_original_source_comparison_panels"]==100
+          assert d["n_all_recorded_endpoints_replicating_across_all_three_geographies"]==8
+          assert d["n_native_only_endpoints_replicating_across_all_three_geographies"]==0
+          assert d["strict_approach"]["source_training_other_regions_island_floras_not_proven_ancestral_mainland_species"]
+          for private in ("island_id","accepted_species","entity_ID","source_genus",
+                "source_region_id","latitude","longitude","spatial_block","work_species"):
+              assert '"'+private+'"' not in raw
+          print("GIFT full 4505 original island region-exclusive DONOR heldout prediction source-replication guards PASS")
+          PY
+      - name: Archive anonymous regional genus source-transfer replication diagnostics (not island adaptation)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-region-transfer-replication-${{ github.run_id }}
+          path: /tmp/fd-original-region-transfer-replication/anonymous_original_4505_interregional_genus_replication.json
+          if-no-files-found: error
+          retention-days: 90

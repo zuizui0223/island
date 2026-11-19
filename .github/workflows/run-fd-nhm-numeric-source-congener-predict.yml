@@ -1,0 +1,123 @@
+name: fd original NHM numeric tube length source-only congener prediction 4505
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_nhm_numeric_source_congener_predict.py
+      - .github/workflows/run-fd-nhm-numeric-source-congener-predict.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  independent-name-excluded-numeric-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-NHM-numeric-source-forecast
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install source numeric and constrained logistic calibration runtime
+        run: python -m pip install -q pandas numpy scipy pytest networkx
+      - name: Checkout fd source-only numeric tube calibration and scoring
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Validate calibration disjoint botanical accepted species and original same-island source conditions
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python -m pytest -q \
+            work/fd/tests/test_nhm_numeric_source_congener_predict.py \
+            tests/test_fd_independent_nhm_numeric_tube_length.py
+          python -m compileall -q \
+            scripts/run_fd_nhm_numeric_source_congener_predict.py \
+            work/fd/src/fd/nhm_numeric_source_congener_predict.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore SHA-pinned original GIFT mainland source and 4505 islands original Direct traits
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Download original five independently published NHM corpora with numeric cm and check exact original Git blobs
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/nhm"
+          while IFS='|' read -r name sha; do
+            test -n "$name" || continue
+            curl -fLSs --retry 5 --retry-delay 2 --connect-timeout 15 --max-time 300 \
+              "https://raw.githubusercontent.com/NaturalHistoryMuseum/plant-traits/4843c22bb2fc91018d9828dcddebf067c83b1097/output/raw/ocr-traits/$name" \
+              -o "$STAGE/nhm/$name"
+            test "$(git hash-object --no-filters "$STAGE/nhm/$name")" = "$sha"
+          done <<'NHM_PINS'
+          bhl.csv|f46e15b95e92b1daad5c0ebf2145df73173505be
+          ecoflora.csv|dbdc6b4469583743b8b35e26912d21d05b550f32
+          efloras.flora_of_china.csv|ec87a99eee2cc1bf9a8868e1d5425654e7974897
+          efloras.flora_of_north_america.csv|3710b08d7b041205a6cb5e7b811c08de317e006d
+          efloras.flora_of_pakistan.csv|7f506417a3ae31fc4daa959a27976ed62c7b1449
+          NHM_PINS
+      - name: Reconstruct independently sourced original GSHHG 10-degree blocks
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'import os;from pathlib import Path;from fd.origin import run_crosswalk;run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Run original all-4505 source-only numeric NHM congener versus same-source pooled deep-tube forecast
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_nhm_numeric_source_congener_predict.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --nhm-directory "$STAGE/nhm" \
+            --output "$STAGE/anonymous_original_numeric_nhm_deep_prediction.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_numeric_nhm_deep_prediction.json"
+          txt=p.read_text()
+          z=json.loads(txt)
+          assert z["status"]=="ORIGINAL_4505_NHM_NUMERIC_LENGTH_SOURCE_CONGENER_DEEP_PREDICTION"
+          assert z["n_original_botanical_flora_islands"]==4505
+          assert z["n_original_island_status_source_tier_rows"]==4505*3*2
+          assert z["n_region_status_tier_panels"]==5*3*2
+          assert z["n_original_GIFT_native_mainland_source_entities"]==748
+          cal=z["calibration_excluding_each_target_botanical_genus"]
+          assert cal["n_source_accepted_species_with_NHM_numeric_and_Direct_depth"]>=100
+          assert cal["complete_source_only_calibration_absent_any_original_island_is_not_available"]
+          assert cal["every_prediction_excludes_its_own_genus_from_all_original_direct_training"]
+          assert z["limitations"]["each_predicted_genus_direct_ordinal_labels_excluded_from_its_calibration"]
+          assert z["limitations"]["other_genera_from_island_floras_can_be_in_calibration"]
+          assert z["limitations"]["no_directly_measured_bird_butterfly_moth_visitors"]
+          assert not any('"'+key+'"' in txt for key in (
+             "island_id","accepted_species","work_species","entity_ID",
+             "spatial_block","source_signature","source_genus","source_family",
+             "latitude","longitude","GBIF_id","photo_id","taxon_id"))
+          print("Original 4505 source-only independent numeric tube and real island depth predictive audit passed")
+          PY
+      - name: Release anonymous source-only tube length model, intervals and documented opportunities only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-NHM-numeric-deep-prediction-${{ github.run_id }}
+          path: /tmp/fd-NHM-numeric-source-forecast/anonymous_original_numeric_nhm_deep_prediction.json
+          if-no-files-found: error
+          retention-days: 90

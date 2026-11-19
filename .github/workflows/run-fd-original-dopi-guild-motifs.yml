@@ -1,0 +1,162 @@
+name: fd original 4505 GIFT floral motifs x DoPI v2 verified visitors
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_dopi_gift_guild_motifs.py
+      - .github/workflows/run-fd-original-dopi-guild-motifs.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-GIFT-positive-visitor-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-dopi-gift-motifs
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original source and synthetic test dependencies
+        run: python -m pip install -q numpy pandas scipy pytest
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c1a41c42762458b47e1aef46023ff9ade5cda397
+          path: work/fd
+          persist-credentials: false
+      - name: Check actual source group and within-study motif contrast algebra
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src:work/fd/scripts" python -m pytest -q \
+            work/fd/tests/test_dopi_gift_guild_motif_bridge.py \
+            work/fd/tests/test_dopi_v2_positive_visitors.py \
+            work/fd/tests/test_dopi_real_motif_multiresolution.py \
+            work/fd/tests/test_dopi_study_genus_equal.py \
+            work/fd/tests/test_dopi_site_period_guild.py \
+            work/fd/tests/test_dopi_positive_coaccess.py \
+            work/fd/tests/test_dopi_guild_portfolio_effort_null.py \
+            work/fd/tests/test_dopi_degree_fixed_visitor_null.py \
+            work/fd/tests/test_dopi_curveball_paired_degree_null.py \
+            work/fd/tests/test_syndrome_ensemble_source.py
+          PYTHONPATH="scripts:work/fd/src:work/fd/scripts" python -m compileall -q \
+            scripts/run_fd_original_dopi_gift_guild_motifs.py \
+            work/fd/src/fd/dopi_gift_guild_motif_bridge.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore exact original source-hash-frozen 4505 GIFT botanical floras
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Retrieve pinned DoPI v2 public release and preserve checksum
+        run: |
+          set -euo pipefail
+          PYTHONPATH="work/fd/scripts" python \
+            work/fd/scripts/audit_dopi_v2_positive_visitors.py \
+            --output "$STAGE/public_positive_guild_audit.json" \
+            --workdir "$STAGE/dopi"
+          echo "b95d3084399ed2c0978af2485801108a27d14e843b9fed2611934ea582b745c8  $STAGE/dopi/DoPI_dataset_2.0.csv" | sha256sum --check --strict
+          test "$(stat -c%s "$STAGE/dopi/DoPI_dataset_2.0.csv")" = "384896230"
+      - name: Exact real same accepted GIFT plant x external study visitor guild motif validation
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src:work/fd/scripts" python \
+            scripts/run_fd_original_dopi_gift_guild_motifs.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --dopi-csv "$STAGE/dopi/DoPI_dataset_2.0.csv" \
+            --output "$STAGE/anonymous_original_dopi_gift_guild_motifs.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          raw=(Path(os.environ["STAGE"])/"anonymous_original_dopi_gift_guild_motifs.json").read_text()
+          z=json.loads(raw)
+          assert z["status"]=="EXTERNAL_DOPI_V2_GIFT_REAL_MOTIF_WITHIN_PUBLICATION_GUILD_SCREEN"
+          assert z["n_original_GIFT_botanical_islands"]==4505
+          assert z["n_original_DOPI_source_rows"]==676900
+          assert z["n_motif_profiles"]==27
+          assert z["n_visitor_guild_pairs"]==5
+          assert z["n_qualification_panels"]==27*5*4
+          assert z["limits"]["nonpollinating_grade4_excluded"]
+          assert z["limits"]["no_true_guild_absence_inferred"]
+          assert z["limits"]["minimum_positive_motif_source_studies_enforced"]
+          assert z["n_motifs_by_number_of_observed_axes"]=={"1":4,"2":11,"3":9,"4":3}
+          eg=z["within_publication_equal_genus"]
+          assert eg["status"]=="DOPI_2026_GIFT_TRUE_FLORAL_WITHIN_STUDY_GENUS_EQUAL_AUDIT"
+          assert eg["n_original_GIFT_botanical_islands"]==4505
+          assert eg["n_original_flower_motifs"]==27
+          assert eg["n_panels"]==540
+          assert eg["interpretation"]["compares_same_study_and_equal_weights_each_shared_genus"]
+          site=z["same_published_site_period"]
+          assert site["status"]=="DOPI_V2_ORIGINAL_GIFT_SAME_PUBLISHED_LOCATION_PERIOD_VISITOR_SUPPORT"
+          assert site["n_original_global_GIFT_botanical_islands"]==4505
+          assert site["n_original_DOPI_source_rows"]==676900
+          assert site["n_direct_flower_profiles"]==27
+          assert site["n_reporting_panels"]==27*5*2*2
+          assert site["limitations"]["unknown_site_or_time_not_imputed"]
+          co=z["positive_multiguild_flower_coaccess"]
+          assert co["status"]=="DOPI_V2_GIFT_POSITIVE_MULTI_GUILD_COMMON_SITE_MORPHOLOGY"
+          assert co["original_GIFT_botanical_flora_population"]==4505
+          assert co["n_original_DoPI_records"]==676900
+          assert co["n_original_motifs"]==27
+          assert co["n_panels"]==27*5*2*2
+          assert co["limitations"]["guild_not_reported_on_same_plant_is_not_true_absence"]
+          portfolio=z["visitor_guild_portfolio_effort_null"]
+          assert portfolio["status"]=="DOPI_GIFT_POSITIVE_GUILD_RICHNESS_FIXED_EFFORT_SITE_NULL"
+          assert portfolio["original_GIFT_botanical_island_population"]==4505
+          assert portfolio["n_original_DOPI_source_rows"]==676900
+          assert portfolio["n_direct_flower_profiles"]==27
+          assert portfolio["n_reporting_panels"]==27
+          assert portfolio["limitations"]["fixed_plant_positive_visitor_species_count_per_site"]
+          assert portfolio["limitations"]["guild_nondetection_not_biological_absence"]
+          nd=z["visitor_species_degree_fixed_network_null"]
+          assert nd["status"]=="DOPI_GIFT_4505_SOURCE_VISITOR_SPECIES_DEGREE_FIXED_NETWORK_NULL"
+          assert nd["original_GIFT_botanical_island_population"]==4505
+          assert nd["original_DoPI_raw_source_rows"]==676900
+          assert nd["source_site_null_chains"]==4
+          assert nd["source_site_null_snapshots_per_chain"]==80
+          assert len(nd["tested_flower_profiles"])==4
+          assert nd["caveats"]["each_insect_species_positive_host_degree_preserved"]
+          assert nd["caveats"]["plant_positive_visitor_species_degrees_preserved"]
+          assert nd["caveats"]["four_profile_study_cluster_multiplicity_only_not_full_prior_search"]
+          assert "selected_four_profile_familywise_source_study_bootstrap" in nd
+          assert len(nd["panels"])==4
+          for p in nd["panels"]:
+              if p["status"]=="DESCRIPTIVE_SOURCE_VISITOR_DEGREE_FIXED_FLORAL_GUILD_ASSOCIATION":
+                  assert "publication_sign_test" in p
+                  assert "source_publication_loo_residual_min" in p
+                  assert "holm_four_focal_publication_sign_p" in p
+          curve=z["visitor_curveball_vs_swap_identical_site"]
+          assert curve["status"]=="GIFT4505_DOPI2026_IDENTICAL_SITE_CURVEBALL_VS_EDGE_SWAP"
+          assert curve["n_original_GIFT_botanical_islands"]==4505
+          assert curve["n_original_DoPI_v2_raw_rows"]==676900
+          assert curve["source_null_methods"]==["edge_swap","curveball"]
+          assert curve["chains_per_method"]==4
+          assert curve["snapshots_per_chain"]==80
+          assert len(curve["panels"])==4
+          assert curve["limitations"]["same_exact_original_source_site_papers_both_null_algorithms"]
+          assert curve["limitations"]["four_focal_morphologies_posthoc_selected_from_27"]
+          forbidden=("island_id","accepted_species","plant_species","doi","publication","work_species","source_signature","spatial_block")
+          assert not any('"'+k+'"' in raw for k in forbidden)
+          print("Original 4505 accepted island floras x DoPI v2 REAL positive visitor records verified")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fd-original-4505-dopi-guild-motifs-${{ github.run_id }}
+          path: /tmp/fd-dopi-gift-motifs/anonymous_original_dopi_gift_guild_motifs.json
+          if-no-files-found: error
+          retention-days: 90

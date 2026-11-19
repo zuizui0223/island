@@ -1,0 +1,85 @@
+name: fd original isolation shifts of predeclared flower functional sectors
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths: [.github/workflows/run-fd-directional-flower-isolation-gradients.yml, scripts/fd_directional_flower_isolation_gradients.py, tests/test_fd_directional_flower_isolation_gradients.py]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-floral-beta
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install exact sparse scientific runtime
+        run: python -m pip install -q numpy scipy pandas pytest
+      - name: Check actual botanical shape sectors, six directional hypotheses, genus source and clustered OLS on synthetic inputs
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts pytest -q tests/test_fd_directional_flower_isolation_gradients.py tests/test_fd_directional_flower_space_preflight.py
+          python -m compileall -q scripts/fd_directional_flower_isolation_gradients.py scripts/fd_directional_flower_space_preflight.py
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c8ad76798fd84635ff5014dc781741c43492e936
+          path: work/fd-reference
+          persist-credentials: false
+      - name: Restore SHA-locked GIFT floral sources and independent saved baseline
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/baseline" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          gh run download 43586977772 --repo zuizui0223/island \
+            --name fd-original-full-global-partial-FD-20261114-43586977772 --dir "$STAGE/baseline"
+          BASELINE="$(find "$STAGE/baseline" -name anonymous_original_partial_fd_20261114.json -type f -print -quit)"
+          test -n "$BASELINE" && test -s "$BASELINE"
+          echo "BASELINE=$BASELINE" >> "$GITHUB_ENV"
+      - name: Rebuild independently published geological source crosswalk
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd-reference/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Estimate original directional direct-flower category shares against continental isolation
+        run: |
+          set -euo pipefail
+          python scripts/fd_directional_flower_isolation_gradients.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology "$STAGE/geography/island_origin_crosswalk.csv" \
+            --n-boot 999 \
+            --output "$STAGE/anonymous_fd_directional_isolation_gradients.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          q=json.loads((Path(os.environ["STAGE"])/"anonymous_fd_directional_isolation_gradients.json").read_text())
+          assert q["status"]=="ORIGINAL_DIRECTIONAL_FLORAL_REGION_ISOLATION_GRADIENTS"
+          assert q["n_original_botanical_island_floras"]==4505
+          assert q["n_primary_predeclared_original_tests"]==6
+          assert len([x for x in q["original_island_morphological_sector_slope_results"]
+                      if x["primary_directional_family"]])==6
+          assert q["claims"]["regression_association_not_category_loss_or_fitness_causation"]
+          print("Original six-sector genus and blocked geographic isolation gradients audited")
+          PY
+      - name: Export only anonymous descriptive regional/profile aggregate
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-directional-flower-isolation-gradients-${{ github.run_id }}
+          path: /tmp/fd-floral-beta/anonymous_fd_directional_isolation_gradients.json
+          if-no-files-found: error
+          retention-days: 30

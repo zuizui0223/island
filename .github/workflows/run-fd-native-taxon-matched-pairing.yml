@@ -1,0 +1,124 @@
+name: fd original WCVP native matched genus-family flower trait pairing
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_wcvp_taxon_matched_pairing.py
+      - .github/workflows/run-fd-native-taxon-matched-pairing.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-wcvp-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [20261114, 20261115]
+    env:
+      STAGE: /tmp/fd-original-wcvp-native
+      GH_TOKEN: ${{ github.token }}
+      RANDOM_SEED: ${{ matrix.seed }}
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install finite categorical matching and taxonomy source runtime
+        run: python -m pip install pandas numpy scipy pytest
+      - name: Checkout unmerged fd analytical module and original tests
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Test strict source-disjoint genus/family and finite Rao expectations
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_native_taxon_matched_pairing.py work/fd/tests/test_regional_native_flora_fd.py work/fd/tests/test_regional_native_provenance_volume.py work/fd/tests/test_colxr_family_opportunity.py
+          python -m compileall -q work/fd/src/fd/native_taxon_matched_pairing.py work/fd/src/fd/regional_native_flora_fd.py scripts/run_fd_wcvp_taxon_matched_pairing.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore original frozen Direct 2234 flora and GIFT candidate mainland sources
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Restore independent frozen official WCVP original native range and island TDWG status
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/wcvp"
+          gh run download 32559322028 --repo zuizui0223/island --name official-wcvp-corroborated-status-32559322028 --dir "$STAGE/wcvp"
+          STATUS="$(find "$STAGE/wcvp" -name resolved_floristic_status_ledger.csv.gz -type f -print -quit)"
+          TDWG="$(find "$STAGE/wcvp" -name island_tdwg_l3_mapping.csv -type f -print -quit)"
+          test -n "$STATUS" && test -s "$STATUS"
+          test -n "$TDWG" && test -s "$TDWG"
+          echo "10e7c56f1cc98c1fabc43c24cb8c456476f2ae057dacaa61aae9e635e2420ab0  $STATUS" | sha256sum --check --strict
+          echo "e28351c297ab1ca7416b50b55a99fafd2c5d4ab6c8b984761fe987e0a57953b3  $TDWG" | sha256sum --check --strict
+          echo "WCVP_STATUS=$STATUS" >> "$GITHUB_ENV"
+          echo "ORIGINAL_TDWG=$TDWG" >> "$GITHUB_ENV"
+      - name: Restore independent exact CoL XR original accepted family candidates
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/colxr"
+          gh run download 34668274725 --repo zuizui0223/island \
+            --name island-plant-database-2.0.0-alpha2-taxonomy-34668274725 \
+            --dir "$STAGE/colxr"
+          COLXR="$(find "$STAGE/colxr" -name taxonomy_crosswalk.csv.gz -type f -print -quit)"
+          test -n "$COLXR" && test -s "$COLXR"
+          echo "079d9c27b0ca3aa51f0c7310f43ad4901b07a319d6063eab5a7d62b291bdd9e3  $COLXR" | sha256sum --check --strict
+          echo "COLXR=$COLXR" >> "$GITHUB_ENV"
+      - name: Run exact genus, family, and alternative-genus WCVP native source matching
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python scripts/run_fd_wcvp_taxon_matched_pairing.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --wcvp-status "$WCVP_STATUS" --island-tdwg "$ORIGINAL_TDWG" \
+            --colxr-crosswalk "$COLXR" \
+            --seed "$RANDOM_SEED" \
+            --output "$STAGE/anonymous_native_taxon_pairing_$RANDOM_SEED.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/("anonymous_native_taxon_pairing_"+os.environ["RANDOM_SEED"]+".json")
+          d=json.loads(p.read_text())
+          assert d["status"]=="ORIGINAL_ISLAND_NATIVE_TAXON_MATCHED_COLOUR_ARCHITECTURE_PAIRING"
+          assert d["n_original_island_floras"]==928
+          assert d["n_original_species_direct_phenotype_names"]==2234
+          assert d["n_strict_source_native_eligible"]==87
+          assert d["n_WCVP_regionally_compatible_eligible"]==357
+          assert d["original_CoL_XR_exact_candidate_family_names"]>=1900
+          assert len(d["regional_taxon_matched_panels"])>=18
+          assert any(p["meets_pre_outcome_minimum_reporting_gate"]
+                     for p in d["regional_taxon_matched_panels"])
+          assert d["method"]["matched_species_differ_between_island_and_native_GIFT_source"]
+          assert d["method"]["opportunity_selected_before_flower_outcomes"]
+          assert d["method"]["WCVP_regionally_native_is_not_island_locally_native"]
+          assert d["raw_species_island_family_and_source_IDs_not_published"]
+          assert not any('"'+k+'"' in p.read_text() for k in (
+            "island_id","accepted_species","entity_ID","work_species",
+            "spatial_block","source_signature","native_l3_codes",
+            "tdwg_l3_code","source_genus","source_family","family_map",
+            "candidate_family","submitted_name","longitude","latitude"))
+          print("ORIGINAL RIGHTS-SAFE GENUS/FAMILY/PROVENANCE FALSIFICATION COMPLETE")
+          PY
+      - name: Upload only anonymous taxonomy/region matched pairing and uncertainty summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-wcvp-native-taxon-pairing-${{ matrix.seed }}-${{ github.run_id }}
+          path: /tmp/fd-original-wcvp-native/anonymous_native_taxon_pairing_${{ matrix.seed }}.json
+          if-no-files-found: error
+          retention-days: 90

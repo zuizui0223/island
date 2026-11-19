@@ -1,0 +1,116 @@
+name: fd original GIFT 4505 EuPPollNet flower availability for actual island visitors
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - .github/workflows/run-fd-original-euppollnet-flower-supply.yml
+      - scripts/run_fd_original_euppollnet_flower_supply_on_gift.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-GIFT-field-flower-supply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-GIFT-euppollnet-flower-source
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install protected original botanical+geospatial and public flower count dependencies
+        run: python -m pip install -q numpy pandas scipy pytest requests "geopandas>=1.0" "shapely>=2" "pyogrio>=0.9"
+      - name: Retrieve pinned fd actual EuPPollNet source abundance code and prior original-study tests
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/full4505-local-visitor-guild-20261118
+          path: work/fd
+          persist-credentials: false
+      - name: Validate original source study/site/day supply links and no-unobserved-guild controls
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src:scripts" python -m pytest -q \
+            work/fd/tests/test_euppollnet_flower_availability.py \
+            work/fd/tests/test_euppollnet_species_identity_gate.py \
+            work/fd/tests/test_euppollnet_choice_set_audit.py \
+            work/fd/tests/test_euppollnet_study_protocol_audit.py \
+            work/fd/tests/test_euppollnet_gift_exact_site_bridge.py \
+            work/fd/tests/test_fullframe_wol_network_bridge.py
+          python -m compileall -q \
+            scripts/run_fd_original_euppollnet_flower_supply_on_gift.py \
+            work/fd/src/fd/euppollnet_flower_availability.py \
+            work/fd/src/fd/euppollnet_species_identity_gate.py \
+            work/fd/src/fd/euppollnet_choice_set_audit.py \
+            work/fd/src/fd/euppollnet_study_protocol_audit.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore original SHA-locked GIFT 4505 accepted species flower evidence
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Restore original exact-hash GIFT GSHHG polygon source and receipt
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/gshhg"
+          gh run download 43162949729 --repo zuizui0223/island --name fd-globi-revalidated-exact-gshhg-43162949729 --dir "$STAGE/gshhg"
+          GSHHG_GPKG="$(find "$STAGE/gshhg" -name 'original_gshhg_v237_h_candidate21_exact_shared_ids.gpkg' -type f -print -quit)"
+          GSHHG_RECEIPT="$(find "$STAGE/gshhg" -name 'original_gshhg_geometry_receipt.json' -type f -print -quit)"
+          test -s "$GSHHG_GPKG" && test -s "$GSHHG_RECEIPT"
+          echo "GSHHG_GPKG=$GSHHG_GPKG" >> "$GITHUB_ENV"
+          echo "GSHHG_RECEIPT=$GSHHG_RECEIPT" >> "$GITHUB_ENV"
+      - name: Count actual source flower availability among verified original 13 GIFT island positive visitor sites
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src:scripts" python \
+            scripts/run_fd_original_euppollnet_flower_supply_on_gift.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --original-gshhg-geometry "$GSHHG_GPKG" \
+            --original-geometry-receipt "$GSHHG_RECEIPT" \
+            --output "$STAGE/anonymous_original_gift_4505_euppollnet_flower_supply.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          data=(Path(os.environ["STAGE"])/"anonymous_original_gift_4505_euppollnet_flower_supply.json").read_text()
+          q=json.loads(data)
+          assert q["status"]=="GIFT_4505_ORIGINAL_EUPPOLLNET_FIELD_FLOWER_SUPPLY_FEASIBILITY"
+          assert q["n_replayed_original_source_positive_GIFT_island_plant_events"]==36384
+          assert q["n_replayed_GIFT_island_plant_positive_islands"]==13
+          assert q["source_actual_original_flower_availability_on_GIFT_positive_visits"]["parent_original_GIFT_botanical_floras"]==4505
+          assert q["source_positive_is_not_effective_pollination_or_true_animal_preference"]
+          x=q["source_original_flower_count_same_species_correction"]
+          assert x["original_GIFT_parent_botanical_floras"]==4505
+          assert x["exact_source_plant_identity_waterfall"]["n_original_same_island_positive_visitor_rows"]==36384
+          assert x["exact_source_plant_identity_waterfall"]["n_positive_rows_with_source_nonzero_flower_count_and_unit"]==11041
+          assert x["no_visitor_preference_effect_or_pollen_fitness_coefficient"]
+          choice=q["source_original_complete_flower_census_choice_set_preflight"]
+          assert choice["original_global_flora_parent"]==4505
+          original_method=q["source_original_study_year_protocol_method_evidence"]
+          assert original_method["n_original_parent_island_floras"]==4505
+          assert original_method["n_original_distinct_source_study_ids"]==4
+          assert original_method["original_study_method_is_not_complete_guild_nondetection_protocol"]
+          assert choice["limits"]["surveyed_flower_without_recorded_animal_link_not_biological_nondetection"] if choice["status"]=="GIFT_4505_EUPPOLLNET_FULL_SITE_DAY_FLOWER_CENSUS_CHOICESET_PREFLIGHT" else choice["absent_source_choice_set_is_NOT_no_animals"]
+          assert not any('"'+k+'"' in data for k in (
+            "accepted_species","island_id","Study_id","Network_id",
+            "site_id","latitude","longitude","reference_id","Flower_data_merger"))
+          print("Source-positive GIFT original island flower-availability study/date/source units audited")
+          PY
+      - name: Archive anonymous original same-site GIFT botanical flower exposure feasibility only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-GIFT-euppollnet-flower-source-${{ github.run_id }}
+          path: /tmp/fd-original-GIFT-euppollnet-flower-source/anonymous_original_gift_4505_euppollnet_flower_supply.json
+          retention-days: 90
+          if-no-files-found: error

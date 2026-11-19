@@ -1,0 +1,119 @@
+name: fd original 4505 exact within vs between botanical genus floral pair coupling
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_genus_flower_pair_covariance.py
+      - .github/workflows/run-fd-original-genus-flower-pair-covariance.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-floral-pair-genus-coupling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-genus-pair-coupling
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install numerical and synthetic source-test dependencies
+        run: python -m pip install -q numpy pandas scipy pytest
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: 693569ae7571035408b61c4dababc26463c4dbe1
+          path: work/fd
+          persist-credentials: false
+      - name: Verify independent true same-species floral motifs and algebraic genus partitions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_genus_flower_pair_covariance.py work/fd/tests/test_real_joint_syndrome_access.py
+          PYTHONPATH="scripts:work/fd/src" python -m compileall -q \
+            scripts/run_fd_original_genus_flower_pair_covariance.py \
+            work/fd/src/fd/genus_flower_pair_covariance.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore source-SHA-verified accepted 4505 GIFT island floras
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Rebuild original independently authenticated GSHHG 10-degree geographical source
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Evaluate 4505 real floral same-plant guild-compatible signatures and native mainland source
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_original_genus_flower_pair_covariance.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_original_genus_pair_coupling.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_original_genus_pair_coupling.json").read_text()
+          z=json.loads(raw)
+          assert z["status"]=="ORIGINAL_GIFT_4505_EXACT_WITHIN_VS_BETWEEN_GENUS_FLOWER_PAIRING"
+          assert z["original_botanical_island_population"]==4505
+          assert z["n_island_scope_pair_records"]==4505*3*11
+          assert z["n_distinct_true_same_accepted_plant_pairs"]==11
+          assert z["n_region_scope_pair_panels"]==5*3*11
+          assert z["limits"]["exact_two_flower_traits_on_same_accepted_plant"]
+          assert z["limits"]["high_missingness_weakens_identification_not_zero_effect"]
+          assert z["limits"]["all_4505_island_parent_floras_preserved"]
+          assert z["limits"]["matched_same_variable_genus_required_for_strongest_contrast"]
+          assert all(
+              p["n_islands_with_same_variable_genus_on_island_and_both_sources"]<=
+              p["n_islands_with_true_variation_on_all_three_rosters"]
+              for p in z["panels"]
+          )
+          assert all(p["n_both_mainland_source_supported"]<=p["n_original_region_islands"]
+                     for p in z["panels"])
+          tropical=next(p for p in z["panels"] if p["region"]=="tropical"
+             and p["scope"]=="all_recorded" and p["sector"]=="actinomorphic_deep")
+          assert tropical["n_both_mainland_source_supported"]==666
+          # Reproduce ORIGINAL 4,505 island true pair source exact n666
+          # +10.989 pp and +4.02 pp without changing the source denominator.
+          v=tropical["all__spatial_block"]
+          assert v["status"]=="DESCRIPTIVE_EXACT_GENUS_WITHIN_BETWEEN_PAIR_PARTITION"
+          assert abs(v["geo5__delta_joint__equal_group_mean"]-.109885844)<.00002
+          assert abs(v["geo5__delta_coupling__equal_group_mean"]-.0402)<.001
+          assert all(
+              abs(x["geo5__delta_coupling__equal_group_mean"]-
+                  x["geo5__delta_within_genus_coupling__equal_group_mean"]-
+                  x["geo5__delta_between_genus_coupling__equal_group_mean"])<1e-10
+              for x in (q["all__spatial_block"] for q in z["panels"])
+              if x["status"]=="DESCRIPTIVE_EXACT_GENUS_WITHIN_BETWEEN_PAIR_PARTITION"
+          )
+          forbidden=("island_id","accepted_species","work_species","entity_ID",
+                     "spatial_block","first_source","latitude","longitude")
+          assert not any('"'+k+'"' in raw for k in forbidden)
+          print("Original 4,505 GIFT TRUE floral pair genus within/between and original source identity: PASS")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fd-original-4505-genus-pair-coupling-${{ github.run_id }}
+          path: /tmp/fd-original-genus-pair-coupling/anonymous_original_genus_pair_coupling.json
+          if-no-files-found: error
+          retention-days: 90

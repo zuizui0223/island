@@ -1,0 +1,121 @@
+name: fd original GloBI exact island same-plant flower architecture visitor support
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_globi_real_joint_species_locality.py
+      - src/island_v2/fd_globi_macro_928_locality_v09.py
+      - .github/workflows/run-fd-globi-real-joint-species-locality.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-verified-species-local-visitor-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-true-pair-local-visitors
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install exact geospatial/site and original GloBI audit dependencies
+        run: python -m pip install -q numpy pandas scipy pytest "geopandas>=1.0" "shapely>=2" "pyogrio>=0.9"
+      - name: Checkout exact real same-accepted-species source-guild trait gate from draft fd
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Run synthetic species-level trait and GloBI source/geometry protection tests
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python -m pytest -q \
+            work/fd/tests/test_globi_local_real_syndrome_gate.py \
+            tests/test_fd_globi_macro_928_locality_v09.py \
+            tests/test_fd_globi_species_shift_v09.py
+          python -m compileall -q \
+            work/fd/src/fd/globi_local_real_syndrome_gate.py \
+            src/island_v2/fd_globi_macro_928_locality_v09.py \
+            scripts/run_fd_globi_real_joint_species_locality.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore original frozen 4505 GIFT floral ledger and candidate mainland checklists
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Restore exact 927-of-928 previously verified original GSHHG polygons
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/polygons"
+          gh run download 43162949729 --repo zuizui0223/island \
+            --name fd-globi-revalidated-exact-gshhg-43162949729 \
+            --dir "$STAGE/polygons"
+          GSHHG_GPKG="$(find "$STAGE/polygons" -name 'original_gshhg_v237_h_candidate21_exact_shared_ids.gpkg' -type f -print -quit)"
+          GSHHG_RECEIPT="$(find "$STAGE/polygons" -name 'original_gshhg_geometry_receipt.json' -type f -print -quit)"
+          test -n "$GSHHG_GPKG" && test -s "$GSHHG_GPKG"
+          test -n "$GSHHG_RECEIPT" && test -s "$GSHHG_RECEIPT"
+          echo "GSHHG_GPKG=$GSHHG_GPKG" >> "$GITHUB_ENV"
+          echo "GSHHG_RECEIPT=$GSHHG_RECEIPT" >> "$GITHUB_ENV"
+      - name: Download and SHA verify ORIGINAL 2026 June GloBI v0.9 flower-interaction stream
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/GloBI"
+          curl -fLSs --retry 5 --retry-all-errors --max-time 1400 \
+            --output "$STAGE/GloBI/interactions.tsv.gz" \
+            "https://zenodo.org/records/20546682/files/interactions.tsv.gz?download=1"
+          echo "095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17  $STAGE/GloBI/interactions.tsv.gz" | sha256sum --check --strict
+      - name: Audit source-cited exact plant and polygon visitor families against actual plant-paired floral traits
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src:scripts" python \
+            scripts/run_fd_globi_real_joint_species_locality.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --globi-original-tsv-gz "$STAGE/GloBI/interactions.tsv.gz" \
+            --original-geometry "$GSHHG_GPKG" \
+            --geometry-receipt "$GSHHG_RECEIPT" \
+            --output "$STAGE/anonymous_original_GloBI_real_flower_pair_visitor_gate.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          path=Path(os.environ["STAGE"])/"anonymous_original_GloBI_real_flower_pair_visitor_gate.json"
+          raw=path.read_text()
+          r=json.loads(raw)
+          assert r["status"]=="SOURCE_VERIFIED_ORIGINAL_GIFT_GLOBI_REAL_JOINT_LOCAL_VISITOR_GATE"
+          assert r["n_original_main_study_botanical_floras"]==4505
+          assert r["n_morphology_complete_locality_subset_islands"]==928
+          assert r["source_GloBI_rows_checked"]==24577183
+          t=r["same_plant_real_architecture_guild_coverage"]
+          assert t["n_original_GIFT_botanical_island_population"]==4505
+          assert t["n_original_geometrically_verifiable_islands"]==927
+          assert t["n_source_guild_trait_plant_origin_support_cells"]==3*3*2*2*5
+          assert t["limitations"]["lepidoptera_butterfly_and_moth_separation_not_supported"]
+          assert t["limitations"]["animal_nondetection_is_never_inferred"]
+          assert not any('"'+key+'"' in raw for key in (
+            "island_id","accepted_species","reference_id","provider_id",
+            "work_species","entity_ID","latitude","longitude",
+            "visitor_species","source_genus","source_family","spatial_block"))
+          print("Original exact GSHHG real floral pair–local GloBI guest support privacy and cohort gates passed")
+          PY
+      - name: Upload only privacy-safe original true flower-pair and visitor documentary overlap
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-GloBI-exact-local-real-flower-guild-${{ github.run_id }}
+          path: /tmp/fd-original-true-pair-local-visitors/anonymous_original_GloBI_real_flower_pair_visitor_gate.json
+          if-no-files-found: error
+          retention-days: 90

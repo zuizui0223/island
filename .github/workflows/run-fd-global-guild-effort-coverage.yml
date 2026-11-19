@@ -1,0 +1,137 @@
+name: fd original global 4505 floral Direct coverage versus GBIF guild background sampling effort
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_global_guild_effort_trait_coverage.py
+      - .github/workflows/run-fd-global-guild-effort-coverage.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-wcvp-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      STAGE: /tmp/fd-original-wcvp-native
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original island source GBIF effort and botanical source Direct audit
+        run: python -m pip install pandas numpy scipy pytest
+      - name: Checkout unmerged fd analytical module and original tests
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      # The synthetic frame explicitly keeps 3072 colour-only island floras without faking floral form.
+      - name: Test original 4505 island record effort/documentation uncertainty without trait or animal absence imputation
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_global_guild_effort_trait_coverage.py work/fd/tests/test_global_partial_pollinator_guild_bridge.py
+          python -m compileall -q work/fd/src/fd/global_guild_effort_trait_coverage.py scripts/run_fd_global_guild_effort_trait_coverage.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore original frozen Direct 2234 flora and GIFT candidate mainland sources
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Build independently published geological-origin source crosswalk inside protected workflow
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geology_private"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geology_private")'
+          test -s "$STAGE/geology_private/island_origin_crosswalk.csv"
+          test -s "$STAGE/geology_private/crosswalk_audit.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          a=json.loads((Path(os.environ["STAGE"])/"geology_private/crosswalk_audit.json").read_text())
+          assert a["target_gshhg"] >= 8264
+          assert a["roeble_2024_geological_records"] >= 500
+          assert a["geological_counts"]["continental"]>=150
+          assert a["geological_counts"]["oceanic"]>=200
+          assert a["interpretation_limit"] == "LGM-unconnected does not imply geologically oceanic"
+          print("Audited independent Roeble/Zizka geology source counts only",a["geological_counts"])
+          PY
+      - name: Restore independently qualified exact-island GBIF five-channel evidence WITHOUT downgrading unresolved into absence
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/guild"
+          gh run download 34750153702 --repo zuizui0223/island \
+            --name chapter1-nee-channel-qualification-34750153702 \
+            --dir "$STAGE/guild"
+          GUILD_EVIDENCE="$(find "$STAGE/guild" -name nee_projected_channel_state.csv -type f -print -quit)"
+          test -n "$GUILD_EVIDENCE" && test -s "$GUILD_EVIDENCE"
+          echo "GUILD_EVIDENCE=$GUILD_EVIDENCE" >> "$GITHUB_ENV"
+          export GUILD_EVIDENCE
+          python - <<'PY'
+          import os,pandas as pd
+          z=pd.read_csv(os.environ["GUILD_EVIDENCE"],usecols=[
+              "island_id","channel_id","channel_state","source_state"],dtype=str)
+          assert not z.duplicated(["island_id","channel_id"]).any()
+          assert set(z.channel_id).issubset({"bombus","non_bombus_bees",
+              "lepidoptera","flower_visiting_birds","diptera"})
+          assert set(z.channel_state).issubset({"retained","disrupted",
+              "unresolved","structurally_absent"})
+          assert not (z.channel_state.eq("disrupted") &
+                      z.source_state.ne("available")).any()
+          print("Independently qualified GBIF source",{
+              "total_channel_rows":len(z),
+              "unique_original_islands":z.island_id.nunique(),
+              "guild_state_counts":z.channel_state.value_counts().to_dict()
+          })
+          PY
+      - name: Audit genuine original GBIF background-record, spatial, temporal and dataset effort versus floral Direct completeness on all botanical islands
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python scripts/run_fd_global_guild_effort_trait_coverage.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geology_private/island_origin_crosswalk.csv" \
+            --channel-evidence-csv "$GUILD_EVIDENCE" \
+            --output "$STAGE/anonymous_original_global_guild_effort.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_global_guild_effort.json"
+          r=json.loads(p.read_text())
+          assert r["status"]=="ORIGINAL_GLOBAL_4505_DIRECT_TRAIT_AND_GBIF_BACKGROUND_EFFORT_AUDIT"
+          assert r["n_original_botanical_islands"]==4505
+          assert r["n_original_GBIF_island_guild_cells"]==22525
+          assert r["n_observation_effort_fields"]==4
+          assert r["scientific_limits"]["globally_fixed_original_botanical_flora_NOT_triple_complete"]
+          assert r["scientific_limits"]["missing_background_value_not_inferred_zero"]
+          assert r["scientific_limits"]["GBIF_background_record_count_NOT_equal_standardized_survey_effort"]
+          assert r["scientific_limits"]["correlations_descriptive_not_causal_or_multiplicity_controlled"]
+          assert r["original_source_rights_protected_plant_and_animal_rows_not_exported"]
+          assert len(r["original_plant_flora_and_GBIF_background_effort_by_group"])>=15
+          assert not any('"'+k+'"' in p.read_text() for k in (
+              "island_id","accepted_species","entity_ID","work_species",
+              "source_signature","spatial_block","source_region_id","latitude",
+              "longitude","GBIF_id","taxon_id","observer_id","photo_id"))
+          print("4505 original botanical islands and FIVE NEE guild source background documentation evidence audited")
+          PY
+      - name: Upload ONLY anonymous global GBIF background effort and floral Direct trait recording-coverage aggregate
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-global-guild-background-effort-${{ github.run_id }}
+          path: /tmp/fd-original-wcvp-native/anonymous_original_global_guild_effort.json
+          if-no-files-found: error
+          retention-days: 90

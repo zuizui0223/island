@@ -1,0 +1,107 @@
+name: fd original full 13 tropical endemic genus pairs iNaturalist photo source pilot
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_oc_endemic_inat_photo_pilot.py
+      - .github/workflows/run-fd-oc-endemic-photo-pilot.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-wcvp-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      STAGE: /tmp/fd-original-wcvp-native
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original botanical source photo provider preflight dependencies
+        run: python -m pip install pandas numpy scipy pytest
+      - name: Checkout unmerged fd analytical module and original tests
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Verify outcome-blind source pairing and public photo API evidence gates
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_oceanic_endemic_inat_photo_pilot.py work/fd/tests/test_geological_endemic_trait_opportunity.py
+          python -m compileall -q work/fd/src/fd/oceanic_endemic_inat_photo_pilot.py scripts/run_fd_oc_endemic_inat_photo_pilot.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore original frozen Direct 2234 flora and GIFT candidate mainland sources
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Build independently published geological-origin source crosswalk inside protected workflow
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geology_private"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geology_private")'
+          test -s "$STAGE/geology_private/island_origin_crosswalk.csv"
+          test -s "$STAGE/geology_private/crosswalk_audit.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          a=json.loads((Path(os.environ["STAGE"])/"geology_private/crosswalk_audit.json").read_text())
+          assert a["target_gshhg"] >= 8264
+          assert a["roeble_2024_geological_records"] >= 500
+          assert a["geological_counts"]["continental"]>=150
+          assert a["geological_counts"]["oceanic"]>=200
+          assert a["interpretation_limit"] == "LGM-unconnected does not imply geologically oceanic"
+          print("Audited independent Roeble/Zizka geology source counts only",a["geological_counts"])
+          PY
+      - name: Probe genuine public iNaturalist taxon and photorecord source with strict rights and observer policy
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python scripts/run_fd_oc_endemic_inat_photo_pilot.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geology_private/island_origin_crosswalk.csv" \
+            --max-pairs 13 \
+            --output "$STAGE/anonymous_original_photo_provider_pilot.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_photo_provider_pilot.json"
+          s=json.loads(p.read_text())
+          assert s["status"]=="GENUINE_PUBLIC_INAT_EXACT_SOURCE_TAXON_GEOPHOTO_PAIRED_PILOT"
+          assert s["n_original_GSHHG_geologically_typed_islands"]==434
+          assert s["n_original_tropical_endemic_candidates_chosen_before_API"]==26
+          assert s["original_selection_before_photo_query"]["n_selected_original_distinct_genera"]==13
+          assert s["source_query_protocol"]["no_original_photo_pixels_downloaded"]
+          assert s["source_query_protocol"]["no_genuine_flower_photo_ROI_measured"]
+          assert s["source_query_protocol"]["restricted_taxon_and_observation_IDs_NOT_exported"]
+          assert s["live_public_provider_not_the_frozen_source_of_taxonomic_endemism"]
+          assert not any('"'+k+'"' in p.read_text() for k in (
+              "accepted_species","island_id","entity_ID","work_species",
+              "source_signature","spatial_block","taxon_name",
+              "photo_id","observation_id","latitude","longitude",
+              "inat_taxon_id","photo_url","species","genus"))
+          print("Original paired endemic photo opportunity source audited without image-byte or locality leaks")
+          PY
+      - name: Upload only anonymous matched endemic iNaturalist taxon/photo opportunity and provider status
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-oc-endemic-original-public-photo-pilot-${{ github.run_id }}
+          path: /tmp/fd-original-wcvp-native/anonymous_original_photo_provider_pilot.json
+          if-no-files-found: error
+          retention-days: 90

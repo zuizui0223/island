@@ -1,0 +1,80 @@
+name: fd original 4505 visitor citation-provider capacity gate
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_visitor_documentation_gate.py
+      - .github/workflows/run-fd-original-visitor-documentation-gate.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-snapshot-feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-guild-source-capacity
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Checkout immutable source-support gate and unit tests
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/full4505-local-visitor-guild-20261118
+          path: work/fd
+          persist-credentials: false
+      - name: Run source-provenance and no-pseudoabsence synthetic unit tests
+        run: |
+          set -euo pipefail
+          python -m pip install -q pytest
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_visitor_documentation_support.py
+          python -m compileall -q work/fd/src/fd/visitor_documentation_support.py scripts/run_fd_original_visitor_documentation_gate.py
+      - name: Retrieve two original successfully protected anonymous data artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/GloBI" "$STAGE/WOL"
+          gh run download 44301575888 --repo zuizui0223/island --name fd-original-full4505-GloBI-real-flower-guild-44301575888 --dir "$STAGE/GloBI"
+          gh run download 44299833563 --repo zuizui0223/island --name fd-original-full4505-WOL-flower-guild-44299833563 --dir "$STAGE/WOL"
+          test -s "$STAGE/GloBI/anonymous_full4505_GloBI_real_flower_pair_guild.json"
+          test -s "$STAGE/WOL/anonymous_full4505_WOL_network_same_species_flower.json"
+          got_GloBI="$(gh api repos/zuizui0223/island/actions/artifacts/14427637759 --jq '.digest')"
+          got_WOL="$(gh api repos/zuizui0223/island/actions/artifacts/14425442963 --jq '.digest')"
+          test "$got_GloBI" = "sha256:bf680fdbd32d999d83f0bbfed2fc83f34b9a55e7f32a05ad8ad458997896c241"
+          test "$got_WOL" = "sha256:4febcabe8aff19d9ea1a4edd4c9877c1e2e87c4e2fc9516ea1a562d9e2941099"
+          sha256sum "$STAGE/GloBI/anonymous_full4505_GloBI_real_flower_pair_guild.json"
+          sha256sum "$STAGE/WOL/anonymous_full4505_WOL_network_same_species_flower.json"
+      - name: Verify full GIFT 4505 source 25-family documentary opportunity by region/native and provider leaveout
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python scripts/run_fd_original_visitor_documentation_gate.py \
+            --globi "$STAGE/GloBI/anonymous_full4505_GloBI_real_flower_pair_guild.json" \
+            --wol "$STAGE/WOL/anonymous_full4505_WOL_network_same_species_flower.json" \
+            --output "$STAGE/anonymous_original_4505_guild_source_capacity.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_4505_guild_source_capacity.json"
+          raw=p.read_text();q=json.loads(raw)
+          assert q["status"]=="ORIGINAL_4505_GIFT_SOURCE_POLLINATION_DOCUMENTATION_CAPACITY"
+          assert q["n_original_global_botanical_island_floras"]==4505
+          assert q["n_original_exact_GSHHG_polygon_flora"]==4499
+          assert q["n_original_GloBI_positive_documented_islands"]==232
+          assert q["n_original_GloBI_positive_plant_x_island_pairs"]==1799
+          assert q["conclusions"]["no_pvalue_or_effect_coefficient_calculated"]
+          assert not any('"'+k+'"' in raw for k in ("island_id","accepted_species",
+              "reference_id","provider_id","latitude","longitude","network_id"))
+          print("Original source-guild post-provider availability gates PASS")
+          PY
+      - name: Store only anonymous original botanical source study capacity receipt
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-guild-source-capacity-${{ github.run_id }}
+          path: /tmp/fd-original-guild-source-capacity/anonymous_original_4505_guild_source_capacity.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,84 @@
+name: fd original 4505 focused full block/source TRAINING exclusion flower architecture
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - .github/workflows/run-fd-focused-geo-source-training-holdout.yml
+      - scripts/run_fd_focused_geo_source_training_holdout.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  strict_source_focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-GIFT4505-flower-form-spatial-train
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install numerical/provenance source runtime
+        run: python -m pip install -q numpy pandas scipy pytest
+      - name: Assert original accepted genus and full 4505 source training-group blacklist source logic
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python -m pytest -q tests/test_fd_global_geo_source_training_holdout.py tests/test_fd_interregional_genus_name_exclusive_transfer.py
+          python -m compileall -q scripts/fd_global_geo_source_training_holdout.py scripts/run_fd_focused_geo_source_training_holdout.py
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c8ad76798fd84635ff5014dc781741c43492e936
+          path: work/fd-reference
+          persist-credentials: false
+      - name: Restore immutable source original 4505 species/trait/first-mainland source assignments
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "8a9d79c698afa20e611663adb884c8caf648e1a3836853fad94e6a0cd6facb44  $ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Source-pinned independent GSHHG region and 10 degree blocks
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd-reference/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Refit 3 main genuine floral endpoint predictions after removing same-block/first-source OTHER island plant names
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python -u scripts/run_fd_focused_geo_source_training_holdout.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geography "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_original_4505_focus_strict_source_training.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_original_4505_focus_strict_source_training.json").read_text()
+          q=json.loads(raw)
+          assert q["status"]=="ORIGINAL_GIFT_4505_GLOBAL_GEO_SOURCE_TRAINING_EXCLUDED_REGION_TRAIT_TRANSFER"
+          assert q["n_original_botanical_GIFT_island_floras"]==4505
+          assert q["n_actual_trait_endpoint_families_tested"]==3
+          assert len(q["original_source_training_eligibility_and_scoring"])==72
+          assert q["scientific_limitations"]["rescore_baseline_on_IDENTICAL_strict_source_supported_accepted_species"]
+          for private in ("island_id","accepted_species","entity_ID","source_cluster","spatial_block"):
+              assert '"'+private+'"' not in raw
+          print("Original 4505 GIFT true flower architecture candidate source training group exclusion verified")
+          PY
+      - name: Archive only anonymous original flower architecture group-training sensitivity and missing support
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-focused-geosource-training-out-${{ github.run_id }}
+          path: /tmp/fd-GIFT4505-flower-form-spatial-train/anonymous_original_4505_focus_strict_source_training.json
+          retention-days: 90
+          if-no-files-found: error

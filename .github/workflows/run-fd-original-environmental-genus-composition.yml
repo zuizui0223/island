@@ -1,0 +1,93 @@
+name: fd original GIFT 4505 environmental genus floristic establishment prediction
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - .github/workflows/run-fd-original-environmental-genus-composition.yml
+      - scripts/fd_original_environmental_genus_composition.py
+      - tests/test_fd_original_environmental_genus_composition.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  true_original_full_GIFT_genus_community_from_geography:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-GIFT4505-genus-geo-assembly
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install public GIFT original geography and full-flora sparse genus composition dependencies
+        run: python -m pip install -q numpy pandas scipy pytest
+      - name: Verify all 4505 original botanical source and strictly source-blocked climate/area/isolation genus transfer logic
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python -m pytest -q \
+            tests/test_fd_original_environmental_genus_composition.py \
+            tests/test_fd_global_geo_source_training_holdout.py
+          python -m compileall -q scripts/fd_original_environmental_genus_composition.py
+          git rev-parse HEAD
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c8ad76798fd84635ff5014dc781741c43492e936
+          path: work/fd-reference
+          persist-credentials: false
+      - name: Restore SHA-locked original full 4505 accepted botanical GIFT island floras and geo_k5 source grouping
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          ORIGINAL_ROOT="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_ROOT"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT" | sha256sum --check --strict
+          ORIGINAL_ROOT="${ORIGINAL_ROOT%/fixed/canonical/input/chapter1_status_flora.csv.gz}"
+          echo "8a9d79c698afa20e611663adb884c8caf648e1a3836853fad94e6a0cd6facb44  $ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Recreate actual GSHHG source-specific 4 climate PCs and original area/isolation and published island provenance
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd-reference/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Fit source-only island genus composition predictors from other GIFT islands without same block or first source
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python -u scripts/fd_original_environmental_genus_composition.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geography "$STAGE/geography/island_origin_crosswalk.csv" \
+            --nboot 399 \
+            --output "$STAGE/anonymous_original_4505_geographic_genus_source_composition.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_4505_geographic_genus_source_composition.json"
+          raw=p.read_text();x=json.loads(raw)
+          assert x["status"]=="ORIGINAL_GIFT_4505_NO_FOCAL_GENUS_SOURCE_ISLAND_ENVIRONMENTAL_GENUS_ASSEMBLY"
+          assert x["original_GIFT_parent_island_floras"]==4505
+          assert len(x["original_no_oracle_original_island_genus_composition_source_predictions"])==8
+          assert x["controls"]["original_focal_true_genus_community_not_used_to_predict"]
+          assert x["controls"]["source_taxon_genus_nonlisting_is_NOT_confirmed_ecological_absence"]
+          assert x["controls"]["original_training_GIFT_islands_in_focal_10degree_block_EXCLUDED"]
+          assert x["controls"]["original_training_GIFT_islands_with_same_first_GIFT_candidate_mainland_source_EXCLUDED"]
+          for k in ("island_id","accepted_species","entity_ID","genus","genus_name",
+                    "latitude","longitude","source_cluster","source_genus"):
+             assert '"'+k+'"' not in raw
+          print("GIFT original 4505 genus taxonomic composition vs climate/area/isolation/source geographic baseline original source audit PASS")
+          PY
+      - name: Publish only anonymous true original genus-source geographical composition scores and support limitations
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-geographic-genus-assembly-${{ github.run_id }}
+          path: /tmp/fd-original-GIFT4505-genus-geo-assembly/anonymous_original_4505_geographic_genus_source_composition.json
+          if-no-files-found: error
+          retention-days: 90

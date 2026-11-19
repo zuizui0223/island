@@ -1,0 +1,110 @@
+name: fd original 4505 geology x GMMC joint support and conditional floral source
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_geology_lgm_joint_identifiability.py
+      - .github/workflows/run-fd-original-geology-lgm-joint-identifiability.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-joint-geological-glacial-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-geology-lgm-joint
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install numerical and synthetic source-test dependencies
+        run: python -m pip install -q numpy pandas scipy pytest
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: 179c990fe48bf56f8b9f60487728f5de6d257bca
+          path: work/fd
+          persist-credentials: false
+      - name: Verify independent true same-species floral motifs and algebraic genus partitions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_geology_lgm_joint_identifiability.py work/fd/tests/test_geology_genus_flower_pair.py
+          PYTHONPATH="scripts:work/fd/src" python -m compileall -q \
+            scripts/run_fd_original_geology_lgm_joint_identifiability.py \
+            work/fd/src/fd/geology_lgm_joint_identifiability.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore source-SHA-verified accepted 4505 GIFT island floras
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Rebuild original independently authenticated GSHHG 10-degree geographical source
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Evaluate 4505 real floral same-plant guild-compatible signatures and native mainland source
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_original_geology_lgm_joint_identifiability.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_original_geology_lgm_joint_support.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_original_geology_lgm_joint_support.json").read_text()
+          z=json.loads(raw)
+          assert z["status"]=="GIFT4505_INDEPENDENT_GEOLOGY_X_LGM_FOUR_CELL_IDENTIFIABILITY"
+          assert z["n_original_global_botanical_floras"]==4505
+          assert z["n_original_full_flora_scope_pair_rows"]==4505*3*11
+          assert z["n_reporting_region_scope_flower_panels"]==3*3*3
+          assert z["n_independent_original_geology_labelled_floras"]==425
+          assert z["n_original_glacial_connectivity_labelled_floras"]==3820
+          assert z["limits"]["all_four_cells_need_independent_source_and_block_support"]
+          assert z["limits"]["geological_origin_Roeble_Zizka_independent_not_distance_proxy"]
+          assert z["limits"]["all_original_4505_floras_preserved"]
+          assert all(sum(k["n_islands"] for k in p["original_four_joint_history_cell_support"].values())
+                     ==p["n_both_geological_and_LGM_history_qualified"]
+                     for p in z["panels"])
+          # Verify any reported conditional estimate has full independent
+          # GIFT geography and original source support; otherwise it must
+          # remain explicitly unidentifiable.
+          for p in z["panels"]:
+              joint=p["simultaneous_origin_and_LGM_equal_strata_adjustment"]
+              if joint["status"]=="DESCRIPTIVE_FOUR_CLASS_SUPPORT_BEFORE_BOOTSTRAP":
+                  assert joint["n_four_eligible_cells"]==4
+                  for cell in p["original_four_joint_history_cell_support"].values():
+                      assert cell["n_islands"]>=30
+                      assert cell["n_geographic_blocks"]>=10
+                      assert cell["n_first_mainland_sources"]>=10
+          forbidden=("island_id","accepted_species","work_species","entity_ID",
+                     "latitude","longitude","geological_record_id")
+          assert not any('"'+k+'"' in raw for k in forbidden)
+          print("Original 4,505 GIFT geology and GMMC four-cell joint identifiability verified: PASS")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fd-original-4505-geology-lgm-joint-support-${{ github.run_id }}
+          path: /tmp/fd-original-geology-lgm-joint/anonymous_original_geology_lgm_joint_support.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,128 @@
+name: fd original 4505 NHM numeric corolla tube genus concentration and dominance controls
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_nhm_numeric_genus_concentration.py
+      - .github/workflows/run-fd-nhm-numeric-genus-concentration.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-genus-dominance-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-4505-NHM-genus-dominance
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install source original NHM numeric and bootstrap packages
+        run: python -m pip install -q pandas numpy scipy pytest networkx
+      - name: Checkout versioned fd taxon concentration analysis
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Test source identity, original genus ranking and valid sensitivity algorithms
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python -m pytest -q \
+            work/fd/tests/test_nhm_numeric_genus_concentration.py \
+            work/fd/tests/test_nhm_numeric_source_congener_predict.py \
+            tests/test_fd_independent_nhm_numeric_tube_length.py
+          python -m compileall -q \
+            scripts/run_fd_nhm_numeric_genus_concentration.py \
+            work/fd/src/fd/nhm_numeric_genus_concentration.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore independently SHA-frozen original 4505 island botanical flora and Direct traits
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/benchmark"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          gh run download 43883317272 --repo zuizui0223/island \
+            --name fd-original-4505-NHM-numeric-deep-prediction-43883317272 \
+            --dir "$STAGE/benchmark"
+          BENCHMARK="$(find "$STAGE/benchmark" -name anonymous_original_numeric_nhm_deep_prediction.json -type f -print -quit)"
+          test -n "$BENCHMARK" && test -s "$BENCHMARK"
+          echo "BENCHMARK=$BENCHMARK" >> "$GITHUB_ENV"
+      - name: Restore five independently released pinned NHM corolla-length corpora
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/nhm"
+          while IFS='|' read -r name expected; do
+            test -n "$name" || continue
+            curl -fLSs --retry 5 --retry-delay 2 --connect-timeout 15 --max-time 300 \
+              "https://raw.githubusercontent.com/NaturalHistoryMuseum/plant-traits/4843c22bb2fc91018d9828dcddebf067c83b1097/output/raw/ocr-traits/$name" \
+              -o "$STAGE/nhm/$name"
+            test "$(git hash-object --no-filters "$STAGE/nhm/$name")" = "$expected"
+          done <<'NHM_PINS'
+          bhl.csv|f46e15b95e92b1daad5c0ebf2145df73173505be
+          ecoflora.csv|dbdc6b4469583743b8b35e26912d21d05b550f32
+          efloras.flora_of_china.csv|ec87a99eee2cc1bf9a8868e1d5425654e7974897
+          efloras.flora_of_north_america.csv|3710b08d7b041205a6cb5e7b811c08de317e006d
+          efloras.flora_of_pakistan.csv|7f506417a3ae31fc4daa959a27976ed62c7b1449
+          NHM_PINS
+      - name: Independently rebuild 10-degree physical island blocks
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'import os;from pathlib import Path;from fd.origin import run_crosswalk;run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Compare concentration and genus-equal score to original frozen successful Brier score on same islands
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python scripts/run_fd_nhm_numeric_genus_concentration.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --nhm-directory "$STAGE/nhm" \
+            --original-anonymous-benchmark "$BENCHMARK" \
+            --output "$STAGE/anonymous_4505_NHM_numeric_genus_concentration.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          f=Path(os.environ["STAGE"])/"anonymous_4505_NHM_numeric_genus_concentration.json"
+          raw=f.read_text()
+          p=json.loads(raw)
+          assert p["status"]=="ORIGINAL_GIFT_4505_EXTERNAL_NUMERIC_TUBE_GENUS_CONCENTRATION_AUDIT"
+          assert p["original_global_botanical_floras"]==4505
+          assert p["n_original_region_scope_corpus_panels"]==30
+          assert p["n_original_GIFT_mainland_source_entities"]==748
+          check=p["exact_original_release_equivalence"]
+          assert check["matching_same_source_cohort_and_original_geographic_blocks"]
+          assert check["max_original_score_absolute_difference"] is None or check["max_original_score_absolute_difference"]<1e-9
+          assert p["study_limits"]["genus_ranked_by_target_documented_species_count_not_phenotype"]
+          assert p["study_limits"]["genus_equal_not_phylogenetically_independent"]
+          assert p["study_limits"]["source_pool_recalculated_after_genus_removal"]
+          prohibited=("island_id","accepted_species","work_species","entity_ID",
+                      "source_signature","spatial_block","source_genus","source_family",
+                      "latitude","longitude","GBIF_id","photo_id","taxon_id","genus")
+          assert not any('"'+x+'"' in raw for x in prohibited)
+          print("Original source island scores exactly reproduced and genus concentration source privacy audit passed")
+          PY
+      - name: Upload only original anonymous regional source-genus dominance and uncertainty diagnostics
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-NHM-genus-concentration-${{ github.run_id }}
+          path: /tmp/fd-4505-NHM-genus-dominance/anonymous_4505_NHM_numeric_genus_concentration.json
+          if-no-files-found: error
+          retention-days: 90

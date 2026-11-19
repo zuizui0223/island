@@ -1,0 +1,117 @@
+name: fd original 4505 independent Web of Life and Mangal island pollination network preflight
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_independent_network_site_preflight.py
+      - .github/workflows/run-fd-independent-network-site-preflight.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-flora-independent-network-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 125
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-external-network-source-preflight
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original flower trait and historical GSHHG polygon packages
+        run: python -m pip install -q pandas numpy scipy pytest requests "geopandas>=1.0" "shapely>=2" "pyogrio>=0.9"
+      - name: Checkout independent visitor site network parsing and no-pseudoabsence safeguards
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Test actual plant role edge and true same accepted species floral pair classification
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python -m pytest -q \
+            work/fd/tests/test_independent_pollination_networks.py \
+            work/fd/tests/test_globi_local_real_syndrome_gate.py
+          python -m compileall -q \
+            work/fd/src/fd/independent_pollination_networks.py \
+            scripts/run_fd_independent_network_site_preflight.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore SHA-pinned all 4505 original GIFT botanical floras and Direct trait evidence
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Restore original exactly authenticated 927 of 928 GSHHG island network polygons
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/polygons"
+          gh run download 43162949729 --repo zuizui0223/island \
+            --name fd-globi-revalidated-exact-gshhg-43162949729 \
+            --dir "$STAGE/polygons"
+          GSHHG_GPKG="$(find "$STAGE/polygons" -name 'original_gshhg_v237_h_candidate21_exact_shared_ids.gpkg' -type f -print -quit)"
+          GSHHG_RECEIPT="$(find "$STAGE/polygons" -name 'original_gshhg_geometry_receipt.json' -type f -print -quit)"
+          test -n "$GSHHG_GPKG" && test -s "$GSHHG_GPKG"
+          test -n "$GSHHG_RECEIPT" && test -s "$GSHHG_RECEIPT"
+          echo "GSHHG_GPKG=$GSHHG_GPKG" >> "$GITHUB_ENV"
+          echo "GSHHG_RECEIPT=$GSHHG_RECEIPT" >> "$GITHUB_ENV"
+      - name: Independently retrieve immutable-caption original WOL and Mangal metadata snapshots and exact WOL edge roles
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src:scripts" python \
+            scripts/run_fd_independent_network_site_preflight.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --original-gshhg-geometry "$GSHHG_GPKG" \
+            --original-geometry-receipt "$GSHHG_RECEIPT" \
+            --output "$STAGE/anonymous_external_pollination_network_4505_preflight.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_external_pollination_network_4505_preflight.json"
+          raw=p.read_text()
+          z=json.loads(raw)
+          assert z["status"]=="ORIGINAL_4505_INDEPENDENT_EXTERNAL_POLLINATION_NETWORK_PREFLIGHT"
+          assert z["n_original_botanical_GIFT_island_floras"]==4505
+          assert z["n_original_direct_plant_phenotype_observation_floras"]==928
+          assert z["n_original_geometrically_evaluable_Direct_observation_subset"]==927
+          x=z["exact_site_and_original_accepted_plant_WOL_evidence"]
+          assert x["status"]=="SOURCE_NETWORK_EXACT_SITE_SAME_SPECIES_FLORAL_TRAIT_SUPPORT"
+          assert x["n_original_global_GIFT_botanical_islands"]==4505
+          assert len(x["cells"])==4*3*7
+          cells={(v["botanical_scope"],v["verified_real_joint_morphology"],
+                  v["source_network_visitor_taxonomy"]):v
+                  for v in x["cells"]}
+          for (scope,shape,guild),v in cells.items():
+              if scope=="endemic_label":
+                  assert v["n_plant_guild_network_documented_units"] <= (
+                      cells[("native_label",shape,guild)]["n_plant_guild_network_documented_units"])
+          assert z["methodological_ceiling"]["no_unobserved_visitors_treated_as_negative_records"]
+          assert z["methodological_ceiling"]["source_web_of_life_and_mangal_different_aggregators_not_proven_new_original_studies"]
+          forbidden=("island_id","accepted_species","source_signature",
+            "spatial_block","reference_id","provider_id","work_species",
+            "entity_ID","latitude","longitude","source_genus",
+            "source_family","visitor_species")
+          assert not any('"'+key+'"' in raw for key in forbidden)
+          print("Original 4505 full botanical population external visitor network site preflight and privacy guards passed")
+          PY
+      - name: Upload only anonymous site-network plant-guild opportunity and original source snapshot integrity
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-independent-network-preflight-${{ github.run_id }}
+          path: /tmp/fd-external-network-source-preflight/anonymous_external_pollination_network_4505_preflight.json
+          if-no-files-found: error
+          retention-days: 90

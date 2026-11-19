@@ -1,0 +1,96 @@
+name: fd original 4505 multiaxis floral signal and access motif source audit
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_syndrome_ensemble.py
+      - .github/workflows/run-fd-original-syndrome-ensemble.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-syndrome-compatible-motifs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-20261117-original-syndrome-motifs
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install numerical and synthetic source-test dependencies
+        run: python -m pip install -q numpy pandas scipy pytest
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: bb5436ce5bb94770d68bcd60c44123fab31c206a
+          path: work/fd
+          persist-credentials: false
+      - name: Verify independent true same-species floral motifs and algebraic genus partitions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_syndrome_ensemble_source.py
+          PYTHONPATH="scripts:work/fd/src" python -m compileall -q \
+            scripts/run_fd_original_syndrome_ensemble.py \
+            work/fd/src/fd/syndrome_ensemble_source.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore source-SHA-verified accepted 4505 GIFT island floras
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Rebuild original independently authenticated GSHHG 10-degree geographical source
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Evaluate 4505 real floral same-plant guild-compatible signatures and native mainland source
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_original_syndrome_ensemble.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_original_syndrome_ensemble.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_original_syndrome_ensemble.json").read_text()
+          z=json.loads(raw)
+          assert z["status"]=="ORIGINAL_4505_REAL_THREE_FOUR_AXIS_SYNDROME_COMPATIBLE_MOTIFS"
+          assert z["n_original_GIFT_botanical_islands"]==4505
+          assert z["n_original_island_scope_motif_rows"]==4505*3*12
+          assert z["n_motifs"]==12
+          assert z["n_reporting_panels"]==5*3*12
+          assert z["limits"]["no_specific_bird_butterfly_hawkmoth_bee_pollinator_labels"]
+          assert z["limits"]["four_signed_genus_terms_not_causal"]
+          assert z["limits"]["genus_conditioned_direct_documentation_balance_both_sources"]
+          assert all(p["n_islands_two_source_supported"]<=p["n_original_region_islands"] for p in z["panels"])
+          forbidden=("island_id","accepted_species","work_species","entity_ID",
+                     "spatial_block","first_source","latitude","longitude")
+          assert not any('"'+k+'"' in raw for k in forbidden)
+          print("Protected 4,505 GIFT island real syndrome-compatible floral signatures: PASS")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fd-original-4505-syndrome-ensembles-${{ github.run_id }}
+          path: /tmp/fd-20261117-original-syndrome-motifs/anonymous_original_syndrome_ensemble.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,107 @@
+name: fd original 4505 same-species genus-conditioned symmetry-depth coupling
+on:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_real_joint_within_genus_coupling.py
+      - .github/workflows/run-fd-real-joint-within-genus-coupling.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-analytic-genus-null:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-genus-coupling
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original exact fixed-margin analytic runtime
+        run: python -m pip install -q pandas numpy scipy pytest
+      - name: Checkout fd original floral pair genus fixed-margin reference module
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Test genus-conditional analytic exact null and complete source cohort
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q \
+            work/fd/tests/test_real_joint_within_genus_coupling.py \
+            work/fd/tests/test_real_joint_syndrome_access.py
+          python -m compileall -q \
+            scripts/run_fd_real_joint_within_genus_coupling.py \
+            work/fd/src/fd/real_joint_within_genus_coupling.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore archived original 4505 GIFT island floras and true species Direct traits
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER" && test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Rebuild independently sourced original GSHHG Roeble island geographic blocks
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/geography"
+          PYTHONPATH=work/fd/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Compute real within-genus fixed-margin source-relative coupling and non-identifiable controls
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd/src" python \
+            scripts/run_fd_real_joint_within_genus_coupling.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geology-crosswalk "$STAGE/geography/island_origin_crosswalk.csv" \
+            --output "$STAGE/anonymous_original_genus_pairing_coupling.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_genus_pairing_coupling.json"
+          raw=p.read_text()
+          obj=json.loads(raw)
+          assert obj["status"]=="ORIGINAL_4505_REAL_JOINT_GENUS_CONDITIONAL_COUPLING"
+          assert obj["n_original_GIFT_botanical_islands"]==4505
+          assert obj["n_original_private_island_scope_pair_rows"]==4505*3*3
+          assert obj["n_region_scope_structural_pair_panels"]==45
+          assert all("n_islands_with_informative_genus_on_island" in p
+                     and "n_islands_with_informative_genus_in_geo5_source" in p
+                     and "n_islands_with_informative_genus_in_climate10_source" in p
+                     for p in obj["panels"])
+          assert obj["original_source_748_GIFT_native_mainland_regions"]==748
+          assert obj["epistemic_limits"]["analytic_within_genus_fixed_margin_null_no_random_seeds"]
+          assert obj["epistemic_limits"]["posthoc_after_tropical_symmetry_depth_result"]
+          assert obj["epistemic_limits"]["no_effective_bird_butterfly_moth_guild_observed_in_this_analysis"]
+          assert obj["epistemic_limits"]["genus_null_different_from_genus_composition_effect_on_total_pair_share"]
+          prohibited=("island_id","accepted_species","work_species",
+              "entity_ID","spatial_block","source_signature","source_region_id",
+              "latitude","longitude","source_genus","source_family",
+              "photo_id","GBIF_id","taxon_id")
+          assert not any('"'+k+'"' in raw for k in prohibited)
+          print("Original analytical within-genus fixed-margin flower coupling audit passed")
+          PY
+      - name: Upload only anonymous original regional pair/genus/source support statistics
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-genus-conditioned-joint-coupling-${{ github.run_id }}
+          path: /tmp/fd-original-genus-coupling/anonymous_original_genus_pairing_coupling.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,164 @@
+name: fd original 928-island true-tip TPL LCVP WP phylogenetic source comparison
+on:
+  push:
+    branches:
+      - analysis/fd-discrete-functional-volume-20261113
+    paths:
+      - 'scripts/run_fd_lcvp_phylogenetic_source_match.py'
+      - 'scripts/fd_gbotb_export_private_edges.R'
+      - '.github/workflows/run-fd-lcvp-phylo-source-match.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-dated-tree-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    strategy:
+      fail-fast: false
+      matrix:
+        tree_version: [TPL, LCVP, WP]
+    env:
+      STAGE: /tmp/fd-phylo-matched-lcvp
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+      TREE_VERSION: ${{ matrix.tree_version }}
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+      - name: SciPy mathematical matching and categorical profile-null dependencies
+        run: python -m pip install pandas numpy scipy pytest
+      - name: Checkout fd original exact-tree phylogeny-only algorithm and synthetic tests
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Checkout published fixed GBOTB LCVP dated original plant tree
+        uses: actions/checkout@v4
+        with:
+          repository: jinyizju/V.PhyloMaker2
+          ref: 7af3fb5152f691af2e4ec9d5e2e467d1b50505e9
+          path: work/V.PhyloMaker2
+          persist-credentials: false
+      - name: Verify original phylogeny and exact-tip mathematical pair matching
+        run: |
+          set -euo pipefail
+          echo '9ac19e04d6016c9e7ee8758524996f40a089271b2fd34371a5dbd607b5dbf2a3  work/V.PhyloMaker2/data/GBOTB.extended.TPL.rda' | sha256sum --check
+          echo '30fd7e9e67bdfff427b336d3b35983f63e284ef118e91f76a7f51a884c9b4e5b  work/V.PhyloMaker2/data/GBOTB.extended.LCVP.rda' | sha256sum --check
+          echo '7fc97970fcd9e69f6506b0c860b1296f4a797635193a8ce4bcb052a83fd1f965  work/V.PhyloMaker2/data/GBOTB.extended.WP.rda' | sha256sum --check
+          PYTHONPATH=work/fd/src python -m pytest -q \
+            work/fd/tests/test_true_backbone_phylo_distance.py \
+            work/fd/tests/test_true_backbone_phylo_source_match.py \
+            work/fd/tests/test_true_tree_close_family_source.py
+          python -m compileall -q work/fd/src/fd/true_backbone_phylo_distance.py \
+            work/fd/src/fd/true_backbone_phylo_source_match.py \
+            work/fd/src/fd/true_tree_close_family_source.py \
+            scripts/run_fd_lcvp_phylogenetic_source_match.py
+      - name: Restore original protected 2234 source Direct flower traits, original GIFT
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          ARTIFACT_ID=10058653212
+          SOURCE_RUN="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.workflow_run.id')"
+          SOURCE_NAME="$(gh api "repos/zuizui0223/island/actions/artifacts/$ARTIFACT_ID" --jq '.name')"
+          test -n "$SOURCE_RUN" && test -n "$SOURCE_NAME"
+          gh run download "$SOURCE_RUN" --repo zuizui0223/island --name "$SOURCE_NAME" --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          if [ -z "$LEDGER" ]; then
+            NESTED="$(find "$STAGE/original" -name '*.zip' -type f -print -quit)"
+            if [ -n "$NESTED" ]; then
+              mkdir -p "$STAGE/unpacked"
+              unzip -q "$NESTED" -d "$STAGE/unpacked"
+              LEDGER="$(find "$STAGE/unpacked" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+            fi
+          fi
+          test -n "$LEDGER" && test -s "$LEDGER"
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          test -s "$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz"
+          test -s "$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Recover independent frozen original CoL XR candidate taxonomy
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/colxr"
+          gh run download 34668274725 --repo zuizui0223/island \
+            --name island-plant-database-2.0.0-alpha2-taxonomy-34668274725 \
+            --dir "$STAGE/colxr"
+          COLXR="$(find "$STAGE/colxr" -name taxonomy_crosswalk.csv.gz -type f -print -quit)"
+          test -n "$COLXR" && test -s "$COLXR"
+          echo "079d9c27b0ca3aa51f0c7310f43ad4901b07a319d6063eab5a7d62b291bdd9e3  $COLXR" | sha256sum --check --strict
+          echo "COLXR=$COLXR" >> "$GITHUB_ENV"
+      - name: Analyse truly dated taxon-tip nearest native mainland source plants for all 928 islands
+        run: |
+          set -euo pipefail
+          PYTHONPATH="src:work/fd/src" python scripts/run_fd_lcvp_phylogenetic_source_match.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --crosswalk "$COLXR" \
+            --backbone work/V.PhyloMaker2 \
+            --tree-version "$TREE_VERSION" \
+            --workdir "$STAGE" \
+            --rarefactions 20 --reference-null 199 --bootstrap 999 \
+            --output "$STAGE/anonymous_true_tree_phylogenetic_floral_${TREE_VERSION}_928.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['STAGE'])/f"anonymous_true_tree_phylogenetic_floral_{os.environ['TREE_VERSION']}_928.json"
+          r=json.loads(p.read_text())
+          assert r['tree_version']==os.environ["TREE_VERSION"]
+          assert r['n_original_eligible_full_island_flora']==928
+          assert r['n_original_strict_tip_species_in_tree']=={
+            'TPL':1187,'LCVP':1162,'WP':1160}[os.environ["TREE_VERSION"]]
+          assert r['design']['strict_exact_original_tree_tip_only']
+          assert r['design']['optimal_unique_nearest_phylogeny_source_species_per_tip']
+          assert r['design']['source_species_exact_island_names_removed']
+          assert r['design']['primary_exact_tree_tip_plants_per_side']==15
+          assert r['design']['sensitivity_exact_tree_tip_plants_per_side']==10
+          assert r['design']['matched_phylo_distance_50_100_thresholds_posthoc_diagnostics_only']
+          assert r['design']['original_colxr_family_and_genus_pair_support_diagnostics']
+          assert r['external_plant_phylogeny_GPL2_source_not_redistributed']
+          assert r['original_tree_tip_island_taxon_or_source_name_exported'] is False
+          assert r['demonstrated_phylogeny_caused_flower_loss_or_pollinator_shift'] is False
+          near=r["strict_within_family_close_true_tree_source_sensitivity"]
+          assert near["n_original_source_eligible_full_islands"]==928
+          assert near["tree_version"]==os.environ["TREE_VERSION"]
+          assert near["design"]["cutoffs_original_branch_length_50_100_are_posthoc"]
+          assert near["design"]["all_graft_and_taxonomy_inserted_species_excluded"]
+          assert near["design"]["source_selection_does_not_examine_flower_trait_phenotypes"]
+          assert near["no_original_plant_family_genus_island_source_or_tree_ids_exported"]
+          assert near["not_phylogeny_or_evolution_causal_island_phenotype_change"] is True
+          assert len(near["region_phylogenetic_close_family_source_evidence"])>=8
+          assert near["design"]["same_island_cutoff_pairing_keeps_geography_but_not_identical_plant_species"]
+          assert near["design"]["new_strict_nonoverlapping_d50_vs_d50to100_identical_five_focal_plant_species"]
+          assert near["design"]["new_strict_nonoverlapping_source_distance_cutoff_is_posthoc"]
+          assert any(x["regime"]=="tropical" for x in
+                 near["identical_focal_five_species_near_vs_mid_source_distance_bands"])
+          assert any(r["regime"]=="tropical" and r["scope"]=="all_recorded"
+                      for r in near["paired_same_island_50_vs_100_tree_cutoff_sensitivity"])
+          assert r["source_same_island_close_pair_50_100_support_tested"]
+          assert r["new_strict_identical_focal_plant_five_tip_source_distance_bands"]
+          assert near["design"]["new_strict_nonoverlapping_d50_vs_d50to100_identical_five_focal_plant_species"]
+          assert len(r['region_phylogenetic_tip_matching_support'])>=8
+          raw=p.read_text()
+          assert all('"'+k+'"' not in raw for k in (
+             'accepted_species','island_id','source_genus','source_family',
+             'family','genus','entity_ID','work_species','source_signature','spatial_block'))
+          print("True original source tip matching completed, without conjectured phylogenetic grafts or identities")
+          PY
+      - name: Upload only anonymous regional matched phylogenetic source sensitivity
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-real-phylo-source-${{ matrix.tree_version }}-928-${{ github.run_id }}
+          path: /tmp/fd-phylo-matched-lcvp/anonymous_true_tree_phylogenetic_floral_${{ matrix.tree_version }}_928.json
+          if-no-files-found: error
+          retention-days: 90
