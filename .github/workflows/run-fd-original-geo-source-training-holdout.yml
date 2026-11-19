@@ -1,0 +1,95 @@
+name: fd original GIFT 4505 all13 Direct block and source TRAINING exclusion
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - .github/workflows/run-fd-original-geo-source-training-holdout.yml
+      - scripts/fd_global_geo_source_training_holdout.py
+      - tests/test_fd_global_geo_source_training_holdout.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original_all13_geo_and_source_leaveout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-global-original-training-blocked
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original categorical source and grouped-cluster numerical tools
+        run: python -m pip install -q numpy pandas scipy pytest
+      - name: Validate SAME original accepted species paired baseline and stricter source training exclusion
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python -m pytest -q tests/test_fd_global_geo_source_training_holdout.py tests/test_fd_interregional_genus_name_exclusive_transfer.py
+          python -m compileall -q scripts/fd_global_geo_source_training_holdout.py
+          git rev-parse HEAD
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: c8ad76798fd84635ff5014dc781741c43492e936
+          path: work/fd-reference
+          persist-credentials: false
+      - name: Restore and SHA-check the original 4505 GIFT floras, 13 Direct phenotypes and original source membership
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          LEDGER="$(find "$STAGE/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -s "$LEDGER"
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER" | sha256sum --check --strict
+          ORIGINAL_ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz" | sha256sum --check --strict
+          echo "8a9d79c698afa20e611663adb884c8caf648e1a3836853fad94e6a0cd6facb44  $ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Recover independent original GSHHG physical 10-degree regions and source geography
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd-reference/src python -c 'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Refit local and external genus/source categorical predictors WITHOUT same physical block or first-source plant names
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python -u scripts/fd_global_geo_source_training_holdout.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geography "$STAGE/geography/island_origin_crosswalk.csv" \
+            --nboot 499 \
+            --output "$STAGE/anonymous_original_4505_geo_source_training_exclusion.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_original_4505_geo_source_training_exclusion.json").read_text()
+          x=json.loads(raw)
+          assert x["status"]=="ORIGINAL_GIFT_4505_GLOBAL_GEO_SOURCE_TRAINING_EXCLUDED_REGION_TRAIT_TRANSFER"
+          assert x["n_original_botanical_GIFT_island_floras"]==4505
+          assert x["n_original_floral_direct_endpoint_families"]==13
+          assert x["n_actual_trait_endpoint_families_tested"]==13
+          assert x["original_source_training_exclusion_modes"]==[
+              "block_out","first_source_out","block_and_first_source_out"]
+          assert len(x["original_source_training_eligibility_and_scoring"])==312
+          assert x["scientific_limitations"]["rescore_baseline_on_IDENTICAL_strict_source_supported_accepted_species"]
+          assert x["scientific_limitations"]["SAME_physical_block_OTHER_island_species_names_removed_from_local_and_external_training"]
+          assert x["scientific_limitations"]["SAME_original_first_mainland_source_OTHER_island_species_names_removed_from_local_and_external_training"]
+          assert x["scientific_limitations"]["original_training_species_borrowed_from_GIFT_island_floras_NOT_independently_phenotyped_MAINLAND"]
+          for field in ("island_id","accepted_species","entity_ID",
+                        "spatial_block","source_cluster","source_genus",
+                        "original_source_island_id","latitude","longitude"):
+              assert '"'+field+'"' not in raw
+          print("Original 4505 full botanical parent and all 13 category traits with fully excluded training groups PASS")
+          PY
+      - name: Archive ONLY original anonymized across-region donor model output and absence-of-support controls
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-block-source-training-holdout-${{ github.run_id }}
+          path: /tmp/fd-global-original-training-blocked/anonymous_original_4505_geo_source_training_exclusion.json
+          if-no-files-found: error
+          retention-days: 90
