@@ -118,7 +118,12 @@ def test_anonymous_source_physical_and_first_source_group_equal_scores():
            strict_local_vs_external_logloss=-.06,
            baseline_on_identical_carriers_local_vs_external_logloss=.02,
            strict_minus_baseline_local_vs_external_logloss=-.08,
-           strict_other_region_genus_vs_blind_Brier=.015))
+           strict_other_region_genus_vs_blind_Brier=.015,
+           strict_other_region_genus_vs_blind_logloss=.024,
+           baseline_on_identical_carriers_other_region_genus_vs_blind_Brier=.013,
+           baseline_on_identical_carriers_other_region_genus_vs_blind_logloss=.021,
+           strict_minus_baseline_other_region_genus_vs_blind_Brier=.002,
+           strict_minus_baseline_other_region_genus_vs_blind_logloss=.003))
     df=pd.DataFrame(rows)
     for group in ("spatial_block","source_cluster"):
         a=original_group_equal_stress(df,group,seed=20261119,nboot=99)
@@ -126,6 +131,9 @@ def test_anonymous_source_physical_and_first_source_group_equal_scores():
         assert a["n_scored_island_floras"]==60
         assert a["strict_local_vs_external_Brier_group_equal_mean"]==pytest.approx(-.04)
         assert a["strict_minus_baseline_local_vs_external_Brier_group_resample_95"]==pytest.approx([-.07,-.07])
+        assert a["strict_other_region_genus_vs_blind_logloss_group_equal_mean"]==pytest.approx(.024)
+        assert a["baseline_on_identical_carriers_other_region_genus_vs_blind_logloss_group_equal_mean"]==pytest.approx(.021)
+        assert a["strict_minus_baseline_other_region_genus_vs_blind_Brier_group_equal_mean"]==pytest.approx(.002)
         assert a["strict_local_vs_external_logloss_group_resample_95"]==pytest.approx([-.06,-.06])
     insufficient=original_group_equal_stress(df.iloc[:9],
                 "spatial_block",seed=3,nboot=99)
