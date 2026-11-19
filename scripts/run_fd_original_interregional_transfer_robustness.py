@@ -14,10 +14,11 @@ from fd.interregional_transfer_robustness import (
 )
 
 
-def run(current:Path,previous:Path)->dict:
+def run(current:Path,previous:Path,mainland:Path)->dict:
     latest=json.loads(current.read_text(encoding="utf-8"))
     older=json.loads(previous.read_text(encoding="utf-8"))
-    r=analyze_original_global_regionality(latest,older)
+    mainland_candidate=json.loads(mainland.read_text(encoding="utf-8"))
+    r=analyze_original_global_regionality(latest,older,mainland_candidate)
     if r["source_original_four_region_and_missing_denominator"][
         "source_qualified_count_by_status"].get(
          "ORIGINAL_CONDITIONAL_REGION_EXCLUSIVE_DONOR_COMPARISON")!=63:
@@ -39,19 +40,20 @@ def run(current:Path,previous:Path)->dict:
         "self_incompatibility")):
         raise ValueError("Original cross-region source donor directional reversal cannot replicate")
     r["fixed_source_original_artifact_runs"]=dict(
-        newer=43700248327,older=43700017352)
+        newer=43700248327,older=43700017352,mainland_candidate=44444353301)
     r["original_github_artifact_archives_SHA256"]=dict(
         newer="4b91489394109a75cf600bc1248ca1d1013e10ee525b071a7abc790b95163413",
-        older="aedfdc3409072752bd71a98a9f68de0a65f678d836799f1c0492d9efab4dbdb9")
+        older="aedfdc3409072752bd71a98a9f68de0a65f678d836799f1c0492d9efab4dbdb9",
+        mainland_candidate="b09d362bdf815d84eb3e2bd04f0ac9461bdbb83940166c01e6c826686a27c27d")
     return r
 
 
 def main():
     p=argparse.ArgumentParser()
-    for arg in ("source-latest","source-older","output"):
+    for arg in ("source-latest","source-older","source-mainland","output"):
         p.add_argument("--"+arg,type=Path,required=True)
     a=p.parse_args()
-    r=run(a.source_latest,a.source_older)
+    r=run(a.source_latest,a.source_older,a.source_mainland)
     body=json.dumps(r,ensure_ascii=False,sort_keys=True,indent=2,allow_nan=False)
     for key in (
         "island_id","accepted_species","source_entity_ID","entity_ID",
@@ -62,6 +64,8 @@ def main():
             raise ValueError("Source private original plant/island genus data leak")
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(body+"\n",encoding="utf-8")
+    print("ANONYMOUS_MAINLAND_SOURCE_INDEPENDENCE="+json.dumps(
+        r["independent_mainland_candidate_species_provenance_gate"],sort_keys=True))
     q=r["source_robust_13_endpoint_panel_counts"]
     for x in q:
         print("ORIGINAL_REGION_TRAIT_TRANSFER="+json.dumps(x,sort_keys=True))
