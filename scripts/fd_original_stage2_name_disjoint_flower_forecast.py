@@ -361,7 +361,7 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                                     if model == baseline:
                                         continue
                                     scores[f"expanded_{model}_gain_vs_{baseline}_{loss}"] = (
-                                        expanded_scores[f"{model}_gain_vs_{baseline}_{loss}")
+                                        expanded_scores[f"{model}_gain_vs_{baseline}_{loss}"])
                         scores["n_additional_external_only_genus_source_profiles"] = n_extra_genera
                         added_genera = set(expanded_profiles) - set(genus_profiles)
                         scores["predicted_extra_external_genus_weight_mass"] = float(
