@@ -66,7 +66,7 @@ GROUPS=("spatial_block","first_source")
 
 
 def _floats(g:pd.DataFrame)->np.ndarray:
-    values=g.loc[:,FEATURES].apply(pd.to_numeric,errors="coerce").to_numpy(dtype=float)
+    values=g.loc[:,FEATURES].apply(pd.to_numeric,errors="coerce").to_numpy(dtype=float,copy=True)
     if (values[:,4:6]<0).any():
         raise ValueError("Original GSHHG island geographic area/distance negative")
     values[:,4:6]=np.log1p(values[:,4:6])
@@ -85,10 +85,9 @@ def _floats(g:pd.DataFrame)->np.ndarray:
 
 def _xyz(lat,lon)->np.ndarray:
     a,b=np.radians(np.asarray(lat,float)),np.radians(np.asarray(lon,float))
-    xyz=np.column_stack((np.cos(a)*np.cos(b)*np.cos(a)*0+np.cos(a)*np.cos(b),
+    xyz=np.column_stack((np.cos(a)*np.cos(b),
         np.cos(a)*np.sin(b),np.sin(a)))
-    # The first coordinate intentionally simplifies to cos(lat)*cos(lon);
-    # no longitude wraparound discontinuity, unlike subtracting longitude.
+    # Sphere embedding avoids spurious distance across the 180-degree meridian.
     return xyz
 
 
