@@ -72,6 +72,63 @@ SUMMARY_GAIN_COLUMNS = tuple(
 )
 
 
+EXPANDED_GAIN_COLUMNS = tuple(
+    f"expanded_{m}_gain_vs_{base}_{loss}"
+    for m in REQUIRED_MODELS
+    for base in ("regional_blind", "external_blind", "regional_genus_prior",
+                 "constrained")
+    if m != base
+    for loss in ("Brier", "logloss")
+)
+
+
+def extend_external_only_congener_profiles(
+    constrained_profiles: dict[str, np.ndarray],
+    exclusive_external_source: set[str],
+    forbidden_full_flora_names: set[str],
+    states: dict[str, str],
+    indices: dict[str, int],
+    blind: np.ndarray,
+    *, alpha: float = 5.0, max_donors: int = 20,
+) -> tuple[dict[str, np.ndarray], int]:
+    """Add external trait genera NOT represented by local Direct donor genera.
+
+    Keep every existing local-congener-supported genus profile exactly
+    unchanged, including its original equal-local/external-name sample cap.
+    Hence the paired sensitivity isolates the EFFECT OF THE PREVIOUS
+    LOCAL-GENUS-SUPPORT GATE rather than changing the learned profiles of
+    genera already permitted. Candidate species names are original
+    source-private; return only anonymous counts/profile probabilities.
+    """
+    if alpha <= 0 or max_donors < 1:
+        raise ValueError("External genus shrinkage settings invalid")
+    if (not np.isclose(np.sum(blind), 1)
+            or any(not np.isclose(np.sum(p), 1)
+                   for p in constrained_profiles.values())):
+        raise ValueError("External genus blind/profile simplex invalid")
+    accepted = (set(exclusive_external_source) - forbidden_full_flora_names) & set(states)
+    if accepted & forbidden_full_flora_names:
+        raise AssertionError("Forbidden accepted plant in external congener model")
+    extra = defaultdict(list)
+    for name in accepted:
+        g = genus(name)
+        if g not in constrained_profiles:
+            extra[g].append(name)
+    out = dict(constrained_profiles)
+    for g, names in extra.items():
+        names = sorted(names, key=lambda sp: hashlib.sha256(
+            ("fd:20261119:expanded-external:" + sp).encode()).hexdigest())
+        counts = np.zeros(len(blind), dtype=float)
+        for name in names[:max_donors]:
+            counts[indices[states[name]]] += 1.0
+        n = min(len(names), max_donors)
+        p = (counts + alpha * blind) / (n + alpha)
+        if not np.isclose(p.sum(), 1):
+            raise AssertionError("Expanded source genus conditional not normalized")
+        out[g] = p
+    return out, len(extra)
+
+
 def filtered_genus_matrix(
     donor_islands: list[str],
     island_species: dict[str, set[str]],
@@ -269,22 +326,49 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     if ((local | external) - forbidden) & forbidden:
                         raise AssertionError("External Direct species leaked")
                     genus_profiles = source_model["external_conditional_genus_profiles"]
+                    expanded_profiles, n_extra_genera = extend_external_only_congener_profiles(
+                        genus_profiles, external, forbidden, original[ep], indices,
+                        source_model["external_genus_blind_prior"])
+                    if n_extra_genera:
+                        support[ep]["external_only_genus_sources_available_groups"] += 1
                     for focal in focals:
                         direct = sorted(membership.get(ids[focal], set()) & set(original[ep]))
                         if len(direct) < MIN_DIRECT:
                             support[ep]["fewer_than_five_Direct_carriers"] += 1
                             continue
                         preds = _distance_predictions(focal, donor_ids, Q, geo)
-                        scores = score_focal_flora(
-                            observed_codes=[indices[original[ep][name]] for name in direct],
-                            weights_by_model={
-                                m: weights_for_flower(preds[m], vocab_names) for m in REQUIRED_MODELS},
-                            external_genus_profiles=genus_profiles,
+                        observed_codes = [indices[original[ep][name]] for name in direct]
+                        weights = {m: weights_for_flower(preds[m], vocab_names)
+                                   for m in REQUIRED_MODELS}
+                        score_args = dict(
+                            observed_codes=observed_codes,
+                            weights_by_model=weights,
                             external_blind=source_model["external_genus_blind_prior"],
                             regional_blind=source_model["regional_local_genus_blind_prior"],
                             observed_focal_genera_for_ORACLE_only=[genus(name) for name in direct],
                             min_direct=MIN_DIRECT,
                         )
+                        scores = score_focal_flora(
+                            external_genus_profiles=genus_profiles, **score_args)
+                        expanded_scores = score_focal_flora(
+                            external_genus_profiles=expanded_profiles, **score_args)
+                        for model in REQUIRED_MODELS:
+                            for loss in ("Brier", "logloss"):
+                                scores[f"expanded_{model}_gain_vs_constrained_{loss}"] = (
+                                    scores[f"{model}_{loss}"] - expanded_scores[f"{model}_{loss}"])
+                                for baseline in ("regional_blind", "external_blind",
+                                                 "regional_genus_prior"):
+                                    if model == baseline:
+                                        continue
+                                    scores[f"expanded_{model}_gain_vs_{baseline}_{loss}"] = (
+                                        expanded_scores[f"{model}_gain_vs_{baseline}_{loss}"])
+                        scores["n_additional_external_only_genus_source_profiles"] = n_extra_genera
+                        added_genera = set(expanded_profiles) - set(genus_profiles)
+                        scores["predicted_extra_external_genus_weight_mass"] = float(
+                            sum(weights["environment_source_nearest"].get(g, 0.)
+                                for g in added_genera))
+                        scores["observed_Direct_carrier_extra_external_genus_fraction"] = float(
+                            sum(genus(name) in added_genera for name in direct) / len(direct))
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
@@ -323,10 +407,17 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     rec["mean_target_Direct_carriers"] = float(scored.n_original_direct_plant_carriers.mean())
                     rec["unknown_genus_target_fraction_mean"] = float(
                         scored.true_focal_genus_species_fraction_outside_source_support.mean())
+                    rec["mean_added_external_only_genus_profiles"] = float(
+                        scored.n_additional_external_only_genus_source_profiles.mean())
+                    rec["mean_predicted_extra_external_genus_weight_mass"] = float(
+                        scored.predicted_extra_external_genus_weight_mass.mean())
+                    rec["mean_actual_Direct_carriers_in_extra_external_genera"] = float(
+                        scored.observed_Direct_carrier_extra_external_genus_fraction.mean())
                     for k, grp in (("physical_block", "spatial_block"),
                                    ("first_source_group", "first_source")):
                         rec[k] = paired_cluster_summary(
-                            scored, group=grp, columns=SUMMARY_GAIN_COLUMNS,
+                            scored, group=grp,
+                            columns=SUMMARY_GAIN_COLUMNS + EXPANDED_GAIN_COLUMNS,
                             nboot=nboot, seed=int.from_bytes(hashlib.sha256(
                                 (scope+reg+ep+grp).encode()).digest()[:8], "big"))
                     rec["support_both_independent_source_groups"] = bool(
@@ -340,13 +431,25 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         dual_loss_dual_group_positive(
                             rec["physical_block"], rec["first_source_group"],
                             "environment_source_nearest", "external_blind"))
+                    rec["expanded_positive_vs_local_blind_both_scores_and_groups"] = bool(
+                        dual_loss_dual_group_positive(
+                            rec["physical_block"], rec["first_source_group"],
+                            "expanded_environment_source_nearest", "regional_blind"))
+                    rec["expanded_positive_over_constrained_both_scores_and_groups"] = bool(
+                        dual_loss_dual_group_positive(
+                            rec["physical_block"], rec["first_source_group"],
+                            "expanded_environment_source_nearest", "constrained"))
                 else:
                     rec["support_both_independent_source_groups"] = False
                     rec["positive_vs_local_blind_both_scores_and_groups"] = False
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
+                    rec["expanded_positive_vs_local_blind_both_scores_and_groups"] = False
+                    rec["expanded_positive_over_constrained_both_scores_and_groups"] = False
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_NAME_DISJOINT_GEO_GENUS_FLORAL_PILOT",
+        "status": "ORIGINAL_GIFT_STAGE2_ALL_EXTERNAL_ONLY_CONGENER_ADDITION_SENSITIVITY",
+        "existing_congener_direct_profiles_preserved_exactly": True,
+        "external_only_genus_profiles_added_without_target_genus_input": True,
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),

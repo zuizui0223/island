@@ -78,3 +78,46 @@ def test_guard_prevents_claim_on_changed_4505_full_parent():
         dict(island_id="a", accepted_species="Alpha sp", origin_status="native")])
     with pytest.raises(ValueError, match="4505"):
         run_analysis(small, pd.DataFrame(), pd.DataFrame(), {})
+
+
+
+def test_expanded_external_only_congener_preserves_all_old_genus_profiles():
+    from fd_original_stage2_name_disjoint_flower_forecast import (
+        extend_external_only_congener_profiles,
+    )
+    baseline = {"Alpha": np.array([.8, .2])}
+    names = {"Beta ext1", "Beta ext2", "Alpha ext3", "Gamma excluded"}
+    states = {"Beta ext1": "open", "Beta ext2": "deep",
+              "Alpha ext3": "deep", "Gamma excluded": "open"}
+    prof, added = extend_external_only_congener_profiles(
+        baseline, names, {"Gamma excluded"}, states,
+        {"open": 0, "deep": 1}, np.array([.5, .5]),
+        alpha=5, max_donors=20)
+    assert added == 1
+    assert "Gamma" not in prof and "Beta" in prof
+    np.testing.assert_array_equal(prof["Alpha"], baseline["Alpha"])
+    # One OPEN and one DEEP Beta source name: exactly the external blind prior.
+    np.testing.assert_allclose(prof["Beta"], [.5, .5])
+    assert sum(prof["Beta"]) == pytest.approx(1)
+    assert len(baseline) == 1  # no mutation
+
+
+def test_external_congener_expansion_creates_direct_skill_without_target_genus_oracle():
+    from fd_original_stage2_name_disjoint_flower_forecast import (
+        extend_external_only_congener_profiles,
+    )
+    from fd.two_stage_floral_forecast import score_focal_flora, REQUIRED_MODELS
+    prior = np.array([.5, .5])
+    states = {"Beta ext1": "open", "Beta ext2": "open"}
+    expanded, n = extend_external_only_congener_profiles(
+        {}, set(states), {"Beta forbidden"}, states,
+        {"open": 0, "deep": 1}, prior, alpha=5)
+    assert n == 1 and expanded["Beta"][0] > .5
+    weights = {name: {"Beta": .8, UNKNOWN_GENUS: .2}
+               for name in REQUIRED_MODELS}
+    common = dict(observed_codes=[0]*5, weights_by_model=weights,
+                  external_blind=prior, regional_blind=prior)
+    base = score_focal_flora(external_genus_profiles={}, **common)
+    new = score_focal_flora(external_genus_profiles=expanded, **common)
+    assert new["environment_source_nearest_Brier"] < base["environment_source_nearest_Brier"]
+    assert new["environment_source_nearest_logloss"] < base["environment_source_nearest_logloss"]
