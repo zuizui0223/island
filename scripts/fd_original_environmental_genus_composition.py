@@ -60,8 +60,20 @@ FEATURES=("climate_pc1","climate_pc2","climate_pc3","climate_pc4",
           "area_km2","distance_to_continent_km")
 MODELS=("geo_nearest","climate_nearest","environment_nearest",
         "environment_source_nearest")
+PAIRED_COMPARISONS=(
+    ("source_similarity_increment_over_environment",
+     "environment_nearest","environment_source_nearest"),
+    ("area_isolation_increment_over_climate",
+     "climate_nearest","environment_nearest"),
+    ("environment_increment_over_geographic_nearness",
+     "geo_nearest","environment_nearest"),
+    ("environment_source_increment_over_geographic_nearness",
+     "geo_nearest","environment_source_nearest"),
+)
 OUTPUT_COLS=tuple(f"{m}_minus_region_equal_Brier" for m in MODELS)+tuple(
-    f"{m}_minus_region_equal_logloss" for m in MODELS)
+    f"{m}_minus_region_equal_logloss" for m in MODELS)+tuple(
+    label+"_"+loss for label,_,_ in PAIRED_COMPARISONS
+    for loss in ("Brier","logloss"))
 GROUPS=("spatial_block","first_source")
 
 
@@ -285,11 +297,23 @@ def analyze(floras:pd.DataFrame,geo:pd.DataFrame,assign:pd.DataFrame,
                     n_original_botanical_flora_genera=int(ngenus[focal]),
                     original_genus_not_seen_by_ANY_source_target_species_fraction=float(
                         truth.toarray().ravel()[~known].sum()))
+                model_losses={}
                 for model,dist in models.items():
                     p=_nearest_probabilities(Q,donor,dist,uniform,k=K)
                     compared=_proper_genus_score(p,truth,known)
+                    model_losses[model]=compared
                     rec[model+"_minus_region_equal_Brier"]=base[0]-compared[0]
                     rec[model+"_minus_region_equal_logloss"]=base[1]-compared[1]
+                # Paired score DIFFERENCES on exactly the SAME focal island,
+                # accepted plants and source donor island choices. All
+                # model columns are bootstrapped together within each source
+                # physical block / first source group; don't subtract
+                # separately estimated confidence interval endpoints.
+                for label,reference,alternative in PAIRED_COMPARISONS:
+                    ref=model_losses[reference]
+                    improved=model_losses[alternative]
+                    rec[label+"_Brier"]=ref[0]-improved[0]
+                    rec[label+"_logloss"]=ref[1]-improved[1]
                 scored.append(rec)
             frame=pd.DataFrame(scored)
             row=dict(scope=scope,region=reg,
