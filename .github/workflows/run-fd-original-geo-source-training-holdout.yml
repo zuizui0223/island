@@ -7,6 +7,8 @@ on:
       - .github/workflows/run-fd-original-geo-source-training-holdout.yml
       - scripts/fd_global_geo_source_training_holdout.py
       - tests/test_fd_global_geo_source_training_holdout.py
+      - scripts/fd_strict_external_genus_blind_dual_score_audit.py
+      - tests/test_fd_strict_external_genus_blind_dual_score_audit.py
 permissions:
   contents: read
   actions: read
@@ -29,8 +31,8 @@ jobs:
       - name: Validate SAME original accepted species paired baseline and stricter source training exclusion
         run: |
           set -euo pipefail
-          PYTHONPATH=scripts python -m pytest -q tests/test_fd_global_geo_source_training_holdout.py tests/test_fd_interregional_genus_name_exclusive_transfer.py
-          python -m compileall -q scripts/fd_global_geo_source_training_holdout.py
+          PYTHONPATH=scripts python -m pytest -q tests/test_fd_global_geo_source_training_holdout.py tests/test_fd_interregional_genus_name_exclusive_transfer.py tests/test_fd_strict_external_genus_blind_dual_score_audit.py
+          python -m compileall -q scripts/fd_global_geo_source_training_holdout.py scripts/fd_strict_external_genus_blind_dual_score_audit.py
           git rev-parse HEAD
       - uses: actions/checkout@v4
         with:
@@ -85,11 +87,36 @@ jobs:
               assert '"'+field+'"' not in raw
           print("Original 4505 full botanical parent and all 13 category traits with fully excluded training groups PASS")
           PY
+      - name: Confirm external same-genus over blind prediction skill on both proper scores and BOTH original spatial/source clusters
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python scripts/fd_strict_external_genus_blind_dual_score_audit.py             --source "$STAGE/anonymous_original_4505_geo_source_training_exclusion.json"             --output "$STAGE/anonymous_original_4505_geo_source_strict_genus_over_blind_dual_score.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_original_4505_geo_source_strict_genus_over_blind_dual_score.json").read_text()
+          q=json.loads(raw)
+          assert q["status"]=="ORIGINAL_GIFT_4505_STRICT_TRAINING_EXCLUDED_CROSS_REGION_GENUS_OVER_BLIND_DOUBLE_PROPER_SCORE"
+          prov=q["original_global_botanical_source"]
+          assert prov["original_full_parent_island_floras"]==4505
+          assert prov["original_direct_endpoints"]==13
+          assert prov["original_region_status_trait_mode_eligibility_panels"]==312
+          assert prov["n_original_source_qualified_region_status_modes"]==178
+          assert len(q["source_geo_region_status_mode_dual_proper_score_counts"])==24
+          assert q["scientific_claim_ceiling"]["proper_Brier_and_logloss_both_required_positive_in_both_original_groupings"]
+          assert q["scientific_claim_ceiling"]["actual_train_source_plant_states_from_other_GIFT_island_floras_NOT_mainland_ancestors"]
+          for field in ("accepted_species","island_id","entity_ID","spatial_block",
+              "source_cluster","latitude","longitude","source_genus"):
+              assert '"'+field+'"' not in raw
+          print("Original source true cross-region genus/blind dual Brier/logloss on both heldout block and source groups PASS")
+          PY
       - name: Archive ONLY original anonymized across-region donor model output and absence-of-support controls
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: fd-original-4505-block-source-training-holdout-${{ github.run_id }}
-          path: /tmp/fd-global-original-training-blocked/anonymous_original_4505_geo_source_training_exclusion.json
+          path: |
+            /tmp/fd-global-original-training-blocked/anonymous_original_4505_geo_source_training_exclusion.json
+            /tmp/fd-global-original-training-blocked/anonymous_original_4505_geo_source_strict_genus_over_blind_dual_score.json
           if-no-files-found: error
           retention-days: 90
