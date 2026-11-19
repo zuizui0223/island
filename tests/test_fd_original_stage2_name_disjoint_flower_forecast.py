@@ -78,3 +78,44 @@ def test_guard_prevents_claim_on_changed_4505_full_parent():
         dict(island_id="a", accepted_species="Alpha sp", origin_status="native")])
     with pytest.raises(ValueError, match="4505"):
         run_analysis(small, pd.DataFrame(), pd.DataFrame(), {})
+
+
+
+def test_exact_direct_baseline_comparison_cancels_any_genus_model():
+    from fd.two_stage_floral_forecast import score_focal_flora, REQUIRED_MODELS
+    weight = {"Alpha": .6, "Beta": .2, UNKNOWN_GENUS: .2}
+    probs = {m: weight for m in REQUIRED_MODELS}
+    scores = score_focal_flora(
+        observed_codes=[0, 1, 0, 0, 0],
+        weights_by_model=probs,
+        external_genus_profiles={"Alpha": [.8, .2], "Beta": [.5, .5]},
+        external_blind=[.4, .6], regional_blind=[.7, .3])
+    for loss in ("Brier", "logloss"):
+        paired = scores[f"regional_blind_{loss}"] - scores[f"external_blind_{loss}"]
+        for model in REQUIRED_MODELS:
+            inferred = (scores[f"{model}_gain_vs_regional_blind_{loss}"] -
+                        scores[f"{model}_gain_vs_external_blind_{loss}"])
+            assert inferred == pytest.approx(paired, abs=1e-12)
+
+
+def test_direct_blind_reference_sign_is_group_scored_not_marginal_CI_subtracted():
+    from fd.two_stage_floral_forecast import (
+        paired_cluster_summary, dual_loss_dual_group_positive)
+    block = ["block"+str(i//3) for i in range(60)]
+    source = ["source"+str(i//2) for i in range(60)]
+    df = pd.DataFrame({
+        "block": block, "source": source,
+        "external_blind_gain_vs_local_blind_Brier": [0.025]*60,
+        "external_blind_gain_vs_local_blind_logloss": [0.10]*60,
+        "local_blind_gain_vs_external_blind_Brier": [-0.025]*60,
+        "local_blind_gain_vs_external_blind_logloss": [-0.10]*60,
+    })
+    cols = [x for x in df if x not in ("block", "source")]
+    a = paired_cluster_summary(df, group="block", columns=cols, nboot=99)
+    b = paired_cluster_summary(df, group="source", columns=cols, nboot=99)
+    assert dual_loss_dual_group_positive(a,b,"external_blind","local_blind")
+    assert not dual_loss_dual_group_positive(a,b,"local_blind","external_blind")
+    df.loc[0:29, "external_blind_gain_vs_local_blind_Brier"] = -0.025
+    df.loc[0:29, "local_blind_gain_vs_external_blind_Brier"] = +0.025
+    a2 = paired_cluster_summary(df, group="block", columns=cols, nboot=99)
+    assert not dual_loss_dual_group_positive(a2,b,"external_blind","local_blind")
