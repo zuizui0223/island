@@ -401,10 +401,13 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     rec["mean_target_Direct_carriers"] = float(scored.n_original_direct_plant_carriers.mean())
                     rec["unknown_genus_target_fraction_mean"] = float(
                         scored.true_focal_genus_species_fraction_outside_source_support.mean())
+                    rec["mean_added_external_only_genus_profiles"] = float(
+                        scored.n_additional_external_only_genus_source_profiles.mean())
                     for k, grp in (("physical_block", "spatial_block"),
                                    ("first_source_group", "first_source")):
                         rec[k] = paired_cluster_summary(
-                            scored, group=grp, columns=SUMMARY_GAIN_COLUMNS,
+                            scored, group=grp,
+                            columns=SUMMARY_GAIN_COLUMNS + EXPANDED_GAIN_COLUMNS,
                             nboot=nboot, seed=int.from_bytes(hashlib.sha256(
                                 (scope+reg+ep+grp).encode()).digest()[:8], "big"))
                     rec["support_both_independent_source_groups"] = bool(
@@ -418,13 +421,25 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         dual_loss_dual_group_positive(
                             rec["physical_block"], rec["first_source_group"],
                             "environment_source_nearest", "external_blind"))
+                    rec["expanded_positive_vs_local_blind_both_scores_and_groups"] = bool(
+                        dual_loss_dual_group_positive(
+                            rec["physical_block"], rec["first_source_group"],
+                            "expanded_environment_source_nearest", "regional_blind"))
+                    rec["expanded_positive_over_constrained_both_scores_and_groups"] = bool(
+                        dual_loss_dual_group_positive(
+                            rec["physical_block"], rec["first_source_group"],
+                            "expanded_environment_source_nearest", "constrained"))
                 else:
                     rec["support_both_independent_source_groups"] = False
                     rec["positive_vs_local_blind_both_scores_and_groups"] = False
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
+                    rec["expanded_positive_vs_local_blind_both_scores_and_groups"] = False
+                    rec["expanded_positive_over_constrained_both_scores_and_groups"] = False
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_NAME_DISJOINT_GEO_GENUS_FLORAL_PILOT",
+        "status": "ORIGINAL_GIFT_STAGE2_ALL_EXTERNAL_ONLY_CONGENER_ADDITION_SENSITIVITY",
+        "existing_congener_direct_profiles_preserved_exactly": True,
+        "external_only_genus_profiles_added_without_target_genus_input": True,
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),
