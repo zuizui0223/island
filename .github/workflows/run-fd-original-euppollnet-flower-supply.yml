@@ -37,6 +37,7 @@ jobs:
           set -euo pipefail
           PYTHONPATH="src:work/fd/src:scripts" python -m pytest -q \
             work/fd/tests/test_euppollnet_flower_availability.py \
+            work/fd/tests/test_euppollnet_species_identity_gate.py \
             work/fd/tests/test_euppollnet_gift_exact_site_bridge.py \
             work/fd/tests/test_fullframe_wol_network_bridge.py
           python -m compileall -q \
@@ -83,6 +84,11 @@ jobs:
           assert q["n_replayed_GIFT_island_plant_positive_islands"]==13
           assert q["source_actual_original_flower_availability_on_GIFT_positive_visits"]["parent_original_GIFT_botanical_floras"]==4505
           assert q["source_positive_is_not_effective_pollination_or_true_animal_preference"]
+          x=q["source_original_flower_count_same_species_correction"]
+          assert x["original_GIFT_parent_botanical_floras"]==4505
+          assert x["exact_source_plant_identity_waterfall"]["n_original_same_island_positive_visitor_rows"]==36384
+          assert x["exact_source_plant_identity_waterfall"]["n_positive_rows_with_source_nonzero_flower_count_and_unit"]==11041
+          assert x["no_visitor_preference_effect_or_pollen_fitness_coefficient"]
           assert not any('"'+k+'"' in data for k in (
             "accepted_species","island_id","Study_id","Network_id",
             "site_id","latitude","longitude","reference_id","Flower_data_merger"))
