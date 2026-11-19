@@ -28,7 +28,7 @@ jobs:
           ref: analysis/full4505-local-visitor-guild-20261118
           path: work/fd
           persist-credentials: false
-      - name: Confirm name-holdout source uniqueness and non-comparable model endpoint guards
+      - name: Confirm corrected 4505 source holdout identity, novel donor count and distinct endpoint guards
         run: |
           set -euo pipefail
           python -m pip install -q pytest
