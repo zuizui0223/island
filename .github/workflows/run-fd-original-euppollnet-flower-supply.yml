@@ -39,13 +39,15 @@ jobs:
             work/fd/tests/test_euppollnet_flower_availability.py \
             work/fd/tests/test_euppollnet_species_identity_gate.py \
             work/fd/tests/test_euppollnet_choice_set_audit.py \
+            work/fd/tests/test_euppollnet_study_protocol_audit.py \
             work/fd/tests/test_euppollnet_gift_exact_site_bridge.py \
             work/fd/tests/test_fullframe_wol_network_bridge.py
           python -m compileall -q \
             scripts/run_fd_original_euppollnet_flower_supply_on_gift.py \
             work/fd/src/fd/euppollnet_flower_availability.py \
             work/fd/src/fd/euppollnet_species_identity_gate.py \
-            work/fd/src/fd/euppollnet_choice_set_audit.py
+            work/fd/src/fd/euppollnet_choice_set_audit.py \
+            work/fd/src/fd/euppollnet_study_protocol_audit.py
           git -C work/fd rev-parse HEAD
       - name: Restore original SHA-locked GIFT 4505 accepted species flower evidence
         run: |
@@ -94,6 +96,10 @@ jobs:
           assert x["no_visitor_preference_effect_or_pollen_fitness_coefficient"]
           choice=q["source_original_complete_flower_census_choice_set_preflight"]
           assert choice["original_global_flora_parent"]==4505
+          original_method=q["source_original_study_year_protocol_method_evidence"]
+          assert original_method["n_original_parent_island_floras"]==4505
+          assert original_method["n_original_distinct_source_study_ids"]==4
+          assert original_method["original_study_method_is_not_complete_guild_nondetection_protocol"]
           assert choice["limits"]["surveyed_flower_without_recorded_animal_link_not_biological_nondetection"] if choice["status"]=="GIFT_4505_EUPPOLLNET_FULL_SITE_DAY_FLOWER_CENSUS_CHOICESET_PREFLIGHT" else choice["absent_source_choice_set_is_NOT_no_animals"]
           assert not any('"'+k+'"' in data for k in (
             "accepted_species","island_id","Study_id","Network_id",
