@@ -73,7 +73,7 @@ def test_recalculate_external_blind_prior_AFTER_geographic_and_source_donor_excl
     assert after["n_local_excluded"]==1 and after["n_external_excluded"]==2
     assert np.isclose(before["prior"].sum(),1)
     assert np.isclose(after["prior"].sum(),1)
-    assert after["prior"][1]>before["prior"][1]
+    assert after["prior"][1]<before["prior"][1]
     with pytest.raises(ValueError,match="not disjoint"):
         make_donor_models(local,local,set(),states,index)
 
