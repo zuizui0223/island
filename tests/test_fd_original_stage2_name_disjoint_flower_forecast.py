@@ -55,7 +55,7 @@ def test_genus_mixture_preserves_exact_unknown_bin_and_only_donor_genus():
 
 
 def test_geo_models_same_exact_source_rows_and_direct_categories():
-    Q = csr_matrix([[.9,.1], [.1,.9], [.8,.2], [.2,.8]])
+    Q = csr_matrix([[.9,.1], [.5,.5], [.8,.2], [.2,.8]])
     geo = {
         "features": np.array([[.0]*6, [.1]*6, [2.]*6, [2.1]*6, [.05]*6]),
         "xyz": np.array([[1,0,0],[.99,.1,0],[0,1,0],[.1,.99,0],[.999,.02,0]]),
@@ -67,8 +67,8 @@ def test_geo_models_same_exact_source_rows_and_direct_categories():
     for name, p in m.items():
         assert np.isclose(p.sum(),1) and np.isfinite(p).all()
     # The same numeric original-source prior is shared by the four models.
-    np.testing.assert_allclose(m["regional_genus_prior"], [.5,.5])
-    assert m["environment_source_nearest"][0] > .5
+    np.testing.assert_allclose(m["regional_genus_prior"], [.6,.4])
+    assert m["environment_source_nearest"][0] > .6
     scores = proper_losses([.6,.4], [0]*5)
     assert scores[0] >= 0 and scores[1] >= 0
 
