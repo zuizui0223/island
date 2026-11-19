@@ -2,9 +2,9 @@ name: fd_original_GIFT4505_external_only_congener_sensitivity
 on:
   workflow_dispatch:
   pull_request:
-    branches: [analysis/fd-stage2-external-congener-20261119]
-  push:
     branches: [analysis/fd-stage2-floral-forecast-20261119]
+  push:
+    branches: [analysis/fd-stage2-external-congener-20261119]
     paths:
       - ".github/workflows/fd-original-gift-stage2-external-congener.yml"
       - "scripts/fd_original_stage2_name_disjoint_flower_forecast.py"
