@@ -10,7 +10,7 @@ from fd_original_stage2_name_disjoint_flower_forecast import (
     product_of_own_marginals, joint_dependency_both_losses_groups,
     run_analysis,
 )
-from fd.two_stage_floral_forecast import proper_losses
+from fd.two_stage_floral_forecast import proper_losses, UNKNOWN_GENUS
 
 
 def source():
@@ -93,3 +93,59 @@ def test_original_full_4505_parent_not_skippable_by_joint_endpoint():
                         "origin_status":"native"}])
     with pytest.raises(ValueError,match="4505"):
         run_analysis(flora,pd.DataFrame(),pd.DataFrame(),source(),nboot=51)
+
+
+
+def test_genus_conditional_independence_removes_only_within_genus_pair_dependence():
+    from fd_original_stage2_name_disjoint_flower_forecast import (
+        genus_conditional_independence_prediction,
+        product_of_own_marginals,
+    )
+    idx={("A0","B0"):0,("A0","B1"):1,
+         ("A1","B0"):2,("A1","B1"):3}
+    # Two genera have deterministic, *different* joint states. There is no
+    # within-genus association to detect, but pooling creates association!
+    weights={"Genus0": .49, "Genus1": .49, UNKNOWN_GENUS:.02}
+    profiles={"Genus0":np.array([1.,0.,0.,0.]),
+              "Genus1":np.array([0.,0.,0.,1.])}
+    blind=np.array([.25]*4)
+    expected_joint=weights["Genus0"]*profiles["Genus0"]+weights["Genus1"]*profiles["Genus1"]+.02*blind
+    stronger=genus_conditional_independence_prediction(weights,profiles,blind,idx)
+    np.testing.assert_allclose(expected_joint,stronger)
+    pooled_product=product_of_own_marginals(expected_joint,idx)
+    assert not np.allclose(pooled_product,stronger)
+    # A source "joint" win vs global P(A)P(B) here cannot be claimed as
+    # extra within-genus architecture×selfing coupling.
+    assert proper_losses(stronger,[0,3]*10) == pytest.approx(
+        proper_losses(expected_joint,[0,3]*10))
+
+
+def test_true_within_genus_coupling_can_add_heldout_joint_skill():
+    from fd_original_stage2_name_disjoint_flower_forecast import (
+        genus_conditional_independence_prediction,
+    )
+    idx={("A0","B0"):0,("A0","B1"):1,
+         ("A1","B0"):2,("A1","B1"):3}
+    prof=np.array([.45,.05,.05,.45])
+    blind=np.array([.25]*4)
+    weights={"DonorGenus":.8, UNKNOWN_GENUS:.2}
+    true_pred=.8*prof+.2*blind
+    null=genus_conditional_independence_prediction(
+        weights,{"DonorGenus":prof},blind,idx)
+    np.testing.assert_allclose(null,blind)
+    obs=[0,3]*10
+    btrue,ltrue=proper_losses(true_pred,obs)
+    bnull,lnull=proper_losses(null,obs)
+    assert btrue<bnull and ltrue<lnull
+
+
+def test_genus_independence_requires_full_original_joint_category_ontology():
+    from fd_original_stage2_name_disjoint_flower_forecast import (
+        genus_conditional_independence_prediction,
+    )
+    with pytest.raises(ValueError,match="cartesian"):
+        genus_conditional_independence_prediction(
+            {"DonorGenus":1.0},
+            {"DonorGenus":np.array([.5,.5])},
+            np.array([.5,.5]),
+            {("A0","B0"):0,("A1","B1"):1})
