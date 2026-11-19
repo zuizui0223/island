@@ -2,7 +2,7 @@ name: fd_original_GIFT4505_all13_paired_blind_reference
 on:
   workflow_dispatch:
   pull_request:
-    branches: [analysis/fd-stage2-floral-forecast-20261119]
+    branches: [analysis/fd-stage2-direct-blind-baseline-20261119]
   push:
     branches: [analysis/fd-stage2-all13-paired-blind-20261119]
     paths:
