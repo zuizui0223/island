@@ -72,6 +72,63 @@ SUMMARY_GAIN_COLUMNS = tuple(
 )
 
 
+EXPANDED_GAIN_COLUMNS = tuple(
+    f"expanded_{m}_gain_vs_{base}_{loss}"
+    for m in REQUIRED_MODELS
+    for base in ("regional_blind", "external_blind", "regional_genus_prior",
+                 "constrained")
+    if m != base
+    for loss in ("Brier", "logloss")
+)
+
+
+def extend_external_only_congener_profiles(
+    constrained_profiles: dict[str, np.ndarray],
+    exclusive_external_source: set[str],
+    forbidden_full_flora_names: set[str],
+    states: dict[str, str],
+    indices: dict[str, int],
+    blind: np.ndarray,
+    *, alpha: float = 5.0, max_donors: int = 20,
+) -> tuple[dict[str, np.ndarray], int]:
+    """Add external trait genera NOT represented by local Direct donor genera.
+
+    Keep every existing local-congener-supported genus profile exactly
+    unchanged, including its original equal-local/external-name sample cap.
+    Hence the paired sensitivity isolates the EFFECT OF THE PREVIOUS
+    LOCAL-GENUS-SUPPORT GATE rather than changing the learned profiles of
+    genera already permitted. Candidate species names are original
+    source-private; return only anonymous counts/profile probabilities.
+    """
+    if alpha <= 0 or max_donors < 1:
+        raise ValueError("External genus shrinkage settings invalid")
+    if (not np.isclose(np.sum(blind), 1)
+            or any(not np.isclose(np.sum(p), 1)
+                   for p in constrained_profiles.values())):
+        raise ValueError("External genus blind/profile simplex invalid")
+    accepted = (set(exclusive_external_source) - forbidden_full_flora_names) & set(states)
+    if accepted & forbidden_full_flora_names:
+        raise AssertionError("Forbidden accepted plant in external congener model")
+    extra = defaultdict(list)
+    for name in accepted:
+        g = genus(name)
+        if g not in constrained_profiles:
+            extra[g].append(name)
+    out = dict(constrained_profiles)
+    for g, names in extra.items():
+        names = sorted(names, key=lambda sp: hashlib.sha256(
+            ("fd:20261119:expanded-external:" + sp).encode()).hexdigest())
+        counts = np.zeros(len(blind), dtype=float)
+        for name in names[:max_donors]:
+            counts[indices[states[name]]] += 1.0
+        n = min(len(names), max_donors)
+        p = (counts + alpha * blind) / (n + alpha)
+        if not np.isclose(p.sum(), 1):
+            raise AssertionError("Expanded source genus conditional not normalized")
+        out[g] = p
+    return out, len(extra)
+
+
 def filtered_genus_matrix(
     donor_islands: list[str],
     island_species: dict[str, set[str]],
