@@ -308,16 +308,20 @@ def analyze(floras:pd.DataFrame,geo:pd.DataFrame,assign:pd.DataFrame,
                     frame.n_original_botanical_flora_species.mean())
                 row["original_mean_target_genera"]=float(
                     frame.n_original_botanical_flora_genera.mean())
-                for key in GROUPS:
-                    row[key]=_group_summary(frame,key,
+                public_groups={
+                    "spatial_block":"physical_10degree_block",
+                    "first_source":"first_candidate_source_entity_group",
+                }
+                for key,outkey in public_groups.items():
+                    row[outkey]=_group_summary(frame,key,
                         seed=int.from_bytes(hashlib.sha256(
                             (scope+reg+key).encode()).digest()[:8],"big"),
                         nboot=nboot)
                 row["status"]=(
                     "ORIGINAL_GIFT_GENUS_OCCUPANCY_COMPOSITION_ENVIRONMENTAL_TEST_BOTH_SOURCE_GROUPS"
-                    if all(row[k]["status"]==
+                    if all(row[outkey]["status"]==
                     "ORIGINAL_GIFT_TAXONOMIC_GENUS_SOURCE_COMPOSITION_GROUP_PREDICTION"
-                    for k in GROUPS) else
+                    for outkey in public_groups.values()) else
                     "NOT_IDENTIFIABLE_INDEPENDENT_SOURCE_GEOGRAPHIC_GROUPING")
             else:
                 row["status"]="NOT_IDENTIFIABLE_NO_SOURCE_DONOR_MATCH"
@@ -395,7 +399,7 @@ def main():
             "n_original_floras_scored_for_genus_community_environmental_prediction",
             "n_original_focal_islands_no_complete_geographic_or_full_genus_record",
             "original_source_unknown_genus_species_fraction_mean",
-            "physical_10degree_block","first_source")
+            "physical_10degree_block","first_candidate_source_entity_group")
         },sort_keys=True))
     print("ANONYMOUS_GIFT4505_ENV_GENUS_SUMMARY="+json.dumps(dict(
        status=result["status"],parent_original_GIFT_floras=4505,
