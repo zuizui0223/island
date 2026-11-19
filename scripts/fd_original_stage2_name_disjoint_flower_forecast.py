@@ -81,6 +81,9 @@ DEPENDENCE_COLUMNS = tuple(
     f"{baseline}_joint_gain_vs_own_independence_{loss}"
     for baseline in ("predicted", "regional_blind")
     for loss in ("Brier", "logloss")
+) + tuple(
+    f"predicted_joint_gain_vs_genus_conditional_independence_{loss}"
+    for loss in ("Brier", "logloss")
 )
 
 
@@ -138,6 +141,43 @@ def product_of_own_marginals(joint_prob: np.ndarray, indices: dict) -> np.ndarra
                     in sorted(indices.items(), key=lambda item: item[1])])
     if not np.isclose(out.sum(), 1):
         raise AssertionError("Factorized source joint category prior not normalized")
+    return out
+
+
+def genus_conditional_independence_prediction(
+        genus_weights: dict[str, float],
+        external_genus_joint_profiles: dict[str, np.ndarray],
+        external_blind: np.ndarray,
+        indices: dict) -> np.ndarray:
+    """Σ P(g|source) P(A|g)P(B|g), rather than P(A)P(B) of pooled mix.
+
+    The former retains assembly-induced cross-genus trait covariance.
+    Removing this is the stronger null for joint flower/assurance signal
+    beyond **taxonomic assembly**. No observed target botanical genera enter.
+    All unsupported/unknown genera instead receive the SAME external blind
+    factorized conditional prior. No target plant traits enter source fitting.
+    """
+    ref=np.asarray(external_blind,float)
+    if (not np.isclose(ref.sum(),1)
+            or not np.isfinite(ref).all()
+            or np.any(ref<0)
+            or len(indices)!=len(ref)):
+        raise ValueError("Invalid external joint reference simplex")
+    if (not genus_weights
+            or not np.isclose(sum(genus_weights.values()),1)
+            or any((v<0 or not np.isfinite(v)) for v in genus_weights.values())):
+        raise ValueError("Invalid genus forecasting weights")
+    out=np.zeros_like(ref)
+    fallback_weight=0.0
+    for g,w in genus_weights.items():
+        if g == UNKNOWN_GENUS or g not in external_genus_joint_profiles:
+            fallback_weight+=float(w)
+            continue
+        p=external_genus_joint_profiles[g]
+        out+=float(w)*product_of_own_marginals(p,indices)
+    out+=fallback_weight*product_of_own_marginals(ref,indices)
+    if not np.isfinite(out).all() or not np.isclose(out.sum(),1):
+        raise AssertionError("Genus-conditional independence joint forecast invalid")
     return out
 
 
@@ -390,14 +430,20 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         p_joint = predict_flower_distribution(
                             genus_weights, genus_profiles, blind_external)
                         p_ind = product_of_own_marginals(p_joint, indices)
+                        p_genus_conditional_ind = genus_conditional_independence_prediction(
+                            genus_weights, genus_profiles, blind_external, indices)
                         p_blind_ind = product_of_own_marginals(blind_local, indices)
                         loss_joint = proper_losses(p_joint, real_codes)
                         loss_ind = proper_losses(p_ind, real_codes)
+                        loss_genus_cond_ind = proper_losses(
+                            p_genus_conditional_ind, real_codes)
                         loss_blind_ind = proper_losses(p_blind_ind, real_codes)
                         loss_blind_joint = proper_losses(blind_local, real_codes)
                         for j, loss in enumerate(("Brier", "logloss")):
                             scores[f"predicted_joint_gain_vs_own_independence_{loss}"] = (
                                 loss_ind[j]-loss_joint[j])
+                            scores[f"predicted_joint_gain_vs_genus_conditional_independence_{loss}"] = (
+                                loss_genus_cond_ind[j]-loss_joint[j])
                             scores[f"regional_blind_joint_gain_vs_own_independence_{loss}"] = (
                                 loss_blind_ind[j]-loss_blind_joint[j])
                             if not np.isclose(
@@ -467,6 +513,10 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         joint_dependency_both_losses_groups(
                             rec["physical_block"], rec["first_source_group"],
                             "regional_blind_joint_gain_vs_own_independence"))
+                    rec["external_genus_joint_dependency_over_genus_conditional_marginals_supported"] = bool(
+                        joint_dependency_both_losses_groups(
+                            rec["physical_block"], rec["first_source_group"],
+                            "predicted_joint_gain_vs_genus_conditional_independence"))
                     rec["no_pollinator_guild_or_within_species_island_adaptation_measured"] = True
                 else:
                     rec["support_both_independent_source_groups"] = False
@@ -474,6 +524,7 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
                     rec["external_genus_joint_dependency_over_own_marginals_supported"] = False
                     rec["regional_blind_joint_dependency_over_own_marginals_supported"] = False
+                    rec["external_genus_joint_dependency_over_genus_conditional_marginals_supported"] = False
                     rec["no_pollinator_guild_or_within_species_island_adaptation_measured"] = True
                 all_rows.append(rec)
     return {
@@ -481,6 +532,7 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
         "n_additional_genuine_architecture_assurance_pairs_defined": 6,
         "source_full_cartesian_ontology_not_fake_cross_species_pairings": True,
         "nonindependence_test_keeps_both_marginals_identical": True,
+        "genus_conditional_independence_retains_between_genus_compositional_covariance": True,
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),
