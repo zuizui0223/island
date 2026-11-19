@@ -84,7 +84,7 @@ jobs:
           python - <<'PY'
           import json,os
           from pathlib import Path
-          s=(Path(os.environ["STAGE"])/"anonymous_gift4505_stage2_name_disjoint_pilot.json").read_text()
+          s=(Path(os.environ["STAGE"])/"anonymous_gift4505_stage2_arch_assurance_withingenus.json").read_text()
           x=json.loads(s)
           assert x["original_parent_GIFT_botanical_floras"]==4505
           assert len(x["regional_source_heldout_results"])==36
@@ -106,6 +106,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gift4505-withingenus-architecture-assurance-joint-anonymous
-          path: /tmp/fd-original-gift4505-stage2-namedisjoint/anonymous_gift4505_stage2_name_disjoint_pilot.json
+          path: /tmp/fd-original-gift4505-stage2-namedisjoint/anonymous_gift4505_stage2_arch_assurance_withingenus.json
           retention-days: 90
           if-no-files-found: warn
