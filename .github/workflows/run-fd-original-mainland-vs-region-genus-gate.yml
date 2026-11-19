@@ -1,0 +1,86 @@
+name: fd original full 4505 GIFT candidate mainland source novelty versus region genus transfer
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_mainland_source_vs_region_transfer_gate.py
+      - .github/workflows/run-fd-original-mainland-vs-region-genus-gate.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-novelty-and-region-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-mainland-vs-interregion-4505
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Load strict full 4505 GIFT botanical source contract
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/full4505-local-visitor-guild-20261118
+          path: work/fd
+          persist-credentials: false
+      - name: Confirm name-holdout source uniqueness and non-comparable model endpoint guards
+        run: |
+          set -euo pipefail
+          python -m pip install -q pytest
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_mainland_source_novel_donor_gate.py
+          python -m compileall -q scripts/run_fd_original_mainland_source_vs_region_transfer_gate.py work/fd/src/fd/mainland_source_novel_donor_gate.py
+          git -C work/fd rev-parse HEAD
+      - name: Restore original signed source-only mainland GIFT list holdout and strict interregional genus donor CI artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/mainland" "$STAGE/interregional"
+          gh run download 43675163265 --repo zuizui0223/island \
+            --name fd-source-name-heldout-macro-43675163265 \
+            --dir "$STAGE/mainland"
+          gh run download 44442644068 --repo zuizui0223/island \
+            --name fd-original-4505-region-transfer-replication-44442644068 \
+            --dir "$STAGE/interregional"
+          MAINLAND="$STAGE/mainland/anonymous_external_gift_source_holdout.json"
+          REGION="$STAGE/interregional/anonymous_original_4505_interregional_genus_replication.json"
+          test -s "$MAINLAND" && test -s "$REGION"
+          got_source="$(gh api repos/zuizui0223/island/actions/artifacts/14145738062 --jq '.digest')"
+          got_region="$(gh api repos/zuizui0223/island/actions/artifacts/14491895952 --jq '.digest')"
+          test "$got_source" = "sha256:31afcd4204f3ad9c41c513fac400af212367a02f3fbb32661d62247edb2a716c"
+          test "$got_region" = "sha256:af2fafe767aac8c561fefb94cade7e63f4797d2d5039d3a5ca1f0c6491636a00"
+          sha256sum "$MAINLAND" "$REGION"
+      - name: Report actual novel mainland source taxa left after original accepted GIFT flora name exclusion
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python \
+            scripts/run_fd_original_mainland_source_vs_region_transfer_gate.py \
+            --mainland-source "$STAGE/mainland/anonymous_external_gift_source_holdout.json" \
+            --interregional-transfer "$STAGE/interregional/anonymous_original_4505_interregional_genus_replication.json" \
+            --output "$STAGE/anonymous_mainland_candidate_source_4505_holdout_vs_region_genus_transfer.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_mainland_candidate_source_4505_holdout_vs_region_genus_transfer.json").read_text()
+          q=json.loads(raw)
+          assert q["status"]=="ORIGINAL_GIFT_4505_MAINLAND_SOURCE_NOVEL_SPECIES_HOLDOUT_VS_INTERREGIONAL_GENUS_ORACLE"
+          assert q["parent_original_global_GIFT_botanical_island_floras"]==4505
+          assert q["n_original_mainland_GIFT_native_source_region_lists"]==748
+          assert q["n_original_source_colour_form_species_outside_ALL_4505_GIFT_island_floras"]==9
+          assert q["conditional_other_region_GIFT_island_genus_predictive_endpoints_across_three_regions"]==8
+          assert q["original_source_provenance_limit"]["distinct_cohort_and_endpoint_scores_cannot_be_directly_subtracted"]
+          for k in ("accepted_species","island_id","source_region_id","entity_ID","work_species","spatial_block"):
+              assert '"'+k+'"' not in raw
+          print("Protected source original mainland novel donor and region transfer validation COMPLETE")
+          PY
+      - name: Archive only source-verified anonymous severe genuine mainland donor coverage and conditional other-region transfer comparison
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-GIFT-4505-mainland-vs-region-transfer-${{ github.run_id }}
+          path: /tmp/fd-mainland-vs-interregion-4505/anonymous_mainland_candidate_source_4505_holdout_vs_region_genus_transfer.json
+          if-no-files-found: error
+          retention-days: 90
