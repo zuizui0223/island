@@ -29,6 +29,9 @@ def main():
         or nat["original_test_botanical_islands"]!=327
         or nat["n_candidate_mainland_direct_species_after_ALL_cohort_full_flora_names_removed"]!=679):
         raise ValueError("Previously source verified 4505/2324/327 mainland donor availability changed")
+    if (q["n_original_source_colour_form_species_outside_ALL_4505_GIFT_island_floras"]!=0
+        or q["n_original_candidate_mainland_donors_after_2324_trait_eligible_island_full_name_holdout"]!=9):
+        raise ValueError("Original all 4505 name exclusion and 2324 eligible cohort donor count conflated")
     if q["conditional_other_region_GIFT_island_genus_predictive_endpoints_across_three_regions"]!=8:
         raise ValueError("Strict original name-excluded interregional genus conditional transfer changed")
     body=json.dumps(q,sort_keys=True,indent=2,allow_nan=False)
@@ -43,7 +46,8 @@ def main():
         status=q["status"],global_parent_GIFT_botanical_islands=4505,
         mainland_GIFT_source_regions=748,
         original_direct_pair_candidate_mainland_species=3606,
-        truly_name_novel_mainland_donors_outside_all_4505_flora_names=9,
+        truly_name_novel_mainland_donors_outside_all_4505_flora_names=0,
+        name_novel_mainland_donors_outside_2324_evaluated_island_floras=9,
         global_all_source_donor_variable_genera=0,
         original_strict_native_source_n5_islands=327,
         original_strict_native_source_species_after_cohort_holdout=679,
