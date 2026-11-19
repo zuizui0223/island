@@ -10,7 +10,7 @@ from fd_original_stage2_name_disjoint_flower_forecast import (
     product_of_own_marginals, joint_dependency_both_losses_groups,
     run_analysis,
 )
-from fd.two_stage_floral_forecast import proper_losses
+from fd.two_stage_floral_forecast import proper_losses, UNKNOWN_GENUS
 
 
 def source():
