@@ -37,12 +37,15 @@ from fd.euppollnet_species_identity_gate import (
 from fd.euppollnet_choice_set_audit import (
     audited_nonvisited_flower_census_opportunity,
 )
+from fd.euppollnet_study_protocol_audit import (
+    study_year_original_protocol_gate,
+)
 
 FLORA="6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a"
 TRAITS="9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745"
 
 def public_bytes(name,limit):
-    if name not in ("Flower_counts.csv","Interaction_data.csv.gz"):
+    if name not in ("Flower_counts.csv","Interaction_data.csv.gz","Metadata.csv"):
         raise ValueError("Unexpected public source file")
     u=("https://raw.githubusercontent.com/"+SOURCE_REPO+"/"+
        SOURCE_COMMIT+"/Data/3_Final_data/"+name)
@@ -82,10 +85,14 @@ def run(original_root:Path,polygon_path:Path,receipt_path:Path):
 
     original_visits=public_bytes("Interaction_data.csv.gz",5000000)
     original_flowers=public_bytes("Flower_counts.csv",25000000)
+    original_metadata=public_bytes("Metadata.csv",100000)
     original_receipts=dict(
         visits=qualify_original_blob("Interaction_data.csv.gz",original_visits),
         flowers=source_original_flower_receipt(original_flowers),
+        study_protocol=qualify_original_blob("Metadata.csv",original_metadata),
     )
+    metadata=pd.read_csv(BytesIO(original_metadata),dtype=str,
+        low_memory=False,encoding="utf-8",encoding_errors="replace")
     source=pd.read_csv(BytesIO(original_visits),compression="gzip",
         dtype=str,low_memory=False,encoding="utf-8",encoding_errors="replace")
     flowers=pd.read_csv(BytesIO(original_flowers),dtype=str,
@@ -128,6 +135,11 @@ def run(original_root:Path,polygon_path:Path,receipt_path:Path):
     # biological nondetections or visitation preference.
     strictly_same_source_plant,_=qualified_rows_and_identity_receipt(
         site,flowers,original_parent_n=4505)
+    source_study_year_methods=study_year_original_protocol_gate(
+        strictly_same_source_plant,metadata,
+        n_original_global_GIFT_floras=4505)
+    if source_study_year_methods["n_original_parent_island_floras"]!=4505:
+        raise ValueError("Source study/year metadata lost the GIFT global botanical population")
     source_choice_set=audited_nonvisited_flower_census_opportunity(
         strictly_same_source_plant,flowers,source,f,direct,
         parent_botanical_floras=4505)
@@ -156,6 +168,7 @@ def run(original_root:Path,polygon_path:Path,receipt_path:Path):
         source_actual_original_flower_availability_on_GIFT_positive_visits=supply,
         source_original_flower_count_same_species_correction=exact_species,
         source_original_complete_flower_census_choice_set_preflight=source_choice_set,
+        source_original_study_year_protocol_method_evidence=source_study_year_methods,
         source_positive_is_not_effective_pollination_or_true_animal_preference=True,
         unknown_source_study_overlap_with_GloBI_WOL_DoPI=True,
         no_source_study_island_plant_site_flower_key_ids_exported=True)
@@ -184,6 +197,8 @@ def main():
         "correction_not_independent_guild_choice":fixed[
             "no_visitor_preference_effect_or_pollen_fitness_coefficient"],
     },sort_keys=True))
+    methods=report["source_original_study_year_protocol_method_evidence"]
+    print("ANONYMOUS_GIFT_EUPPOLLNET_STUDY_METHOD="+json.dumps(methods,sort_keys=True))
     choice=report["source_original_complete_flower_census_choice_set_preflight"]
     print("ANONYMOUS_GIFT_EUPPOLLNET_CHOICES="+json.dumps(choice,sort_keys=True))
     r=report["source_actual_original_flower_availability_on_GIFT_positive_visits"]
