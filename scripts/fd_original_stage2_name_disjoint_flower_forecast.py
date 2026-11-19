@@ -326,22 +326,43 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     if ((local | external) - forbidden) & forbidden:
                         raise AssertionError("External Direct species leaked")
                     genus_profiles = source_model["external_conditional_genus_profiles"]
+                    expanded_profiles, n_extra_genera = extend_external_only_congener_profiles(
+                        genus_profiles, external, forbidden, original[ep], indices,
+                        source_model["external_genus_blind_prior"])
+                    if n_extra_genera:
+                        support[ep]["external_only_genus_sources_available_groups"] += 1
                     for focal in focals:
                         direct = sorted(membership.get(ids[focal], set()) & set(original[ep]))
                         if len(direct) < MIN_DIRECT:
                             support[ep]["fewer_than_five_Direct_carriers"] += 1
                             continue
                         preds = _distance_predictions(focal, donor_ids, Q, geo)
-                        scores = score_focal_flora(
-                            observed_codes=[indices[original[ep][name]] for name in direct],
-                            weights_by_model={
-                                m: weights_for_flower(preds[m], vocab_names) for m in REQUIRED_MODELS},
-                            external_genus_profiles=genus_profiles,
+                        observed_codes = [indices[original[ep][name]] for name in direct]
+                        weights = {m: weights_for_flower(preds[m], vocab_names)
+                                   for m in REQUIRED_MODELS}
+                        score_args = dict(
+                            observed_codes=observed_codes,
+                            weights_by_model=weights,
                             external_blind=source_model["external_genus_blind_prior"],
                             regional_blind=source_model["regional_local_genus_blind_prior"],
                             observed_focal_genera_for_ORACLE_only=[genus(name) for name in direct],
                             min_direct=MIN_DIRECT,
                         )
+                        scores = score_focal_flora(
+                            external_genus_profiles=genus_profiles, **score_args)
+                        expanded_scores = score_focal_flora(
+                            external_genus_profiles=expanded_profiles, **score_args)
+                        for model in REQUIRED_MODELS:
+                            for loss in ("Brier", "logloss"):
+                                scores[f"expanded_{model}_gain_vs_constrained_{loss}"] = (
+                                    scores[f"{model}_{loss}"] - expanded_scores[f"{model}_{loss}"])
+                                for baseline in ("regional_blind", "external_blind",
+                                                 "regional_genus_prior"):
+                                    if model == baseline:
+                                        continue
+                                    scores[f"expanded_{model}_gain_vs_{baseline}_{loss}"] = (
+                                        expanded_scores[f"{model}_gain_vs_{baseline}_{loss}")
+                        scores["n_additional_external_only_genus_source_profiles"] = n_extra_genera
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
