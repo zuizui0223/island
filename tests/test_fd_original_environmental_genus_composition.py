@@ -55,7 +55,7 @@ def test_full_4505_GIFT_genus_source_uses_only_positive_accepted_flora():
     q,n,genus_total,names=genus_source_matrix(flora,islands,"original_native")
     assert names==2 and n.min()==8
     assert q[0,0]==pytest.approx(7/8)
-    bad=flora.iloc[:-1]
+    bad=flora.loc[flora.island_id.ne(islands[-1])]
     with pytest.raises(ValueError,match="parent"):
         genus_source_matrix(bad,islands,"all_recorded")
 
@@ -82,7 +82,7 @@ def test_reference_and_environment_use_same_source_genus_support_and_unknown():
     unknown=G.getrow(4)
     u=_proper_genus_score(model,unknown,known)
     assert np.isfinite(u).all()
-    with pytest.raises(ValueError,match="probability"):
+    with pytest.raises(ValueError,match="normalized whole-genus"):
         _proper_genus_score(np.array([.3,.3,.3]),truth,known)
 
 
