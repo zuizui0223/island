@@ -109,9 +109,10 @@ def direct_architecture_assurance_pairs(source_states: dict) -> dict:
 
 def full_original_joint_category_ontology(source_states: dict, a: str, b: str) -> dict:
     """All Cartesian category labels, including unobserved joint combinations."""
+    categories_a = set(source_states[a].values())
+    categories_b = set(source_states[b].values())
     categories = sorted(
-        {(x, y) for x in source_states[a].values()
-                for y in source_states[b].values()}, key=repr)
+        {(x, y) for x in categories_a for y in categories_b}, key=repr)
     if not categories:
         raise ValueError("No source Direct joint-category ontology")
     if len(categories) > 200:
