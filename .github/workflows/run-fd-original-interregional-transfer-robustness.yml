@@ -41,23 +41,29 @@ jobs:
       - name: Verify two independent computational replays of SAME original botanical GIFT source
         run: |
           set -euo pipefail
-          mkdir -p "$STAGE/latest" "$STAGE/older"
+          mkdir -p "$STAGE/latest" "$STAGE/older" "$STAGE/mainland"
           gh run download 43700248327 --repo zuizui0223/island --name fd-interregional-genus-transfer-43700248327 --dir "$STAGE/latest"
           gh run download 43700017352 --repo zuizui0223/island --name fd-interregional-genus-transfer-43700017352 --dir "$STAGE/older"
+          gh run download 44444353301 --repo zuizui0223/island --name fd-original-GIFT-4505-mainland-vs-region-transfer-44444353301 --dir "$STAGE/mainland"
           test -s "$STAGE/latest/anonymous_fd_interregional_genus_transfer.json"
           test -s "$STAGE/older/anonymous_fd_interregional_genus_transfer.json"
+          test -s "$STAGE/mainland/anonymous_mainland_candidate_source_4505_holdout_vs_region_genus_transfer.json"
           latest_artifact="$(gh api repos/zuizui0223/island/actions/artifacts/14156231290 --jq '.digest')"
           older_artifact="$(gh api repos/zuizui0223/island/actions/artifacts/14156255989 --jq '.digest')"
+          mainland_artifact="$(gh api repos/zuizui0223/island/actions/artifacts/14492741789 --jq '.digest')"
           test "$latest_artifact" = "sha256:4b91489394109a75cf600bc1248ca1d1013e10ee525b071a7abc790b95163413"
           test "$older_artifact" = "sha256:aedfdc3409072752bd71a98a9f68de0a65f678d836799f1c0492d9efab4dbdb9"
+          test "$mainland_artifact" = "sha256:b09d362bdf815d84eb3e2bd04f0ac9461bdbb83940166c01e6c826686a27c27d"
           sha256sum "$STAGE/latest/anonymous_fd_interregional_genus_transfer.json"
           sha256sum "$STAGE/older/anonymous_fd_interregional_genus_transfer.json"
+          sha256sum "$STAGE/mainland/anonymous_mainland_candidate_source_4505_holdout_vs_region_genus_transfer.json"
       - name: Global all13 trait/region/status proper Brier and logloss external-genus transfer audit
         run: |
           set -euo pipefail
           PYTHONPATH=work/fd/src python scripts/run_fd_original_interregional_transfer_robustness.py \
              --source-latest "$STAGE/latest/anonymous_fd_interregional_genus_transfer.json" \
              --source-older "$STAGE/older/anonymous_fd_interregional_genus_transfer.json" \
+             --source-mainland "$STAGE/mainland/anonymous_mainland_candidate_source_4505_holdout_vs_region_genus_transfer.json" \
              --output "$STAGE/anonymous_original_4505_regional_genus_transfer_robustness.json"
           python - <<'PY'
           import json,os
@@ -74,6 +80,8 @@ jobs:
             "n_original_matched_cells"]==100
           assert r["scientific_ceilings"]["original_regional_local_donors_from_ISLAND_regional_floristic_lists_not_independent_mainland_ancestral_observations"]
           assert r["scientific_ceilings"]["original_focal_botanical_genus_composition_is_ORACLE_in_prediction"]
+          assert r["independent_mainland_candidate_species_provenance_gate"]["n_original_direct_colour_form_mainland_species_names_outside_ALL_4505_island_floras"]==0
+          assert r["independent_mainland_candidate_species_provenance_gate"]["n_candidate_source_species_after_2324_full_flora_names_heldout"]==9
           for key in ("accepted_species","island_id","entity_ID","latitude",
             "longitude","source_region_id","spatial_block","pollinator_species"):
               assert '"'+key+'"' not in raw
