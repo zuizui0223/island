@@ -1,0 +1,89 @@
+name: fd original 4505 region-exclusive 13-trait genus transfer evidence replay
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+    paths:
+      - scripts/run_fd_original_interregional_transfer_robustness.py
+      - .github/workflows/run-fd-original-interregional-transfer-robustness.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source_original_regional_replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-region-trait-transfer
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install source numerical audit runtime
+        run: python -m pip install -q pytest
+      - name: Retrieve original full GIFT 4505 region prediction noncausal source contract and test model
+        uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: analysis/discrete-functional-hypervolume-20261113
+          path: work/fd
+          persist-credentials: false
+      - name: Test genus oracle, 4505 botanical population and proper loss signed agreement
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python -m pytest -q work/fd/tests/test_interregional_transfer_robustness.py
+          python -m compileall -q scripts/run_fd_original_interregional_transfer_robustness.py work/fd/src/fd/interregional_transfer_robustness.py
+          git -C work/fd rev-parse HEAD
+      - name: Verify two independent computational replays of SAME original botanical GIFT source
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/latest" "$STAGE/older"
+          gh run download 43700248327 --repo zuizui0223/island --name fd-interregional-genus-transfer-43700248327 --dir "$STAGE/latest"
+          gh run download 43700017352 --repo zuizui0223/island --name fd-interregional-genus-transfer-43700017352 --dir "$STAGE/older"
+          test -s "$STAGE/latest/anonymous_fd_interregional_genus_transfer.json"
+          test -s "$STAGE/older/anonymous_fd_interregional_genus_transfer.json"
+          latest_artifact="$(gh api repos/zuizui0223/island/actions/artifacts/14156231290 --jq '.digest')"
+          older_artifact="$(gh api repos/zuizui0223/island/actions/artifacts/14156255989 --jq '.digest')"
+          test "$latest_artifact" = "sha256:4b91489394109a75cf600bc1248ca1d1013e10ee525b071a7abc790b95163413"
+          test "$older_artifact" = "sha256:aedfdc3409072752bd71a98a9f68de0a65f678d836799f1c0492d9efab4dbdb9"
+          sha256sum "$STAGE/latest/anonymous_fd_interregional_genus_transfer.json"
+          sha256sum "$STAGE/older/anonymous_fd_interregional_genus_transfer.json"
+      - name: Global all13 trait/region/status proper Brier and logloss external-genus transfer audit
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd/src python scripts/run_fd_original_interregional_transfer_robustness.py \
+             --source-latest "$STAGE/latest/anonymous_fd_interregional_genus_transfer.json" \
+             --source-older "$STAGE/older/anonymous_fd_interregional_genus_transfer.json" \
+             --output "$STAGE/anonymous_original_4505_regional_genus_transfer_robustness.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_4505_regional_genus_transfer_robustness.json"
+          raw=p.read_text(); r=json.loads(raw)
+          assert r["status"]=="ORIGINAL_GIFT_4505_CONDITIONAL_INTERREGIONAL_GENUS_TRAIT_TRANSPORT_AUDIT"
+          assert r["original_n_global_botanical_floras"]==4505
+          assert r["n_original_highmedium_direct_endpoints"]==13
+          assert r["source_original_four_region_and_missing_denominator"][
+            "source_qualified_count_by_status"][
+            "ORIGINAL_CONDITIONAL_REGION_EXCLUSIVE_DONOR_COMPARISON"]==63
+          assert r["independent_execution_same_original_data_replay"][
+            "n_original_matched_cells"]==100
+          assert r["scientific_ceilings"]["original_regional_local_donors_from_ISLAND_regional_floristic_lists_not_independent_mainland_ancestral_observations"]
+          assert r["scientific_ceilings"]["original_focal_botanical_genus_composition_is_ORACLE_in_prediction"]
+          for key in ("accepted_species","island_id","entity_ID","latitude",
+            "longitude","source_region_id","spatial_block","pollinator_species"):
+              assert '"'+key+'"' not in raw
+          print("Original source regional transferability Brier/logloss and replay contract PASS")
+          PY
+      - name: Archive only anonymous global trait transportability and source geography evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-interregional-genus-transfer-replay-${{ github.run_id }}
+          path: /tmp/fd-original-region-trait-transfer/anonymous_original_4505_regional_genus_transfer_robustness.json
+          if-no-files-found: error
+          retention-days: 90
