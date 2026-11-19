@@ -30,7 +30,13 @@ from fd.euppollnet_gift_exact_site_bridge import (
     exact_source_network_site_union,strict_original_accepted_plant
 )
 from fd.fullframe_wol_network_bridge import full_botanical_exact_geometry_gate
-from fd.euppollnet_species_identity_gate import original_same_plant_exposure_audit
+from fd.euppollnet_species_identity_gate import (
+    original_same_plant_exposure_audit,
+    qualified_rows_and_identity_receipt,
+)
+from fd.euppollnet_choice_set_audit import (
+    audited_nonvisited_flower_census_opportunity,
+)
 
 FLORA="6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a"
 TRAITS="9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745"
@@ -116,6 +122,17 @@ def run(original_root:Path,polygon_path:Path,receipt_path:Path):
         site,flowers,direct)
     exact_species=original_same_plant_exposure_audit(
         site,flowers,direct,original_parent_n=4505)
+    # The source choice set includes all original surveyed flowers on the
+    # SAME original study/network/site/day/Units anchored by a strict
+    # original positive visit-flower species match. It does NOT infer
+    # biological nondetections or visitation preference.
+    strictly_same_source_plant,_=qualified_rows_and_identity_receipt(
+        site,flowers,original_parent_n=4505)
+    source_choice_set=audited_nonvisited_flower_census_opportunity(
+        strictly_same_source_plant,flowers,source,f,direct,
+        parent_botanical_floras=4505)
+    if source_choice_set["original_global_flora_parent"]!=4505:
+        raise ValueError("Full original botanical parent lost in complete flower census")
     upper=supply["n_original_positive_visitors_with_nonzero_numeric_flower_count_and_unit"]
     corrected=exact_species["exact_source_plant_identity_waterfall"][
         "n_positive_rows_with_exact_same_flower_and_visitor_plant"]
@@ -138,6 +155,7 @@ def run(original_root:Path,polygon_path:Path,receipt_path:Path):
         n_replayed_GIFT_island_plant_positive_islands=13,
         source_actual_original_flower_availability_on_GIFT_positive_visits=supply,
         source_original_flower_count_same_species_correction=exact_species,
+        source_original_complete_flower_census_choice_set_preflight=source_choice_set,
         source_positive_is_not_effective_pollination_or_true_animal_preference=True,
         unknown_source_study_overlap_with_GloBI_WOL_DoPI=True,
         no_source_study_island_plant_site_flower_key_ids_exported=True)
@@ -166,6 +184,8 @@ def main():
         "correction_not_independent_guild_choice":fixed[
             "no_visitor_preference_effect_or_pollen_fitness_coefficient"],
     },sort_keys=True))
+    choice=report["source_original_complete_flower_census_choice_set_preflight"]
+    print("ANONYMOUS_GIFT_EUPPOLLNET_CHOICES="+json.dumps(choice,sort_keys=True))
     r=report["source_actual_original_flower_availability_on_GIFT_positive_visits"]
     print("ANONYMOUS_GIFT_EUPPOLLNET_FLOWER_SUPPLY="+json.dumps({
         "status":report["status"],"original_parent_floras":4505,
