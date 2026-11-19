@@ -1,6 +1,8 @@
 name: fd_original_GIFT4505_stage2_name_disjoint_flora_forecast
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
   push:
     branches: [analysis/fd-stage2-floral-forecast-20261119]
     paths:
