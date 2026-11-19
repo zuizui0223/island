@@ -69,6 +69,13 @@ SUMMARY_GAIN_COLUMNS = tuple(
     f"{name}_{loss}" for name in
     ("source_increment", "source_over_geo", "source_over_environment")
     for loss in ("Brier", "logloss")
+) + tuple(
+    f"{model}_gain_vs_{base}_{loss}"
+    for model, base in (
+        ("external_blind", "local_blind"),
+        ("local_blind", "external_blind"),
+    )
+    for loss in ("Brier", "logloss")
 )
 
 
@@ -285,6 +292,20 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                             observed_focal_genera_for_ORACLE_only=[genus(name) for name in direct],
                             min_direct=MIN_DIRECT,
                         )
+                        # Paired blind-reference loss on the EXACT same real Direct
+                        # plant carriers and predeclared original source holdout.
+                        for loss in ("Brier", "logloss"):
+                            local_minus_external = (
+                                scores[f"regional_blind_{loss}"]
+                                - scores[f"external_blind_{loss}"])
+                            scores[f"external_blind_gain_vs_local_blind_{loss}"] = local_minus_external
+                            scores[f"local_blind_gain_vs_external_blind_{loss}"] = -local_minus_external
+                            for model in REQUIRED_MODELS:
+                                difference = (
+                                    scores[f"{model}_gain_vs_regional_blind_{loss}"]
+                                    - scores[f"{model}_gain_vs_external_blind_{loss}"])
+                                if not np.isclose(difference, local_minus_external, atol=1e-12):
+                                    raise AssertionError("Blind reference difference does not cancel predicted model")
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
@@ -340,17 +361,29 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         dual_loss_dual_group_positive(
                             rec["physical_block"], rec["first_source_group"],
                             "environment_source_nearest", "external_blind"))
+                    rec["external_blind_better_than_local_blind_both_scores_and_groups"] = bool(
+                        dual_loss_dual_group_positive(
+                            rec["physical_block"], rec["first_source_group"],
+                            "external_blind", "local_blind"))
+                    rec["local_blind_better_than_external_blind_both_scores_and_groups"] = bool(
+                        dual_loss_dual_group_positive(
+                            rec["physical_block"], rec["first_source_group"],
+                            "local_blind", "external_blind"))
                 else:
                     rec["support_both_independent_source_groups"] = False
                     rec["positive_vs_local_blind_both_scores_and_groups"] = False
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
+                    rec["external_blind_better_than_local_blind_both_scores_and_groups"] = False
+                    rec["local_blind_better_than_external_blind_both_scores_and_groups"] = False
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_NAME_DISJOINT_GEO_GENUS_FLORAL_PILOT",
+        "status": "ORIGINAL_GIFT_STAGE2_PAIRED_LOCAL_VS_EXTERNAL_BLIND_REFERENCE_AUDIT",
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),
         "original_group_training_ban": "whole_full_flora_same_10degree_block_and_first_source_NAMES",
+        "direct_local_vs_external_blind_losses_bootstrapped_on_identical_source_carriers": True,
+        "blind_baseline_differences_not_causal_lineage_or_pollinator_selection": True,
         "training_uses_other_GIFT_islands_not_independent_mainland_ancestors": True,
         "focal_full_flora_species_names_used_for_CV_EXCLUSION_only_not_predictor_weight": True,
         "animal_pollinator_transition_not_inferred": True,
