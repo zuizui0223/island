@@ -363,6 +363,12 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                                     scores[f"expanded_{model}_gain_vs_{baseline}_{loss}"] = (
                                         expanded_scores[f"{model}_gain_vs_{baseline}_{loss}")
                         scores["n_additional_external_only_genus_source_profiles"] = n_extra_genera
+                        added_genera = set(expanded_profiles) - set(genus_profiles)
+                        scores["predicted_extra_external_genus_weight_mass"] = float(
+                            sum(weights["environment_source_nearest"].get(g, 0.)
+                                for g in added_genera))
+                        scores["observed_Direct_carrier_extra_external_genus_fraction"] = float(
+                            sum(genus(name) in added_genera for name in direct) / len(direct))
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
@@ -403,6 +409,10 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         scored.true_focal_genus_species_fraction_outside_source_support.mean())
                     rec["mean_added_external_only_genus_profiles"] = float(
                         scored.n_additional_external_only_genus_source_profiles.mean())
+                    rec["mean_predicted_extra_external_genus_weight_mass"] = float(
+                        scored.predicted_extra_external_genus_weight_mass.mean())
+                    rec["mean_actual_Direct_carriers_in_extra_external_genera"] = float(
+                        scored.observed_Direct_carrier_extra_external_genus_fraction.mean())
                     for k, grp in (("physical_block", "spatial_block"),
                                    ("first_source_group", "first_source")):
                         rec[k] = paired_cluster_summary(
