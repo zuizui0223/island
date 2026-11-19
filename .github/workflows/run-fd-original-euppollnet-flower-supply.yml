@@ -42,7 +42,8 @@ jobs:
             work/fd/tests/test_fullframe_wol_network_bridge.py
           python -m compileall -q \
             scripts/run_fd_original_euppollnet_flower_supply_on_gift.py \
-            work/fd/src/fd/euppollnet_flower_availability.py
+            work/fd/src/fd/euppollnet_flower_availability.py \
+            work/fd/src/fd/euppollnet_species_identity_gate.py
           git -C work/fd rev-parse HEAD
       - name: Restore original SHA-locked GIFT 4505 accepted species flower evidence
         run: |
