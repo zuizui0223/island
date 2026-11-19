@@ -43,6 +43,7 @@ from fd_original_environmental_genus_composition import (
 from fd.two_stage_floral_forecast import (
     REQUIRED_MODELS, UNKNOWN_GENUS, score_focal_flora,
     paired_cluster_summary, dual_loss_dual_group_positive,
+    predict_flower_distribution, categorical_simpson_diversity_diagnostic,
 )
 
 PILOT_ENDPOINTS = ("floral_form", "flower_primary_color__floral_form")
@@ -70,6 +71,29 @@ SUMMARY_GAIN_COLUMNS = tuple(
     ("source_increment", "source_over_geo", "source_over_environment")
     for loss in ("Brier", "logloss")
 )
+
+
+DIVERSITY_COLUMNS = (
+    "observed_categorical_simpson_plugin",
+    "observed_categorical_simpson_unbiased",
+    "regional_blind_predicted_categorical_simpson",
+) + tuple(
+    f"{m}_predicted_categorical_simpson" for m in REQUIRED_MODELS
+) + tuple(
+    f"{m}_gain_vs_regional_blind_categorical_simpson_{method}_abs_error"
+    for m in REQUIRED_MODELS
+    for method in ("unbiased", "plugin")
+)
+
+def is_diversity_error_improvement_block_and_source_supported(
+        physical: dict, first_source: dict, model: str, method: str) -> bool:
+    """Exploratory two-cluster positive Q absolute-error gain (not proper loss)."""
+    metric = f"{model}_gain_vs_regional_blind_categorical_simpson_{method}_abs_error"
+    return all(
+        group.get("supported_for_inference", False)
+        and group.get(metric, {}).get("bootstrap_95", [-1, 1])[0] > 0
+        for group in (physical, first_source)
+    )
 
 
 def filtered_genus_matrix(
@@ -285,6 +309,38 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                             observed_focal_genera_for_ORACLE_only=[genus(name) for name in direct],
                             min_direct=MIN_DIRECT,
                         )
+                        # Evaluation-only nominal Rao Q (unit distances among
+                        # TRUE Direct categories). The target TRUE botanical genus
+                        # composition never enters non-oracle probabilities.
+                        real_codes = [indices[original[ep][name]] for name in direct]
+                        predicted_weights = {
+                            m: weights_for_flower(preds[m], vocab_names) for m in REQUIRED_MODELS}
+                        regional_blind = source_model["regional_local_genus_blind_prior"]
+                        external_blind = source_model["external_genus_blind_prior"]
+                        category_model_probs = {"regional_blind": regional_blind}
+                        for m in REQUIRED_MODELS:
+                            category_model_probs[m] = predict_flower_distribution(
+                                predicted_weights[m], genus_profiles, external_blind)
+                        div = categorical_simpson_diversity_diagnostic(
+                            real_codes, category_model_probs, local_blind_model="regional_blind")
+                        scores["observed_categorical_simpson_plugin"] = (
+                            div["observed_categorical_simpson_plugin"])
+                        scores["observed_categorical_simpson_unbiased"] = (
+                            div["observed_categorical_simpson_unbiased"])
+                        scores["regional_blind_predicted_categorical_simpson"] = (
+                            div["regional_blind_predicted_categorical_simpson"])
+                        for m in REQUIRED_MODELS:
+                            scores[f"{m}_predicted_categorical_simpson"] = (
+                                div[f"{m}_predicted_categorical_simpson"])
+                            scores[f"{m}_gain_vs_regional_blind_categorical_simpson_unbiased_abs_error"] = (
+                                div[f"{m}_gain_vs_regional_blind_categorical_simpson_abs_error"])
+                            # Sensitivity to finite-sample debiasing, same original
+                            # target cohort, same source probabilities.
+                            observed = div["observed_categorical_simpson_plugin"]
+                            blind_pred = div["regional_blind_predicted_categorical_simpson"]
+                            this_pred = div[f"{m}_predicted_categorical_simpson"]
+                            scores[f"{m}_gain_vs_regional_blind_categorical_simpson_plugin_abs_error"] = (
+                                abs(blind_pred-observed) - abs(this_pred-observed))
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
@@ -326,7 +382,7 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     for k, grp in (("physical_block", "spatial_block"),
                                    ("first_source_group", "first_source")):
                         rec[k] = paired_cluster_summary(
-                            scored, group=grp, columns=SUMMARY_GAIN_COLUMNS,
+                            scored, group=grp, columns=SUMMARY_GAIN_COLUMNS + DIVERSITY_COLUMNS,
                             nboot=nboot, seed=int.from_bytes(hashlib.sha256(
                                 (scope+reg+ep+grp).encode()).digest()[:8], "big"))
                     rec["support_both_independent_source_groups"] = bool(
@@ -340,13 +396,28 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         dual_loss_dual_group_positive(
                             rec["physical_block"], rec["first_source_group"],
                             "environment_source_nearest", "external_blind"))
+                    rec["categorical_nominal_rao_q_is_not_multivariate_morphology_distance"] = True
+                    rec["categorical_simpson_unbiased_abs_error_improves_both_groups"] = bool(
+                        is_diversity_error_improvement_block_and_source_supported(
+                            rec["physical_block"], rec["first_source_group"],
+                            "environment_source_nearest", "unbiased"))
+                    rec["categorical_simpson_plugin_abs_error_improves_both_groups"] = bool(
+                        is_diversity_error_improvement_block_and_source_supported(
+                            rec["physical_block"], rec["first_source_group"],
+                            "environment_source_nearest", "plugin"))
                 else:
                     rec["support_both_independent_source_groups"] = False
                     rec["positive_vs_local_blind_both_scores_and_groups"] = False
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
+                    rec["categorical_nominal_rao_q_is_not_multivariate_morphology_distance"] = True
+                    rec["categorical_simpson_unbiased_abs_error_improves_both_groups"] = False
+                    rec["categorical_simpson_plugin_abs_error_improves_both_groups"] = False
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_NAME_DISJOINT_GEO_GENUS_FLORAL_PILOT",
+        "status": "ORIGINAL_GIFT_STAGE2_MATCHED_CATEGORICAL_SIMPSON_DIVERSITY_FCST",
+        "nominal_distance_between_all_category_states_is_one": True,
+        "observed_plugin_and_unbiased_simpson_sample_size_sensitivity": True,
+        "categorical_simpson_secondary_not_multivariate_hypervolume": True,
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),
