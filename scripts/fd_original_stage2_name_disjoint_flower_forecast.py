@@ -43,9 +43,13 @@ from fd_original_environmental_genus_composition import (
 from fd.two_stage_floral_forecast import (
     REQUIRED_MODELS, UNKNOWN_GENUS, score_focal_flora,
     paired_cluster_summary, dual_loss_dual_group_positive,
+    predict_flower_distribution, proper_losses,
 )
 
-PILOT_ENDPOINTS = ("floral_form", "flower_primary_color__floral_form")
+ARCH_REPRO_TRAITS = ("floral_form", "floral_symmetry", "tube_depth_class")
+ASSURANCE_TRAITS = ("self_incompatibility", "autonomous_selfing_capacity")
+ARCH_REPRO_PAIRS = tuple((a, b) for a in ARCH_REPRO_TRAITS for b in ASSURANCE_TRAITS)
+PILOT_ENDPOINTS = tuple(a + "__" + b for a, b in ARCH_REPRO_PAIRS)
 PRIMARY_REGIONS = ("northern_midlatitude", "tropical", "southern_extratropical")
 MODEL_DISTANCES = ("geographic_nearest", "environment_nearest",
                    "environment_source_nearest")
@@ -70,6 +74,86 @@ SUMMARY_GAIN_COLUMNS = tuple(
     ("source_increment", "source_over_geo", "source_over_environment")
     for loss in ("Brier", "logloss")
 )
+
+
+
+DEPENDENCE_COLUMNS = tuple(
+    f"{baseline}_joint_gain_vs_own_independence_{loss}"
+    for baseline in ("predicted", "regional_blind")
+    for loss in ("Brier", "logloss")
+)
+
+
+def direct_architecture_assurance_pairs(source_states: dict) -> dict:
+    """True same botanical accepted-species floral-architecture×assurance states.
+
+    Do NOT create synthetic joint states by cartesian pairing different plants.
+    A complete source ONTOLOGY nevertheless includes every logical pair, so
+    the independent-marginal null is compared in the identical K-vector.
+    """
+    if not set(ARCH_REPRO_TRAITS + ASSURANCE_TRAITS) <= set(source_states):
+        raise ValueError("Six prespecified morphology/assurance axes missing")
+    result = {}
+    for a, b in ARCH_REPRO_PAIRS:
+        first, second = source_states[a], source_states[b]
+        if not isinstance(first, dict) or not isinstance(second, dict):
+            raise ValueError("Original species Direct trait dictionary required")
+        result[a + "__" + b] = {
+            species: (first[species], second[species])
+            for species in sorted(set(first) & set(second))
+        }
+    if len(result) != 6:
+        raise AssertionError("Original morphology×assurance six-pair registration drift")
+    return result
+
+
+def full_original_joint_category_ontology(source_states: dict, a: str, b: str) -> dict:
+    """All Cartesian category labels, including unobserved joint combinations."""
+    categories_a = set(source_states[a].values())
+    categories_b = set(source_states[b].values())
+    categories = sorted(
+        {(x, y) for x in categories_a for y in categories_b}, key=repr)
+    if not categories:
+        raise ValueError("No source Direct joint-category ontology")
+    if len(categories) > 200:
+        raise ValueError("Unexpected source-only category explosion")
+    return {state: index for index, state in enumerate(categories)}
+
+
+def product_of_own_marginals(joint_prob: np.ndarray, indices: dict) -> np.ndarray:
+    """Factorized null with exactly the predicted joint model's marginals."""
+    p = np.asarray(joint_prob, dtype=float)
+    if (len(indices) != len(p) or not np.isfinite(p).all()
+            or (p < 0).any() or not np.isclose(p.sum(), 1.0)):
+        raise ValueError("Model joint probabilities not on full original category simplex")
+    left, right = defaultdict(float), defaultdict(float)
+    for pair, j in indices.items():
+        if not isinstance(pair, tuple) or len(pair) != 2:
+            raise ValueError("Actual source joint category must be a TRUE pair")
+        a, b = pair
+        left[a] += float(p[j]); right[b] += float(p[j])
+    if set(indices) != {(a, b) for a in left for b in right}:
+        raise ValueError("Full joint cartesian ontology required for factorization")
+    out = np.array([left[a] * right[b] for (a, b), j
+                    in sorted(indices.items(), key=lambda item: item[1])])
+    if not np.isclose(out.sum(), 1):
+        raise AssertionError("Factorized source joint category prior not normalized")
+    return out
+
+
+def joint_dependency_both_losses_groups(physical: dict, first: dict,
+                                        prefix: str, direction: str = "positive") -> bool:
+    """Same-source marginal-product null, not an island pollinator mechanism."""
+    if direction not in ("positive", "negative"):
+        raise ValueError("Unsupported signed joint dependence direction")
+    for summary in (physical, first):
+        if not summary.get("supported_for_inference"):
+            return False
+        for loss in ("Brier", "logloss"):
+            v = summary.get(f"{prefix}_{loss}", {}).get("bootstrap_95")
+            if not v or (v[0] <= 0 if direction == "positive" else v[1] >= 0):
+                return False
+    return True
 
 
 def filtered_genus_matrix(
@@ -186,13 +270,22 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
     source_by = dict(zip(ids, geo["source"]))
     blacklists = original_full_flora_group_blacklists(full, block_by, source_by)
     original = source_endpoints(direct_states)
-    if len(original) != 13 or not set(endpoints) <= original.keys():
-        raise ValueError("Original 13 true Direct endpoints missing")
-    indices_by_endpoint = {
-        ep: {value: k for k, value in
-             enumerate(sorted(set(original[ep].values()), key=repr))}
-        for ep in endpoints
-    }
+    if len(original) != 13:
+        raise ValueError("Original 13 true Direct endpoint provenance drift")
+    original.update(direct_architecture_assurance_pairs(direct_states))
+    if len(original) != 19 or not set(endpoints) <= original.keys():
+        raise ValueError("Original 13 + six TRUE paired architecture/reproduction endpoints missing")
+    indices_by_endpoint = {}
+    for ep in endpoints:
+        if ep in PILOT_ENDPOINTS:
+            left, right = ep.split("__", 1)
+            indices_by_endpoint[ep] = full_original_joint_category_ontology(
+                direct_states, left, right)
+        else:
+            indices_by_endpoint[ep] = {
+                value: k for k, value in
+                enumerate(sorted(set(original[ep].values()), key=repr))
+            }
     scope_floras = {"all_recorded": full, "original_native": native}
     all_rows = []
     for scope in scopes:
@@ -285,6 +378,32 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                             observed_focal_genera_for_ORACLE_only=[genus(name) for name in direct],
                             min_direct=MIN_DIRECT,
                         )
+                        # A fair SAME-PLANT JOINT categorical model is scored
+                        # against the independence projection of its OWN
+                        # categorical marginals: no alternative target plant
+                        # cohort, category ontology or geographical donor set.
+                        real_codes = [indices[original[ep][name]] for name in direct]
+                        genus_weights = weights_for_flower(
+                            preds["environment_source_nearest"], vocab_names)
+                        blind_local = source_model["regional_local_genus_blind_prior"]
+                        blind_external = source_model["external_genus_blind_prior"]
+                        p_joint = predict_flower_distribution(
+                            genus_weights, genus_profiles, blind_external)
+                        p_ind = product_of_own_marginals(p_joint, indices)
+                        p_blind_ind = product_of_own_marginals(blind_local, indices)
+                        loss_joint = proper_losses(p_joint, real_codes)
+                        loss_ind = proper_losses(p_ind, real_codes)
+                        loss_blind_ind = proper_losses(p_blind_ind, real_codes)
+                        loss_blind_joint = proper_losses(blind_local, real_codes)
+                        for j, loss in enumerate(("Brier", "logloss")):
+                            scores[f"predicted_joint_gain_vs_own_independence_{loss}"] = (
+                                loss_ind[j]-loss_joint[j])
+                            scores[f"regional_blind_joint_gain_vs_own_independence_{loss}"] = (
+                                loss_blind_ind[j]-loss_blind_joint[j])
+                            if not np.isclose(
+                                scores[f"environment_source_nearest_{loss}"],
+                                loss_joint[j], atol=1e-12):
+                                raise AssertionError("Same original joint categorical proper scores altered")
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
@@ -326,7 +445,7 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     for k, grp in (("physical_block", "spatial_block"),
                                    ("first_source_group", "first_source")):
                         rec[k] = paired_cluster_summary(
-                            scored, group=grp, columns=SUMMARY_GAIN_COLUMNS,
+                            scored, group=grp, columns=SUMMARY_GAIN_COLUMNS + DEPENDENCE_COLUMNS,
                             nboot=nboot, seed=int.from_bytes(hashlib.sha256(
                                 (scope+reg+ep+grp).encode()).digest()[:8], "big"))
                     rec["support_both_independent_source_groups"] = bool(
@@ -340,13 +459,28 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         dual_loss_dual_group_positive(
                             rec["physical_block"], rec["first_source_group"],
                             "environment_source_nearest", "external_blind"))
+                    rec["external_genus_joint_dependency_over_own_marginals_supported"] = bool(
+                        joint_dependency_both_losses_groups(
+                            rec["physical_block"], rec["first_source_group"],
+                            "predicted_joint_gain_vs_own_independence"))
+                    rec["regional_blind_joint_dependency_over_own_marginals_supported"] = bool(
+                        joint_dependency_both_losses_groups(
+                            rec["physical_block"], rec["first_source_group"],
+                            "regional_blind_joint_gain_vs_own_independence"))
+                    rec["no_pollinator_guild_or_within_species_island_adaptation_measured"] = True
                 else:
                     rec["support_both_independent_source_groups"] = False
                     rec["positive_vs_local_blind_both_scores_and_groups"] = False
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
+                    rec["external_genus_joint_dependency_over_own_marginals_supported"] = False
+                    rec["regional_blind_joint_dependency_over_own_marginals_supported"] = False
+                    rec["no_pollinator_guild_or_within_species_island_adaptation_measured"] = True
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_NAME_DISJOINT_GEO_GENUS_FLORAL_PILOT",
+        "status": "ORIGINAL_GIFT_STAGE2_TRUE_SAME_SPECIES_ARCHITECTURE_ASSURANCE_JOINT",
+        "n_additional_genuine_architecture_assurance_pairs_defined": 6,
+        "source_full_cartesian_ontology_not_fake_cross_species_pairings": True,
+        "nonindependence_test_keeps_both_marginals_identical": True,
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),
