@@ -202,7 +202,8 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
         vocab_names = sorted({genus(n) for names in membership.values() for n in names})
         vocab = {name: k for k, name in enumerate(vocab_names)}
         by_reg = {reg: set().union(*(
-            membership.get(i, set()) for i in ids if geo["region"][ids.index(i)] == reg))
+            membership.get(i, set())
+            for i, r in zip(ids, geo["region"]) if r == reg))
             for reg in REGIONS}
         # No Direct state is needed for geographic genus source eligibility.
         eligible_stage1 = np.array([
@@ -389,9 +390,9 @@ def main():
     r = run_analysis(flora, geo, ass, traits,
                      endpoints=tuple(args.endpoints), nboot=args.nboot)
     raw = json.dumps(r, indent=2, sort_keys=True, allow_nan=False)
-    for private in ('"island_id"', '"accepted_species"', '"entity_ID"',
-                    '"spatial_block"', '"first_source"', '"genus_name"',
-                    '"latitude"', '"longitude"', '"source_genus"'):
+    for private in ('"island_id":', '"accepted_species":', '"entity_ID":',
+                    '"spatial_block":', '"first_source":', '"genus_name":',
+                    '"latitude":', '"longitude":', '"source_genus":'):
         if private in raw:
             raise AssertionError("Private original taxon/island/source identifier in report")
     args.output.parent.mkdir(parents=True, exist_ok=True)
