@@ -69,7 +69,8 @@ jobs:
           assert q["status"]=="ORIGINAL_GIFT_4505_MAINLAND_SOURCE_NOVEL_SPECIES_HOLDOUT_VS_INTERREGIONAL_GENUS_ORACLE"
           assert q["parent_original_global_GIFT_botanical_island_floras"]==4505
           assert q["n_original_mainland_GIFT_native_source_region_lists"]==748
-          assert q["n_original_source_colour_form_species_outside_ALL_4505_GIFT_island_floras"]==9
+          assert q["n_original_source_colour_form_species_outside_ALL_4505_GIFT_island_floras"]==0
+          assert q["n_original_candidate_mainland_donors_after_2324_trait_eligible_island_full_name_holdout"]==9
           assert q["conditional_other_region_GIFT_island_genus_predictive_endpoints_across_three_regions"]==8
           assert q["original_source_provenance_limit"]["distinct_cohort_and_endpoint_scores_cannot_be_directly_subtracted"]
           for k in ("accepted_species","island_id","source_region_id","entity_ID","work_species","spatial_block"):
