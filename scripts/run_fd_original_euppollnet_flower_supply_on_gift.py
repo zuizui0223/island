@@ -30,6 +30,7 @@ from fd.euppollnet_gift_exact_site_bridge import (
     exact_source_network_site_union,strict_original_accepted_plant
 )
 from fd.fullframe_wol_network_bridge import full_botanical_exact_geometry_gate
+from fd.euppollnet_species_identity_gate import original_same_plant_exposure_audit
 
 FLORA="6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a"
 TRAITS="9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745"
@@ -110,8 +111,18 @@ def run(original_root:Path,polygon_path:Path,receipt_path:Path):
         on=["island_id","plant"],how="inner",validate="many_to_one")
     if len(site)!=36384 or site.island_id.nunique()!=13:
         raise ValueError("Earlier original 13-island/36384 positive EuPPollNet source link drifted")
+    direct=strict_traits(t)
     supply=qualified_gift_flower_supply_on_positive_visits(
-        site,flowers,strict_traits(t))
+        site,flowers,direct)
+    exact_species=original_same_plant_exposure_audit(
+        site,flowers,direct,original_parent_n=4505)
+    upper=supply["n_original_positive_visitors_with_nonzero_numeric_flower_count_and_unit"]
+    corrected=exact_species["exact_source_plant_identity_waterfall"][
+        "n_positive_rows_with_exact_same_flower_and_visitor_plant"]
+    if corrected>upper:
+        raise AssertionError("Stricter species-matched source exposure exceeds old key-only support")
+    if exact_species["original_GIFT_parent_botanical_floras"]!=4505:
+        raise ValueError("Original botanical full population lost at plant identity join")
     if supply["parent_original_GIFT_botanical_floras"]!=4505:
         raise ValueError("Original GIFT sample no longer full botanical 4505")
     return dict(
@@ -126,6 +137,7 @@ def run(original_root:Path,polygon_path:Path,receipt_path:Path):
         n_replayed_original_source_positive_GIFT_island_plant_events=len(site),
         n_replayed_GIFT_island_plant_positive_islands=13,
         source_actual_original_flower_availability_on_GIFT_positive_visits=supply,
+        source_original_flower_count_same_species_correction=exact_species,
         source_positive_is_not_effective_pollination_or_true_animal_preference=True,
         unknown_source_study_overlap_with_GloBI_WOL_DoPI=True,
         no_source_study_island_plant_site_flower_key_ids_exported=True)
@@ -146,6 +158,14 @@ def main():
             raise ValueError("Source GIFT island/flower/plant/study key leaked")
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(body+"\n",encoding="utf-8")
+    fixed=report["source_original_flower_count_same_species_correction"]
+    print("ANONYMOUS_GIFT_EUPPOLLNET_SAME_SPECIES="+json.dumps({
+        "status":fixed["status"],
+        "waterfall":fixed["exact_source_plant_identity_waterfall"],
+        "within_source_contexts":fixed["source_same_study_site_date_and_unit_comparability"],
+        "correction_not_independent_guild_choice":fixed[
+            "no_visitor_preference_effect_or_pollen_fitness_coefficient"],
+    },sort_keys=True))
     r=report["source_actual_original_flower_availability_on_GIFT_positive_visits"]
     print("ANONYMOUS_GIFT_EUPPOLLNET_FLOWER_SUPPLY="+json.dumps({
         "status":report["status"],"original_parent_floras":4505,
