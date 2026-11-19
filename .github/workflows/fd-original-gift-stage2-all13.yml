@@ -1,0 +1,103 @@
+name: fd_original_GIFT4505_all13_name_disjoint_flora_forecast
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [analysis/fd-discrete-functional-volume-20261113]
+  push:
+    branches: [analysis/fd-stage2-all13-20261119]
+    paths:
+      - ".github/workflows/fd-original-gift-stage2-all13.yml"
+      - "scripts/fd_original_stage2_name_disjoint_flower_forecast.py"
+      - "tests/test_fd_original_stage2_name_disjoint_flower_forecast.py"
+permissions:
+  actions: read
+  contents: read
+concurrency:
+  group: fd-gift-stage2-all13-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  original_4505_GIFT_geography_genus_flower:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-gift4505-stage2-namedisjoint
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: 828f4b76760209d9276db2ffdc0cd9b1440c408f
+          path: work/fd-reference
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install sparse genus and proper-scoring numerical runtime
+        run: python -m pip install -q numpy pandas scipy pytest
+      - name: Test non-oracle full-name donor ban and scoring guards
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd-reference/src" python -m pytest -q \
+            tests/test_fd_original_stage2_name_disjoint_flower_forecast.py \
+            work/fd-reference/tests/test_two_stage_floral_forecast.py
+          PYTHONPATH="scripts:work/fd-reference/src" python -m compileall -q \
+            scripts/fd_original_stage2_name_disjoint_flower_forecast.py
+      - name: Restore SHA-locked original GIFT botanical flora and flower observations
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" \
+            -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' \
+            -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_FLORA" | sha256sum --check --strict
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "8a9d79c698afa20e611663adb884c8caf648e1a3836853fad94e6a0cd6facb44  $ORIGINAL_ROOT/fixed/source/result/island_source_assignments.csv.gz" | sha256sum --check --strict
+          echo "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $ORIGINAL_ROOT/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+      - name: Recreate independent GSHHG 8264-island geospatial covariates
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/fd-reference/src python -c \
+            'from pathlib import Path; import os; from fd.origin import run_crosswalk; run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Fit name-disjoint genus stage and two same-species Direct floral endpoints
+        run: |
+          set -euo pipefail
+          PYTHONPATH="scripts:work/fd-reference/src" python -u \
+            scripts/fd_original_stage2_name_disjoint_flower_forecast.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geography "$STAGE/geography/island_origin_crosswalk.csv" \
+            --endpoints flower_primary_color floral_form floral_symmetry flower_size_class tube_depth_class inflorescence_display self_incompatibility autonomous_selfing_capacity mating_system cleistogamy flower_primary_color__floral_form flower_primary_color__floral_symmetry floral_form__floral_symmetry \
+            --nboot 499 \
+            --output "$STAGE/anonymous_gift4505_stage2_all13_name_disjoint.json"
+      - name: Check source output and forbidden identifier leakage
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          s=(Path(os.environ["STAGE"])/"anonymous_gift4505_stage2_all13_name_disjoint.json").read_text()
+          x=json.loads(s)
+          assert x["original_parent_GIFT_botanical_floras"]==4505
+          assert len(x["regional_source_heldout_results"])==78
+          assert len(x["frozen_pilot_endpoints"])==13
+          assert all(y["original_full_accepted_name_group_ban_on_both_models"] for y in x["regional_source_heldout_results"])
+          for key in ("island_id","accepted_species","entity_ID","spatial_block","first_source","genus_name","latitude","longitude"):
+              assert '"'+key+'":' not in s, "Private botanical/source identifier exported"
+          print("Source original 4505-stage two-panel output integrity PASS")
+          PY
+      - name: Archive anonymous original regional loss and attrition panels only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gift4505-all13-name-disjoint-stage2-anonymous-original
+          path: /tmp/fd-original-gift4505-stage2-namedisjoint/anonymous_gift4505_stage2_all13_name_disjoint.json
+          retention-days: 90
+          if-no-files-found: warn
