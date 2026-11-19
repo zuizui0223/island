@@ -43,7 +43,7 @@ from fd_global_genus_assembly_geometry import source_endpoints
 from fd_interregional_genus_name_exclusive_transfer import (
     donor_source_region_ownership,hashed_donors_by_genus,
     reference_profile_prior,island_heldout_comparison,
-    group_equal_pair_stats,sha,REGIONS,SCOPES,MIN_DIRECT,
+    group_equal_pair_stats,sha,genus,REGIONS,SCOPES,MIN_DIRECT,
     MIN_MATCHED_PER_ISLAND,MIN_ISLANDS,MIN_BLOCKS,
 )
 
@@ -168,7 +168,7 @@ def score_paired_identical_original_species(
     if not actual or not actual<=original_whole_focal_flora:
         raise ValueError("Target Direct species not on ORIGINAL focal flora")
     shared=baseline["matched_genera"]&strict["matched_genera"]
-    target={sp for sp in actual if sp.split()[0] in shared}
+    target={sp for sp in actual if genus(sp) in shared}
     if len(target)<min_carriers:
         return None
     scores={}
@@ -177,7 +177,15 @@ def score_paired_identical_original_species(
             original_whole_focal_flora,target,state,indices,
             model["prior"],model["local_groups"],model["external_groups"])
         if z["n_matched_genus_direct_carriers"]!=len(target):
-            raise AssertionError("Unmatched focal genus leaked into comparison")
+            # SOURCE-PRIVATE numeric checks only. Never log original
+            # island, genus, accepted species or source entity identities.
+            raise AssertionError(
+                "Matched original source genus drift: model="+name+
+                " target_carriers="+str(len(target))+
+                " reported_carriers="+str(z["n_matched_genus_direct_carriers"])+
+                " common_genus_n="+str(len(shared))+
+                " strict_local_genus_n="+str(len(strict["local_groups"]))+
+                " strict_other_genus_n="+str(len(strict["external_groups"])))
         scores[name]=z
     a=scores["before"];b=scores["strict"]
     def dd(key):
