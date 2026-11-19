@@ -44,7 +44,8 @@ def test_no_oracle_regional_source_pool_weights_cannot_see_focal_genus():
     assert model["external_genus_blind_prior"][0]<.5
     assert np.isclose(model["source_genus_weighted_external_flower_profile"].sum(),1)
     assert model["local_source_species_fraction_with_external_same_genus_donor"]==1.
-    assert "focal" not in " ".join(model.keys())
+    assert set(model["external_conditional_genus_profiles"])=={"A","B"}
+    assert model["source_local_genus_weights_not_focal_island_occupancy"]
 
 
 def test_no_oracle_prediction_all_real_direct_carriers_and_negative_results():
