@@ -129,7 +129,7 @@ def _validate_source(x:dict)->dict:
     return dict(
         original_full_parent_island_floras=4505,
         original_direct_endpoints=13,
-        original_region_status_mode_eligibility_panels=len(den),
+        original_region_status_trait_mode_eligibility_panels=len(den),
         n_original_source_qualified_region_status_modes=qualified,
         n_original_regression_scored_region_status_modes=len(scored),
         original_names_heldout_source_group_keys=len(keys),
