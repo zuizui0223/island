@@ -58,6 +58,11 @@ MAIN_COLS=(
     "baseline_on_identical_carriers_local_vs_external_logloss",
     "strict_minus_baseline_local_vs_external_logloss",
     "strict_other_region_genus_vs_blind_Brier",
+    "strict_other_region_genus_vs_blind_logloss",
+    "baseline_on_identical_carriers_other_region_genus_vs_blind_Brier",
+    "baseline_on_identical_carriers_other_region_genus_vs_blind_logloss",
+    "strict_minus_baseline_other_region_genus_vs_blind_Brier",
+    "strict_minus_baseline_other_region_genus_vs_blind_logloss",
 )
 NB_BOOT=499
 
@@ -212,6 +217,14 @@ def score_paired_identical_original_species(
             b["external_genus_vs_blind_proper_Brier_gain_per_comparable_plant"]),
         baseline_on_identical_carriers_other_region_genus_vs_blind_Brier=float(
             a["external_genus_vs_blind_proper_Brier_gain_per_comparable_plant"]),
+        strict_other_region_genus_vs_blind_logloss=float(
+            b["external_genus_vs_blind_proper_logloss_gain_per_comparable_plant"]),
+        baseline_on_identical_carriers_other_region_genus_vs_blind_logloss=float(
+            a["external_genus_vs_blind_proper_logloss_gain_per_comparable_plant"]),
+        strict_minus_baseline_other_region_genus_vs_blind_Brier=dd(
+            "external_genus_vs_blind_proper_Brier_gain_per_comparable_plant"),
+        strict_minus_baseline_other_region_genus_vs_blind_logloss=dd(
+            "external_genus_vs_blind_proper_logloss_gain_per_comparable_plant"),
         strict_source_matched_genus_names=(
             len(strict["matched_genera"])),
         strict_local_source_names=int(strict["local_names"]),
@@ -383,6 +396,14 @@ def analyse(original_direct:dict,flora:pd.DataFrame,geo:pd.DataFrame,
                                 df.strict_minus_baseline_local_vs_external_Brier.mean()),
                             island_equal_strict_local_minus_external_logloss=float(
                                 df.strict_local_vs_external_logloss.mean()),
+                            island_equal_strict_other_region_genus_vs_blind_Brier=float(
+                                df.strict_other_region_genus_vs_blind_Brier.mean()),
+                            island_equal_strict_other_region_genus_vs_blind_logloss=float(
+                                df.strict_other_region_genus_vs_blind_logloss.mean()),
+                            island_equal_strict_minus_baseline_other_region_genus_vs_blind_Brier=float(
+                                df.strict_minus_baseline_other_region_genus_vs_blind_Brier.mean()),
+                            island_equal_strict_minus_baseline_other_region_genus_vs_blind_logloss=float(
+                                df.strict_minus_baseline_other_region_genus_vs_blind_logloss.mean()),
                             island_equal_same_focal_baseline_local_minus_external_logloss=float(
                                 df.baseline_on_identical_carriers_local_vs_external_logloss.mean()),
                             original_source_local_removed_species_mean=float(
