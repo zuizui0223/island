@@ -73,7 +73,7 @@ def test_missing_source_and_same_name_balance_boundaries():
     with pytest.raises(ValueError,match=">=20"):
         balanced_source_prior(a-forbidden,states,{"open":0,"deep":1},
                               n_names=BALANCED_SOURCE_MAX_DIRECT_NAMES+1,seed=0)
-    with pytest.raises(ValueError,match=">=20"):
+    with pytest.raises(ValueError,match="Too few matched"):
         paired_balanced_source_priors(a,set(sorted(b)[:10]),forbidden,
                                      states,{"open":0,"deep":1})
 
