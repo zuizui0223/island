@@ -580,9 +580,65 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     rec["local_blind_better_than_external_blind_both_scores_and_groups"] = False
                     rec["balanced_external_better_all_three_source_samples_both_losses_groups"] = False
                     rec["balanced_local_better_all_three_source_samples_both_losses_groups"] = False
+                # Genus-overlap matched SOURCE PRIORS are scored on a
+                # separate prespecified subset; the ORIGINAL all-13 target
+                # cohort and original equal-N source predictions above are
+                # never silently replaced or shrunk.
+                matched_frame = pd.DataFrame(genusmatched_by_ep[ep])
+                rec["n_original_target_islands_scored_with_genus_matched_source"] = len(
+                    matched_frame)
+                rec["genusmatched_retained_fraction_of_original_source_scored_islands"] = (
+                    len(matched_frame) / len(scored) if len(scored) else 0.)
+                if matched_frame.empty:
+                    rec["genusmatched_support_both_geographies"] = False
+                    rec["genusmatched_external_better_all_three_seeds_and_four_intervals"] = False
+                    rec["genusmatched_local_better_all_three_seeds_and_four_intervals"] = False
+                else:
+                    rec["genusmatched_n_distinct_common_genera_mean"] = float(
+                        matched_frame.n_common_direct_source_genera.mean())
+                    rec["genusmatched_n_direct_names_per_region_mean"] = float(
+                        matched_frame.n_genus_matched_direct_source_names_per_side.mean())
+                    rec["genusmatched_local_source_species_retained_fraction_mean"] = float(
+                        matched_frame.n_local_source_direct_names_retained_fraction.mean())
+                    rec["genusmatched_external_source_species_retained_fraction_mean"] = float(
+                        matched_frame.n_external_source_direct_names_retained_fraction.mean())
+                    for name, group in (
+                            ("genusmatched_physical_block", "spatial_block"),
+                            ("genusmatched_first_source_group", "first_source")):
+                        rec[name] = paired_cluster_summary(
+                            matched_frame, group=group,
+                            columns=GENUS_MATCHED_COLUMNS,
+                            nboot=nboot, seed=int.from_bytes(hashlib.sha256(
+                                (scope+reg+ep+name+"genusmatched").encode()).digest()[:8],
+                                "big"))
+                    rec["genusmatched_support_both_geographies"] = bool(
+                        rec["genusmatched_physical_block"]["supported_for_inference"]
+                        and rec["genusmatched_first_source_group"]["supported_for_inference"])
+                    rec["genusmatched_external_better_all_three_seeds_and_four_intervals"] = bool(
+                        rec["genusmatched_support_both_geographies"] and all(
+                            dual_loss_dual_group_positive(
+                                rec["genusmatched_physical_block"],
+                                rec["genusmatched_first_source_group"],
+                                f"genusmatched_external_seed{seed}",
+                                f"genusmatched_local_seed{seed}")
+                            for seed in BALANCED_SOURCE_REPLICATE_SEEDS))
+                    rec["genusmatched_local_better_all_three_seeds_and_four_intervals"] = bool(
+                        rec["genusmatched_support_both_geographies"] and all(
+                            dual_loss_dual_group_positive(
+                                rec["genusmatched_physical_block"],
+                                rec["genusmatched_first_source_group"],
+                                f"genusmatched_local_seed{seed}",
+                                f"genusmatched_external_seed{seed}")
+                            for seed in BALANCED_SOURCE_REPLICATE_SEEDS))
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_BALANCED_SOURCE_LOCAL_EXTERNAL_BLIND_SENSITIVITY",
+        "status": "ORIGINAL_GIFT_STAGE2_GENUS_AND_COUNT_MATCHED_SOURCE_REFERENCE_SENSITIVITY",
+        "genus_matched_name_hash_seeds": list(BALANCED_SOURCE_REPLICATE_SEEDS),
+        "genus_matched_min_common_direct_genera": GENUS_MATCHED_MIN_SHARED_GENERA,
+        "genus_matched_min_direct_names_each_side": GENUS_MATCHED_MIN_TOTAL_SPECIES,
+        "genus_matched_max_direct_names_per_common_genus_each_side": GENUS_MATCHED_MAX_DIRECT_PER_GENUS,
+        "genus_matched_prior_same_genus_weights_and_same_source_names_count_per_genus": True,
+        "matched_source_eligibility_is_an_explicit_subset_not_original_model_redefinition": True,
         "matched_source_direct_name_sample_seeds": list(BALANCED_SOURCE_REPLICATE_SEEDS),
         "matched_source_direct_name_per_side_cap": BALANCED_SOURCE_MAX_DIRECT_NAMES,
         "original_focal_trait_cohorts_and_nonoracle_predictions_unchanged": True,
