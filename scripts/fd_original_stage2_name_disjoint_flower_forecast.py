@@ -43,7 +43,9 @@ from fd_original_environmental_genus_composition import (
 from fd.two_stage_floral_forecast import (
     REQUIRED_MODELS, UNKNOWN_GENUS, score_focal_flora,
     paired_cluster_summary, dual_loss_dual_group_positive,
+    predict_flower_distribution, proper_losses,
 )
+from fd_original_gift_direct_evidence_quality_audit import direct_grade_states
 
 PILOT_ENDPOINTS = ("floral_form", "flower_primary_color__floral_form")
 PRIMARY_REGIONS = ("northern_midlatitude", "tropical", "southern_extratropical")
@@ -70,6 +72,39 @@ SUMMARY_GAIN_COLUMNS = tuple(
     ("source_increment", "source_over_geo", "source_over_environment")
     for loss in ("Brier", "logloss")
 )
+
+
+HIGH_GRADE_PILOT_ENDPOINTS=("floral_symmetry","flower_primary_color")
+HIGH_GRADE_GAINS=(
+    "high_grade_external_congener_gain_vs_high_medium_Brier",
+    "high_grade_external_congener_gain_vs_high_medium_logloss",
+)
+
+
+def high_grade_source_gain(
+        real_target_codes: list[int],
+        model_high: np.ndarray,
+        original_model_prob: np.ndarray) -> dict[str,float]:
+    """Paired EXACT SAME target botanical Direct species categorical outcomes.
+
+    Source High grade restrictions only apply to OTHER source botanical
+    species, never to the heldout target species-Direct carrier cohort.
+    """
+    if (np.asarray(model_high).shape!=np.asarray(original_model_prob).shape
+            or np.asarray(model_high).ndim!=1):
+        raise ValueError("Original and HIGH-only source category ontology differ")
+    new=proper_losses(model_high,real_target_codes)
+    old=proper_losses(original_model_prob,real_target_codes)
+    return dict(zip(HIGH_GRADE_GAINS,(
+        old[0]-new[0],old[1]-new[1])))
+
+
+def high_grade_pair_positive(physical:dict,source:dict)->bool:
+    if not physical.get("supported_for_inference") or not source.get("supported_for_inference"):
+        return False
+    return all(
+        report[key]["bootstrap_95"][0]>0
+        for report in (physical,source) for key in HIGH_GRADE_GAINS)
 
 
 def filtered_genus_matrix(
@@ -172,7 +207,8 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                  *, endpoints: tuple[str, ...] = PILOT_ENDPOINTS,
                  scopes: tuple[str, ...] = SCOPES,
                  regions: tuple[str, ...] = PRIMARY_REGIONS,
-                 nboot: int = NBOOT) -> dict:
+                 nboot: int = NBOOT,
+                 high_grade_source_names: dict[str, set[str]] | None = None) -> dict:
     ids = sorted(floras.island_id.unique())
     if len(ids) != 4505 or floras.duplicated(["island_id", "accepted_species"]).any():
         raise ValueError("Original 4505 accepted botanical island population changed")
@@ -188,6 +224,12 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
     original = source_endpoints(direct_states)
     if len(original) != 13 or not set(endpoints) <= original.keys():
         raise ValueError("Original 13 true Direct endpoints missing")
+    if high_grade_source_names is not None:
+        if not set(endpoints)<=set(high_grade_source_names):
+            raise ValueError("Prespecified High-only donor source trait endpoints missing")
+        if any(not high_grade_source_names[ep]<=set(original[ep])
+               for ep in endpoints):
+            raise ValueError("High-grade donor name not in original Direct trait category ontology")
     indices_by_endpoint = {
         ep: {value: k for k, value in
              enumerate(sorted(set(original[ep].values()), key=repr))}
@@ -224,6 +266,8 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                 scope_sets = {r: names & known for r, names in by_reg.items()}
                 source_banks[ep] = donor_source_region_ownership(scope_sets, reg)
             data_by_ep = {ep: [] for ep in endpoints}
+            matched_quality_by_ep={ep: [] for ep in endpoints}
+            quality_support={ep: Counter() for ep in endpoints}
             support = {ep: Counter() for ep in endpoints}
             for (block, first_source), focals in grouped.items():
                 rep = focals[0]
@@ -269,6 +313,22 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     if ((local | external) - forbidden) & forbidden:
                         raise AssertionError("External Direct species leaked")
                     genus_profiles = source_model["external_conditional_genus_profiles"]
+                    quality_source_model=None
+                    if high_grade_source_names is not None:
+                        grade_names=high_grade_source_names[ep]
+                        local_grade=local & grade_names
+                        external_grade=external & grade_names
+                        quality_source_model=refit_no_oracle_regional_genus_source(
+                            local_grade,external_grade,forbidden,original[ep],indices)
+                        if (
+                            quality_source_model is None
+                            or quality_source_model["n_distinct_local_direct_source_species"]<20
+                            or quality_source_model["n_distinct_external_direct_source_species"]<20
+                            or quality_source_model["n_distinct_genus_profiles_with_external_direct_congeners"]<2
+                            or quality_source_model["local_source_species_fraction_with_external_same_genus_donor"]<.10
+                        ):
+                            quality_source_model=None
+                            quality_support[ep]["insufficient_strict_HIGH_only_source_congener_support"]+=len(focals)
                     for focal in focals:
                         direct = sorted(membership.get(ids[focal], set()) & set(original[ep]))
                         if len(direct) < MIN_DIRECT:
@@ -285,6 +345,43 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                             observed_focal_genera_for_ORACLE_only=[genus(name) for name in direct],
                             min_direct=MIN_DIRECT,
                         )
+                        if high_grade_source_names is not None:
+                            if quality_source_model is None:
+                                quality_support[ep]["source_group_without_qualified_HIGH_only_donors"]+=1
+                            else:
+                                real_codes=[indices[original[ep][name]] for name in direct]
+                                weights=weights_for_flower(
+                                    preds["environment_source_nearest"],vocab_names)
+                                p_original=predict_flower_distribution(
+                                    weights,genus_profiles,
+                                    source_model["external_genus_blind_prior"])
+                                p_high=predict_flower_distribution(
+                                    weights,
+                                    quality_source_model["external_conditional_genus_profiles"],
+                                    quality_source_model["external_genus_blind_prior"])
+                                scores_ref=proper_losses(p_original,real_codes)
+                                if (
+                                    not np.isclose(
+                                        scores_ref[0],
+                                        scores["environment_source_nearest_Brier"],atol=1e-12)
+                                    or not np.isclose(
+                                        scores_ref[1],
+                                        scores["environment_source_nearest_logloss"],atol=1e-12)
+                                ):
+                                    raise AssertionError("Original full-grade source model score drift")
+                                qgain=high_grade_source_gain(real_codes,p_high,p_original)
+                                matched_quality_by_ep[ep].append({
+                                    "spatial_block":block,
+                                    "first_source":first_source,
+                                    "high_grade_source_local_species_n":
+                                        quality_source_model["n_distinct_local_direct_source_species"],
+                                    "high_grade_source_external_species_n":
+                                        quality_source_model["n_distinct_external_direct_source_species"],
+                                    "high_grade_source_local_genus_coverage":
+                                        quality_source_model[
+                                            "local_source_species_fraction_with_external_same_genus_donor"],
+                                    **qgain
+                                })
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
@@ -319,6 +416,41 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                            support_attrition=dict(support[ep]),
                            original_focal_genus_oracle_NOT_used_in_predictor=True,
                            original_full_accepted_name_group_ban_on_both_models=True)
+                if high_grade_source_names is not None:
+                    quality_match=pd.DataFrame(matched_quality_by_ep[ep])
+                    qmeta={
+                        "n_original_target_islands_with_strict_HIGH_only_donors":len(quality_match),
+                        "original_target_islands_same_species_categories_for_both_models":True,
+                        "high_quality_donor_source_attrition":dict(quality_support[ep]),
+                        "High_only_plus_high_medium_compared_under_same_genus_probabilities":True,
+                    }
+                    if not quality_match.empty:
+                        qmeta["mean_distinct_HIGH_only_source_local_Direct_species"]=float(
+                            quality_match.high_grade_source_local_species_n.mean())
+                        qmeta["mean_distinct_HIGH_only_source_external_Direct_species"]=float(
+                            quality_match.high_grade_source_external_species_n.mean())
+                        qmeta["mean_HIGH_only_source_local_genus_external_congener_coverage"]=float(
+                            quality_match.high_grade_source_local_genus_coverage.mean())
+                        for group_name,group_col in (
+                            ("physical_block","spatial_block"),
+                            ("first_source_group","first_source"),
+                        ):
+                            qmeta[group_name]=paired_cluster_summary(
+                                quality_match,group=group_col,columns=HIGH_GRADE_GAINS,
+                                nboot=nboot,
+                                seed=int.from_bytes(hashlib.sha256((
+                                    "HIGHONLY:"+scope+reg+ep+group_col).encode()
+                                    ).digest()[:8],"big"))
+                        qmeta["qualified_in_both_original_source_groupings"]=bool(
+                            qmeta["physical_block"]["supported_for_inference"] and
+                            qmeta["first_source_group"]["supported_for_inference"])
+                        qmeta["high_only_beats_high_medium_both_proper_losses_and_groups"]=(
+                            high_grade_pair_positive(
+                                qmeta["physical_block"],qmeta["first_source_group"]))
+                    else:
+                        qmeta["qualified_in_both_original_source_groupings"]=False
+                        qmeta["high_only_beats_high_medium_both_proper_losses_and_groups"]=False
+                    rec["source_grade_matched_comparison"]=qmeta
                 if not scored.empty:
                     rec["mean_target_Direct_carriers"] = float(scored.n_original_direct_plant_carriers.mean())
                     rec["unknown_genus_target_fraction_mean"] = float(
@@ -346,7 +478,10 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_NAME_DISJOINT_GEO_GENUS_FLORAL_PILOT",
+        "status": ("ORIGINAL_GIFT_STAGE2_HIGH_ONLY_EXTERNAL_CONGENER_MATCHED_PILOT"
+                   if high_grade_source_names is not None
+                   else "ORIGINAL_GIFT_STAGE2_NAME_DISJOINT_GEO_GENUS_FLORAL_PILOT"),
+        "high_only_source_grade_test_does_not_change_original_heldout_Direct_plant_carriers": True,
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),
@@ -384,11 +519,19 @@ def main():
     geo = pd.read_csv(args.geography, dtype=str, usecols=[
         "island_id", "analysis_regime", "spatial_block", "island_latitude",
         "island_longitude", *FEATURES])
-    traits = strict_traits(pd.read_csv(paths["traits"], dtype=str, usecols=[
-        "accepted_species", "trait_name", "normalized_value",
-        "evidence_scope", "evidence_quality"]))
+    grade_raw=pd.read_csv(paths["traits"],dtype=str,usecols=[
+        "accepted_species","trait_name","normalized_value",
+        "evidence_scope","evidence_quality"])
+    traits=strict_traits(grade_raw)
+    quality=direct_grade_states(grade_raw)
+    high_grade_names={
+        ep:{name for name,level in quality[ep]["quality"].items()
+            if level=="high"}
+        for ep in args.endpoints
+    }
     r = run_analysis(flora, geo, ass, traits,
-                     endpoints=tuple(args.endpoints), nboot=args.nboot)
+                     endpoints=tuple(args.endpoints), nboot=args.nboot,
+                     high_grade_source_names=high_grade_names)
     raw = json.dumps(r, indent=2, sort_keys=True, allow_nan=False)
     for private in ('"island_id":', '"accepted_species":', '"entity_ID":',
                     '"spatial_block":', '"first_source":', '"genus_name":',
