@@ -151,7 +151,12 @@ def distinct_target_cluster_summary(
         if n<min_groups:
             return {"supported_for_inference":False,"n_original_group_units":n,
                     "resampling_unit":label}
-        draws=vals[rng.integers(0,n,size=(nboot,n))].mean(axis=1)
+        # Stream draws: original GIFT can contain many accepted species,
+        # so never allocate a giant nboot × species × six-scores array.
+        draws=np.stack([
+            vals[rng.integers(0,n,size=n)].mean(axis=0)
+            for _ in range(nboot)
+        ])
         out={"supported_for_inference":True,
              "n_original_group_units":n,"resampling_unit":label,
              "nboot":nboot,"exploratory_not_multiplicity_adjusted":True}
