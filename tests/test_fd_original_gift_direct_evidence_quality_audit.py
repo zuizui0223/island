@@ -16,7 +16,7 @@ def synthetic_ledger(n_genera=15):
     # plant trait observations for the same accepted species.
     for g in range(n_genera):
         for k in range(10):
-            name=f"Genus{g} species{k}"
+            name=f"Genus{chr(65+g)} species{k}"
             for trait in TRAITS:
                 rows.append({
                     "accepted_species":name,"trait_name":trait,
@@ -33,18 +33,18 @@ def test_true_species_direct_quality_and_genuine_same_species_pairs_only():
     assert set(data)==set(TRAITS)|{a+"__"+b for a,b in PAIRS}
     key="flower_primary_color__floral_symmetry"
     assert len(data[key]["state"])==150
-    assert data[key]["state"]["Genus0 species0"]==("classA","classA")
-    assert data[key]["quality"]["Genus0 species0"]=="high"
-    assert data[key]["quality"]["Genus0 species8"]=="medium"
+    assert data[key]["state"]["GenusA species0"]==("classA","classA")
+    assert data[key]["quality"]["GenusA species0"]=="high"
+    assert data[key]["quality"]["GenusA species8"]=="medium"
     ledger=synthetic_ledger(15)
     ledger.loc[
-        (ledger.accepted_species=="Genus0 species0")
+        (ledger.accepted_species=="GenusA species0")
         & (ledger.trait_name=="floral_symmetry"),
         "evidence_quality"
     ]="medium"
     changed=direct_grade_states(ledger)
-    assert changed[key]["quality"]["Genus0 species0"]=="medium"
-    assert changed[key]["state"]["Genus0 species0"]==("classA","classA")
+    assert changed[key]["quality"]["GenusA species0"]=="medium"
+    assert changed[key]["state"]["GenusA species0"]==("classA","classA")
 
 
 def test_within_genus_category_quality_differences_permute_grade_labels():
