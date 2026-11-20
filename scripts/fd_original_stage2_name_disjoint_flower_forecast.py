@@ -90,6 +90,9 @@ def high_grade_source_gain(
     Source High grade restrictions only apply to OTHER source botanical
     species, never to the heldout target species-Direct carrier cohort.
     """
+    if (np.asarray(model_high).shape!=np.asarray(original_model_prob).shape
+            or np.asarray(model_high).ndim!=1):
+        raise ValueError("Original and HIGH-only source category ontology differ")
     new=proper_losses(model_high,real_target_codes)
     old=proper_losses(original_model_prob,real_target_codes)
     return dict(zip(HIGH_GRADE_GAINS,(
