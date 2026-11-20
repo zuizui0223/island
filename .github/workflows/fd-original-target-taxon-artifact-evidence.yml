@@ -1,0 +1,83 @@
+name: fd_original_GIFT4505_target_taxon_existing_artifact_evidence_validation
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/fd-target-species-genus-cluster-20261120]
+    paths:
+      - ".github/workflows/fd-original-target-taxon-artifact-evidence.yml"
+permissions:
+  actions: read
+  contents: read
+jobs:
+  independent-source-artifact-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AUDIT: /tmp/fd-original-gift4505-target-taxon-artifact-evidence
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/fd
+          ref: 0f56b1b7f70141924be85636c9e5219c17bc931f
+          path: work/fd-source-auditor
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Retrieve exact source-original already-computed 78-panel taxon result and prior GIFT forecast
+        run: |
+          set -euo pipefail
+          mkdir -p "$AUDIT/target" "$AUDIT/prior"
+          gh run download 44669409016 --repo zuizui0223/island \
+            --name gift4505-stage2-all13-target-taxon-cluster-anonymous \
+            --dir "$AUDIT/target"
+          gh run download 44519589815 --repo zuizui0223/island \
+            --name gift4505-all13-name-disjoint-stage2-anonymous-original \
+            --dir "$AUDIT/prior"
+          ORIGINAL_TARGET="$AUDIT/target/anonymous_gift4505_stage2_all13_target_taxon_cluster.json"
+          ORIGINAL_BASELINE="$AUDIT/prior/anonymous_gift4505_stage2_all13_name_disjoint.json"
+          test -s "$ORIGINAL_TARGET"
+          test -s "$ORIGINAL_BASELINE"
+          echo "1370f468cb8c4fb559c1a23070f685cf2d12c64931f434107adba4ad9acba5b8  $ORIGINAL_TARGET" | sha256sum --check --strict
+          echo "7cbdbc34d20e1d5902c464cc1d93786004f3718848317db3e83038d6063e7201  $ORIGINAL_BASELINE" | sha256sum --check --strict
+          echo "ORIGINAL_TARGET=$ORIGINAL_TARGET" >> "$GITHUB_ENV"
+          echo "ORIGINAL_BASELINE=$ORIGINAL_BASELINE" >> "$GITHUB_ENV"
+      - name: Independently verify real GIFT original 4505 parent, 78 panels, source proper scores, taxon bootstrap, privacy
+        run: |
+          set -euo pipefail
+          python work/fd-source-auditor/scripts/verify_gift_target_taxon_source.py \
+            "$ORIGINAL_TARGET" \
+            --source-sha256 1370f468cb8c4fb559c1a23070f685cf2d12c64931f434107adba4ad9acba5b8 \
+            --historical-original-category "$ORIGINAL_BASELINE" \
+            --output "$AUDIT/verified_existing_original_target_taxon.json" > "$AUDIT/verifier_summary_stdout.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads((Path(os.environ["AUDIT"])/"verified_existing_original_target_taxon.json").read_text())
+          assert r["original_parent"]==4505
+          assert r["original_panels"]==78
+          assert r["original_island_equal_loss_forecasts_unchanged"] is True
+          s=r["all_anonymous_panels"]
+          assert len(s)==78
+          assert sum(
+              all(row[f"{unit}_gain_over_{b}"]=="positive"
+                  for b in ("regional_blind","external_blind","regional_genus_prior"))
+              for row in s for unit in ("genus_equal",))==0
+          assert sum(
+              row["scope"]=="all_recorded" and
+              all(row[f"species_equal_gain_over_{b}"]=="positive"
+                  for b in ("regional_blind","external_blind","regional_genus_prior"))
+              for row in s)==2
+          print("SOURCE_ORIGINAL_COMPLETED_ARTIFACT_AUDITED_4505_GIFT_78_PANELS=PASS")
+          print("COMPLETE_SRC_GIFT_TARGET_TAXON_GENUS_EQUAL_ALL_THREE_REFERENCE_WINS=0")
+          print("COMPLETE_SRC_GIFT_TARGET_TAXON_SPECIES_EQUAL_ALL_RECORDED_WINS=2")
+          PY
+      - name: Archive anonymous independent audit evidence only
+        uses: actions/upload-artifact@v4
+        with:
+          name: gift4505-target-taxon-completed-original-artifact-independent-audit
+          path: /tmp/fd-original-gift4505-target-taxon-artifact-evidence/verified_existing_original_target_taxon.json
+          if-no-files-found: error
+          retention-days: 90
