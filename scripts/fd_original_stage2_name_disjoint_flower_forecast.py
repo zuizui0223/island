@@ -367,6 +367,7 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                 scope_sets = {r: names & known for r, names in by_reg.items()}
                 source_banks[ep] = donor_source_region_ownership(scope_sets, reg)
             data_by_ep = {ep: [] for ep in endpoints}
+            genusmatched_by_ep = {ep: [] for ep in endpoints}
             support = {ep: Counter() for ep in endpoints}
             for (block, first_source), focals in grouped.items():
                 rep = focals[0]
@@ -414,6 +415,10 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     genus_profiles = source_model["external_conditional_genus_profiles"]
                     balanced_refs, balanced_n = paired_balanced_source_priors(
                         local, external, forbidden, original[ep], indices)
+                    matched_source = paired_genus_matched_source_priors(
+                        local, external, forbidden, original[ep], indices)
+                    if matched_source is None:
+                        support[ep]["insufficient_common_genus_and_matched_direct_donors"] += len(focals)
                     for focal in focals:
                         direct = sorted(membership.get(ids[focal], set()) & set(original[ep]))
                         if len(direct) < MIN_DIRECT:
@@ -489,6 +494,31 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         scores["spatial_block"] = block
                         scores["first_source"] = first_source
                         data_by_ep[ep].append(scores)
+                        if matched_source is not None:
+                            genusmatched_refs, genusmatched_details = matched_source
+                            matched_scores = {
+                                "spatial_block": block,
+                                "first_source": first_source,
+                                **genusmatched_details,
+                            }
+                            for seed, (p_local_g, p_external_g) in genusmatched_refs.items():
+                                local_loss = proper_losses(p_local_g, direct_codes)
+                                external_loss = proper_losses(p_external_g, direct_codes)
+                                for j, loss in enumerate(("Brier", "logloss")):
+                                    gap = local_loss[j] - external_loss[j]
+                                    matched_scores[
+                                        f"genusmatched_external_seed{seed}_gain_vs_genusmatched_local_seed{seed}_{loss}"
+                                    ] = gap
+                                    matched_scores[
+                                        f"genusmatched_local_seed{seed}_gain_vs_genusmatched_external_seed{seed}_{loss}"
+                                    ] = -gap
+                                    matched_scores[
+                                        f"genusmatched_minus_equalN_external_seed{seed}_{loss}"
+                                    ] = (
+                                        gap - scores[
+                                            f"balanced_external_seed{seed}_gain_vs_balanced_local_seed{seed}_{loss}"
+                                        ])
+                            genusmatched_by_ep[ep].append(matched_scores)
             for ep in endpoints:
                 scored = pd.DataFrame(data_by_ep[ep])
                 rec = dict(region=reg, scope=scope, trait_endpoint=ep,
