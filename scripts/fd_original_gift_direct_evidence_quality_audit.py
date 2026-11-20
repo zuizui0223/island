@@ -23,7 +23,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from fd_island_functional_beta import TRAITS, PAIRS
+from fd_island_functional_beta import TRAITS, PAIRS, accepted_botanical_genus
 
 REGIONS=("northern_midlatitude","tropical","southern_extratropical")
 SCOPES=("all_recorded","original_native")
@@ -92,11 +92,11 @@ def direct_grade_states(table:pd.DataFrame)->dict:
             for name in ENDPOINTS}
 
 
-def botanical_genus(species:str)->str:
-    chunks=species.split()
-    if len(chunks)<2 or not chunks[0] or not chunks[0][0].isupper():
-        raise ValueError("Invalid protected source accepted botanical binomial")
-    return chunks[0]
+def botanical_genus(species:str)->str|None:
+    # Use the existing original strict genus certification; uncertified
+    # names remain in trait coverage counts but cannot be assigned into
+    # artificial shared-genus biological replicates.
+    return accepted_botanical_genus(species)
 
 
 def variation_panel(
@@ -129,8 +129,13 @@ def variation_panel(
     if len(high)+len(med)!=len(scored) or len(scored)>n_original:
         raise AssertionError("Direct evidence category/quality original denominator drift")
     group=defaultdict(list)
+    uncertified=0
     for name in scored:
-        group[botanical_genus(name)].append((codes[values[name]],grades[name]=="high"))
+        g=botanical_genus(name)
+        if g is None:
+            uncertified+=1
+            continue
+        group[g].append((codes[values[name]],grades[name]=="high"))
     matched=[]
     for genus,items in sorted(group.items()):
         idx=np.array([p[0] for p in items],dtype=int)
@@ -158,10 +163,6 @@ def variation_panel(
     )
     if matched:
         obs=[]
-        for idx,nh in matched:
-            flags=np.array([a==0 for a in range(len(idx))],dtype=bool)
-            # Actual label positions must be preserved separately; repeated
-            # sorted source names are private and never serialized.
         matched_real=[]
         for genus,items in sorted(group.items()):
             idx=np.array([p[0] for p in items],dtype=int)
@@ -196,6 +197,7 @@ def variation_panel(
         "high_grade_fraction_among_Direct":(
             len(high)/len(scored) if scored else None),
         "n_source_distinct_genera_with_Direct":len(group),
+        "n_direct_names_without_certified_genus":uncertified,
         "n_within_genus_quality_matched_genera":len(matched),
         "n_different_category_states":K,
         "pooled_high_medium_category_total_variation":pooled,
