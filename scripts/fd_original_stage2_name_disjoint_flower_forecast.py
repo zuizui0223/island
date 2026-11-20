@@ -137,6 +137,84 @@ SUMMARY_GAIN_COLUMNS = tuple(
 ) + BALANCED_SOURCE_GAIN_COLUMNS
 
 
+GENUS_MATCHED_MAX_DIRECT_PER_GENUS = 20
+GENUS_MATCHED_MIN_SHARED_GENERA = 5
+GENUS_MATCHED_MIN_TOTAL_SPECIES = 20
+GENUS_MATCHED_COLUMNS = tuple(
+    f"{model}_gain_vs_{base}_{loss}"
+    for seed in BALANCED_SOURCE_REPLICATE_SEEDS
+    for model, base in (
+        (f"genusmatched_external_seed{seed}", f"genusmatched_local_seed{seed}"),
+        (f"genusmatched_local_seed{seed}", f"genusmatched_external_seed{seed}"),
+    )
+    for loss in ("Brier", "logloss")
+) + tuple(
+    f"genusmatched_minus_equalN_external_seed{seed}_{loss}"
+    for seed in BALANCED_SOURCE_REPLICATE_SEEDS
+    for loss in ("Brier", "logloss")
+)
+
+
+def paired_genus_matched_source_priors(
+    local: set[str], external: set[str], forbidden: set[str],
+    states: dict, indices: dict,
+) -> tuple[dict[int, tuple[np.ndarray, np.ndarray]], dict] | None:
+    """Same accepted GENUS set and SAME source species N in EACH genus.
+
+    This is a source-genre-composition-controlled comparison, NOT a
+    within-species evolved-island-flower comparison. Genus match is chosen
+    from donor species names only: focal true genus composition and focal
+    trait states are NEVER inputs to the matched-source prediction.
+    """
+    if not forbidden or local & external or (local|external)-set(states):
+        raise ValueError("Original eligible Direct donor sources ambiguous or missing")
+    allowed_local,allowed_external=local-forbidden,external-forbidden
+    if (allowed_local|allowed_external)&forbidden:
+        raise AssertionError("Full focal botanical name returned to genus-matched source")
+    local_by,external_by=defaultdict(list),defaultdict(list)
+    for species in allowed_local:
+        local_by[genus(species)].append(species)
+    for species in allowed_external:
+        external_by[genus(species)].append(species)
+    common=sorted(set(local_by)&set(external_by))
+    eligible={g:min(len(local_by[g]),len(external_by[g]),GENUS_MATCHED_MAX_DIRECT_PER_GENUS)
+              for g in common}
+    eligible={g:n for g,n in eligible.items() if n>=1}
+    n=sum(eligible.values())
+    if len(eligible)<GENUS_MATCHED_MIN_SHARED_GENERA or n<GENUS_MATCHED_MIN_TOTAL_SPECIES:
+        return None
+    if n>min(len(allowed_local),len(allowed_external)):
+        raise AssertionError("Within genus matching cannot exceed original source species")
+    matched={}
+    for seed in BALANCED_SOURCE_REPLICATE_SEEDS:
+        counts_local=np.full(len(indices),.5,dtype=float)
+        counts_external=np.full(len(indices),.5,dtype=float)
+        # Both source regions receive the EXACT same source genus WEIGHT,
+        # n_g / sum(n_g). Random source accepted-species label selections
+        # are entirely determined by frozen SHA256 name ordering, not
+        # empirical flower category outcomes or focal island membership.
+        for g,num in eligible.items():
+            for donor_by,counts in (
+                (local_by,counts_local),(external_by,counts_external)):
+                chosen=sorted(donor_by[g],key=lambda name: hashlib.sha256(
+                    f"fd:genusmatched:20261120:seed{seed}:{name}".encode()).hexdigest())[:num]
+                if len(chosen)!=num:
+                    raise AssertionError("Unequal donor species per common genus")
+                for species in chosen:
+                    counts[indices[states[species]]]+=1.0
+        counts_local/=counts_local.sum()
+        counts_external/=counts_external.sum()
+        if not np.isclose(counts_local.sum(),1) or not np.isclose(counts_external.sum(),1):
+            raise AssertionError("Genus-matched source category distribution invalid")
+        matched[seed]=(counts_local,counts_external)
+    return matched, {
+        "n_common_direct_source_genera":len(eligible),
+        "n_genus_matched_direct_source_names_per_side":n,
+        "n_local_source_direct_names_retained_fraction":n/len(allowed_local),
+        "n_external_source_direct_names_retained_fraction":n/len(allowed_external),
+    }
+
+
 def filtered_genus_matrix(
     donor_islands: list[str],
     island_species: dict[str, set[str]],
@@ -289,6 +367,7 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                 scope_sets = {r: names & known for r, names in by_reg.items()}
                 source_banks[ep] = donor_source_region_ownership(scope_sets, reg)
             data_by_ep = {ep: [] for ep in endpoints}
+            genusmatched_by_ep = {ep: [] for ep in endpoints}
             support = {ep: Counter() for ep in endpoints}
             for (block, first_source), focals in grouped.items():
                 rep = focals[0]
@@ -336,6 +415,10 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     genus_profiles = source_model["external_conditional_genus_profiles"]
                     balanced_refs, balanced_n = paired_balanced_source_priors(
                         local, external, forbidden, original[ep], indices)
+                    matched_source = paired_genus_matched_source_priors(
+                        local, external, forbidden, original[ep], indices)
+                    if matched_source is None:
+                        support[ep]["insufficient_common_genus_and_matched_direct_donors"] += len(focals)
                     for focal in focals:
                         direct = sorted(membership.get(ids[focal], set()) & set(original[ep]))
                         if len(direct) < MIN_DIRECT:
@@ -411,6 +494,31 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         scores["spatial_block"] = block
                         scores["first_source"] = first_source
                         data_by_ep[ep].append(scores)
+                        if matched_source is not None:
+                            genusmatched_refs, genusmatched_details = matched_source
+                            matched_scores = {
+                                "spatial_block": block,
+                                "first_source": first_source,
+                                **genusmatched_details,
+                            }
+                            for seed, (p_local_g, p_external_g) in genusmatched_refs.items():
+                                local_loss = proper_losses(p_local_g, direct_codes)
+                                external_loss = proper_losses(p_external_g, direct_codes)
+                                for j, loss in enumerate(("Brier", "logloss")):
+                                    gap = local_loss[j] - external_loss[j]
+                                    matched_scores[
+                                        f"genusmatched_external_seed{seed}_gain_vs_genusmatched_local_seed{seed}_{loss}"
+                                    ] = gap
+                                    matched_scores[
+                                        f"genusmatched_local_seed{seed}_gain_vs_genusmatched_external_seed{seed}_{loss}"
+                                    ] = -gap
+                                    matched_scores[
+                                        f"genusmatched_minus_equalN_external_seed{seed}_{loss}"
+                                    ] = (
+                                        gap - scores[
+                                            f"balanced_external_seed{seed}_gain_vs_balanced_local_seed{seed}_{loss}"
+                                        ])
+                            genusmatched_by_ep[ep].append(matched_scores)
             for ep in endpoints:
                 scored = pd.DataFrame(data_by_ep[ep])
                 rec = dict(region=reg, scope=scope, trait_endpoint=ep,
@@ -472,9 +580,65 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     rec["local_blind_better_than_external_blind_both_scores_and_groups"] = False
                     rec["balanced_external_better_all_three_source_samples_both_losses_groups"] = False
                     rec["balanced_local_better_all_three_source_samples_both_losses_groups"] = False
+                # Genus-overlap matched SOURCE PRIORS are scored on a
+                # separate prespecified subset; the ORIGINAL all-13 target
+                # cohort and original equal-N source predictions above are
+                # never silently replaced or shrunk.
+                matched_frame = pd.DataFrame(genusmatched_by_ep[ep])
+                rec["n_original_target_islands_scored_with_genus_matched_source"] = len(
+                    matched_frame)
+                rec["genusmatched_retained_fraction_of_original_source_scored_islands"] = (
+                    len(matched_frame) / len(scored) if len(scored) else 0.)
+                if matched_frame.empty:
+                    rec["genusmatched_support_both_geographies"] = False
+                    rec["genusmatched_external_better_all_three_seeds_and_four_intervals"] = False
+                    rec["genusmatched_local_better_all_three_seeds_and_four_intervals"] = False
+                else:
+                    rec["genusmatched_n_distinct_common_genera_mean"] = float(
+                        matched_frame.n_common_direct_source_genera.mean())
+                    rec["genusmatched_n_direct_names_per_region_mean"] = float(
+                        matched_frame.n_genus_matched_direct_source_names_per_side.mean())
+                    rec["genusmatched_local_source_species_retained_fraction_mean"] = float(
+                        matched_frame.n_local_source_direct_names_retained_fraction.mean())
+                    rec["genusmatched_external_source_species_retained_fraction_mean"] = float(
+                        matched_frame.n_external_source_direct_names_retained_fraction.mean())
+                    for name, group in (
+                            ("genusmatched_physical_block", "spatial_block"),
+                            ("genusmatched_first_source_group", "first_source")):
+                        rec[name] = paired_cluster_summary(
+                            matched_frame, group=group,
+                            columns=GENUS_MATCHED_COLUMNS,
+                            nboot=nboot, seed=int.from_bytes(hashlib.sha256(
+                                (scope+reg+ep+name+"genusmatched").encode()).digest()[:8],
+                                "big"))
+                    rec["genusmatched_support_both_geographies"] = bool(
+                        rec["genusmatched_physical_block"]["supported_for_inference"]
+                        and rec["genusmatched_first_source_group"]["supported_for_inference"])
+                    rec["genusmatched_external_better_all_three_seeds_and_four_intervals"] = bool(
+                        rec["genusmatched_support_both_geographies"] and all(
+                            dual_loss_dual_group_positive(
+                                rec["genusmatched_physical_block"],
+                                rec["genusmatched_first_source_group"],
+                                f"genusmatched_external_seed{seed}",
+                                f"genusmatched_local_seed{seed}")
+                            for seed in BALANCED_SOURCE_REPLICATE_SEEDS))
+                    rec["genusmatched_local_better_all_three_seeds_and_four_intervals"] = bool(
+                        rec["genusmatched_support_both_geographies"] and all(
+                            dual_loss_dual_group_positive(
+                                rec["genusmatched_physical_block"],
+                                rec["genusmatched_first_source_group"],
+                                f"genusmatched_local_seed{seed}",
+                                f"genusmatched_external_seed{seed}")
+                            for seed in BALANCED_SOURCE_REPLICATE_SEEDS))
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_BALANCED_SOURCE_LOCAL_EXTERNAL_BLIND_SENSITIVITY",
+        "status": "ORIGINAL_GIFT_STAGE2_GENUS_AND_COUNT_MATCHED_SOURCE_REFERENCE_SENSITIVITY",
+        "genus_matched_name_hash_seeds": list(BALANCED_SOURCE_REPLICATE_SEEDS),
+        "genus_matched_min_common_direct_genera": GENUS_MATCHED_MIN_SHARED_GENERA,
+        "genus_matched_min_direct_names_each_side": GENUS_MATCHED_MIN_TOTAL_SPECIES,
+        "genus_matched_max_direct_names_per_common_genus_each_side": GENUS_MATCHED_MAX_DIRECT_PER_GENUS,
+        "genus_matched_prior_same_genus_weights_and_same_source_names_count_per_genus": True,
+        "matched_source_eligibility_is_an_explicit_subset_not_original_model_redefinition": True,
         "matched_source_direct_name_sample_seeds": list(BALANCED_SOURCE_REPLICATE_SEEDS),
         "matched_source_direct_name_per_side_cap": BALANCED_SOURCE_MAX_DIRECT_NAMES,
         "original_focal_trait_cohorts_and_nonoracle_predictions_unchanged": True,
