@@ -97,12 +97,18 @@ jobs:
           assert all("target_species_genus_reweighting" in z for z in x["regional_source_heldout_results"])
           assert all("species_equal_positive_local_external_pooled" in z for z in x["regional_source_heldout_results"])
           assert all("genus_equal_positive_local_external_pooled" in z for z in x["regional_source_heldout_results"])
-          assert all("external_blind_better_than_local_blind_both_scores_and_groups" in y for y in x["regional_source_heldout_results"])
-          assert all("local_blind_better_than_external_blind_both_scores_and_groups" in y for y in x["regional_source_heldout_results"])
-          assert all(
-              not (y["external_blind_better_than_local_blind_both_scores_and_groups"]
-                   and y["local_blind_better_than_external_blind_both_scores_and_groups"])
-              for y in x["regional_source_heldout_results"])
+          assert all("positive_vs_local_blind_both_scores_and_groups" in y for y in x["regional_source_heldout_results"])
+          assert all("positive_vs_external_blind_both_scores_and_groups" in y for y in x["regional_source_heldout_results"])
+          assert all(y["target_species_genus_reweighting"]["target_accepted_names_absent_from_export"]
+                     for y in x["regional_source_heldout_results"])
+          assert all("regional_blind" in y["species_equal_positive_local_external_pooled"]
+                     and "external_blind" in y["species_equal_positive_local_external_pooled"]
+                     and "regional_genus_prior" in y["species_equal_positive_local_external_pooled"]
+                     for y in x["regional_source_heldout_results"])
+          assert all("regional_blind" in y["genus_equal_positive_local_external_pooled"]
+                     and "external_blind" in y["genus_equal_positive_local_external_pooled"]
+                     and "regional_genus_prior" in y["genus_equal_positive_local_external_pooled"]
+                     for y in x["regional_source_heldout_results"])
           assert all(y["original_full_accepted_name_group_ban_on_both_models"] for y in x["regional_source_heldout_results"])
           for key in ("island_id","accepted_species","entity_ID","spatial_block","first_source","genus_name","latitude","longitude"):
               assert '"'+key+'":' not in s, "Private botanical/source identifier exported"
