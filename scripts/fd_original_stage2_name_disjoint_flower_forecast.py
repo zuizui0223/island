@@ -42,7 +42,7 @@ from fd_original_environmental_genus_composition import (
 )
 from fd.two_stage_floral_forecast import (
     REQUIRED_MODELS, UNKNOWN_GENUS, score_focal_flora,
-    paired_cluster_summary, dual_loss_dual_group_positive,
+    paired_cluster_summary, dual_loss_dual_group_positive, proper_losses,
 )
 
 PILOT_ENDPOINTS = ("floral_form", "flower_primary_color__floral_form")
@@ -59,6 +59,64 @@ SOURCE_PINS = {
     "assign": "8a9d79c698afa20e611663adb884c8caf648e1a3836853fad94e6a0cd6facb44",
     "traits": "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745",
 }
+BALANCED_SOURCE_REPLICATE_SEEDS = (0, 1, 2)
+BALANCED_SOURCE_MAX_DIRECT_NAMES = 2000
+BALANCED_SOURCE_MIN_DIRECT_NAMES = 20
+BALANCED_SOURCE_GAIN_COLUMNS = tuple(
+    f"{comparison}_gain_vs_{baseline}_{loss}"
+    for replicate in BALANCED_SOURCE_REPLICATE_SEEDS
+    for comparison, baseline in (
+        (f"balanced_external_seed{replicate}",f"balanced_local_seed{replicate}"),
+        (f"balanced_local_seed{replicate}",f"balanced_external_seed{replicate}"),
+    )
+    for loss in ("Brier", "logloss")
+)
+
+
+def balanced_source_prior(
+        allowed_source_names: set[str], source_states: dict, categories: dict,
+        *, n_names: int, seed: int) -> np.ndarray:
+    """Jeffreys prior on deterministic, outcome-BLIND name-hash source sample.
+
+    Sample exactly n distinct accepted names from an original disjoint source,
+    not n floral-category outcomes. Never use the target island's trait labels.
+    """
+    if (n_names < BALANCED_SOURCE_MIN_DIRECT_NAMES
+            or n_names > BALANCED_SOURCE_MAX_DIRECT_NAMES
+            or len(allowed_source_names) < n_names
+            or not allowed_source_names <= set(source_states)):
+        raise ValueError("Matched direct source sample requires >=20 permitted species")
+    ordered = sorted(allowed_source_names, key=lambda name: hashlib.sha256(
+        f"fd:balanced:20261120:seed{seed}:{name}".encode()).hexdigest())
+    counts = np.full(len(categories), .5, dtype=float)
+    for name in ordered[:n_names]:
+        counts[categories[source_states[name]]] += 1.0
+    counts /= counts.sum()
+    if not np.isclose(counts.sum(), 1.0) or not np.all(counts > 0):
+        raise AssertionError("Matched Jeffreys category simplex invalid")
+    return counts
+
+
+def paired_balanced_source_priors(
+        local: set[str], external: set[str], forbidden: set[str],
+        source_states: dict, categories: dict) -> tuple[dict, int]:
+    """N=min(local,external,2000), repeat 3 outcome-blind hash choices."""
+    if local & external or not forbidden:
+        raise ValueError("Source labels must be region exclusive with full embargo")
+    a,b=local-forbidden,external-forbidden
+    if (a|b) & forbidden:
+        raise AssertionError("Original blocked botanical species returned to training")
+    n=min(len(a),len(b),BALANCED_SOURCE_MAX_DIRECT_NAMES)
+    if n < BALANCED_SOURCE_MIN_DIRECT_NAMES:
+        raise ValueError("Too few matched original Direct source names")
+    res={}
+    for seed in BALANCED_SOURCE_REPLICATE_SEEDS:
+        res[seed] = (
+            balanced_source_prior(a,source_states,categories,n_names=n,seed=seed),
+            balanced_source_prior(b,source_states,categories,n_names=n,seed=seed))
+    return res,n
+
+
 SUMMARY_GAIN_COLUMNS = tuple(
     f"{m}_gain_vs_{base}_{loss}"
     for m in REQUIRED_MODELS
@@ -76,7 +134,7 @@ SUMMARY_GAIN_COLUMNS = tuple(
         ("local_blind", "external_blind"),
     )
     for loss in ("Brier", "logloss")
-)
+) + BALANCED_SOURCE_GAIN_COLUMNS
 
 
 def filtered_genus_matrix(
@@ -276,6 +334,8 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     if ((local | external) - forbidden) & forbidden:
                         raise AssertionError("External Direct species leaked")
                     genus_profiles = source_model["external_conditional_genus_profiles"]
+                    balanced_refs, balanced_n = paired_balanced_source_priors(
+                        local, external, forbidden, original[ep], indices)
                     for focal in focals:
                         direct = sorted(membership.get(ids[focal], set()) & set(original[ep]))
                         if len(direct) < MIN_DIRECT:
@@ -306,6 +366,27 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                                     - scores[f"{model}_gain_vs_external_blind_{loss}"])
                                 if not np.isclose(difference, local_minus_external, atol=1e-12):
                                     raise AssertionError("Blind reference difference does not cancel predicted model")
+                        # A direct PAIR on identical GIFT focal Direct target
+                        # plant records: the only difference is outcome-blind
+                        # equal-N locally/external Direct training source names.
+                        direct_codes = [indices[original[ep][name]] for name in direct]
+                        scores["balanced_source_number_of_direct_names_per_side"] = balanced_n
+                        scores["original_external_over_local_direct_source_n_ratio"] = (
+                            source_model["n_distinct_external_direct_source_species"]
+                            / source_model["n_distinct_local_direct_source_species"])
+                        for sample_seed, (p_local_bal, p_ext_bal) in balanced_refs.items():
+                            bl,ll=proper_losses(p_local_bal,direct_codes)
+                            be,le=proper_losses(p_ext_bal,direct_codes)
+                            for loss, local_loss, external_loss in (
+                                ("Brier",bl,be),("logloss",ll,le)):
+                                forward = (
+                                    f"balanced_external_seed{sample_seed}"
+                                    f"_gain_vs_balanced_local_seed{sample_seed}_{loss}")
+                                reverse = (
+                                    f"balanced_local_seed{sample_seed}"
+                                    f"_gain_vs_balanced_external_seed{sample_seed}_{loss}")
+                                scores[forward] = local_loss-external_loss
+                                scores[reverse] = external_loss-local_loss
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
@@ -344,6 +425,10 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     rec["mean_target_Direct_carriers"] = float(scored.n_original_direct_plant_carriers.mean())
                     rec["unknown_genus_target_fraction_mean"] = float(
                         scored.true_focal_genus_species_fraction_outside_source_support.mean())
+                    rec["balanced_direct_source_names_per_side_mean"] = float(
+                        scored.balanced_source_number_of_direct_names_per_side.mean())
+                    rec["external_local_original_source_n_ratio_mean"] = float(
+                        scored.original_external_over_local_direct_source_n_ratio.mean())
                     for k, grp in (("physical_block", "spatial_block"),
                                    ("first_source_group", "first_source")):
                         rec[k] = paired_cluster_summary(
@@ -369,15 +454,30 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         dual_loss_dual_group_positive(
                             rec["physical_block"], rec["first_source_group"],
                             "local_blind", "external_blind"))
+                    rec["balanced_external_better_all_three_source_samples_both_losses_groups"] = bool(
+                        all(dual_loss_dual_group_positive(
+                                rec["physical_block"], rec["first_source_group"],
+                                f"balanced_external_seed{seed}",f"balanced_local_seed{seed}")
+                            for seed in BALANCED_SOURCE_REPLICATE_SEEDS))
+                    rec["balanced_local_better_all_three_source_samples_both_losses_groups"] = bool(
+                        all(dual_loss_dual_group_positive(
+                                rec["physical_block"], rec["first_source_group"],
+                                f"balanced_local_seed{seed}",f"balanced_external_seed{seed}")
+                            for seed in BALANCED_SOURCE_REPLICATE_SEEDS))
                 else:
                     rec["support_both_independent_source_groups"] = False
                     rec["positive_vs_local_blind_both_scores_and_groups"] = False
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
                     rec["external_blind_better_than_local_blind_both_scores_and_groups"] = False
                     rec["local_blind_better_than_external_blind_both_scores_and_groups"] = False
+                    rec["balanced_external_better_all_three_source_samples_both_losses_groups"] = False
+                    rec["balanced_local_better_all_three_source_samples_both_losses_groups"] = False
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_PAIRED_LOCAL_VS_EXTERNAL_BLIND_REFERENCE_AUDIT",
+        "status": "ORIGINAL_GIFT_STAGE2_BALANCED_SOURCE_LOCAL_EXTERNAL_BLIND_SENSITIVITY",
+        "matched_source_direct_name_sample_seeds": list(BALANCED_SOURCE_REPLICATE_SEEDS),
+        "matched_source_direct_name_per_side_cap": BALANCED_SOURCE_MAX_DIRECT_NAMES,
+        "original_focal_trait_cohorts_and_nonoracle_predictions_unchanged": True,
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),
