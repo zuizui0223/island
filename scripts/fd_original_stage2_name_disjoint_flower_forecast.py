@@ -43,6 +43,7 @@ from fd_original_environmental_genus_composition import (
 from fd.two_stage_floral_forecast import (
     REQUIRED_MODELS, UNKNOWN_GENUS, score_focal_flora,
     paired_cluster_summary, dual_loss_dual_group_positive,
+    diagnostic_flower_residual_split,
 )
 
 PILOT_ENDPOINTS = ("floral_form", "flower_primary_color__floral_form")
@@ -70,6 +71,82 @@ SUMMARY_GAIN_COLUMNS = tuple(
     ("source_increment", "source_over_geo", "source_over_environment")
     for loss in ("Brier", "logloss")
 )
+
+
+FLORAL_FORECAST_RESIDUAL_NAMES = (
+    "taxonomic_genus_forecast_residual",
+    "direct_trait_documentation_residual",
+    "within_genus_documented_trait_residual",
+)
+FLORAL_FORECAST_RESIDUAL_COLUMNS = (
+    "observed_minus_predicted_direct_trait_squared_norm",
+    "observed_direct_trait_plugin_Q",
+) + tuple(
+    f"{name}_{metric}"
+    for name in FLORAL_FORECAST_RESIDUAL_NAMES
+    for metric in ("squared_norm", "signed_projection_on_total_error")
+)
+
+
+def source_original_noncategorical_residual_diagnostic(
+        *,
+        predicted_genus_weights: dict[str, float],
+        observed_whole_flora_names: set[str],
+        observed_direct_species_names: list[str],
+        observed_direct_codes: np.ndarray,
+        congener_profiles: dict[str, np.ndarray],
+        external_category_prior: np.ndarray,
+        exact_original_model_Brier: float,
+) -> dict[str, float]:
+    """Exact 3 residual-vectors BEFORE interpreting guild/trait mechanisms.
+
+    This uses observed focal names/genera ONLY AFTER geographic genus and
+    external congener flower forecasts have been fitted. Components:
+      1: genus source forecast vs actual all recorded botanical genus roster
+      2: genus composition of Direct documented carriers vs whole flora
+      3: other-region congener phenotype transfer vs actual Direct categories
+
+    The source output is only anonymous squared vector norms and signed
+    projections; none of the three is a causal error variance share.
+    """
+    if not observed_whole_flora_names or not observed_direct_species_names:
+        raise ValueError("Incomplete source target botanical floras")
+    if not set(observed_direct_species_names) <= observed_whole_flora_names:
+        raise ValueError("Direct focal accepted plants absent from whole source flora")
+    parts = diagnostic_flower_residual_split(
+        predicted_genus_weights=predicted_genus_weights,
+        observed_whole_flora_genera=[
+            genus(n) for n in sorted(observed_whole_flora_names)],
+        observed_direct_carrier_genera=[
+            genus(n) for n in observed_direct_species_names],
+        observed_direct_codes=observed_direct_codes,
+        external_genus_profiles=congener_profiles,
+        external_blind=external_category_prior,
+    )
+    total=parts["observed_minus_predicted_direct_trait_frequency"]
+    squared_error=float(total @ total)
+    observed=np.bincount(
+        observed_direct_codes,
+        minlength=len(external_category_prior)).astype(float)
+    observed/=observed.sum()
+    observed_plugin_Q=float(1.0-observed@observed)
+    if not np.isclose(exact_original_model_Brier,
+                      observed_plugin_Q+squared_error, atol=1e-10):
+        raise AssertionError("Original proper Brier and residual identity disagreed")
+    output=dict(
+        observed_minus_predicted_direct_trait_squared_norm=squared_error,
+        observed_direct_trait_plugin_Q=observed_plugin_Q,
+    )
+    sum_projection=0.
+    for key in FLORAL_FORECAST_RESIDUAL_NAMES:
+        component=parts[key]
+        output[f"{key}_squared_norm"]=float(component @ component)
+        signed=float(component @ total)
+        output[f"{key}_signed_projection_on_total_error"]=signed
+        sum_projection+=signed
+    if not np.isclose(sum_projection,squared_error,atol=1e-10):
+        raise AssertionError("Three-stage source residual projection identity failed")
+    return output
 
 
 def filtered_genus_matrix(
@@ -285,6 +362,23 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                             observed_focal_genera_for_ORACLE_only=[genus(name) for name in direct],
                             min_direct=MIN_DIRECT,
                         )
+                        # Descriptive true-target-genus and Direct
+                        # documentation audit, AFTER all non-oracle predictors.
+                        # Raw species/genus identities never leave the CI.
+                        private_real_codes=np.asarray([
+                            indices[original[ep][name]] for name in direct],dtype=int)
+                        scores.update(source_original_noncategorical_residual_diagnostic(
+                            predicted_genus_weights=weights_for_flower(
+                                preds["environment_source_nearest"],vocab_names),
+                            observed_whole_flora_names=membership.get(ids[focal],set()),
+                            observed_direct_species_names=direct,
+                            observed_direct_codes=private_real_codes,
+                            congener_profiles=genus_profiles,
+                            external_category_prior=source_model[
+                                "external_genus_blind_prior"],
+                            exact_original_model_Brier=scores[
+                                "environment_source_nearest_Brier"],
+                        ))
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
@@ -326,7 +420,8 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     for k, grp in (("physical_block", "spatial_block"),
                                    ("first_source_group", "first_source")):
                         rec[k] = paired_cluster_summary(
-                            scored, group=grp, columns=SUMMARY_GAIN_COLUMNS,
+                            scored, group=grp,
+                            columns=SUMMARY_GAIN_COLUMNS+FLORAL_FORECAST_RESIDUAL_COLUMNS,
                             nboot=nboot, seed=int.from_bytes(hashlib.sha256(
                                 (scope+reg+ep+grp).encode()).digest()[:8], "big"))
                     rec["support_both_independent_source_groups"] = bool(
@@ -340,13 +435,20 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                         dual_loss_dual_group_positive(
                             rec["physical_block"], rec["first_source_group"],
                             "environment_source_nearest", "external_blind"))
+                    rec["source_residual_projection_is_not_a_causal_selection_partition"] = True
+                    rec["whole_flora_and_direct_carrier_genus_used_only_after_prediction"] = True
                 else:
                     rec["support_both_independent_source_groups"] = False
                     rec["positive_vs_local_blind_both_scores_and_groups"] = False
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
+                    rec["source_residual_projection_is_not_a_causal_selection_partition"] = True
+                    rec["whole_flora_and_direct_carrier_genus_used_only_after_prediction"] = True
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_NAME_DISJOINT_GEO_GENUS_FLORAL_PILOT",
+        "status": "ORIGINAL_GIFT_STAGE2_TAXONOMY_DIRECT_ANNOTATION_TRAIT_TRANSFER_RESIDUAL",
+        "direct_residual_vector_identity_verified_per_original_target_island": True,
+        "residual_projection_signed_not_causal_explained_variance": True,
+        "observed_true_focal_genera_used_only_in_post_prediction_audit": True,
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),
