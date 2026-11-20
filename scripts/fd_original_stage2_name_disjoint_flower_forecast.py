@@ -43,6 +43,7 @@ from fd_original_environmental_genus_composition import (
 from fd.two_stage_floral_forecast import (
     REQUIRED_MODELS, UNKNOWN_GENUS, score_focal_flora,
     paired_cluster_summary, dual_loss_dual_group_positive,
+    predict_flower_distribution,
 )
 
 PILOT_ENDPOINTS = ("floral_form", "flower_primary_color__floral_form")
@@ -70,6 +71,113 @@ SUMMARY_GAIN_COLUMNS = tuple(
     ("source_increment", "source_over_geo", "source_over_environment")
     for loss in ("Brier", "logloss")
 )
+
+
+TARGET_GAINS = tuple(
+    f"environment_source_nearest_gain_vs_{baseline}_{loss}"
+    for baseline in ("regional_blind", "external_blind", "regional_genus_prior")
+    for loss in ("Brier", "logloss")
+)
+MIN_TARGET_SPECIES = 30
+MIN_TARGET_GENERA = 10
+
+
+def target_species_gain_matrix(
+    codes: np.ndarray, model_p: np.ndarray,
+    reference_probs: dict[str, np.ndarray]) -> np.ndarray:
+    """Score exactly SAME Direct plant carriers without pseudoreplicate islands.
+
+    Each row is a real held-out accepted plant name (not an invented trait
+    pairing). Values reproduce per-island Brier/log gains averaged across all
+    carriers; accepted names only index private in-memory accumulators.
+    """
+    codes=np.asarray(codes)
+    model_p=np.asarray(model_p,dtype=float)
+    if (codes.ndim!=1 or codes.size==0 or not np.issubdtype(codes.dtype,np.integer)
+            or (codes<0).any() or (codes>=model_p.size).any()
+            or (model_p<0).any() or not np.isclose(model_p.sum(),1)):
+        raise ValueError("Original true Direct target/category model invalid")
+    out=np.zeros((len(codes),len(TARGET_GAINS)),dtype=float)
+    for k,base in enumerate(("regional_blind","external_blind","regional_genus_prior")):
+        b=np.asarray(reference_probs[base],dtype=float)
+        if (b.shape!=model_p.shape or not np.isfinite(b).all()
+                or (b<0).any() or not np.isclose(b.sum(),1)):
+            raise ValueError("Source baseline categorical ontology drift")
+        out[:,2*k]=(b@b-model_p@model_p)+2*(model_p[codes]-b[codes])
+        out[:,2*k+1]=np.log(np.maximum(model_p[codes],1e-15))-np.log(
+            np.maximum(b[codes],1e-15))
+    return out
+
+
+def distinct_target_cluster_summary(
+        source_species_accumulator: dict[str, np.ndarray],
+        *, nboot: int=NBOOT, seed: int=20261120) -> dict:
+    """Two NEW weighting estimands: unique species and unique genus.
+
+    Per-species values FIRST average the source predictions over every
+    occurrence on potentially many different GIFT islands. All observed
+    accepted plant names stay inside the protected CI. Cluster-equal species
+    and cluster-equal genus bootstrap distributions then avoid counting a
+    repeated plant name on 100 islands as 100 independent phenotypes. Species
+    are not phylogenetically independent, so genus equal remains required.
+    This is NOT the same estimand as island/physical/source-block equal and
+    must be interpreted as a robustness sensitivity only.
+    """
+    if nboot<50:
+        raise ValueError("Need sufficient source target taxon bootstrap draws")
+    n_species=len(source_species_accumulator)
+    if not n_species:
+        return {"n_distinct_target_species":0,"n_distinct_target_genera":0,
+                "target_accepted_names_absent_from_export":True,
+                "species_equal":{"supported_for_inference":False},
+                "genus_equal":{"supported_for_inference":False}}
+    species_names=sorted(source_species_accumulator)
+    x=np.stack([np.asarray(source_species_accumulator[name],float)
+                for name in species_names])
+    if (x.ndim!=2 or x.shape[1]!=len(TARGET_GAINS)+1
+            or (x[:,-1]<=0).any() or not np.isfinite(x).all()):
+        raise ValueError("Invalid private original target plant accumulator")
+    species_values=x[:,:len(TARGET_GAINS)]/x[:,-1,None]
+    by_genus=defaultdict(list)
+    for name,v in zip(species_names,species_values):
+        by_genus[genus(name)].append(v)
+    unique_genus=sorted(by_genus)
+    genus_values=np.stack([np.mean(by_genus[name],axis=0) for name in unique_genus])
+    n_genus=len(unique_genus)
+    rng=np.random.default_rng(seed)
+
+    def bootstrap(vals: np.ndarray, min_groups: int, label: str):
+        n=len(vals)
+        if n<min_groups:
+            return {"supported_for_inference":False,"n_original_group_units":n,
+                    "resampling_unit":label}
+        draws=vals[rng.integers(0,n,size=(nboot,n))].mean(axis=1)
+        out={"supported_for_inference":True,
+             "n_original_group_units":n,"resampling_unit":label,
+             "nboot":nboot,"exploratory_not_multiplicity_adjusted":True}
+        for j,key in enumerate(TARGET_GAINS):
+            out[key]={"group_equal_mean":float(vals[:,j].mean()),
+                      "bootstrap_95":[float(z) for z in np.quantile(
+                          draws[:,j],[.025,.975])]}
+        return out
+
+    return {
+        "n_distinct_target_species":n_species,
+        "n_distinct_target_genera":n_genus,
+        "n_species_island_occurrences":int(round(x[:,-1].sum())),
+        "mean_island_occurrences_per_distinct_species":float(x[:,-1].mean()),
+        "target_accepted_names_absent_from_export":True,
+        "species_equal":bootstrap(species_values,MIN_TARGET_SPECIES,"distinct_accepted_species"),
+        "genus_equal":bootstrap(genus_values,MIN_TARGET_GENERA,"distinct_accepted_genus"),
+    }
+
+
+def taxon_dual_loss_positive(summary: dict, baseline: str) -> bool:
+    if not summary.get("supported_for_inference"):
+        return False
+    return all(
+        summary[f"environment_source_nearest_gain_vs_{baseline}_{loss}"][
+            "bootstrap_95"][0]>0 for loss in ("Brier","logloss"))
 
 
 def filtered_genus_matrix(
@@ -225,6 +333,7 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                 source_banks[ep] = donor_source_region_ownership(scope_sets, reg)
             data_by_ep = {ep: [] for ep in endpoints}
             support = {ep: Counter() for ep in endpoints}
+            target_species_accumulator = {ep: {} for ep in endpoints}
             for (block, first_source), focals in grouped.items():
                 rep = focals[0]
                 forbidden = source_training_ban(
@@ -285,6 +394,36 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                             observed_focal_genera_for_ORACLE_only=[genus(name) for name in direct],
                             min_direct=MIN_DIRECT,
                         )
+                        # Post-prediction source evaluation under a distinct
+                        # target plant species/genus-equal estimand. No true
+                        # target genus/accepted name informs source forecasts.
+                        codes=np.asarray([indices[original[ep][name]] for name in direct],dtype=int)
+                        external_blind=source_model["external_genus_blind_prior"]
+                        species_p=predict_flower_distribution(
+                            weights_for_flower(preds["environment_source_nearest"],vocab_names),
+                            genus_profiles,external_blind)
+                        pooled_p=predict_flower_distribution(
+                            weights_for_flower(preds["regional_genus_prior"],vocab_names),
+                            genus_profiles,external_blind)
+                        species_gain=target_species_gain_matrix(
+                            codes,species_p,{
+                                "regional_blind":source_model["regional_local_genus_blind_prior"],
+                                "external_blind":external_blind,
+                                "regional_genus_prior":pooled_p,
+                            })
+                        for j,baseline in enumerate(
+                            ("regional_blind","external_blind","regional_genus_prior")):
+                            for k,loss in enumerate(("Brier","logloss")):
+                                expected=scores[f"environment_source_nearest_gain_vs_{baseline}_{loss}"]
+                                if not np.isclose(species_gain[:,2*j+k].mean(),
+                                                  expected,atol=1e-10):
+                                    raise AssertionError("Per accepted-name and per-island source proper scores differ")
+                        accumulator=target_species_accumulator[ep]
+                        for name,changes in zip(direct,species_gain):
+                            if name not in accumulator:
+                                accumulator[name]=np.zeros(len(TARGET_GAINS)+1,dtype=float)
+                            accumulator[name][:-1]+=changes
+                            accumulator[name][-1]+=1.
                         scores["source_increment_Brier"] = (
                             scores["environment_nearest_Brier"]-
                             scores["environment_source_nearest_Brier"])
@@ -319,6 +458,18 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                            support_attrition=dict(support[ep]),
                            original_focal_genus_oracle_NOT_used_in_predictor=True,
                            original_full_accepted_name_group_ban_on_both_models=True)
+                rec["target_species_genus_reweighting"] = distinct_target_cluster_summary(
+                    target_species_accumulator[ep],nboot=nboot,
+                    seed=int.from_bytes(hashlib.sha256(
+                        ("GIFT:TARGET:TAXON:"+scope+reg+ep).encode()).digest()[:8],"big"))
+                rec["species_equal_positive_local_external_pooled"] = {
+                    base: taxon_dual_loss_positive(
+                        rec["target_species_genus_reweighting"]["species_equal"],base)
+                    for base in ("regional_blind","external_blind","regional_genus_prior")}
+                rec["genus_equal_positive_local_external_pooled"] = {
+                    base: taxon_dual_loss_positive(
+                        rec["target_species_genus_reweighting"]["genus_equal"],base)
+                    for base in ("regional_blind","external_blind","regional_genus_prior")}
                 if not scored.empty:
                     rec["mean_target_Direct_carriers"] = float(scored.n_original_direct_plant_carriers.mean())
                     rec["unknown_genus_target_fraction_mean"] = float(
@@ -346,7 +497,10 @@ def run_analysis(floras: pd.DataFrame, geography: pd.DataFrame,
                     rec["positive_vs_external_blind_both_scores_and_groups"] = False
                 all_rows.append(rec)
     return {
-        "status": "ORIGINAL_GIFT_STAGE2_NAME_DISJOINT_GEO_GENUS_FLORAL_PILOT",
+        "status": "ORIGINAL_GIFT_STAGE2_TARGET_ACCEPTED_SPECIES_AND_GENUS_CLUSTER_SENSITIVITY",
+        "unique_target_accepted_species_repetitions_not_independent": True,
+        "species_equal_and_genus_equal_are_new_weighting_estimands": True,
+        "source_island_based_original_proper_scores_unchanged": True,
         "original_parent_GIFT_botanical_floras": 4505,
         "original_distinct_Direct_endpoints_total": 13,
         "frozen_pilot_endpoints": list(endpoints),
