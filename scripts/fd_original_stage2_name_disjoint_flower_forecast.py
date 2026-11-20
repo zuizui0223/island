@@ -137,6 +137,84 @@ SUMMARY_GAIN_COLUMNS = tuple(
 ) + BALANCED_SOURCE_GAIN_COLUMNS
 
 
+GENUS_MATCHED_MAX_DIRECT_PER_GENUS = 20
+GENUS_MATCHED_MIN_SHARED_GENERA = 5
+GENUS_MATCHED_MIN_TOTAL_SPECIES = 20
+GENUS_MATCHED_COLUMNS = tuple(
+    f"{model}_gain_vs_{base}_{loss}"
+    for seed in BALANCED_SOURCE_REPLICATE_SEEDS
+    for model, base in (
+        (f"genusmatched_external_seed{seed}", f"genusmatched_local_seed{seed}"),
+        (f"genusmatched_local_seed{seed}", f"genusmatched_external_seed{seed}"),
+    )
+    for loss in ("Brier", "logloss")
+) + tuple(
+    f"genusmatched_minus_equalN_external_seed{seed}_{loss}"
+    for seed in BALANCED_SOURCE_REPLICATE_SEEDS
+    for loss in ("Brier", "logloss")
+)
+
+
+def paired_genus_matched_source_priors(
+    local: set[str], external: set[str], forbidden: set[str],
+    states: dict, indices: dict,
+) -> tuple[dict[int, tuple[np.ndarray, np.ndarray]], dict] | None:
+    """Same accepted GENUS set and SAME source species N in EACH genus.
+
+    This is a source-genre-composition-controlled comparison, NOT a
+    within-species evolved-island-flower comparison. Genus match is chosen
+    from donor species names only: focal true genus composition and focal
+    trait states are NEVER inputs to the matched-source prediction.
+    """
+    if not forbidden or local & external or (local|external)-set(states):
+        raise ValueError("Original eligible Direct donor sources ambiguous or missing")
+    allowed_local,allowed_external=local-forbidden,external-forbidden
+    if (allowed_local|allowed_external)&forbidden:
+        raise AssertionError("Full focal botanical name returned to genus-matched source")
+    local_by,external_by=defaultdict(list),defaultdict(list)
+    for species in allowed_local:
+        local_by[genus(species)].append(species)
+    for species in allowed_external:
+        external_by[genus(species)].append(species)
+    common=sorted(set(local_by)&set(external_by))
+    eligible={g:min(len(local_by[g]),len(external_by[g]),GENUS_MATCHED_MAX_DIRECT_PER_GENUS)
+              for g in common}
+    eligible={g:n for g,n in eligible.items() if n>=1}
+    n=sum(eligible.values())
+    if len(eligible)<GENUS_MATCHED_MIN_SHARED_GENERA or n<GENUS_MATCHED_MIN_TOTAL_SPECIES:
+        return None
+    if n>min(len(allowed_local),len(allowed_external)):
+        raise AssertionError("Within genus matching cannot exceed original source species")
+    matched={}
+    for seed in BALANCED_SOURCE_REPLICATE_SEEDS:
+        counts_local=np.full(len(indices),.5,dtype=float)
+        counts_external=np.full(len(indices),.5,dtype=float)
+        # Both source regions receive the EXACT same source genus WEIGHT,
+        # n_g / sum(n_g). Random source accepted-species label selections
+        # are entirely determined by frozen SHA256 name ordering, not
+        # empirical flower category outcomes or focal island membership.
+        for g,num in eligible.items():
+            for donor_by,counts in (
+                (local_by,counts_local),(external_by,counts_external)):
+                chosen=sorted(donor_by[g],key=lambda name: hashlib.sha256(
+                    f"fd:genusmatched:20261120:seed{seed}:{name}".encode()).hexdigest())[:num]
+                if len(chosen)!=num:
+                    raise AssertionError("Unequal donor species per common genus")
+                for species in chosen:
+                    counts[indices[states[species]]]+=1.0
+        counts_local/=counts_local.sum()
+        counts_external/=counts_external.sum()
+        if not np.isclose(counts_local.sum(),1) or not np.isclose(counts_external.sum(),1):
+            raise AssertionError("Genus-matched source category distribution invalid")
+        matched[seed]=(counts_local,counts_external)
+    return matched, {
+        "n_common_direct_source_genera":len(eligible),
+        "n_genus_matched_direct_source_names_per_side":n,
+        "n_local_source_direct_names_retained_fraction":n/len(allowed_local),
+        "n_external_source_direct_names_retained_fraction":n/len(allowed_external),
+    }
+
+
 def filtered_genus_matrix(
     donor_islands: list[str],
     island_species: dict[str, set[str]],
