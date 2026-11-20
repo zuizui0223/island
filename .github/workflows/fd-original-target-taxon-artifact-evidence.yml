@@ -1,6 +1,10 @@
 name: fd_original_GIFT4505_target_taxon_existing_artifact_evidence_validation
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [analysis/fd-stage2-floral-forecast-20261119]
+    paths:
+      - ".github/workflows/fd-original-target-taxon-artifact-evidence.yml"
   push:
     branches: [analysis/fd-target-species-genus-cluster-20261120]
     paths:
