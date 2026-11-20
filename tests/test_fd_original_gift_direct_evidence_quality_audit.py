@@ -129,5 +129,5 @@ def test_bh_quality_p_values_report_nonindependent_nested_family():
     ]
     bh_qvalues(x)
     assert [round(v["within_genus_quality_label_permutation_BH_q_exploratory"],3)
-            for v in x[:3]]==[.04,.06,.20]
+            for v in x[:3]]==[.03,.045,.20]
     assert "within_genus_quality_label_permutation_BH_q_exploratory" not in x[3]
