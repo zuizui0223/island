@@ -42,7 +42,7 @@ from fd_original_environmental_genus_composition import (
 )
 from fd.two_stage_floral_forecast import (
     REQUIRED_MODELS, UNKNOWN_GENUS, score_focal_flora,
-    paired_cluster_summary, dual_loss_dual_group_positive,
+    paired_cluster_summary, dual_loss_dual_group_positive, proper_losses,
 )
 
 PILOT_ENDPOINTS = ("floral_form", "flower_primary_color__floral_form")
