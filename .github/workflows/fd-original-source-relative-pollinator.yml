@@ -1,0 +1,53 @@
+name: Protected GIFT4505 source relative pollinator floral pair contrast
+on:
+  push:
+    branches: [analysis/fd-original-tropical-pollinator-bridge-20261124]
+    paths:
+      - scripts/fd_original_source_relative_pollinator.py
+      - .github/workflows/fd-original-source-relative-pollinator.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-source-relative-pollinator
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - name: Restore original protected source
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          curl --fail --location --silent --show-error 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o "$STAGE/geography.csv"
+      - name: Fit same-cohort island minus candidate mainland source outcomes
+        run: |
+          set -euo pipefail
+          python -u scripts/fd_original_source_relative_pollinator.py --original-root "$ORIGINAL_ROOT" --geography "$STAGE/geography.csv" --bridge config/fd_public_animal_bridge_20261124.json --out "$STAGE/anonymous_source_relative_pollinator.json"
+          python - <<'PY'
+          import json,os,pathlib
+          s=(pathlib.Path(os.environ["STAGE"])/"anonymous_source_relative_pollinator.json").read_text()
+          x=json.loads(s)
+          assert x["original_botanical_parent"]==4505 and x["original_geographic_parent"]==8264 and x["original_tropical_parent"]==1558
+          assert x["mainland_regions"]==748 and len(x["panels"])==40
+          for k in ("island_id","accepted_species","bee_id","entity_ID","work_species","genus_name","latitude","longitude"):
+              assert '"'+k+'":' not in s
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anonymous-original-source-relative-pollinator
+          path: /tmp/fd-original-source-relative-pollinator/anonymous_source_relative_pollinator.json
