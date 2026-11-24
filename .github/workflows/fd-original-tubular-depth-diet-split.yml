@@ -4,6 +4,7 @@ on:
     branches: [analysis/fd-original-tropical-pollinator-bridge-20261124]
     paths:
       - scripts/fd_original_tubular_depth_diet_split.py
+      - config/fd_public_bird_model_covariates_20261124.json
       - .github/workflows/fd-original-tubular-depth-diet-split.yml
   workflow_dispatch:
 permissions:

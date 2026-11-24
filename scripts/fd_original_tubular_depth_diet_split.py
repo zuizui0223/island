@@ -16,6 +16,31 @@ BASELINE=["log_bee","log_broad","log_other"]
 SCOPES=(("all_recorded",5,"all"),("all_recorded",30,"all"),("original_native",5,"all"),("high_quality_only",5,"all"),("all_recorded",5,"tight"))
 MODES=(("geo_k5",5),("geo50_climate10",10))
 
+def cached_bird_animals(p):
+    # All fields are public original native-bee model and bird checklist summaries,
+    # from fd's signed candidate artifact. No botanical records in this input.
+    bridge=json.loads(read_pin(p,"bridge"))
+    g=pd.DataFrame(bridge["geometry"],columns=bridge["public_bridge_columns"]).rename(columns={"gshhg_geometry_hash_id":"island_id"})
+    assert len(g)==234 and g.bee_id.is_unique and g.island_id.is_unique
+    assert (g[["bee_overlap","gshhg_overlap"]]>=.9-1e-8).all().all()
+    raw=p.with_name("fd_public_bird_model_covariates_20261124.json").read_bytes()
+    assert hashlib.sha256(raw).hexdigest()=="872956d06661bc0fcc8e555beed07c910077423c59bb0d6da58d66570144892c"
+    x=json.loads(raw);assert x["source_artifact"]==14901918629
+    d=pd.DataFrame(x["rows"],columns=x["columns"])
+    assert len(d)==52 and d.bee_id.is_unique
+    b=pd.DataFrame(bridge["bird_candidate"])
+    check=d.merge(b,on="bee_id",validate="one_to_one",suffixes=("_cache","_bridge"))
+    assert len(check)==52
+    for k in ("group","nectar_gt0","nectar_ge20","nectar_ge50","all_birds","area_ratio","match_type"):
+        assert (check[k+"_cache"]==check[k+"_bridge"]).all()
+    d=d.rename(columns={"native_bees":"bee","bee_area_km2":"area","dist_km":"distance","cov":"bee_cov"})
+    d=g.merge(d,on="bee_id",validate="one_to_one")
+    for k in ("bee","area","distance","nectar_gt0","nectar_ge50","all_birds"):
+        d[k]=pd.to_numeric(d[k],errors="raise")
+    assert (d.bee>=0).all() and (d.area>0).all() and (d.distance>=0).all()
+    d["log_bee"]=np.log1p(d.bee);d["log_area"]=np.log2(d.area);d["log_distance"]=np.log2(1+d.distance)
+    return d
+
 def states(t,spec):
     names=SPECS[spec]
     a=t[t.trait_name.isin(names)&t.evidence_scope.eq("species_direct")&t.evidence_quality.isin(["high","medium"])&t.normalized_value.notna()].copy()
@@ -141,7 +166,7 @@ def main():
     def pool(ids):return frozenset().union(*(rg.get(i,set()) for i in ids))
     tropical=set(geo.loc[geo.analysis_regime.eq("tropical"),"island_id"])
     assert len(set(full)&tropical)==1558
-    b=public_animals(a.bridge)
+    b=cached_bird_animals(a.bridge)
     b=b[b.island_id.isin(tropical)&b.nectar_gt0.notna()].copy()
     b["specialist"]=b.nectar_ge50;b["partial"]=b.nectar_gt0-b.nectar_ge50;b["other"]=b.all_birds-b.nectar_gt0
     assert (b[["specialist","partial","other"]]>=0).all().all()
@@ -178,7 +203,7 @@ def main():
     for i in range(len(order)-1,-1,-1):
         last=min(last,order[i]["p_two_sided"]*len(order)/(i+1));order[i]["BH_q_exploratory"]=float(last)
     assert len(panels)==30
-    out={"status":"ORIGINAL_GIFT4505_DIRECT_TUBULAR_DEPTH_DIET_SPLIT_EXPLORATORY","original_botanical_parent":4505,"original_tropical_parent":1558,"original_geography_parent":8264,"mainland_regions":748,"mainland_sha256":mainland_sha,"source_pins":PIN,
+    out={"status":"ORIGINAL_GIFT4505_DIRECT_TUBULAR_DEPTH_DIET_SPLIT_EXPLORATORY","original_botanical_parent":4505,"original_tropical_parent":1558,"original_geography_parent":8264,"mainland_regions":748,"mainland_sha256":mainland_sha,"source_pins":PIN|{"public_bird_model":"872956d06661bc0fcc8e555beed07c910077423c59bb0d6da58d66570144892c"},
          "panel_count":len(panels),"test_count":len(tests),"panels":panels,"permutations":a.permutations,
          "warning":"Single-state Direct form and depth separate; common-species form-depth is sensitivity not local measured flowers. Target and source-relative contrast; candidate source roster is not historical ancestor. Fixed genus×grade randomization preserves incidence, taxonomy and documentation, not causal identification. Held-out prediction evaluates centered within-group differences, not absolute unseen-island outcomes. Sparse groups; no confirmatory inference. Bird crosswalk provisional. No individual botanical/geographic identifiers exported."}
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(out,indent=2,allow_nan=False))
