@@ -1,0 +1,29 @@
+name: fd independent Curveball vs swap exact degree-null controls
+on:
+  push:
+    branches: [analysis/discrete-functional-hypervolume-20261113]
+    paths:
+      - src/fd/dopi_curveball_paired_degree_null.py
+      - tests/test_dopi_curveball_paired_degree_null.py
+      - .github/workflows/fd-dopi-curveball-paired-null.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-visitor-network-degree-null:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test Curveball trades and original edge swap matched source sites
+        run: |
+          set -euo pipefail
+          python -m pip install -q -e '.[test]'
+          python -m pytest -q tests/test_dopi_curveball_paired_degree_null.py tests/test_dopi_degree_fixed_visitor_null.py
+          python -m compileall -q src/fd/dopi_curveball_paired_degree_null.py

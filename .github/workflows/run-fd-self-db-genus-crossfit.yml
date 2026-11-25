@@ -1,0 +1,56 @@
+name: FD own-database species-name crossfit
+on:
+  push:
+    branches:
+      - analysis/fd-self-db-integration-20261125
+    paths:
+      - scripts/fd_self_db_genus_crossfit.py
+      - tests/test_fd_self_db_genus_crossfit.py
+      - .github/workflows/run-fd-self-db-genus-crossfit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  crossfit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test source exclusion and parent metrics
+        run: |
+          pip install -e ".[dev]"
+          PYTHONPATH=.:src python -m pytest -q tests/test_fd_self_db_isolation.py tests/test_fd_self_db_genus_null.py tests/test_fd_self_db_genus_crossfit.py
+      - name: Restore immutable own-database source
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/fd-crossfit
+          mkdir -p "$ROOT/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$ROOT/original"
+          LEDGER="$(find "$ROOT/original" -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -n "$LEDGER"
+          SOURCE="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          echo "FD_SOURCE=$SOURCE" >> "$GITHUB_ENV"
+      - name: Original species-name held-out genus predictions
+        run: |
+          PYTHONPATH=.:src python scripts/fd_self_db_genus_crossfit.py \
+            --flora "$FD_SOURCE/fixed/canonical/input/chapter1_status_flora.csv.gz" \
+            --ledger "$FD_SOURCE/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz" \
+            --state-audit "$FD_SOURCE/snapshot/chapter1_trait_state_audit_direct.csv.gz" \
+            --syndrome-config config/chapter1_pr138_pollination_syndromes.yml \
+            --geography results/geography_20260924/corrected_geography_covariates.csv \
+            --parent results/fd_self_db_20261125/corrected_isolation_full_384.json \
+            --output /tmp/fd-crossfit/anonymous_crossfit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fd-own-db-genus-crossfit-${{ github.run_id }}
+          path: /tmp/fd-crossfit/anonymous_crossfit.json
+          if-no-files-found: error
+          retention-days: 90

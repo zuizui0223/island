@@ -1,0 +1,79 @@
+name: Archive FD public own/mixed research by source ownership
+on:
+  push:
+    branches: [analysis/fd-self-db-integration-20261125]
+    paths:
+      - config/fd_data_ownership_20261125.json
+      - scripts/archive_fd_research_ownership.py
+      - .github/workflows/archive-fd-research-ownership.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Fetch public fd snapshots by exact immutable commit
+        run: |
+          set -euo pipefail
+          git clone --no-checkout --no-tags https://github.com/zuizui0223/fd.git /tmp/fd-source
+          python - <<'PY'
+          import json,subprocess
+          d=json.load(open('config/fd_data_ownership_20261125.json'))
+          p='/tmp/fd-source'
+          def git(*x,check=True):
+              return subprocess.run(['git','-C',p,*x],check=check)
+          specs=[f"+refs/pull/{x['pr']}/head:refs/archive/pr{x['pr']}" for x in d['pins']]
+          # A closed ref may be missing; fall back to exact commit object.
+          git('fetch','--no-tags','origin',*specs,check=False)
+          for h in [d['source_public_main_sha']]+[x['head'] for x in d['pins']]:
+              if git('cat-file','-e',h+'^{commit}',check=False).returncode:
+                  git('fetch','--no-tags','origin',h)
+              git('cat-file','-e',h+'^{commit}')
+          PY
+      - name: Copy exact public research blobs and verify every hash
+        run: |
+          python scripts/archive_fd_research_ownership.py \
+            --source /tmp/fd-source --config config/fd_data_ownership_20261125.json \
+            --out research/fd_own_db
+          python scripts/restore_fd_research_snapshot.py pr069 --out /tmp/verify-pr069
+          test -f /tmp/verify-pr069/scripts/plant_syndrome_core.py
+          test -f /tmp/verify-pr069/results/20261125_plant_syndrome_q2/verified_job_log_summary.json
+      - name: Materialize latest own-DB syndrome worktree for continuation
+        run: |
+          python scripts/restore_fd_research_snapshot.py pr069 --out /tmp/fd-restore-pr069
+          mkdir -p research/fd_own_db/current/plant_syndrome
+          python - <<'PY'
+          from pathlib import Path
+          import shutil,json,hashlib
+          src=Path('/tmp/fd-restore-pr069'); dst=Path('research/fd_own_db/current/plant_syndrome')
+          for root in ('scripts','results/20261125_plant_syndrome_q2','docs'):
+              base=src/root
+              for p in base.rglob('*'):
+                  if not p.is_file(): continue
+                  if root=='scripts' and not p.name.startswith('plant_syndrome'): continue
+                  if root=='docs' and not p.name.startswith('PLANT_SYNDROME_Q1_Q4'): continue
+                  q=dst/p.relative_to(src); q.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(p,q)
+          assert (dst/'scripts/plant_syndrome_core.py').is_file()
+          snap=json.loads(Path('research/fd_own_db/snapshots/pr069.json').read_text())
+          by={e['path']:e for e in snap['files']}
+          for p in dst.rglob('*'):
+              if p.is_file():
+                  b=p.read_bytes(); assert hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()==by[p.relative_to(dst).as_posix()]['git_blob']
+          (dst/'README.md').write_text('# Current own-DB syndrome research workspace\n\nSource: fd PR #69 pinned snapshot. All files are exact historical copies; use island for future changes. Historical GIFT4505 target label is own GBIF incidence; donor source is separate. Archived workflow is not active.\n')
+          PY
+      - name: Commit verified public research archive
+        if: github.ref == 'refs/heads/analysis/fd-self-db-integration-20261125'
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f research/fd_own_db
+          git diff --cached --stat | tail -1
+          git commit -m 'Archive all 70 FD PR snapshots of public own/mixed research'
+          git push origin HEAD:analysis/fd-self-db-integration-20261125

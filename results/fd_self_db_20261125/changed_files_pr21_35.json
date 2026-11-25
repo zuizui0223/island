@@ -1,0 +1,522 @@
+{
+  "source": "zuizui0223/fd",
+  "scope": "PR changed paths; immutable head SHAs in pr_inventory.csv; path listing does not establish data provenance",
+  "prs": [
+    {
+      "pr": 21,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "7dc39f1e814c5c80780a0932aac20b7338285e17",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "120de6b998bc736c80857d776d103ebf3a631db4",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 22,
+      "files": [
+        {
+          "path": ".github/workflows/fd-euppollnet-gift-source-tests.yml",
+          "status": "added",
+          "blob_sha": "e35a3852e4229f48b438bd78d33be88964f9b835",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/fd-euppollnet-original-flower-denominator.yml",
+          "status": "added",
+          "blob_sha": "b9e6fcafd2f192175f260b32f6d12b05728119bf",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/fd-euppollnet-public-preflight.yml",
+          "status": "added",
+          "blob_sha": "bb50a657c51eed1e299f08659c4aeaa6d4e9e03b",
+          "previous_path": null
+        },
+        {
+          "path": "docs/FULL4505_WOL_VISITOR_LOCALITY_CONTRACT.md",
+          "status": "added",
+          "blob_sha": "f817b123357055e8c65bf310797606be2cd68e6b",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_full4505_EuPPollNet_field_sites/FLOWER_ABUNDANCE_SOURCE_GATE.md",
+          "status": "added",
+          "blob_sha": "cff94f9a4cb4fbb66ce1f7844c739a5b1381f26f",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_full4505_EuPPollNet_field_sites/README.md",
+          "status": "added",
+          "blob_sha": "f85bd32a2fa495eccb58ecafd9f960833773ff6b",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_full4505_GloBI_guild/README.md",
+          "status": "added",
+          "blob_sha": "3af66afc527d3e8dc136102e1d804c6b7f908b76",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_full4505_GloBI_guild/SOURCE_PROVIDER_IDENTIFIABILITY.md",
+          "status": "added",
+          "blob_sha": "6ebb5915014b4a40d6ee286a4c4b4231d9b58343",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_full4505_WOL_guild/README.md",
+          "status": "added",
+          "blob_sha": "d276f378e791b7248afadb066804de9522d5b22f",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_actual_mainland_source_holdout/README.md",
+          "status": "added",
+          "blob_sha": "1b467991458289c2c117e08da7918fcf6ee28e08",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_euppollnet_species_identity/FULL_FLOWER_CENSUS_CHOICESET.md",
+          "status": "added",
+          "blob_sha": "97907d62ad505a6622388579b75889399fd076d6",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_euppollnet_species_identity/README.md",
+          "status": "added",
+          "blob_sha": "b16c24ca5666f5af7a22a0d32a3fb3069d3a490f",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_euppollnet_species_identity/STUDY_METHOD_GUILD_OPPORTUNITY.md",
+          "status": "added",
+          "blob_sha": "e1bdbe2d62240768d1d52ef41e004922a44a99e4",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_global_region_genus_transfer/README.md",
+          "status": "added",
+          "blob_sha": "e5b6fc5296f8eb8208a1b59622c1359afc4b7334",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/run_fd_public_euppollnet_flower_count_gate.py",
+          "status": "added",
+          "blob_sha": "ef252e23fffe105ab98e38ed6756f8bc8c3454aa",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/run_fd_public_euppollnet_preflight.py",
+          "status": "added",
+          "blob_sha": "553478291b0c2bb6249ae70b649c90da9924361d",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/euppollnet_choice_set_audit.py",
+          "status": "added",
+          "blob_sha": "e967371972c3661aa6fef93433967ec55c3cde2c",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/euppollnet_flower_availability.py",
+          "status": "added",
+          "blob_sha": "9f7fd012109962125f1048d626cc4ffb61765a19",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/euppollnet_gift_exact_site_bridge.py",
+          "status": "added",
+          "blob_sha": "6a94bbaa4fd93640bf7cbee8d1561895de370545",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/euppollnet_public_preflight.py",
+          "status": "added",
+          "blob_sha": "f9b7938827e7cc9da3070821d163032113853e16",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/euppollnet_species_identity_gate.py",
+          "status": "added",
+          "blob_sha": "171acd394816676d3712bc0ca8636ec829675abb",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/euppollnet_study_protocol_audit.py",
+          "status": "added",
+          "blob_sha": "753c64c05b07da591e2689321c9e0996dabafc6d",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/fullframe_globi_local_support.py",
+          "status": "added",
+          "blob_sha": "d4adb94cad70b8ea80d24a7b7cc79a6a206a99a3",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/fullframe_wol_network_bridge.py",
+          "status": "added",
+          "blob_sha": "5171067e1b2ceed3fe61e72dc3094338e555a055",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/mainland_source_novel_donor_gate.py",
+          "status": "added",
+          "blob_sha": "e88e801fd5ff899916935c43d8ce253c673ad292",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/source_regional_transfer_replication.py",
+          "status": "added",
+          "blob_sha": "bac594349f024fd5a299b61ec17083d4c4db2222",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/visitor_documentation_support.py",
+          "status": "added",
+          "blob_sha": "bdd35569de6bce2e221252251667d4d48fda072d",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_euppollnet_choice_set_audit.py",
+          "status": "added",
+          "blob_sha": "30cf7aedf01bb2ac1015a626600bf8ea56cbe102",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_euppollnet_flower_availability.py",
+          "status": "added",
+          "blob_sha": "6949aff8812ae23143cfdddbd293729218739ef4",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_euppollnet_gift_exact_site_bridge.py",
+          "status": "added",
+          "blob_sha": "ae203650030db4441cd184117915ad98fcc7c897",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_euppollnet_public_preflight.py",
+          "status": "added",
+          "blob_sha": "afcd091a8b7fca297d74d8814b8d631343788988",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_euppollnet_species_identity_gate.py",
+          "status": "added",
+          "blob_sha": "125c6eb205adf67ee6e7e3c89a5c94039228ef64",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_euppollnet_study_protocol_audit.py",
+          "status": "added",
+          "blob_sha": "61d4a737f604340c5e8a0aa5f577e3b557c31983",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_fullframe_globi_local_support.py",
+          "status": "added",
+          "blob_sha": "33d85b11d151744bb565a4e5fd0e622b3d409bfd",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_fullframe_wol_network_bridge.py",
+          "status": "added",
+          "blob_sha": "d17869537f7d7dc4fae37f333dd201bf5497dcb3",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_mainland_source_novel_donor_gate.py",
+          "status": "added",
+          "blob_sha": "bca7e7c1041f081ab6c842b6883541ee5189518e",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_source_regional_transfer_replication.py",
+          "status": "added",
+          "blob_sha": "08fb01ae360b00e286c3d22d36081fa09ae66851",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_visitor_documentation_support.py",
+          "status": "added",
+          "blob_sha": "26a3ed65f7737d839f8922b45a526c4bf6619d89",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 23,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "923b82923d9f5ecf9f530e2d3b8203708b0fd2d2",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "1bdbedadd0a887e8642292b71876ea32c9225bd7",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 24,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "fc890da4bfd059cf95faee04dfa9e55fab4d6738",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "7d9e59483294399b136e5fe598b35a52463ada8f",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 25,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "9552ca791a193ff041acd2208ab96c6fc479e38c",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "775199c5c21caf3cc2adfd49a166cf96a2fbfedc",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 26,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "7a66272418fbbeac6294174e8ffa794bd3005bb2",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "12ebda51c5e931da31b6acd6dd6376ba34a36a04",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 27,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "c066458203e1744b458477b64bb0af3520a39957",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "1f522598867f14ee2a935e937f16d2da5fa52754",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 28,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "37da248a42a2cf067d72781a884cd8369c481577",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "9442a513db0c1667a2b7c054d3a549deaa5ac781",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 29,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "719dc0a279b55a24f7e23868b0aa8c09c8575f91",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "f8ddf64219d514c6821cd211b6ad5a5f52b1f0ab",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 30,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "7988d34aea6002201afe7f20e5058d2dbce38b69",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "5ddef7a41fa7b1a4bcc3b55e336f0839f5c5a8c0",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 31,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "2c70fe680a9c1ffde0f2b5f4369d872ffd18d5db",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "d9f5b9a4dac18c780252171e4e8b0a75a5f6b8a1",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_global_region_genus_transfer/README.md",
+          "status": "added",
+          "blob_sha": "ff2e594f1a0934b4e5eff567eb1e8e076c0a770d",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 32,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "4e6ef2ae9a35426f10a0fc3653ffd34e00736f64",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "cdf8bab345cf5603894b5e766ff7ca707adb21ab",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_actual_mainland_source_holdout/README.md",
+          "status": "added",
+          "blob_sha": "3c98b26b575b91587816d6df9fba8452e16012e1",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 33,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "4e85080ec015d4febc663193e4e74ff93281c293",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "4c23783b2132f4f29d45904ded208c9c6c8ed2bf",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_global_region_genus_transfer/README.md",
+          "status": "modified",
+          "blob_sha": "6210336d43b650019b53a5c98eaebd05afe0326e",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 34,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "180089a78b8f30c1af2dbaf290e5ddb7927b33f7",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "e55d2cebd0c31c826f99587e5fa5e4e4b2ec7d97",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_strict_training_geo_source_holdout/README.md",
+          "status": "added",
+          "blob_sha": "0ff4733f95da9ac8e42ccf04a2091ead9fe1e2e5",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 35,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "c3ed2b70c714fee6f35194b4628d0f782d803e5e",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "0dfb334f33a040b2b4e38df3233650b331c344a7",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_strict_training_geo_source_holdout/GENUS_OVER_BLIND_TWO_PROPER_SCORES.md",
+          "status": "added",
+          "blob_sha": "2c1a19216ad4fb5233ae1d8fe0ccce37daa9e279",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    }
+  ]
+}

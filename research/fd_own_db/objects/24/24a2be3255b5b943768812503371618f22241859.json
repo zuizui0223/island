@@ -1,0 +1,1144 @@
+{
+  "local": {
+    "panels": {
+      "direct_local_exact_pteropodidae": {
+        "taxonomically_resolved_family_positive": 160,
+        "focal_diet_complete": 134,
+        "newly_eligible_due_to_family_local_closure": 56,
+        "fits": {
+          "all_bat_diets_complete": {
+            "cohort": 78,
+            "focal_nectar_positive": 38,
+            "focal_other_positive": 74,
+            "fit": {
+              "eligible": 78,
+              "informative_blocks": 8,
+              "informative_islands": 37,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 38,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1613,
+              "valid_leave_block": 8,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.08529608280584758,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.027563789329825773,
+                    0.12466131395964478
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.037167237481915874,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.017747433700213366,
+                    0.06090446394476523
+                  ]
+                },
+                "red_pink": {
+                  "contrast": 0.03316385096393243,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    0.012201908589192526,
+                    0.07548472536835808
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.0028601036993812674,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.0777458210275541,
+                    0.04449787342488669
+                  ]
+                }
+              }
+            }
+          },
+          "focal_family_diets_complete": {
+            "cohort": 134,
+            "focal_nectar_positive": 82,
+            "focal_other_positive": 130,
+            "fit": {
+              "eligible": 134,
+              "informative_blocks": 13,
+              "informative_islands": 76,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 82,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1999,
+              "valid_leave_block": 13,
+              "endpoints": {
+                "white": {
+                  "contrast": -0.014049274201064348,
+                  "group_bootstrap_interval": [
+                    -0.20706509374243934,
+                    0.10299300160067487
+                  ],
+                  "leave_block_range": [
+                    -0.07671148685654784,
+                    0.028654885547495023
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.015161527617028924,
+                  "group_bootstrap_interval": [
+                    -0.08351307620433604,
+                    0.14723065821745596
+                  ],
+                  "leave_block_range": [
+                    -0.007050580342893258,
+                    0.0457674805097097
+                  ]
+                },
+                "red_pink": {
+                  "contrast": -0.028593588154837295,
+                  "group_bootstrap_interval": [
+                    -0.12973058347323385,
+                    0.15877326215848098
+                  ],
+                  "leave_block_range": [
+                    -0.04676232420499419,
+                    0.03351562004198781
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.026084335534634656,
+                  "group_bootstrap_interval": [
+                    -0.18637395661893594,
+                    0.13358717245858673
+                  ],
+                  "leave_block_range": [
+                    -0.015789461869753506,
+                    0.06063552485903655
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "direct_local_exact_phyllostomidae": {
+        "taxonomically_resolved_family_positive": 117,
+        "focal_diet_complete": 51,
+        "newly_eligible_due_to_family_local_closure": 21,
+        "fits": {
+          "all_bat_diets_complete": {
+            "cohort": 30,
+            "focal_nectar_positive": 30,
+            "focal_other_positive": 25,
+            "fit": {
+              "eligible": 30,
+              "informative_blocks": 2,
+              "informative_islands": 27,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 30,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1011,
+              "valid_leave_block": 0,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.1843498247425958,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": null
+                },
+                "white_open_brush": {
+                  "contrast": -0.04001732413016154,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": null
+                },
+                "red_pink": {
+                  "contrast": -0.08598776791008338,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": null
+                },
+                "tubular": {
+                  "contrast": -0.04014572860646035,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": null
+                }
+              }
+            }
+          },
+          "focal_family_diets_complete": {
+            "cohort": 51,
+            "focal_nectar_positive": 51,
+            "focal_other_positive": 39,
+            "fit": {
+              "eligible": 51,
+              "informative_blocks": 4,
+              "informative_islands": 46,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 51,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1874,
+              "valid_leave_block": 4,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.02713100649522613,
+                  "group_bootstrap_interval": [
+                    -0.04906671021027867,
+                    0.11507049097363344
+                  ],
+                  "leave_block_range": [
+                    -0.03681274873941985,
+                    0.08812694537958289
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": -0.0011988895843419445,
+                  "group_bootstrap_interval": [
+                    -0.01261493187532582,
+                    0.1842096940784427
+                  ],
+                  "leave_block_range": [
+                    -0.004047998783512818,
+                    0.016661472947856283
+                  ]
+                },
+                "red_pink": {
+                  "contrast": -0.02697785849813253,
+                  "group_bootstrap_interval": [
+                    -0.09352382577235671,
+                    0.01864552686595357
+                  ],
+                  "leave_block_range": [
+                    -0.07240962243853423,
+                    0.01855192162744915
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.17737711843519882,
+                  "group_bootstrap_interval": [
+                    -0.02786147272249721,
+                    0.28347523605425085
+                  ],
+                  "leave_block_range": [
+                    0.05410928376755323,
+                    0.25908574407118823
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "direct_local_mdd_pteropodidae": {
+        "taxonomically_resolved_family_positive": 160,
+        "focal_diet_complete": 145,
+        "newly_eligible_due_to_family_local_closure": 58,
+        "fits": {
+          "all_bat_diets_complete": {
+            "cohort": 87,
+            "focal_nectar_positive": 45,
+            "focal_other_positive": 83,
+            "fit": {
+              "eligible": 87,
+              "informative_blocks": 10,
+              "informative_islands": 48,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 45,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1932,
+              "valid_leave_block": 10,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.08234865141758158,
+                  "group_bootstrap_interval": [
+                    -0.21182371862668603,
+                    0.1607009054912731
+                  ],
+                  "leave_block_range": [
+                    0.002685182526094799,
+                    0.11107875958880925
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.018697706367577657,
+                  "group_bootstrap_interval": [
+                    -0.08900398729883117,
+                    0.10946672980719867
+                  ],
+                  "leave_block_range": [
+                    -0.009220170590353481,
+                    0.04414189640232111
+                  ]
+                },
+                "red_pink": {
+                  "contrast": 0.040053216834922516,
+                  "group_bootstrap_interval": [
+                    -0.13335365795642973,
+                    0.15788990210541348
+                  ],
+                  "leave_block_range": [
+                    -0.0054152163427603,
+                    0.08129332957674507
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.041918252310453076,
+                  "group_bootstrap_interval": [
+                    -0.1293080903001838,
+                    0.2142693041904524
+                  ],
+                  "leave_block_range": [
+                    -0.003136455370694915,
+                    0.09470485305839693
+                  ]
+                }
+              }
+            }
+          },
+          "focal_family_diets_complete": {
+            "cohort": 145,
+            "focal_nectar_positive": 90,
+            "focal_other_positive": 141,
+            "fit": {
+              "eligible": 145,
+              "informative_blocks": 16,
+              "informative_islands": 91,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 90,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1999,
+              "valid_leave_block": 16,
+              "endpoints": {
+                "white": {
+                  "contrast": -0.0033709946507459974,
+                  "group_bootstrap_interval": [
+                    -0.14666965324509665,
+                    0.1007666623830568
+                  ],
+                  "leave_block_range": [
+                    -0.048896283853125715,
+                    0.02751785777516034
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.0025063990293690925,
+                  "group_bootstrap_interval": [
+                    -0.06754700649937695,
+                    0.08298433214408074
+                  ],
+                  "leave_block_range": [
+                    -0.01847549841450161,
+                    0.026545362215110592
+                  ]
+                },
+                "red_pink": {
+                  "contrast": 0.006210959279983712,
+                  "group_bootstrap_interval": [
+                    -0.10284630660913592,
+                    0.1182648688062251
+                  ],
+                  "leave_block_range": [
+                    -0.01110319675922099,
+                    0.06242270536197242
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.02567579007542542,
+                  "group_bootstrap_interval": [
+                    -0.12191426246356023,
+                    0.12428471512091568
+                  ],
+                  "leave_block_range": [
+                    -0.0002610865050456015,
+                    0.04629908342506425
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "direct_local_mdd_phyllostomidae": {
+        "taxonomically_resolved_family_positive": 117,
+        "focal_diet_complete": 56,
+        "newly_eligible_due_to_family_local_closure": 21,
+        "fits": {
+          "all_bat_diets_complete": {
+            "cohort": 35,
+            "focal_nectar_positive": 35,
+            "focal_other_positive": 30,
+            "fit": {
+              "eligible": 35,
+              "informative_blocks": 2,
+              "informative_islands": 32,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 35,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1524,
+              "valid_leave_block": 1,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.12483687537985731,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    0.161028719786678,
+                    0.161028719786678
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.003197899445402212,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    0.03390987071188555,
+                    0.03390987071188555
+                  ]
+                },
+                "red_pink": {
+                  "contrast": -0.08619123337159813,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.0890106244061415,
+                    -0.0890106244061415
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.021012508196707184,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    0.16044724224891446,
+                    0.16044724224891446
+                  ]
+                }
+              }
+            }
+          },
+          "focal_family_diets_complete": {
+            "cohort": 56,
+            "focal_nectar_positive": 56,
+            "focal_other_positive": 44,
+            "fit": {
+              "eligible": 56,
+              "informative_blocks": 4,
+              "informative_islands": 51,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 56,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1874,
+              "valid_leave_block": 4,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.05044026726015026,
+                  "group_bootstrap_interval": [
+                    -0.04906671021027867,
+                    0.10163005498668942
+                  ],
+                  "leave_block_range": [
+                    -0.03681274873941985,
+                    0.09047722659507723
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": -0.013492755164522547,
+                  "group_bootstrap_interval": [
+                    -0.01788101419538838,
+                    0.1842096940784427
+                  ],
+                  "leave_block_range": [
+                    -0.009173023681176068,
+                    0.016661472947856283
+                  ]
+                },
+                "red_pink": {
+                  "contrast": -0.005263266792101411,
+                  "group_bootstrap_interval": [
+                    -0.09212433069915094,
+                    0.023234042978466006
+                  ],
+                  "leave_block_range": [
+                    -0.033977096014618846,
+                    0.022731457906279763
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.14230714908423434,
+                  "group_bootstrap_interval": [
+                    -0.02786147272249721,
+                    0.28295788625745744
+                  ],
+                  "leave_block_range": [
+                    0.060995484730146696,
+                    0.25908574407118823
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "direct_single_state_local_exact_pteropodidae": {
+        "taxonomically_resolved_family_positive": 131,
+        "focal_diet_complete": 114,
+        "newly_eligible_due_to_family_local_closure": 51,
+        "fits": {
+          "all_bat_diets_complete": {
+            "cohort": 63,
+            "focal_nectar_positive": 29,
+            "focal_other_positive": 60,
+            "fit": {
+              "eligible": 63,
+              "informative_blocks": 7,
+              "informative_islands": 27,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 29,
+              "status": "insufficient_support",
+              "valid_bootstrap": 726,
+              "valid_leave_block": 7,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.11476587715716761,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.30116265808932596,
+                    0.21682213906110978
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.000989931260787811,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.19668493925243313,
+                    0.020380050995049206
+                  ]
+                },
+                "red_pink": {
+                  "contrast": -0.019613112801047994,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.0479013263838334,
+                    0.18180241104945183
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.22908442163702225,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    0.055307253483866045,
+                    0.4845930142641338
+                  ]
+                }
+              }
+            }
+          },
+          "focal_family_diets_complete": {
+            "cohort": 114,
+            "focal_nectar_positive": 69,
+            "focal_other_positive": 111,
+            "fit": {
+              "eligible": 114,
+              "informative_blocks": 13,
+              "informative_islands": 61,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 69,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1980,
+              "valid_leave_block": 13,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.1051458799841261,
+                  "group_bootstrap_interval": [
+                    -0.29192899052784804,
+                    0.35983727391625975
+                  ],
+                  "leave_block_range": [
+                    0.02235567008831259,
+                    0.18304569882849722
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.007964712706739447,
+                  "group_bootstrap_interval": [
+                    -0.1515952510468958,
+                    0.18488498172909143
+                  ],
+                  "leave_block_range": [
+                    -0.02018880177420275,
+                    0.05781107613268932
+                  ]
+                },
+                "red_pink": {
+                  "contrast": 0.027020454013162325,
+                  "group_bootstrap_interval": [
+                    -0.05463665379477535,
+                    0.17460160977262412
+                  ],
+                  "leave_block_range": [
+                    0.006951455213699477,
+                    0.06423666937090186
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.12631662412774072,
+                  "group_bootstrap_interval": [
+                    -0.25892457230728644,
+                    0.3521708928451887
+                  ],
+                  "leave_block_range": [
+                    0.06596400647709635,
+                    0.1880427747859787
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "direct_single_state_local_exact_phyllostomidae": {
+        "taxonomically_resolved_family_positive": 94,
+        "focal_diet_complete": 42,
+        "newly_eligible_due_to_family_local_closure": 15,
+        "fits": {
+          "all_bat_diets_complete": {
+            "cohort": 27,
+            "focal_nectar_positive": 27,
+            "focal_other_positive": 23,
+            "fit": {
+              "eligible": 27,
+              "informative_blocks": 2,
+              "informative_islands": 25,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 27,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1011,
+              "valid_leave_block": 0,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.0489982760068473,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": null
+                },
+                "white_open_brush": {
+                  "contrast": 0.24538818641102514,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": null
+                },
+                "red_pink": {
+                  "contrast": -0.14501479535518721,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": null
+                },
+                "tubular": {
+                  "contrast": 0.07273764454913274,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": null
+                }
+              }
+            }
+          },
+          "focal_family_diets_complete": {
+            "cohort": 42,
+            "focal_nectar_positive": 42,
+            "focal_other_positive": 32,
+            "fit": {
+              "eligible": 42,
+              "informative_blocks": 4,
+              "informative_islands": 38,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 42,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1753,
+              "valid_leave_block": 4,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.1184022989892664,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.0797771472026657,
+                    0.1607743889509689
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.1321204186906199,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    0.01207076673278314,
+                    0.178071381570671
+                  ]
+                },
+                "red_pink": {
+                  "contrast": -0.08108565671682222,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.1426106778601448,
+                    -0.004290791433033049
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.03292649282024132,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.07499703605132184,
+                    0.2246935305248801
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "direct_single_state_local_mdd_pteropodidae": {
+        "taxonomically_resolved_family_positive": 131,
+        "focal_diet_complete": 123,
+        "newly_eligible_due_to_family_local_closure": 53,
+        "fits": {
+          "all_bat_diets_complete": {
+            "cohort": 70,
+            "focal_nectar_positive": 35,
+            "focal_other_positive": 67,
+            "fit": {
+              "eligible": 70,
+              "informative_blocks": 10,
+              "informative_islands": 38,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 35,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1632,
+              "valid_leave_block": 10,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.08628935031335648,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.14400156296646446,
+                    0.16792340697121771
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": -0.029406009477154493,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.08420341789016536,
+                    -0.00719518772652173
+                  ]
+                },
+                "red_pink": {
+                  "contrast": 0.01334866356175678,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.012601982574712933,
+                    0.0744491179381754
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.10912502457628433,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.06656994785943302,
+                    0.19243868811682627
+                  ]
+                }
+              }
+            }
+          },
+          "focal_family_diets_complete": {
+            "cohort": 123,
+            "focal_nectar_positive": 76,
+            "focal_other_positive": 120,
+            "fit": {
+              "eligible": 123,
+              "informative_blocks": 16,
+              "informative_islands": 74,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 76,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1999,
+              "valid_leave_block": 16,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.09841030304861827,
+                  "group_bootstrap_interval": [
+                    -0.2375054849902109,
+                    0.3258726892848199
+                  ],
+                  "leave_block_range": [
+                    0.0032832275979290913,
+                    0.17047411869936496
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.025143665615643525,
+                  "group_bootstrap_interval": [
+                    -0.1159891432179726,
+                    0.14301010775140446
+                  ],
+                  "leave_block_range": [
+                    -0.003310329794017247,
+                    0.062216692456619954
+                  ]
+                },
+                "red_pink": {
+                  "contrast": 0.031291921273597645,
+                  "group_bootstrap_interval": [
+                    -0.049461212645186756,
+                    0.1572210787875195
+                  ],
+                  "leave_block_range": [
+                    0.013729329125559157,
+                    0.06934965563749232
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.05065124367012136,
+                  "group_bootstrap_interval": [
+                    -0.17307604606946345,
+                    0.2321316984954355
+                  ],
+                  "leave_block_range": [
+                    0.012343947663078881,
+                    0.10716101264096892
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "direct_single_state_local_mdd_phyllostomidae": {
+        "taxonomically_resolved_family_positive": 94,
+        "focal_diet_complete": 47,
+        "newly_eligible_due_to_family_local_closure": 15,
+        "fits": {
+          "all_bat_diets_complete": {
+            "cohort": 32,
+            "focal_nectar_positive": 32,
+            "focal_other_positive": 28,
+            "fit": {
+              "eligible": 32,
+              "informative_blocks": 2,
+              "informative_islands": 30,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 32,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1524,
+              "valid_leave_block": 1,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.045764631224714074,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.0051062877829708975,
+                    -0.0051062877829708975
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.13743484982543916,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.00011484164695031024,
+                    -0.00011484164695031024
+                  ]
+                },
+                "red_pink": {
+                  "contrast": -0.06211458528226575,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.015960136012720318,
+                    -0.015960136012720318
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.09085331916944539,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    0.12706693936418972,
+                    0.12706693936418972
+                  ]
+                }
+              }
+            }
+          },
+          "focal_family_diets_complete": {
+            "cohort": 47,
+            "focal_nectar_positive": 47,
+            "focal_other_positive": 37,
+            "fit": {
+              "eligible": 47,
+              "informative_blocks": 4,
+              "informative_islands": 43,
+              "features": [
+                "log_family_nectar",
+                "log_family_other"
+              ],
+              "controls": [
+                "log_area",
+                "log_distance",
+                "log_n",
+                "abs_lat",
+                "climate_pc1",
+                "climate_pc2",
+                "climate_pc3",
+                "climate_pc4",
+                "log_nonfamily"
+              ],
+              "nectar_positive_eligible": 47,
+              "status": "insufficient_support",
+              "valid_bootstrap": 1753,
+              "valid_leave_block": 4,
+              "endpoints": {
+                "white": {
+                  "contrast": 0.12446238515179266,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.0797771472026657,
+                    0.13247112136598077
+                  ]
+                },
+                "white_open_brush": {
+                  "contrast": 0.10586054859752968,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    0.014194807734919622,
+                    0.15065684441071622
+                  ]
+                },
+                "red_pink": {
+                  "contrast": -0.0698310459110802,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.1426106778601448,
+                    -0.020375231124857757
+                  ]
+                },
+                "tubular": {
+                  "contrast": 0.02462349093018211,
+                  "group_bootstrap_interval": null,
+                  "leave_block_range": [
+                    -0.0367969321184379,
+                    0.2246935305248801
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "warning": "Post-pilot strict family taxonomy, all map names assigned to a family and focal family diet complete. Other families may have missing diet; only total nonfocal species count used. No diet imputation. 30-block/200 informative-island gate unchanged; no evolutionary or pollination claim.",
+    "taxonomy": {
+      "assigned": 1382,
+      "pteropodidae": 191,
+      "phyllostomidae": 220,
+      "unresolved_family": 21,
+      "diet_family_conflict": 25
+    }
+  },
+  "provenance": {
+    "run": 45544143467,
+    "artifact": 14990398905,
+    "artifact_digest_reported": "sha256:ac7f2b997276075bd556551abfc00974e4c3f08ecc0ed7a00d5e26d8b468b46a",
+    "method": "Complete original source job logs; ZIP digest from GitHub metadata, not independently downloaded."
+  }
+}

@@ -1,0 +1,1978 @@
+{
+  "panels": {
+    "direct_cover0.5_area20_n5_diet0.5": {
+      "before_coverage": 516,
+      "after_coverage": 515,
+      "original_complete": 156,
+      "fit": {
+        "complete_covariate_islands": 514,
+        "islands_with_unknown": 358,
+        "common_informative_blocks": 33,
+        "common_informative_islands": 396,
+        "status": "exploratory_estimable",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 33,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": -0.01624430474082381,
+              "paired_group_bootstrap_interval": [
+                -0.08632988782006656,
+                0.03908246355244516
+              ],
+              "leave_block_range": [
+                -0.029730995936273465,
+                -0.0008585257935227616
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.014154695337978957,
+              "paired_group_bootstrap_interval": [
+                -0.092197344659974,
+                0.044624088544277525
+              ],
+              "leave_block_range": [
+                -0.029164953153112606,
+                0.002851559265485435
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.022486032980397468,
+              "paired_group_bootstrap_interval": [
+                -0.09298367876315548,
+                0.03983206155001076
+              ],
+              "leave_block_range": [
+                -0.03637548799939142,
+                -0.0052674862846497994
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.019295986010326595,
+              "paired_group_bootstrap_interval": [
+                -0.04960414235398145,
+                0.015446291326701974
+              ],
+              "leave_block_range": [
+                -0.02663535378013897,
+                -0.014434352371457617
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.01895729955214347,
+              "paired_group_bootstrap_interval": [
+                -0.05091818572746212,
+                0.018857462872645343
+              ],
+              "leave_block_range": [
+                -0.027756742059342754,
+                -0.013332334264326975
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.018023524705496573,
+              "paired_group_bootstrap_interval": [
+                -0.053927149983721286,
+                0.01646339681683423
+              ],
+              "leave_block_range": [
+                -0.024134440403987798,
+                -0.010124048079581078
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.017155622927524688,
+              "paired_group_bootstrap_interval": [
+                -0.06868598013338828,
+                0.0381645328234279
+              ],
+              "leave_block_range": [
+                -0.02395332733455667,
+                0.007104786181566609
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.019380413128877012,
+              "paired_group_bootstrap_interval": [
+                -0.07323692919632334,
+                0.035419368383417305
+              ],
+              "leave_block_range": [
+                -0.026268930313678024,
+                0.0049160442041603705
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.018822631274969772,
+              "paired_group_bootstrap_interval": [
+                -0.08008964177398695,
+                0.050576202074435424
+              ],
+              "leave_block_range": [
+                -0.028691880990768803,
+                0.009234984796466374
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": 0.014080916243541824,
+              "paired_group_bootstrap_interval": [
+                -0.03995586467905567,
+                0.0482007726164007
+              ],
+              "leave_block_range": [
+                0.0010078863682043762,
+                0.020431737855747825
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.008457202449316711,
+              "paired_group_bootstrap_interval": [
+                -0.0470487227810625,
+                0.04074676267258266
+              ],
+              "leave_block_range": [
+                -0.004898932370017111,
+                0.016212764595276145
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.017744552620010925,
+              "paired_group_bootstrap_interval": [
+                -0.05079730999926197,
+                0.06443345439781079
+              ],
+              "leave_block_range": [
+                -0.00022377202532147984,
+                0.027748566197447942
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_cover0.5_area20_n5_diet0.8": {
+      "before_coverage": 516,
+      "after_coverage": 435,
+      "original_complete": 156,
+      "fit": {
+        "complete_covariate_islands": 434,
+        "islands_with_unknown": 278,
+        "common_informative_blocks": 30,
+        "common_informative_islands": 358,
+        "status": "exploratory_estimable",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 30,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": -0.0021616081215319136,
+              "paired_group_bootstrap_interval": [
+                -0.07994259161592232,
+                0.0799365452116487
+              ],
+              "leave_block_range": [
+                -0.022324655351090298,
+                0.016990110550989333
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.002992194731840824,
+              "paired_group_bootstrap_interval": [
+                -0.08530603215371645,
+                0.08274002687502086
+              ],
+              "leave_block_range": [
+                -0.024673911574254245,
+                0.017590357102421197
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.001626103665298466,
+              "paired_group_bootstrap_interval": [
+                -0.08120060536681732,
+                0.09088476347717296
+              ],
+              "leave_block_range": [
+                -0.017376876919323027,
+                0.02352866865469542
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.016936393263974926,
+              "paired_group_bootstrap_interval": [
+                -0.04757479357818912,
+                0.024972831266651042
+              ],
+              "leave_block_range": [
+                -0.02840667202691323,
+                -0.011448131731316428
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.014455939840239473,
+              "paired_group_bootstrap_interval": [
+                -0.04696204153539221,
+                0.02884705764698978
+              ],
+              "leave_block_range": [
+                -0.027014309301439256,
+                -0.008816789104304276
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.01591293094248477,
+              "paired_group_bootstrap_interval": [
+                -0.05183306111055485,
+                0.029553958284044852
+              ],
+              "leave_block_range": [
+                -0.025205617282236577,
+                -0.006701085470048662
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.021400815366426462,
+              "paired_group_bootstrap_interval": [
+                -0.08006181221028827,
+                0.04033469139823132
+              ],
+              "leave_block_range": [
+                -0.03058171473739866,
+                0.0019219015978569282
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.024033205317757374,
+              "paired_group_bootstrap_interval": [
+                -0.0844267591512169,
+                0.035371035919995054
+              ],
+              "leave_block_range": [
+                -0.03286928267237364,
+                -0.0006874609377156646
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.016368462779347788,
+              "paired_group_bootstrap_interval": [
+                -0.08791194489130826,
+                0.05955694550733587
+              ],
+              "leave_block_range": [
+                -0.02823444416230013,
+                0.011471576764580648
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": -0.003604830083105042,
+              "paired_group_bootstrap_interval": [
+                -0.06420104492138476,
+                0.03352956170401244
+              ],
+              "leave_block_range": [
+                -0.017142649788777012,
+                0.006407763041297568
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.004765709683127157,
+              "paired_group_bootstrap_interval": [
+                -0.06487769882124783,
+                0.03228963629260798
+              ],
+              "leave_block_range": [
+                -0.018361513650711828,
+                0.005727836124713637
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.010247478101735367,
+              "paired_group_bootstrap_interval": [
+                -0.09174151288400467,
+                0.040405099594374376
+              ],
+              "leave_block_range": [
+                -0.03008626985072931,
+                -0.0012963819910432085
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_cover0.5_area20_n5_diet0.95": {
+      "before_coverage": 516,
+      "after_coverage": 177,
+      "original_complete": 156,
+      "fit": {
+        "complete_covariate_islands": 176,
+        "islands_with_unknown": 20,
+        "common_informative_blocks": 17,
+        "common_informative_islands": 119,
+        "status": "insufficient_support",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 17,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": -0.018951689703534697,
+              "paired_group_bootstrap_interval": [
+                -0.13389116975307463,
+                0.0587070799251784
+              ],
+              "leave_block_range": [
+                -0.039835260815375736,
+                -0.0038671185728081465
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.018897048406870173,
+              "paired_group_bootstrap_interval": [
+                -0.133250954993312,
+                0.05878717520615692
+              ],
+              "leave_block_range": [
+                -0.03983690891984716,
+                -0.003820078580275897
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.014234529592957103,
+              "paired_group_bootstrap_interval": [
+                -0.1277532624241674,
+                0.059888255186643806
+              ],
+              "leave_block_range": [
+                -0.0348542830591478,
+                0.002452882126437246
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.010131200830542843,
+              "paired_group_bootstrap_interval": [
+                -0.06288136922454031,
+                0.04143550567121749
+              ],
+              "leave_block_range": [
+                -0.023876546750185704,
+                0.0024000495811125726
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.009758691868068466,
+              "paired_group_bootstrap_interval": [
+                -0.06257400086380686,
+                0.04139686968869527
+              ],
+              "leave_block_range": [
+                -0.02350806772333021,
+                0.002298573519105203
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.008733220966415604,
+              "paired_group_bootstrap_interval": [
+                -0.06401108435147165,
+                0.044684015078388394
+              ],
+              "leave_block_range": [
+                -0.023100128039045292,
+                0.004512878058331505
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": 0.020409446041515133,
+              "paired_group_bootstrap_interval": [
+                -0.04868048824463644,
+                0.07493698487778644
+              ],
+              "leave_block_range": [
+                -0.007056638391254649,
+                0.03748056579214182
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.020016361321393745,
+              "paired_group_bootstrap_interval": [
+                -0.0495175213686515,
+                0.07473581182563913
+              ],
+              "leave_block_range": [
+                -0.00746981367864079,
+                0.03736459914615929
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.02063808265878572,
+              "paired_group_bootstrap_interval": [
+                -0.05309582977632568,
+                0.0770763877806729
+              ],
+              "leave_block_range": [
+                -0.007527836343078877,
+                0.03801195581339345
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": 0.02657802774082154,
+              "paired_group_bootstrap_interval": [
+                -0.07123976222928603,
+                0.09303454882568678
+              ],
+              "leave_block_range": [
+                0.008267386117258633,
+                0.042029918260852624
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.02605516461818608,
+              "paired_group_bootstrap_interval": [
+                -0.07288392948394967,
+                0.09158921736696278
+              ],
+              "leave_block_range": [
+                0.007664087293044167,
+                0.041527212366857184
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.03249291586515661,
+              "paired_group_bootstrap_interval": [
+                -0.06753599712116541,
+                0.1042965246635669
+              ],
+              "leave_block_range": [
+                0.011938993544504357,
+                0.048172219095123425
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_cover0.5_area100_n5_diet0.5": {
+      "before_coverage": 345,
+      "after_coverage": 344,
+      "original_complete": 115,
+      "fit": {
+        "complete_covariate_islands": 344,
+        "islands_with_unknown": 229,
+        "common_informative_blocks": 30,
+        "common_informative_islands": 269,
+        "status": "exploratory_estimable",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 30,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": -0.05143020064601589,
+              "paired_group_bootstrap_interval": [
+                -0.11226396490841181,
+                0.00848110719734939
+              ],
+              "leave_block_range": [
+                -0.06094806881671541,
+                -0.037521134639485414
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.057135396622045725,
+              "paired_group_bootstrap_interval": [
+                -0.12347260714287871,
+                0.008276374902632456
+              ],
+              "leave_block_range": [
+                -0.06837490491592854,
+                -0.04306660950337517
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.055556782959461856,
+              "paired_group_bootstrap_interval": [
+                -0.12277865449750415,
+                0.013499524068332953
+              ],
+              "leave_block_range": [
+                -0.06657662738683358,
+                -0.03979413888947451
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.030484339775852538,
+              "paired_group_bootstrap_interval": [
+                -0.05754394459388473,
+                -0.0023925725346827706
+              ],
+              "leave_block_range": [
+                -0.03503138162565278,
+                -0.024997888567850738
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.03202255802601166,
+              "paired_group_bootstrap_interval": [
+                -0.06021286190879194,
+                -0.0012384121132769021
+              ],
+              "leave_block_range": [
+                -0.037122831245672075,
+                -0.026482460268832726
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.0242171050295218,
+              "paired_group_bootstrap_interval": [
+                -0.05598715898386303,
+                0.007296971973821151
+              ],
+              "leave_block_range": [
+                -0.030247141939590348,
+                -0.017259670851907438
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.04415555257065713,
+              "paired_group_bootstrap_interval": [
+                -0.11879813543286268,
+                0.033172319462641216
+              ],
+              "leave_block_range": [
+                -0.0555819666361789,
+                -0.009355356793768673
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.04554036378410338,
+              "paired_group_bootstrap_interval": [
+                -0.12582957074496634,
+                0.03480586659360513
+              ],
+              "leave_block_range": [
+                -0.056037227576624715,
+                -0.009577694773885256
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.053847942011876246,
+              "paired_group_bootstrap_interval": [
+                -0.13526946717644128,
+                0.040742435189095774
+              ],
+              "leave_block_range": [
+                -0.07151838051167766,
+                -0.016120795141502525
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": -0.008386984966348031,
+              "paired_group_bootstrap_interval": [
+                -0.07213302349888238,
+                0.04434152597288921
+              ],
+              "leave_block_range": [
+                -0.028253606007905014,
+                0.004916948319984477
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.0129673692124408,
+              "paired_group_bootstrap_interval": [
+                -0.08129448148124481,
+                0.04290253427591469
+              ],
+              "leave_block_range": [
+                -0.03335210062758723,
+                0.003313130936899342
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.0163981998193554,
+              "paired_group_bootstrap_interval": [
+                -0.0890182898310322,
+                0.04726652309509146
+              ],
+              "leave_block_range": [
+                -0.04201055574533338,
+                0.0019516677118019566
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_cover0.5_area100_n5_diet0.8": {
+      "before_coverage": 345,
+      "after_coverage": 286,
+      "original_complete": 115,
+      "fit": {
+        "complete_covariate_islands": 286,
+        "islands_with_unknown": 171,
+        "common_informative_blocks": 27,
+        "common_informative_islands": 240,
+        "status": "insufficient_support",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 27,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": -0.05648345213871221,
+              "paired_group_bootstrap_interval": [
+                -0.12363184049295137,
+                0.02467088915271981
+              ],
+              "leave_block_range": [
+                -0.06849124618734845,
+                -0.03922095323970834
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.05688880411512015,
+              "paired_group_bootstrap_interval": [
+                -0.1271513961227086,
+                0.02494379484180485
+              ],
+              "leave_block_range": [
+                -0.06958110214437505,
+                -0.03992962534790454
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.05829673226840964,
+              "paired_group_bootstrap_interval": [
+                -0.1350820943397721,
+                0.028097090806505493
+              ],
+              "leave_block_range": [
+                -0.07219067560521494,
+                -0.0324558481403783
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.028805540776967314,
+              "paired_group_bootstrap_interval": [
+                -0.057829402505006865,
+                0.00523935727392711
+              ],
+              "leave_block_range": [
+                -0.03484546864378693,
+                -0.02043049764741589
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.027903904910454018,
+              "paired_group_bootstrap_interval": [
+                -0.05756345685520228,
+                0.006553257774250979
+              ],
+              "leave_block_range": [
+                -0.03399709854059357,
+                -0.019114442988472438
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.020380147190715597,
+              "paired_group_bootstrap_interval": [
+                -0.05567712036819855,
+                0.015612539120276785
+              ],
+              "leave_block_range": [
+                -0.028826319197244654,
+                -0.01342405837398813
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.039561285036196533,
+              "paired_group_bootstrap_interval": [
+                -0.12768903105617632,
+                0.04950146922491828
+              ],
+              "leave_block_range": [
+                -0.05410806801236836,
+                -0.0019123698994388486
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.03980508165203414,
+              "paired_group_bootstrap_interval": [
+                -0.1298264293821401,
+                0.049676463316590834
+              ],
+              "leave_block_range": [
+                -0.05460044404008961,
+                -0.0016945744317934048
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.04399170498439474,
+              "paired_group_bootstrap_interval": [
+                -0.14374992512221674,
+                0.06418232760660177
+              ],
+              "leave_block_range": [
+                -0.05923011407682596,
+                -0.002647140328324223
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": -0.010731930449981202,
+              "paired_group_bootstrap_interval": [
+                -0.09514691489294706,
+                0.053165440898300886
+              ],
+              "leave_block_range": [
+                -0.03212226840706529,
+                0.013270578841907023
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.009028827056381299,
+              "paired_group_bootstrap_interval": [
+                -0.09396658417820372,
+                0.053382714419616284
+              ],
+              "leave_block_range": [
+                -0.03029224494990643,
+                0.01473372467527543
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.02622941899964801,
+              "paired_group_bootstrap_interval": [
+                -0.12305472943601209,
+                0.052916383167807425
+              ],
+              "leave_block_range": [
+                -0.0546730566730602,
+                0.007872217607941278
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_cover0.5_area100_n5_diet0.95": {
+      "before_coverage": 345,
+      "after_coverage": 133,
+      "original_complete": 115,
+      "fit": {
+        "complete_covariate_islands": 133,
+        "islands_with_unknown": 18,
+        "common_informative_blocks": 16,
+        "common_informative_islands": 96,
+        "status": "insufficient_support",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 16,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": 0.006180253411040606,
+              "paired_group_bootstrap_interval": [
+                -0.07683557313278276,
+                0.09266681761655424
+              ],
+              "leave_block_range": [
+                -0.009615501515434152,
+                0.019752319901127375
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.006020289636017575,
+              "paired_group_bootstrap_interval": [
+                -0.0769882087946731,
+                0.09268133128399758
+              ],
+              "leave_block_range": [
+                -0.009715997038283637,
+                0.019479593315719926
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.013212673067318837,
+              "paired_group_bootstrap_interval": [
+                -0.07044047773841919,
+                0.10188602967718677
+              ],
+              "leave_block_range": [
+                -0.003312696702104765,
+                0.029247280115070422
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": 0.023312948387930896,
+              "paired_group_bootstrap_interval": [
+                -0.03615433508346598,
+                0.08008662900979167
+              ],
+              "leave_block_range": [
+                -0.0017098392244498475,
+                0.03390430384410313
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.02315000917374261,
+              "paired_group_bootstrap_interval": [
+                -0.03643922275402267,
+                0.07998998695160808
+              ],
+              "leave_block_range": [
+                -0.001746877049773778,
+                0.03375392234631993
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.027534689262856134,
+              "paired_group_bootstrap_interval": [
+                -0.03698468546925371,
+                0.08635544029016888
+              ],
+              "leave_block_range": [
+                0.0011754816533619044,
+                0.04186666838965221
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": 0.002711362643350022,
+              "paired_group_bootstrap_interval": [
+                -0.06896828534676198,
+                0.07036356611731716
+              ],
+              "leave_block_range": [
+                -0.021159204131302085,
+                0.021907768955247577
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.002421084585562362,
+              "paired_group_bootstrap_interval": [
+                -0.06954384545610623,
+                0.0706634025935564
+              ],
+              "leave_block_range": [
+                -0.02154436432640377,
+                0.02157560911498549
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.002126314890899381,
+              "paired_group_bootstrap_interval": [
+                -0.07526485036676965,
+                0.0739154157511222
+              ],
+              "leave_block_range": [
+                -0.022587532033792778,
+                0.023454314197640887
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": 0.019280754742449377,
+              "paired_group_bootstrap_interval": [
+                -0.07529913239046807,
+                0.10539639413705904
+              ],
+              "leave_block_range": [
+                -0.017907631700579865,
+                0.045183735485879555
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.01914112940903447,
+              "paired_group_bootstrap_interval": [
+                -0.0756591147163668,
+                0.10470870015875494
+              ],
+              "leave_block_range": [
+                -0.018063505177637877,
+                0.04483387806956978
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.024793783751374452,
+              "paired_group_bootstrap_interval": [
+                -0.07360795212065228,
+                0.12385340229127496
+              ],
+              "leave_block_range": [
+                -0.013738903405980931,
+                0.05262815592084995
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area20_n5_diet0.5": {
+      "before_coverage": 409,
+      "after_coverage": 408,
+      "original_complete": 127,
+      "fit": {
+        "complete_covariate_islands": 407,
+        "islands_with_unknown": 280,
+        "common_informative_blocks": 32,
+        "common_informative_islands": 309,
+        "status": "exploratory_estimable",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 32,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": 0.018507317645771855,
+              "paired_group_bootstrap_interval": [
+                -0.07045771163578977,
+                0.09137536972734284
+              ],
+              "leave_block_range": [
+                0.002686884693488262,
+                0.03387074836902462
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.018374754945732954,
+              "paired_group_bootstrap_interval": [
+                -0.07992601338314931,
+                0.09981194123815831
+              ],
+              "leave_block_range": [
+                8.553583131926112e-7,
+                0.04116015026330656
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.04076910210002283,
+              "paired_group_bootstrap_interval": [
+                -0.06407527229379917,
+                0.12446485506324441
+              ],
+              "leave_block_range": [
+                0.025339933935533777,
+                0.06354173755440158
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": 0.0009754384694903966,
+              "paired_group_bootstrap_interval": [
+                -0.04546808091583295,
+                0.04412516222855341
+              ],
+              "leave_block_range": [
+                -0.00793310920409769,
+                0.013549053212973809
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.0002843557192198122,
+              "paired_group_bootstrap_interval": [
+                -0.049621886795672754,
+                0.05012325621025183
+              ],
+              "leave_block_range": [
+                -0.011556976455383464,
+                0.01613463101122226
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.003870562873035089,
+              "paired_group_bootstrap_interval": [
+                -0.052152402735632486,
+                0.05179705474852742
+              ],
+              "leave_block_range": [
+                -0.0065377576022886755,
+                0.01644560749150521
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.013413553926212456,
+              "paired_group_bootstrap_interval": [
+                -0.053343192858462646,
+                0.039243199679609736
+              ],
+              "leave_block_range": [
+                -0.025600343867866724,
+                -0.003356010583303178
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.01416833589895145,
+              "paired_group_bootstrap_interval": [
+                -0.05680523811399937,
+                0.04118705372568618
+              ],
+              "leave_block_range": [
+                -0.026135038400694602,
+                -0.002490572955378101
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.02932889726502706,
+              "paired_group_bootstrap_interval": [
+                -0.07151018517596235,
+                0.027194060049436714
+              ],
+              "leave_block_range": [
+                -0.0414502425162091,
+                -0.016182763888176185
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": 0.020860722749163146,
+              "paired_group_bootstrap_interval": [
+                -0.04846669607938544,
+                0.06812388936192808
+              ],
+              "leave_block_range": [
+                0.008566192868300513,
+                0.028531764390934813
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.014784135831913027,
+              "paired_group_bootstrap_interval": [
+                -0.05558197584860733,
+                0.06959936891642435
+              ],
+              "leave_block_range": [
+                0.0003496672864144973,
+                0.02390645343359844
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.04666921781485295,
+              "paired_group_bootstrap_interval": [
+                -0.03232646684150137,
+                0.09960524222318817
+              ],
+              "leave_block_range": [
+                0.034698511550541454,
+                0.05918111574703922
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area20_n5_diet0.8": {
+      "before_coverage": 409,
+      "after_coverage": 341,
+      "original_complete": 127,
+      "fit": {
+        "complete_covariate_islands": 340,
+        "islands_with_unknown": 213,
+        "common_informative_blocks": 30,
+        "common_informative_islands": 278,
+        "status": "exploratory_estimable",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 30,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": 0.045121632255295974,
+              "paired_group_bootstrap_interval": [
+                -0.05642775556634246,
+                0.1523874745107424
+              ],
+              "leave_block_range": [
+                0.024248346846559327,
+                0.07030675701712592
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.04196426657385276,
+              "paired_group_bootstrap_interval": [
+                -0.06272280577130553,
+                0.15411961091869736
+              ],
+              "leave_block_range": [
+                0.018563030434567463,
+                0.07070856717914283
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.07748581439889286,
+              "paired_group_bootstrap_interval": [
+                -0.044300227023749354,
+                0.20522778882729045
+              ],
+              "leave_block_range": [
+                0.04584714214183639,
+                0.1009635436679737
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.0017495871679959391,
+              "paired_group_bootstrap_interval": [
+                -0.05303333966525769,
+                0.05456586444182634
+              ],
+              "leave_block_range": [
+                -0.0140646245757497,
+                0.01275221879953473
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.0017786677974380544,
+              "paired_group_bootstrap_interval": [
+                -0.053593683242650986,
+                0.06203124741309579
+              ],
+              "leave_block_range": [
+                -0.01197968577119259,
+                0.01772215833137477
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.003551398488455334,
+              "paired_group_bootstrap_interval": [
+                -0.05980769514130319,
+                0.058979944051166196
+              ],
+              "leave_block_range": [
+                -0.017982575351440405,
+                0.014240128850672218
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.01587544131203924,
+              "paired_group_bootstrap_interval": [
+                -0.07095236177259007,
+                0.04737583647294213
+              ],
+              "leave_block_range": [
+                -0.030151934145934686,
+                -0.0003554637227951348
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.01638328561944148,
+              "paired_group_bootstrap_interval": [
+                -0.07229288365683144,
+                0.04902313338929138
+              ],
+              "leave_block_range": [
+                -0.029791027834981422,
+                0.00020789575007035092
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.030217133103859182,
+              "paired_group_bootstrap_interval": [
+                -0.08645254883177063,
+                0.04188635923664016
+              ],
+              "leave_block_range": [
+                -0.04476080085333262,
+                -0.015371264751672825
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": 0.008572189832162052,
+              "paired_group_bootstrap_interval": [
+                -0.06392833868100997,
+                0.06184157286882649
+              ],
+              "leave_block_range": [
+                -0.004963784523076013,
+                0.017652942414689447
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.003905324772858326,
+              "paired_group_bootstrap_interval": [
+                -0.06980495837146541,
+                0.06214992837831452
+              ],
+              "leave_block_range": [
+                -0.011493603986567041,
+                0.014104407508456578
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.02524092347975293,
+              "paired_group_bootstrap_interval": [
+                -0.06245107980237739,
+                0.08328644594864501
+              ],
+              "leave_block_range": [
+                0.009517789386618942,
+                0.037332423256900706
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area20_n5_diet0.95": {
+      "before_coverage": 409,
+      "after_coverage": 146,
+      "original_complete": 127,
+      "fit": {
+        "complete_covariate_islands": 145,
+        "islands_with_unknown": 18,
+        "common_informative_blocks": 17,
+        "common_informative_islands": 97,
+        "status": "insufficient_support",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 17,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": 0.009125523499637552,
+              "paired_group_bootstrap_interval": [
+                -0.1655910854021999,
+                0.13746942841603552
+              ],
+              "leave_block_range": [
+                -0.03008202196855526,
+                0.06383725153757967
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.008610862750746963,
+              "paired_group_bootstrap_interval": [
+                -0.16587431616847104,
+                0.13743766901603807
+              ],
+              "leave_block_range": [
+                -0.030428487350588364,
+                0.06307457486645045
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.007895944497880144,
+              "paired_group_bootstrap_interval": [
+                -0.17813619122721866,
+                0.14864705167134729
+              ],
+              "leave_block_range": [
+                -0.03381498403840359,
+                0.06768890367104549
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.0002907120742168699,
+              "paired_group_bootstrap_interval": [
+                -0.11448295590679435,
+                0.11280339595018757
+              ],
+              "leave_block_range": [
+                -0.024086318151458404,
+                0.0371690823776018
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.0004652993257552281,
+              "paired_group_bootstrap_interval": [
+                -0.11193197169698146,
+                0.11254942635979333
+              ],
+              "leave_block_range": [
+                -0.023535525867507463,
+                0.03812134272475402
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.0004936074968439272,
+              "paired_group_bootstrap_interval": [
+                -0.1191269692148506,
+                0.1157363684793387
+              ],
+              "leave_block_range": [
+                -0.025362707307679755,
+                0.04138251374013125
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.028280472629542093,
+              "paired_group_bootstrap_interval": [
+                -0.10354462931328785,
+                0.043196808604775316
+              ],
+              "leave_block_range": [
+                -0.0672996935181314,
+                -0.012053403048829717
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.028199804095634877,
+              "paired_group_bootstrap_interval": [
+                -0.10351864428102063,
+                0.04332825863165645
+              ],
+              "leave_block_range": [
+                -0.06714394508511244,
+                -0.011965990125069739
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.025458859301838263,
+              "paired_group_bootstrap_interval": [
+                -0.10321061310025983,
+                0.04984194515017431
+              ],
+              "leave_block_range": [
+                -0.067319349370237,
+                -0.006639500566516594
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": 0.07502570011637161,
+              "paired_group_bootstrap_interval": [
+                -0.03757995274154032,
+                0.1669634673907972
+              ],
+              "leave_block_range": [
+                0.04403935035674095,
+                0.09659130661196745
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.07513725621473501,
+              "paired_group_bootstrap_interval": [
+                -0.03774427751768908,
+                0.1664883733458676
+              ],
+              "leave_block_range": [
+                0.044209450094055566,
+                0.09632850423827283
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.08663718901296363,
+              "paired_group_bootstrap_interval": [
+                -0.031675254493337364,
+                0.18332345801966057
+              ],
+              "leave_block_range": [
+                0.056353468872208844,
+                0.1085926712952924
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area100_n5_diet0.5": {
+      "before_coverage": 292,
+      "after_coverage": 291,
+      "original_complete": 96,
+      "fit": {
+        "complete_covariate_islands": 291,
+        "islands_with_unknown": 195,
+        "common_informative_blocks": 29,
+        "common_informative_islands": 223,
+        "status": "insufficient_support",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 29,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": -0.0340925231059253,
+              "paired_group_bootstrap_interval": [
+                -0.1179299873714364,
+                0.05114557591822009
+              ],
+              "leave_block_range": [
+                -0.05647237481610158,
+                -0.012178352334799844
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.03502478616430743,
+              "paired_group_bootstrap_interval": [
+                -0.12266423683480084,
+                0.05524157335833301
+              ],
+              "leave_block_range": [
+                -0.06121697924734368,
+                -0.012429110286397673
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.021716212404067615,
+              "paired_group_bootstrap_interval": [
+                -0.12466305707334081,
+                0.06966776495923402
+              ],
+              "leave_block_range": [
+                -0.0453561617151082,
+                0.0030585468030061786
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.025128310824974215,
+              "paired_group_bootstrap_interval": [
+                -0.06333551592376639,
+                0.013485911885746856
+              ],
+              "leave_block_range": [
+                -0.03505032985313913,
+                -0.013694056632041509
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.030962977814866517,
+              "paired_group_bootstrap_interval": [
+                -0.06986092504465743,
+                0.010703813147996448
+              ],
+              "leave_block_range": [
+                -0.038884010487231585,
+                -0.01661101120916167
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.020403237076175043,
+              "paired_group_bootstrap_interval": [
+                -0.06759034809402029,
+                0.025268572246261778
+              ],
+              "leave_block_range": [
+                -0.03330599496077125,
+                -0.010196781446362551
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.008827434596199418,
+              "paired_group_bootstrap_interval": [
+                -0.0511823305875328,
+                0.04207445891364204
+              ],
+              "leave_block_range": [
+                -0.019024836875171494,
+                0.0009099145511191932
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.010846073748444067,
+              "paired_group_bootstrap_interval": [
+                -0.0562935183246376,
+                0.0441561080382403
+              ],
+              "leave_block_range": [
+                -0.02116577886975114,
+                -0.001481491285867947
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.016949836130375585,
+              "paired_group_bootstrap_interval": [
+                -0.06393392246800153,
+                0.04005373271198921
+              ],
+              "leave_block_range": [
+                -0.028600068509990136,
+                -0.0028477494824020767
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": 0.013347257306756814,
+              "paired_group_bootstrap_interval": [
+                -0.0661304834884981,
+                0.08762266460544718
+              ],
+              "leave_block_range": [
+                -0.006568698321545458,
+                0.0357957632659314
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.01488721989789083,
+              "paired_group_bootstrap_interval": [
+                -0.06735427102096983,
+                0.09721703145394893
+              ],
+              "leave_block_range": [
+                -0.008386555694242768,
+                0.037939010747569404
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.01598654875680868,
+              "paired_group_bootstrap_interval": [
+                -0.07393137989242933,
+                0.0915503523452647
+              ],
+              "leave_block_range": [
+                0.002142961138222395,
+                0.04029426578879189
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area100_n5_diet0.8": {
+      "before_coverage": 292,
+      "after_coverage": 240,
+      "original_complete": 96,
+      "fit": {
+        "complete_covariate_islands": 240,
+        "islands_with_unknown": 144,
+        "common_informative_blocks": 27,
+        "common_informative_islands": 199,
+        "status": "insufficient_support",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 27,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": 0.012536499744039899,
+              "paired_group_bootstrap_interval": [
+                -0.07216461706835403,
+                0.11184253240846086
+              ],
+              "leave_block_range": [
+                -0.010713903681363098,
+                0.039330784864454016
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.008231758802816687,
+              "paired_group_bootstrap_interval": [
+                -0.07566340387482721,
+                0.1089415440376691
+              ],
+              "leave_block_range": [
+                -0.016517711191176922,
+                0.03704681019129125
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.031231938908856217,
+              "paired_group_bootstrap_interval": [
+                -0.08009656501466272,
+                0.13958713720905644
+              ],
+              "leave_block_range": [
+                0.006405833660348116,
+                0.05321063407303514
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.02954181825946958,
+              "paired_group_bootstrap_interval": [
+                -0.0701864225349539,
+                0.013299529393412212
+              ],
+              "leave_block_range": [
+                -0.038449865820212786,
+                -0.015486589589710964
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.032069471933237954,
+              "paired_group_bootstrap_interval": [
+                -0.07351639970545262,
+                0.01212787344558144
+              ],
+              "leave_block_range": [
+                -0.041647096627218536,
+                -0.017727958626480824
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.02934612732099864,
+              "paired_group_bootstrap_interval": [
+                -0.07820152012689886,
+                0.024202523232249133
+              ],
+              "leave_block_range": [
+                -0.04196662061058799,
+                -0.01262688970214117
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.031467402931929934,
+              "paired_group_bootstrap_interval": [
+                -0.08660421585835977,
+                0.0333450912662209
+              ],
+              "leave_block_range": [
+                -0.04522395981268287,
+                -0.019660034712346255
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.032710638741996007,
+              "paired_group_bootstrap_interval": [
+                -0.08828021782145583,
+                0.03283834177350618
+              ],
+              "leave_block_range": [
+                -0.04590964204058481,
+                -0.020772642575549945
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.03349333368543979,
+              "paired_group_bootstrap_interval": [
+                -0.09450314938321286,
+                0.04093214259408555
+              ],
+              "leave_block_range": [
+                -0.04730158496327192,
+                -0.017462801928568934
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": 0.04171435579744914,
+              "paired_group_bootstrap_interval": [
+                -0.055234427963112974,
+                0.12211834243624503
+              ],
+              "leave_block_range": [
+                0.01362674977776213,
+                0.05698163110416142
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.04156211358034919,
+              "paired_group_bootstrap_interval": [
+                -0.05784215978250218,
+                0.12360020579111335
+              ],
+              "leave_block_range": [
+                0.011243109074352227,
+                0.0561576986704323
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.04777175236031883,
+              "paired_group_bootstrap_interval": [
+                -0.052736556407309496,
+                0.12333517512543049
+              ],
+              "leave_block_range": [
+                0.02817541709884547,
+                0.0630079561994472
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area100_n5_diet0.95": {
+      "before_coverage": 292,
+      "after_coverage": 112,
+      "original_complete": 96,
+      "fit": {
+        "complete_covariate_islands": 112,
+        "islands_with_unknown": 16,
+        "common_informative_blocks": 15,
+        "common_informative_islands": 78,
+        "status": "insufficient_support",
+        "valid_bootstrap": 1999,
+        "valid_leave_block": 15,
+        "endpoints": {
+          "white": {
+            "known": {
+              "contrast": -0.019151145103453344,
+              "paired_group_bootstrap_interval": [
+                -0.19963840694448073,
+                0.13317608805979508
+              ],
+              "leave_block_range": [
+                -0.08472279662051108,
+                0.044780320222037845
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.01982523544288427,
+              "paired_group_bootstrap_interval": [
+                -0.20010911786778127,
+                0.13127671914001837
+              ],
+              "leave_block_range": [
+                -0.08535629508468848,
+                0.04366271037446619
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.02053192517219522,
+              "paired_group_bootstrap_interval": [
+                -0.21959616245048275,
+                0.13442454808285642
+              ],
+              "leave_block_range": [
+                -0.09234692787005572,
+                0.05170303143785522
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "white_open_brush": {
+            "known": {
+              "contrast": -0.0017169837997014475,
+              "paired_group_bootstrap_interval": [
+                -0.07094305279321285,
+                0.06641549129206364
+              ],
+              "leave_block_range": [
+                -0.02708290782332571,
+                0.021053277477625157
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.002208250613630603,
+              "paired_group_bootstrap_interval": [
+                -0.07102358122171884,
+                0.06601727133460021
+              ],
+              "leave_block_range": [
+                -0.027527178115466254,
+                0.02030044514507126
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.0000683888039650065,
+              "paired_group_bootstrap_interval": [
+                -0.07580307857558145,
+                0.07355700412463176
+              ],
+              "leave_block_range": [
+                -0.028536374008671546,
+                0.026243979081044973
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "red_pink": {
+            "known": {
+              "contrast": -0.03355368729617131,
+              "paired_group_bootstrap_interval": [
+                -0.10820262725307617,
+                0.03652326632870644
+              ],
+              "leave_block_range": [
+                -0.06693168968701904,
+                -0.017920017547179423
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": -0.033439610821249396,
+              "paired_group_bootstrap_interval": [
+                -0.10787308740497017,
+                0.036000180386918684
+              ],
+              "leave_block_range": [
+                -0.06685093530998892,
+                -0.01793156536930609
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": -0.030624454200954346,
+              "paired_group_bootstrap_interval": [
+                -0.11332966577059254,
+                0.04253131562756635
+              ],
+              "leave_block_range": [
+                -0.06778685881586416,
+                -0.012717754468578252
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": false,
+            "all_scenarios_positive_bootstrap_lower": false
+          },
+          "tubular": {
+            "known": {
+              "contrast": 0.074515358928518,
+              "paired_group_bootstrap_interval": [
+                -0.027368236517241816,
+                0.1708040776813546
+              ],
+              "leave_block_range": [
+                0.04871866180689113,
+                0.1003873154322112
+              ]
+            },
+            "unknown_as_other": {
+              "contrast": 0.07389139015090967,
+              "paired_group_bootstrap_interval": [
+                -0.02902261929322249,
+                0.17005499844116542
+              ],
+              "leave_block_range": [
+                0.04794773033690374,
+                0.099910207755098
+              ]
+            },
+            "unknown_as_nectar": {
+              "contrast": 0.0902739413917339,
+              "paired_group_bootstrap_interval": [
+                -0.016768197557244176,
+                0.1934344463124
+              ],
+              "leave_block_range": [
+                0.06677956700941497,
+                0.11532528769628958
+              ]
+            },
+            "all_scenarios_same_positive_point_sign": true,
+            "all_scenarios_positive_bootstrap_lower": false
+          }
+        }
+      }
+    }
+  },
+  "provenance": {
+    "run": 45541483054,
+    "artifact": 14990016966,
+    "artifact_digest_reported": "sha256:6bae3a63fd0e8e7cb8d34d9b506769eebeecbe56aaab65c623e11e784b343583",
+    "method": "Complete original job logs; archive digest from GitHub metadata, not independently downloaded."
+  }
+}

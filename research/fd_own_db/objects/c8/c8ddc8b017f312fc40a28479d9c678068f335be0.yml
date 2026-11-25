@@ -1,0 +1,55 @@
+name: Export verified public animal geography bridge for protected botanical analysis
+on:
+  push:
+    branches: [analysis/tropical-pollinator-guild-dispersal-20261124]
+    paths:
+      - .github/workflows/tropical_public_animal_bridge_export.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas pyshp pyproj
+      - name: Validate signed public artifacts and emit public-only geometry and animal counts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PYTHONPATH=scripts python - <<'PY'
+          import hashlib,io,json,os,pathlib,subprocess,zipfile
+          import pandas as pd
+          from tropical_three_guild_candidate_audit import fetch
+          aid=14903203565
+          raw=subprocess.check_output(["curl","--fail","--silent","--show-error","--location","--max-time","90","--max-filesize","2000000","-H","Authorization: Bearer "+os.environ["GH_TOKEN"],"-H","Accept: application/vnd.github+json",f"https://api.github.com/repos/zuizui0223/fd/actions/artifacts/{aid}/zip"])
+          assert hashlib.sha256(raw).hexdigest()=="b661f1cd414a63bdc4450b8c7b1691530fd23afdf8f66c405129c189587c98a6"
+          with zipfile.ZipFile(io.BytesIO(raw)) as z:
+              name=next(n for n in z.namelist() if pathlib.PurePosixPath(n).name=="bee_gshhg_geometry_crosswalk.csv")
+              d=pd.read_csv(z.open(name),dtype={"bee_id":str})
+          d=d[d.status.eq("matched")].copy()
+          assert len(d)==234 and d.bee_id.is_unique and d.best_gshhg_id.is_unique
+          b=fetch("bee_bird"); t=fetch("butterfly")
+          assert len(b)==52 and len(t)==98
+          # These IDs are independently reconstructed public GSHHG geometry hashes, not protected GIFT identities.
+          rows=[[r.bee_id,r.best_gshhg_id,round(r.bee_overlap,8),round(r.gshhg_overlap,8)] for r in d.itertuples()]
+          bird=b[["bee_id","group","nectar_gt0","nectar_ge20","nectar_ge50","all_birds","area_ratio","match_type"]].where(pd.notna(b[["bee_id","group","nectar_gt0","nectar_ge20","nectar_ge50","all_birds","area_ratio","match_type"]]),None).to_dict("records")
+          # Only positive record counts; null butterfly richness retained, never zero imputed.
+          btcols=["bee_id"]+[k+"_"+v for k in ("all","precision_le1km","no_gbifid_with_reference","both") for v in ("records","recorded_species")]
+          butterfly=t[btcols].astype(object).where(pd.notna(t[btcols]),None).to_dict("records")
+          x={"public_bridge_columns":["bee_id","gshhg_geometry_hash_id","bee_overlap","gshhg_overlap"],"geometry":rows,"bird_candidate":bird,"butterfly_record_opportunity":butterfly,"source_artifacts":{"geometry":14903203565,"bird":14901918629,"butterfly":14896477401}}
+          s=json.dumps(x,ensure_ascii=True,separators=(",",":"),allow_nan=False)
+          pathlib.Path("work").mkdir(exist_ok=True)
+          pathlib.Path("work/public_animal_bridge.json").write_text(s)
+          print("PUBLIC_ANIMAL_BRIDGE_SHA256",hashlib.sha256(s.encode()).hexdigest(),flush=True)
+          print("PUBLIC_ANIMAL_BRIDGE_JSON",s,flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-animal-geometry-bridge
+          path: work/public_animal_bridge.json

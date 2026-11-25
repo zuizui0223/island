@@ -1,0 +1,17 @@
+subset,dependency_grouping,n_pairs,n_components,component_sizes,scope,endpoint,n_exhaustive_sign_configurations,exact_upper_p,min_attainable_upper_p
+all_37,spatial_block,37,5,23|11|1|1|1,all,exact_profile_L2,32,0.25,0.0625
+all_37,spatial_block,37,5,23|11|1|1|1,direct,exact_profile_L2,32,0.375,0.0625
+all_37,spatial_block,37,5,23|11|1|1|1,all,categorical_similarity_kernel,32,0.8125,0.0625
+all_37,spatial_block,37,5,23|11|1|1|1,direct,categorical_similarity_kernel,32,0.9375,0.0625
+all_37,weigelt_archipelago,37,5,18|13|4|1|1,all,exact_profile_L2,32,0.1875,0.0625
+all_37,weigelt_archipelago,37,5,18|13|4|1|1,direct,exact_profile_L2,32,0.5,0.0625
+all_37,weigelt_archipelago,37,5,18|13|4|1|1,all,categorical_similarity_kernel,32,0.875,0.0625
+all_37,weigelt_archipelago,37,5,18|13|4|1|1,direct,categorical_similarity_kernel,32,0.875,0.0625
+effort_balanced,spatial_block,21,5,12|5|2|1|1,all,exact_profile_L2,32,0.25,0.0625
+effort_balanced,spatial_block,21,5,12|5|2|1|1,direct,exact_profile_L2,32,0.3125,0.0625
+effort_balanced,spatial_block,21,5,12|5|2|1|1,all,categorical_similarity_kernel,32,0.875,0.0625
+effort_balanced,spatial_block,21,5,12|5|2|1|1,direct,categorical_similarity_kernel,32,0.875,0.0625
+effort_balanced,weigelt_archipelago,21,5,8|6|4|2|1,all,exact_profile_L2,32,0.25,0.0625
+effort_balanced,weigelt_archipelago,21,5,8|6|4|2|1,direct,exact_profile_L2,32,0.3125,0.0625
+effort_balanced,weigelt_archipelago,21,5,8|6|4|2|1,all,categorical_similarity_kernel,32,0.875,0.0625
+effort_balanced,weigelt_archipelago,21,5,8|6|4|2|1,direct,categorical_similarity_kernel,32,0.9375,0.0625

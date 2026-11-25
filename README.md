@@ -18,6 +18,10 @@
 8. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
 9. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
 
+## FD / Chapter 1 research integration (exploratory)
+
+[Own-database provenance audit and H1–H4 integration](docs/fd_self_db_integration_20261125.md) · [Evidence ledger](results/fd_self_db_20261125/evidence_ledger.csv) · [68-PR inventory](results/fd_self_db_20261125/pr_inventory.csv) · [Machine-readable source registry](config/fd_self_db_integration_20261125.json). This is a parallel research extension, not a change to the frozen GEB selector. The historical “GIFT 4505” label is not independent GIFT island-incidence provenance for the SHA-pinned GBIF-derived canonical occurrence/status file; distinguish mainland donors and status annotations from the target roster.
+
 ## Current baseline
 
 - analysis universe: **8,264 island units**;

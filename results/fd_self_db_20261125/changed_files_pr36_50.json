@@ -1,0 +1,510 @@
+{
+  "source": "zuizui0223/fd",
+  "scope": "PR changed paths; immutable head SHAs in pr_inventory.csv; path listing does not establish data provenance",
+  "prs": [
+    {
+      "pr": 36,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "22a163b3e01ab61a05b3c9872da244b7292aa012",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "12e6dacf4891142a8ea2caa15e4162aea452863f",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_global_oracle_free_genus_assembly/README.md",
+          "status": "added",
+          "blob_sha": "3b262cc0ca12648d2292dfe9d3b88f60b279fd9a",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_strict_training_geo_source_holdout/GENUS_OVER_BLIND_TWO_PROPER_SCORES.md",
+          "status": "modified",
+          "blob_sha": "0e38e25d3d6b00286fe7728dca7191c426dd4e16",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 37,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "7040f84fb5f073dd17fde7b612b4b9301748a442",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "bece498d47291363f1f78ca33cbfc428b18091d5",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_global_environment_genus_composition/README.md",
+          "status": "added",
+          "blob_sha": "91ecc25326289b0111fc47db17ecbb04f518a031",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_global_oracle_free_genus_assembly/README.md",
+          "status": "modified",
+          "blob_sha": "57cd7ab58e226fff3a84c7f235b7d2281aa7ac3c",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 38,
+      "files": [
+        {
+          "path": "docs/TWO_STAGE_GEOGRAPHY_TO_FLORAL_FORECAST_20261119.md",
+          "status": "added",
+          "blob_sha": "7f4fccc5f2cf0db1dd586e7ae4f1020527589b65",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/verify_stage2_source_anonymous.py",
+          "status": "added",
+          "blob_sha": "745229514ce4395faa4ee5c01737dd069fb58478",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/two_stage_floral_forecast.py",
+          "status": "added",
+          "blob_sha": "37881b6c2f80cc33a8f2e1ba75988f3efd6ed41d",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_two_stage_floral_forecast.py",
+          "status": "added",
+          "blob_sha": "3d948957b5458f282ac5ecdd112671c88158f6bf",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_verify_stage2_source_anonymous.py",
+          "status": "added",
+          "blob_sha": "205b8b19872984dbec127a8c66bbd8c1635663a5",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 39,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "dc56b726b39efeb8034398c935ac9fc7beb714c0",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "9f6531d10d01d366e6012aef94d00bc87a3be319",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_name_disjoint_floral_forecast/README.md",
+          "status": "added",
+          "blob_sha": "98211f0e3b6a4c367278ea840cb59667ba0ffb18",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 40,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "b1d520c5c386e9f953e962be0a262d8acc28eb08",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_name_disjoint_floral_forecast/README.md",
+          "status": "modified",
+          "blob_sha": "a4380b1ead5294d3e4ca9d2971027d8ac9930be8",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_name_disjoint_floral_forecast/REGIONAL_BLIND_BASELINE_REVERSAL.md",
+          "status": "added",
+          "blob_sha": "a81b088cdd1c1902127cdf2d0f1a0df16f4d5780",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 41,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "e543735ed9512171fa2b0dae02b88009af1835d3",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_name_disjoint_floral_forecast/EXTERNAL_ONLY_CONGENER_SENSITIVITY.md",
+          "status": "added",
+          "blob_sha": "936ef22fa306d53fe7c03532ae47352a862d8de4",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_name_disjoint_floral_forecast/README.md",
+          "status": "modified",
+          "blob_sha": "39653dcf9b827c0baf0c3ba246402e931daa21a5",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 42,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "b7d6630a46aa90d388d66bdc9faad3500975721d",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_name_disjoint_floral_forecast/PAIRED_LOCAL_EXTERNAL_BLIND_ORIGINAL.md",
+          "status": "added",
+          "blob_sha": "be32a23c999a6ac99061309e7a360c152d492d1a",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_name_disjoint_floral_forecast/REGIONAL_BLIND_BASELINE_REVERSAL.md",
+          "status": "modified",
+          "blob_sha": "36af02e65a8837f1847eec227f2e07b3f21d1117",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 43,
+      "files": [
+        {
+          "path": ".github/workflows/avoniche-bird-nectar-preflight.yml",
+          "status": "added",
+          "blob_sha": "07d95641373a2692059a782dd66b58d9ade69c46",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/eltontraits-bird-preflight.yml",
+          "status": "added",
+          "blob_sha": "e5a23d153f5b52864f7c6cc29f722fb991fc530b",
+          "previous_path": null
+        },
+        {
+          "path": "docs/GUILD_SPATIAL_ALIGNMENT_CONTRACT.md",
+          "status": "added",
+          "blob_sha": "dee627e65d87fa5f4f58d3896899f27098a332c3",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_elton_globi_guild_catalog/ORIGINAL_AGGREGATE.json",
+          "status": "added",
+          "blob_sha": "72f1ac6c298633897ecc7bdf0d3a7f70795190d6",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_elton_globi_guild_catalog/README.md",
+          "status": "added",
+          "blob_sha": "39e719d9fa5d0855a3a2abcdf6616a636c028f2f",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/avoniche_nectar_preflight.py",
+          "status": "added",
+          "blob_sha": "010d58f65eca1db26919a26e8b2e0f0610fc09c6",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/elton_globi_guild_bridge.py",
+          "status": "added",
+          "blob_sha": "fe4b1032a533e21170ec68b447eb9f19c159de5d",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/eltontraits_bird_nectar.py",
+          "status": "added",
+          "blob_sha": "5e495bd737c63b4e76e3996ba0a446e5215f618c",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/guild_sector_alignment.py",
+          "status": "added",
+          "blob_sha": "edd7d9b0338d4ecf17eae63d32f6ee3e734a08e0",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_avoniche_nectar_preflight.py",
+          "status": "added",
+          "blob_sha": "0c829903eda387215c77af2249e21adaf9c676ea",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_elton_globi_guild_bridge.py",
+          "status": "added",
+          "blob_sha": "282bf083bd06c656b026363feded668a2df16057",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_eltontraits_bird_nectar.py",
+          "status": "added",
+          "blob_sha": "90c5c31907419470efc7c4e86ed27cf37aeb8d57",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_guild_sector_alignment.py",
+          "status": "added",
+          "blob_sha": "54765f4ed2d6b44f115217ccd1b6828c377b997b",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 44,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "5dcfad785804717e4a0c0c5bd9fbecd855e6640d",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "926813e0fb70fdb17ffa0ff33eeee6d8511d7ada",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/GIFT4505_ALL13_ANONYMOUS_78_PANEL_AUDIT.csv",
+          "status": "added",
+          "blob_sha": "f1acce6cbb4d499aa40d3f89dee0d04fcad2dabe",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/GIFT4505_CATEGORICAL_RAOQ_ANONYMOUS_12_PANEL_AUDIT.csv",
+          "status": "added",
+          "blob_sha": "73782b493ad23470164b553518f943b0d6cf2a37",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/README.md",
+          "status": "added",
+          "blob_sha": "100a36811e66288053de5d45ae33d1812617b39a",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 45,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "33262807493167d3b3bae0d5068b130b8a1f3e86",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/README.md",
+          "status": "modified",
+          "blob_sha": "024b04eeaef2ab958ec96c73bc7ad29f04f7c2d2",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 46,
+      "files": [
+        {
+          "path": ".github/workflows/audit-gift-joint-source.yml",
+          "status": "added",
+          "blob_sha": "815ec6fc1b2a7802f5641437f1a248aaac25b5e2",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/verify_gift_architecture_assurance_source.py",
+          "status": "added",
+          "blob_sha": "ad4a41a20625930c1fab72cabadc0a6aa8cd3875",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_verify_gift_architecture_assurance_source.py",
+          "status": "added",
+          "blob_sha": "b81e65b91fa39effa704c81e3d5634d5c3214bab",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 47,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "021679a57c636ba423f026d8b968fd40f9c630bf",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "d79fa4a8309c09ee0b288514a70121b1d71bd607",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/ALL13_DIRECT_PAIRED_REFERENCE_CI_20261120.md",
+          "status": "added",
+          "blob_sha": "26b6f2a3d016901c7e2f8461126d04436d66b5ae",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/ALL13_LOCAL_EXTERNAL_POINT_ATLAS_README.md",
+          "status": "added",
+          "blob_sha": "4425e955edc905404c4164eb7b57407f3011b26b",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/ALL13_LOCAL_VS_EXTERNAL_BLIND_POINT_ATLAS.csv",
+          "status": "added",
+          "blob_sha": "72b565b8a15340646297c2fe6f3fa66d2db74acf",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/ALL13_PAIRED_LOCAL_EXTERNAL_BLIND_SOURCE_78_PANEL.csv",
+          "status": "added",
+          "blob_sha": "2fc921b02342012ee0c5e785ccaaa5005656ca5c",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/ARCHITECTURE_ASSURANCE_GENUS_NULL_36_PANEL.csv",
+          "status": "added",
+          "blob_sha": "63305c41af9ea4d6d4506f5614f7f2713745be29",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/ARCHITECTURE_ASSURANCE_TRUE_JOINT_AND_GENUS_NULL_20261120.md",
+          "status": "added",
+          "blob_sha": "42817005db78d4eafeb0c7e86373835a3588f196",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/README.md",
+          "status": "modified",
+          "blob_sha": "b2cffeebb7847fda99b0bafdf7f383b93eda29c6",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 48,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "1b6824cde8cbf846b3ec115d910084908a66d87a",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "b94244019deafdd544f203ab7ede43d55fa3dac1",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/GIFT4505_FULL13_SOURCE_STATUS_SUPPORT_CENSUS.csv",
+          "status": "added",
+          "blob_sha": "11706358f822cea83755a5280783cd91314bef80",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261119_stage2_all13_and_raoq/GIFT4505_SOURCE_COVERAGE_AND_NATIVE_ATTRITION_20261120.md",
+          "status": "added",
+          "blob_sha": "d63002137516f23f3fb301e97dd5dc3d869536ba",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 49,
+      "files": [
+        {
+          "path": ".github/workflows/audit-gift-original-category-raoq.yml",
+          "status": "added",
+          "blob_sha": "9f862afb9c2fe979b2efa41f544a344afe680ae6",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/verify_gift_category_vs_raoq_crossgate.py",
+          "status": "added",
+          "blob_sha": "cc4ca26a8673352da22ffd75ca76e6a7bd40c687",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_verify_gift_category_vs_raoq_crossgate.py",
+          "status": "added",
+          "blob_sha": "2c27810760e9f75548d171bd8729f3cf8d3042c9",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 50,
+      "files": [
+        {
+          "path": ".github/workflows/fd-categorical-brier-rao-identity.yml",
+          "status": "added",
+          "blob_sha": "bc6ad0f8d6a0e0c766550864f310a76b37b4e723",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "54b8f74fcdc705ef48eafae6b31ca96ad4fd7305",
+          "previous_path": null
+        },
+        {
+          "path": "docs/WHY_CATEGORICAL_BRIER_AND_RAO_DIVERSITY_DISAGREE_20261120.md",
+          "status": "added",
+          "blob_sha": "5b57813a61005efe02ccc2cc58a1fed20ed5e50e",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/nominal_diversity_identity.py",
+          "status": "added",
+          "blob_sha": "9bcddb231c341f4713445313d8828d92d58f3bef",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_nominal_diversity_identity.py",
+          "status": "added",
+          "blob_sha": "dc6595ceaebed64d47be3b59ac3a54feaad28475",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    }
+  ]
+}

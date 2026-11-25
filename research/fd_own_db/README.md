@@ -1,0 +1,77 @@
+# FD legacy own/mixed research archive
+
+All preserved bytes are addressable by their original Git blob SHA. Inspect the snapshot indexes or restore a selected worktree with the restore script. No legacy CI is active here. Historical narratives may have stale GIFT labels. Active ownership is defined by the repository source contract, not the archived wording.
+
+| Snapshot | Pinned commit | Indexed paths | Local archived paths | External candidates retained in fd |
+|---|---|---:|---:|---:|
+| [main](snapshots/main.json) | [43b80ab0b3b5](https://github.com/zuizui0223/fd/tree/43b80ab0b3b5fe580f4ad74ffe6af6809af718e2) | 201 | 171 | 30 |
+| [pr001](snapshots/pr001.json) | [604ee404796d](https://github.com/zuizui0223/fd/tree/604ee404796d2faa34a7241257446b5ebe543f80) | 10 | 10 | 0 |
+| [pr002](snapshots/pr002.json) | [c93b4a794b5f](https://github.com/zuizui0223/fd/tree/c93b4a794b5fbe6fbbc0dcf2c77a8c1c1fd092d7) | 15 | 15 | 0 |
+| [pr003](snapshots/pr003.json) | [49f5f3f7009a](https://github.com/zuizui0223/fd/tree/49f5f3f7009af3694e320e2afab9d54fc35cafdd) | 27 | 27 | 0 |
+| [pr004](snapshots/pr004.json) | [eb423985eadf](https://github.com/zuizui0223/fd/tree/eb423985eadf427003f4223a7481b9858512569e) | 32 | 32 | 0 |
+| [pr005](snapshots/pr005.json) | [209cf70a36e2](https://github.com/zuizui0223/fd/tree/209cf70a36e2d7985dc95b50bf5e438eca7c3b32) | 41 | 41 | 0 |
+| [pr006](snapshots/pr006.json) | [161493cb9ec8](https://github.com/zuizui0223/fd/tree/161493cb9ec8b3dfb857bd701fe08dc2013f2bf6) | 50 | 50 | 0 |
+| [pr007](snapshots/pr007.json) | [e11fbb917359](https://github.com/zuizui0223/fd/tree/e11fbb9173599d54ea5e2f01a842404e092206bc) | 60 | 60 | 0 |
+| [pr008](snapshots/pr008.json) | [d8c14fde3b0b](https://github.com/zuizui0223/fd/tree/d8c14fde3b0b298e319ed47794ec259a6c34e5fb) | 67 | 67 | 0 |
+| [pr009](snapshots/pr009.json) | [c80b12b16ab7](https://github.com/zuizui0223/fd/tree/c80b12b16ab7e38ee0dbb1a781fead1c6c0a077e) | 75 | 75 | 0 |
+| [pr010](snapshots/pr010.json) | [8f6a73205228](https://github.com/zuizui0223/fd/tree/8f6a732052289952e18418212c0f680269c4e90a) | 82 | 82 | 0 |
+| [pr011](snapshots/pr011.json) | [2469689932f0](https://github.com/zuizui0223/fd/tree/2469689932f09ba66bcfa515f52e971a7ff53c05) | 140 | 140 | 0 |
+| [pr012](snapshots/pr012.json) | [22b18b226c7a](https://github.com/zuizui0223/fd/tree/22b18b226c7a0b67528b521845be8b8d5f86842e) | 89 | 89 | 0 |
+| [pr013](snapshots/pr013.json) | [afa6190d15c8](https://github.com/zuizui0223/fd/tree/afa6190d15c808265dbb50bd06fd220183a84b39) | 131 | 131 | 0 |
+| [pr014](snapshots/pr014.json) | [4309409d0285](https://github.com/zuizui0223/fd/tree/4309409d0285bd963589dcacbfb5ecc60cd0333a) | 167 | 167 | 0 |
+| [pr015](snapshots/pr015.json) | [4b94fcc8239a](https://github.com/zuizui0223/fd/tree/4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf) | 200 | 192 | 8 |
+| [pr016](snapshots/pr016.json) | [819b8138a8c5](https://github.com/zuizui0223/fd/tree/819b8138a8c577754c81ee40a618d058b23aabd2) | 446 | 446 | 0 |
+| [pr017](snapshots/pr017.json) | [17cf8160d1f9](https://github.com/zuizui0223/fd/tree/17cf8160d1f95f343e404505c5f5414c804532c5) | 91 | 91 | 0 |
+| [pr018](snapshots/pr018.json) | [5c15eb539641](https://github.com/zuizui0223/fd/tree/5c15eb539641c363d04096ebd8a99b71e35e2bae) | 432 | 432 | 0 |
+| [pr019](snapshots/pr019.json) | [a360b0506527](https://github.com/zuizui0223/fd/tree/a360b0506527da21bae2da0a1d014d9c9f7a8ff6) | 91 | 91 | 0 |
+| [pr020](snapshots/pr020.json) | [c07b5439187b](https://github.com/zuizui0223/fd/tree/c07b5439187bfc442a88486c757f7982b6a85249) | 91 | 91 | 0 |
+| [pr021](snapshots/pr021.json) | [d538e7c0060a](https://github.com/zuizui0223/fd/tree/d538e7c0060af176ffdcb187a0bc082cbea12978) | 91 | 91 | 0 |
+| [pr022](snapshots/pr022.json) | [1f6623753e66](https://github.com/zuizui0223/fd/tree/1f6623753e668af381ca6daaa040721b158453c1) | 466 | 466 | 0 |
+| [pr023](snapshots/pr023.json) | [1d1502a3c5b1](https://github.com/zuizui0223/fd/tree/1d1502a3c5b106bf0dd25b3e59c08da7dbcfd5e9) | 91 | 91 | 0 |
+| [pr024](snapshots/pr024.json) | [8d6158a9e88d](https://github.com/zuizui0223/fd/tree/8d6158a9e88d0d1949cc677f406f7408ddf0abd1) | 91 | 91 | 0 |
+| [pr025](snapshots/pr025.json) | [d19aa010063b](https://github.com/zuizui0223/fd/tree/d19aa010063be2edf0cf8b3b4f49cb3a9a665848) | 91 | 91 | 0 |
+| [pr026](snapshots/pr026.json) | [3052e08d24c0](https://github.com/zuizui0223/fd/tree/3052e08d24c069ab9ab8f79a3b1c2859380ebcf5) | 91 | 91 | 0 |
+| [pr027](snapshots/pr027.json) | [142e7ead2342](https://github.com/zuizui0223/fd/tree/142e7ead2342a533ed741c31b3c5aea55f3cbaf0) | 91 | 91 | 0 |
+| [pr028](snapshots/pr028.json) | [1932c70c2677](https://github.com/zuizui0223/fd/tree/1932c70c267726e32e6cc95f0c24095aed212640) | 91 | 91 | 0 |
+| [pr029](snapshots/pr029.json) | [87ede4d0651c](https://github.com/zuizui0223/fd/tree/87ede4d0651cb337c5ac9a48f39821fe520cfcd7) | 91 | 91 | 0 |
+| [pr030](snapshots/pr030.json) | [6e598b6b19fc](https://github.com/zuizui0223/fd/tree/6e598b6b19fc40e0dda7d058fc7322a29851c186) | 91 | 91 | 0 |
+| [pr031](snapshots/pr031.json) | [5232afe30104](https://github.com/zuizui0223/fd/tree/5232afe301045906885dca71dee217dd55414a38) | 92 | 92 | 0 |
+| [pr032](snapshots/pr032.json) | [3de969d9c25c](https://github.com/zuizui0223/fd/tree/3de969d9c25c0328c8062c90d912af2715edfad2) | 93 | 93 | 0 |
+| [pr033](snapshots/pr033.json) | [0df4b4dee1cb](https://github.com/zuizui0223/fd/tree/0df4b4dee1cb4c61f25978ab6c23ee2a6aa5f45b) | 93 | 93 | 0 |
+| [pr034](snapshots/pr034.json) | [de400935bb49](https://github.com/zuizui0223/fd/tree/de400935bb495ecf55d6457ec31ab699e6783e55) | 94 | 94 | 0 |
+| [pr035](snapshots/pr035.json) | [5312df4e507b](https://github.com/zuizui0223/fd/tree/5312df4e507b880a2debcef5cc0121539ed35274) | 95 | 95 | 0 |
+| [pr036](snapshots/pr036.json) | [25d3fc10c0dc](https://github.com/zuizui0223/fd/tree/25d3fc10c0dc7283d2cfe7c37ea8de704d5de9bd) | 96 | 96 | 0 |
+| [pr037](snapshots/pr037.json) | [76dc00eac257](https://github.com/zuizui0223/fd/tree/76dc00eac257148257d4fcf781e9933750fd6531) | 97 | 97 | 0 |
+| [pr038](snapshots/pr038.json) | [bbd9c9ee6e1a](https://github.com/zuizui0223/fd/tree/bbd9c9ee6e1ad3d97ac90f22581448629bc2e79e) | 102 | 102 | 0 |
+| [pr039](snapshots/pr039.json) | [e842e04e03f9](https://github.com/zuizui0223/fd/tree/e842e04e03f9a6515605a6560b399fc0c21920bf) | 98 | 98 | 0 |
+| [pr040](snapshots/pr040.json) | [2140299f000f](https://github.com/zuizui0223/fd/tree/2140299f000f71f8e575755233f4ec89975472aa) | 99 | 99 | 0 |
+| [pr041](snapshots/pr041.json) | [3d20438f85b4](https://github.com/zuizui0223/fd/tree/3d20438f85b4d98099e3170067c2773fde4b8797) | 100 | 100 | 0 |
+| [pr042](snapshots/pr042.json) | [293966b95bee](https://github.com/zuizui0223/fd/tree/293966b95bee062e89f2200bd06ba14df6c340fc) | 101 | 101 | 0 |
+| [pr043](snapshots/pr043.json) | [f8f217a5d9c4](https://github.com/zuizui0223/fd/tree/f8f217a5d9c4f828bca455b871c98feac1923d09) | 114 | 104 | 10 |
+| [pr044](snapshots/pr044.json) | [956ad276c225](https://github.com/zuizui0223/fd/tree/956ad276c22545fbd16d2af1e226978904657614) | 104 | 104 | 0 |
+| [pr045](snapshots/pr045.json) | [6446b03250d1](https://github.com/zuizui0223/fd/tree/6446b03250d1c287fbf4eab41acefe8438622fdb) | 104 | 104 | 0 |
+| [pr046](snapshots/pr046.json) | [304c751bbd4e](https://github.com/zuizui0223/fd/tree/304c751bbd4ec2bf4526ad83e9c72ff2cd65ce84) | 107 | 107 | 0 |
+| [pr047](snapshots/pr047.json) | [26d691f2b78e](https://github.com/zuizui0223/fd/tree/26d691f2b78e0e31d29a17a411eb3990939a2cb9) | 110 | 110 | 0 |
+| [pr048](snapshots/pr048.json) | [c29c967ee053](https://github.com/zuizui0223/fd/tree/c29c967ee05345264cb3e939bbb7e999635559e9) | 115 | 115 | 0 |
+| [pr049](snapshots/pr049.json) | [19ae44fa8afb](https://github.com/zuizui0223/fd/tree/19ae44fa8afba0ccd718eca81f536dae91bebcf2) | 118 | 118 | 0 |
+| [pr050](snapshots/pr050.json) | [ff1b7d43e125](https://github.com/zuizui0223/fd/tree/ff1b7d43e125ec883add76ab61a2a23eac13ae3c) | 122 | 122 | 0 |
+| [pr051](snapshots/pr051.json) | [c27658754307](https://github.com/zuizui0223/fd/tree/c27658754307b434c1c0f583c1e6c35723976155) | 126 | 126 | 0 |
+| [pr052](snapshots/pr052.json) | [e4a568410666](https://github.com/zuizui0223/fd/tree/e4a5684106663b5d072ad492a2463587aafc8a02) | 129 | 129 | 0 |
+| [pr053](snapshots/pr053.json) | [b871cf2feb9e](https://github.com/zuizui0223/fd/tree/b871cf2feb9e8c02c3ca2921aa60fb757c33dd01) | 132 | 132 | 0 |
+| [pr054](snapshots/pr054.json) | [b871cf2feb9e](https://github.com/zuizui0223/fd/tree/b871cf2feb9e8c02c3ca2921aa60fb757c33dd01) | 132 | 132 | 0 |
+| [pr055](snapshots/pr055.json) | [280df7c483f5](https://github.com/zuizui0223/fd/tree/280df7c483f534dcddc2b11f1d628489f2337aae) | 136 | 136 | 0 |
+| [pr056](snapshots/pr056.json) | [95d7a8a70533](https://github.com/zuizui0223/fd/tree/95d7a8a70533357e1b6421143c6c05e2478a6786) | 139 | 139 | 0 |
+| [pr057](snapshots/pr057.json) | [6a6b1291caea](https://github.com/zuizui0223/fd/tree/6a6b1291caea4fc83edb2fb09874824296951cbf) | 141 | 141 | 0 |
+| [pr058](snapshots/pr058.json) | [f03a0941acb2](https://github.com/zuizui0223/fd/tree/f03a0941acb262e0c1414f5ea402338768aa0749) | 139 | 139 | 0 |
+| [pr059](snapshots/pr059.json) | [50325120cac5](https://github.com/zuizui0223/fd/tree/50325120cac5ba35674f815e1bab87d53717b47a) | 143 | 143 | 0 |
+| [pr060](snapshots/pr060.json) | [c37208df0538](https://github.com/zuizui0223/fd/tree/c37208df05382422fc11d181e9e75dc89cbe7bc1) | 144 | 144 | 0 |
+| [pr061](snapshots/pr061.json) | [4193288f2477](https://github.com/zuizui0223/fd/tree/4193288f24774d1b9a8ce113cb2d7a287d1731f4) | 145 | 145 | 0 |
+| [pr062](snapshots/pr062.json) | [01015c26c863](https://github.com/zuizui0223/fd/tree/01015c26c86331f62e1aaf5e093575b0035be0da) | 148 | 148 | 0 |
+| [pr063](snapshots/pr063.json) | [192a3ab888eb](https://github.com/zuizui0223/fd/tree/192a3ab888eb7d7a9de27907712f0cc1dcac6903) | 150 | 150 | 0 |
+| [pr064](snapshots/pr064.json) | [e91305280955](https://github.com/zuizui0223/fd/tree/e9130528095535433098fdf6c88eef97d9750bff) | 201 | 171 | 30 |
+| [pr065](snapshots/pr065.json) | [dbea01d985a4](https://github.com/zuizui0223/fd/tree/dbea01d985a4ad6c4e72a8d4bc4225e07baaed07) | 236 | 206 | 30 |
+| [pr066](snapshots/pr066.json) | [5e0a65784d22](https://github.com/zuizui0223/fd/tree/5e0a65784d222673121628c55c2ba63c006c52a6) | 227 | 195 | 32 |
+| [pr067](snapshots/pr067.json) | [c09a6a4a67e8](https://github.com/zuizui0223/fd/tree/c09a6a4a67e88bad0ba0cc02a33951d280650cb3) | 204 | 174 | 30 |
+| [pr068](snapshots/pr068.json) | [4fe3baa2ee46](https://github.com/zuizui0223/fd/tree/4fe3baa2ee46549817ffa556cef2432332e410f5) | 218 | 186 | 32 |
+| [pr069](snapshots/pr069.json) | [85769a811d15](https://github.com/zuizui0223/fd/tree/85769a811d151b05940b554b27dc1a662c28b1df) | 214 | 184 | 30 |
+| [pr070](snapshots/pr070.json) | [addf129fd952](https://github.com/zuizui0223/fd/tree/addf129fd9523aa2ae1a9ccd645c43feaf732c36) | 219 | 187 | 32 |

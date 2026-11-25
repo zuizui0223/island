@@ -1,0 +1,47 @@
+name: Verify integrated manuscript figure replay
+on:
+  push:
+    branches: [analysis/tropical-pollinator-dual-null-20261124]
+    paths:
+      - 'docs/manuscript_20261124/**'
+      - scripts/render_integrated_manuscript_figures.mjs
+      - .github/workflows/integrated_manuscript_figures.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/render_integrated_manuscript_figures.mjs --check
+      - name: Validate complete vector figures and disclosed source support
+        run: |
+          python - <<'PY'
+          import json,pathlib,xml.etree.ElementTree as ET
+          d=pathlib.Path("docs/manuscript_20261124")
+          x=json.loads((d/"figure_data.json").read_text())
+          assert x["recurrence"]["parent"]==4505 and x["recurrence"]["eligible"]==2324
+          assert len(x["diet"]["contrasts"])==12
+          assert sum(v["estimate"] is not None and v["estimate"]>0 for v in x["diet"]["contrasts"])==11
+          assert sum(v["estimate"] is None for v in x["diet"]["contrasts"])==1
+          assert x["dual"]["tests"]==160 and x["dual"]["holm_pass"]==0
+          assert x["dual"]["bounds_count"]==460 and x["dual"]["bounds_sign"]==0
+          figs=sorted((d/"figures").glob("fig*.svg"))
+          assert len(figs)==5
+          for f in figs:
+              s=ET.parse(f).getroot()
+              assert s.tag.endswith("svg") and s.get("viewBox")
+              assert "NaN" not in f.read_text() and "undefined" not in f.read_text()
+              print(f.name, s.attrib["viewBox"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: integrated-manuscript-main-figures
+          path: |
+            docs/manuscript_20261124/figures/
+            docs/manuscript_20261124/figure_data.json
+            docs/manuscript_20261124/FIGURE_CAPTIONS.md

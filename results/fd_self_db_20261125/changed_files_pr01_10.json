@@ -1,0 +1,678 @@
+{
+  "source": "zuizui0223/fd",
+  "scope": "PR changed paths; immutable head SHAs in pr_inventory.csv; path listing does not establish data provenance",
+  "prs": [
+    {
+      "pr": 1,
+      "files": [
+        {
+          "path": ".github/workflows/analysis.yml",
+          "status": "added",
+          "blob_sha": "2fdb442a516ada8b21c68077885074637f51a4ea",
+          "previous_path": null
+        },
+        {
+          "path": ".gitignore",
+          "status": "added",
+          "blob_sha": "fbbd6ff9aa94d1ef0012a9d118e99a30580835c2",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "49426d01f2821d07e97e3ce79120b9b82aa5484e",
+          "previous_path": null
+        },
+        {
+          "path": "docs/ANALYSIS_CONTRACT.md",
+          "status": "added",
+          "blob_sha": "7fb22352a0830f933307fccac4330380c933f915",
+          "previous_path": null
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "added",
+          "blob_sha": "c2d800b3d4420cab32ed74ff6de4240507215da1",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/fetch_island_aggregates.py",
+          "status": "added",
+          "blob_sha": "6ab27bedbb6e6300d4e410d7be24cc2bbf026922",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/__init__.py",
+          "status": "added",
+          "blob_sha": "a0907de48c396e3989cc683e9b59fa4e8652a1da",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/core.py",
+          "status": "added",
+          "blob_sha": "179a14597b860297a41e5b0cbd79932ad7d9168f",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/pipeline.py",
+          "status": "added",
+          "blob_sha": "ed0443d5dbfdaa67ca854045999b4f4685882185",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_fd.py",
+          "status": "added",
+          "blob_sha": "abebedf29999fd6d4db4fac11e7c7197821ee129",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 2,
+      "files": [
+        {
+          "path": ".github/workflows/analysis.yml",
+          "status": "modified",
+          "blob_sha": "cee4a3213f2a3ee9a802aebdea084596862f13b4",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "f994364ceac25bf91eee490da1e70a93a22b714a",
+          "previous_path": null
+        },
+        {
+          "path": "docs/G1_HYPERVOLUME.md",
+          "status": "added",
+          "blob_sha": "d94a088d09b28ce66fa84610d854ec5b3d2e97e6",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_g1_hypervolume/README.md",
+          "status": "added",
+          "blob_sha": "e4fb4388235454606fddcd2b2602cdbb9a6c26af",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/g1_fixed_margins.py",
+          "status": "added",
+          "blob_sha": "fcd518c4fb15cd52a345b3cf892e3ce575c73ea1",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/hypervolume.py",
+          "status": "added",
+          "blob_sha": "6589e001bfbad8210f8158d3e178b3ab17839dd3",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_g1_hypervolume.py",
+          "status": "added",
+          "blob_sha": "6624031a2c04a91f04acd65d68be5856999cd265",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 3,
+      "files": [
+        {
+          "path": ".github/workflows/origin-analysis.yml",
+          "status": "added",
+          "blob_sha": "d0cba20e475fac396d9f89a7686bc6c1b768a501",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/origin-audit.yml",
+          "status": "added",
+          "blob_sha": "6fbd8f6d006e4edaef34d5815ba923deaf913566",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/roeble-origin-audit.yml",
+          "status": "added",
+          "blob_sha": "1365fa3d8a742e377317a635dde1ff2ec797f253",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "cc0030d220e9a5e5a3e0a9f819e3df7058fe2017",
+          "previous_path": null
+        },
+        {
+          "path": "docs/NOVELTY_LITERATURE_AUDIT.md",
+          "status": "added",
+          "blob_sha": "a02495bdac4e15fed1597763cf80cec91d5de917",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_geological_origin/README.md",
+          "status": "added",
+          "blob_sha": "98631c6b04982b666e7e506bd0ba3154758aa41f",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/fetch_public_origin_refs.py",
+          "status": "added",
+          "blob_sha": "94fa2c2f3a4425f50c190032d17494c898b9feb2",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/probe_island_origin_sources.py",
+          "status": "added",
+          "blob_sha": "e5ae8a26599ee68a5578bd0b1c2de5bb71228b7f",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/probe_roeble_origin.py",
+          "status": "added",
+          "blob_sha": "637f9ced1c4ad5e3a64989ea1820850520893f3a",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/origin.py",
+          "status": "added",
+          "blob_sha": "8cbd6e0e11923f393b8191e18a38a2eb7901ef07",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/origin_analysis.py",
+          "status": "added",
+          "blob_sha": "ae255d01e61e94c5d690b3d51c8a90655d8ffe57",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/origin_null.py",
+          "status": "added",
+          "blob_sha": "6869b7833751fc459db6c730cf08a0ebac7b8527",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_origin_strata.py",
+          "status": "added",
+          "blob_sha": "6bc0f6dc5777cb929402ca177c93c8baa76c9b47",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 4,
+      "files": [
+        {
+          "path": ".github/workflows/origin-analysis.yml",
+          "status": "modified",
+          "blob_sha": "d5f2843c45937c1d07e137461928c8fffa2b28bd",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "a193a80d59ba03f598f236ff357890b6c6903e43",
+          "previous_path": null
+        },
+        {
+          "path": "docs/MATCHED_REPERTOIRE_PROTOCOL.md",
+          "status": "added",
+          "blob_sha": "9def348d7a59fec5219c512bd113f7e849ce45ba",
+          "previous_path": null
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "modified",
+          "blob_sha": "832d1b475bee08f1e7a27432bc3e3b2c91907d16",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_matched_flower_repertoire/README.md",
+          "status": "added",
+          "blob_sha": "8e7cec1e5fc4c55d9d6d3bbbef6f6b194c6b6800",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/repertoire.py",
+          "status": "added",
+          "blob_sha": "3703b1d7a931f3901724c4ce3f6251b3a5ad1023",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/repertoire_sensitivity.py",
+          "status": "added",
+          "blob_sha": "6b79df7bfc7aa4a7e80079700efa9489c37c12e8",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_repertoire.py",
+          "status": "added",
+          "blob_sha": "1ce8b5bd26516d41fd7eadb4070d1c6ab43282e4",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 5,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "c8f8d693a97f3b0b5c8aa276c3ec32e4c41a2b2c",
+          "previous_path": null
+        },
+        {
+          "path": "docs/GENUS_SOURCE_CONDITIONED_PROTOCOL.md",
+          "status": "added",
+          "blob_sha": "9b92fa665d204ec2e9d7a0f2948d492f8c0b0e02",
+          "previous_path": null
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "modified",
+          "blob_sha": "c198549be468c5545a335257ea564fb91c2e9f7c",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_genus_source_control/README.md",
+          "status": "added",
+          "blob_sha": "d8a923f48cf7209ca07970ed82d96d8615d0461b",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_genus_source_control/gift_source_coverage_primary.csv",
+          "status": "added",
+          "blob_sha": "2b5d3d388cdc5d978684398d59418b02967b407b",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_genus_source_control/gift_source_residual_primary.csv",
+          "status": "added",
+          "blob_sha": "c38c63e4904d920b0682e1fa8f5c7fbc9bbc30fb",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_genus_source_control/global_genus_null_summary.csv",
+          "status": "added",
+          "blob_sha": "8857e7e4f4c68d2040463d3d1c3f1000ed161a69",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/genus_source_null.py",
+          "status": "added",
+          "blob_sha": "52f964aa2f78c893266c95067196974ae7813184",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/mainland_source_residual.py",
+          "status": "added",
+          "blob_sha": "672f0a3bcb379fa69c02b3cce5eb9bd5be8ef1a6",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_genus_source_null.py",
+          "status": "added",
+          "blob_sha": "a6b26384d97b0428c0917078561e22f571d23834",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_mainland_source_residual.py",
+          "status": "added",
+          "blob_sha": "733f3d4add17fa54ce5223d84401cb8cb473298e",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 6,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "cb55e40ed1455f164c19340bbdb0360bd7910dc0",
+          "previous_path": null
+        },
+        {
+          "path": "docs/HELDOUT_MAINLAND_PREDICTION.md",
+          "status": "added",
+          "blob_sha": "8cef5b6f3f24160eaf38b5e7de61f3b0a1b18c11",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_heldout_mainland_prediction/README.md",
+          "status": "added",
+          "blob_sha": "2f922274ff6bb11d07ddfee4794e57b2290ff7bf",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_heldout_mainland_prediction/main_model_scores.csv",
+          "status": "added",
+          "blob_sha": "720416eae40ad99e0d1bcb95d039ccddcfec87ec",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_heldout_mainland_prediction/model_sensitivity.csv",
+          "status": "added",
+          "blob_sha": "792ae92c425109fefeb2600290890db89a445901",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_heldout_mainland_prediction/origin_predictive_residuals.csv",
+          "status": "added",
+          "blob_sha": "a51a4be43a33b293da65d1e8ba2d7c967cd3413e",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_heldout_mainland_prediction/paired_score_improvements.csv",
+          "status": "added",
+          "blob_sha": "69a32d48e8230674e6d11ac26e41b930376f48a9",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_heldout_mainland_prediction/source_genus_coverage.csv",
+          "status": "added",
+          "blob_sha": "74db894e3d80ef9a4fb1e195d8dc867ad8384dc6",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/heldout_mainland_prediction.py",
+          "status": "added",
+          "blob_sha": "213adc5a1799430b5c634cb3b6ce99958f13a6fb",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_heldout_mainland_prediction.py",
+          "status": "added",
+          "blob_sha": "8b6b35f3ccad02ae23540173bef8f071fb9d8408",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 7,
+      "files": [
+        {
+          "path": ".github/workflows/origin-analysis.yml",
+          "status": "modified",
+          "blob_sha": "ddc285fc6210f253cdb6549aa39732e001c7d94d",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "c1737b5e4ff0dc833786cccbe9da00b136c823dd",
+          "previous_path": null
+        },
+        {
+          "path": "docs/SOURCE_OPPORTUNITY_HYPERVOLUME17.md",
+          "status": "added",
+          "blob_sha": "140e3b0907afb8543ce460477b64030b0a0617aa",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_source_opportunity_hv17/README.md",
+          "status": "added",
+          "blob_sha": "27ec618ee8845113c7a02d33fd58c6bb8eceb94e",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_source_opportunity_hv17/paired_source_gain_contrasts.csv",
+          "status": "added",
+          "blob_sha": "4b39aa59b683126bea85b8b989fcf5c1b56a4e8f",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_source_opportunity_hv17/source_genus_rank_scores.csv",
+          "status": "added",
+          "blob_sha": "4ba15afd0bdf212cf35ed7101d7a4a16950f29eb",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_source_opportunity_hv17/two_stage_flora_scores.csv",
+          "status": "added",
+          "blob_sha": "92fbb5358597f6e06bb72971c730c18c3380c22f",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/hypervolume17.py",
+          "status": "added",
+          "blob_sha": "0688e61138e1e7ca4beb8d5aad3df4aac2884f07",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/source_genus_opportunity.py",
+          "status": "added",
+          "blob_sha": "6729abae8138f9711d62a07b1cf9bdd993435fb8",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/two_stage_assembly.py",
+          "status": "added",
+          "blob_sha": "61cf822221f0caafeced66a1ca7fe3f3d34a78d9",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_source_opportunity_hv17.py",
+          "status": "added",
+          "blob_sha": "a3259d196d3db67b7569d78251052e02b6106187",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_two_stage_assembly.py",
+          "status": "added",
+          "blob_sha": "2f05b70a1534e336f00ec5922e740f295752f8a2",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 8,
+      "files": [
+        {
+          "path": ".github/workflows/origin-analysis.yml",
+          "status": "modified",
+          "blob_sha": "2d6c625e9589eeb386abebc9133ebe6b95a3a7d8",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "83651a2e8e9e76f113af60edd990c10f95f3db58",
+          "previous_path": null
+        },
+        {
+          "path": "docs/GBIF_EFFORT_SENSITIVITY.md",
+          "status": "added",
+          "blob_sha": "593cac37b72d6916c49c98756b4314ef630edac2",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_gbif_effort_robustness/README.md",
+          "status": "added",
+          "blob_sha": "d68f81260da178ba4baeeb4393e334f40476d2a7",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_gbif_effort_robustness/effort_coverage_by_origin.csv",
+          "status": "added",
+          "blob_sha": "6dc6bedf6a37798f2bd525c71e8d06f75f46c9b5",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_gbif_effort_robustness/effort_pair_support_summary.csv",
+          "status": "added",
+          "blob_sha": "011a60377c4bdddd7ee4ebd848a268ee73fc582f",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_gbif_effort_robustness/effort_screen_repertoire_tests.csv",
+          "status": "added",
+          "blob_sha": "825a06c58de1fab450610058b3ed24d51e18e7c6",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/effort_audit.py",
+          "status": "added",
+          "blob_sha": "7e04da45c729a3b836843cf4cc880a916b863066",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_effort_audit.py",
+          "status": "added",
+          "blob_sha": "0ff0a99509f0df90522e76a1a12c6d787fab9ab1",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 9,
+      "files": [
+        {
+          "path": ".github/workflows/origin-analysis.yml",
+          "status": "modified",
+          "blob_sha": "375a464dc2d2acb76cd99b135594d2ad2534e04e",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "d69795773fd63dc01df0b3f6a315e7936e52e52a",
+          "previous_path": null
+        },
+        {
+          "path": "docs/COVERAGE_RAREFACTION_SENSITIVITY.md",
+          "status": "added",
+          "blob_sha": "9dcbbc85a46cde0b14eb3f3fbc7fc010febf0380",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_gbif_effort_robustness/README.md",
+          "status": "modified",
+          "blob_sha": "4df3b82228d02338247156cfe4602099678a5a7f",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_matched_flower_repertoire/README.md",
+          "status": "modified",
+          "blob_sha": "12eebcd10074af2516404b4abeac457162484d94",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261108_source_opportunity_hv17/README.md",
+          "status": "modified",
+          "blob_sha": "4cd3f0fd94cf49a75f284e492e51d812f9630571",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261109_coverage_rarefaction/README.md",
+          "status": "added",
+          "blob_sha": "6135a5052d9cd513cbafec7461ad843827355ba8",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261109_coverage_rarefaction/spatial_component_tests.csv",
+          "status": "added",
+          "blob_sha": "5995312db407eac115a3369b7bfca8fb9204ab67",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261109_coverage_rarefaction/support_rarefaction_results.csv",
+          "status": "added",
+          "blob_sha": "d7d1633e2c38a78f076e6e05c9f3e777e753d5b7",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/coverage_rarefaction.py",
+          "status": "added",
+          "blob_sha": "7f986748ea47b596efe926e4d0d07e93fdb0a599",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/spatial_clusters.py",
+          "status": "added",
+          "blob_sha": "9c292cc98074a09fc0a0dee6214c6fe9cbba125f",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_coverage_rarefaction.py",
+          "status": "added",
+          "blob_sha": "7bab07c649901055c32270c387cf86f729a4aacf",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_spatial_clusters.py",
+          "status": "added",
+          "blob_sha": "7dbcd2cc1635acadc1938f2649b19518c8fcd43d",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 10,
+      "files": [
+        {
+          "path": ".github/workflows/origin-analysis.yml",
+          "status": "modified",
+          "blob_sha": "6ddab45cd1e4516bc31a4cd7aa5f27a46228b911",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "25ecdc1e6693cbfc0a092cadf2f78d0a4c67dcab",
+          "previous_path": null
+        },
+        {
+          "path": "docs/GEOGRAPHIC_INDEPENDENCE.md",
+          "status": "added",
+          "blob_sha": "ffa5246217e22efc730c7067c19dc4263bf1adc9",
+          "previous_path": null
+        },
+        {
+          "path": "docs/GEOGRAPHY_DISJOINT_ORIGIN_TEST.md",
+          "status": "added",
+          "blob_sha": "1f748f45d795f934fd8a14a6f34b639cba297205",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261109_geography_independent/README.md",
+          "status": "added",
+          "blob_sha": "934dc80961dee2a586619c0bce0d57e07cc8a893",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261109_geography_independent/independent_matching_support.csv",
+          "status": "added",
+          "blob_sha": "52cc297bcc942f76b9456fe748f35f2c1eaed330",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261109_geography_independent/independent_origin_repertoire_tests.csv",
+          "status": "added",
+          "blob_sha": "19351edf3d01a3e23d021c75cfe971b8f07fc34d",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/geography_independent.py",
+          "status": "added",
+          "blob_sha": "48565896e4fd7c9d6a06eff30bb8ff85562bd8df",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_geography_independent.py",
+          "status": "added",
+          "blob_sha": "e080377de404eb51eac68c6996c6fb7ba73b07f2",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    }
+  ]
+}

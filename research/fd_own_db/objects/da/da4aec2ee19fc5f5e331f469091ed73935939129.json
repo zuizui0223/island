@@ -1,0 +1,2282 @@
+{
+  "crosswalk": {
+    "sources": {
+      "checklist": {
+        "md5": "533e662fd5b8f66a5f56c191e7efac44",
+        "sha256": "0d07a7e9409712fa86c1e3afadcf4c67bf4f9e16d5693a878e11ec1bf6860493"
+      },
+      "synonyms": {
+        "md5": "018ab2df0e2f18b7aa032965511e3e11",
+        "sha256": "6467d05eef4a45fddf2cab97fcd6dd19aeb1b4da3d70ff6d23e92c99351cdfd4"
+      }
+    },
+    "taxonomy": {
+      "bat_synonym_rows": 8891,
+      "eligible_original_binomial_rows": 5280,
+      "accepted_bat_species": 1514,
+      "indexed_unique_names": 5222,
+      "ambiguous_names": 70,
+      "validity_values": {
+        "synonym": 7377,
+        "species": 1514
+      },
+      "nomenclature_values": {
+        "name_combination": 4307,
+        "available": 3343,
+        "incorrect_subsequent_spelling": 507,
+        "name_combination | incorrect_subsequent_spelling": 168,
+        "nomen_nudum": 130,
+        "preoccupied": 80,
+        "nomen_novum": 76,
+        "misidentification": 41,
+        "incorrect_subsequent_spelling | not_used_as_valid": 39,
+        "unjustified_emendation": 34,
+        "name_combination | unpublished_electronic": 30,
+        "not_used_as_valid": 18,
+        "justified_emendation": 13,
+        "name_combination | variety_or_form": 12,
+        "as_emended": 11,
+        "nomen_nudum | not_used_as_valid": 10,
+        "name_combination | nomen_nudum": 9,
+        "unpublished_thesis": 7,
+        "placed_on_index": 7,
+        "not_intended_as_a_scientific_name": 5,
+        "nomen_novum | preoccupied": 5,
+        "incorrect_original_spelling": 3,
+        "incorrect_subsequent_spelling | unpublished_electronic": 3,
+        "incorrect_subsequent_spelling | nomen_nudum": 3,
+        "not_used_as_valid | nomen_novum": 3,
+        "subsequent_usage | incorrect_subsequent_spelling": 2,
+        "conditional": 2,
+        "name_combination | incorrect_subsequent_spelling | unpublished_thesis": 2,
+        "variant": 2,
+        "name_combination | unjustified_emendation": 2,
+        "unjustified_emendation | preoccupied": 1,
+        "variety_or_form": 1,
+        "incorrect_subsequent_spelling | variety_or_form": 1,
+        "variant | preoccupied": 1,
+        "nomen_nudum | preoccupied": 1,
+        "placed_on_index | incorrect_subsequent_spelling": 1,
+        "variety_or_form | preoccupied": 1,
+        "inconsistently_binominal": 1,
+        "fully_suppressed | nomen_novum": 1,
+        "name_combination | incorrect_subsequent_spelling | unpublished_electronic": 1,
+        "placed_on_index | name_combination": 1,
+        "placed_on_index | nomen_novum": 1,
+        "not_explicitly_new | name_combination | nomen_nudum": 1,
+        "incorrect_subsequent_spelling | nomen_nudum | not_used_as_valid": 1,
+        "nomen_nudum | unjustified_emendation": 1,
+        "nomen_novum | as_emended": 1,
+        "incorrect_subsequent_spelling | preoccupied": 1
+      }
+    },
+    "exact_matches": 979,
+    "reciprocal_singleton_added": 73,
+    "remaining_unmatched": 376,
+    "blocked": {
+      "no_or_multiple_diet_names": 354,
+      "no_or_ambiguous_accepted_id": 7,
+      "multiple_map_names": 15
+    },
+    "warning": "Nomenclatural sensitivity only; singleton does not certify historical taxonomic circumscription or measured donor trait. No fuzzy or genus-based trait imputation."
+  },
+  "coverage": {
+    "0.1": {
+      "map_species_with_island_overlap": 1023,
+      "matched_species_with_overlap": 826,
+      "potential_bat_positive_islands": 2674,
+      "potential_nectar_positive_lower_bound": 1171,
+      "complete_bat_diet_positive_islands": 1505,
+      "coverage_ge95_bat_positive": 1624,
+      "unknown_species_island_pairs": 4066
+    },
+    "0.5": {
+      "map_species_with_island_overlap": 989,
+      "matched_species_with_overlap": 804,
+      "potential_bat_positive_islands": 2600,
+      "potential_nectar_positive_lower_bound": 1140,
+      "complete_bat_diet_positive_islands": 1471,
+      "coverage_ge95_bat_positive": 1584,
+      "unknown_species_island_pairs": 3907
+    },
+    "exact_map_species_diet_matches": 1052,
+    "map_species_unmatched": 376
+  },
+  "panels": {
+    "direct_cover0.1_area20_n5_broad": {
+      "eligible": 192,
+      "informative_blocks": 21,
+      "informative_islands": 144,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 120,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 21,
+      "endpoints": {
+        "white": {
+          "contrast": -0.03575695355102547,
+          "group_bootstrap_interval": [
+            -0.14824195352164615,
+            0.050195775605641875
+          ],
+          "leave_block_range": [
+            -0.06204433495427564,
+            -0.012665722426315676
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.01960051491615112,
+          "group_bootstrap_interval": [
+            -0.04392985606619939,
+            0.021847026397986167
+          ],
+          "leave_block_range": [
+            -0.02725248942432007,
+            -0.013795582254786231
+          ]
+        },
+        "red_pink": {
+          "contrast": -0.0230773139759183,
+          "group_bootstrap_interval": [
+            -0.11978375141542413,
+            0.056778093306517334
+          ],
+          "leave_block_range": [
+            -0.057273154940457385,
+            0.006994385489508996
+          ]
+        },
+        "tubular": {
+          "contrast": 0.008837541495339175,
+          "group_bootstrap_interval": [
+            -0.09820405118115624,
+            0.06903715770629609
+          ],
+          "leave_block_range": [
+            -0.014885890649156894,
+            0.0366256601445558
+          ]
+        }
+      }
+    },
+    "direct_cover0.1_area20_n5_split": {
+      "eligible": 192,
+      "informative_blocks": 16,
+      "informative_islands": 99,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 66,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 16,
+      "endpoints": {
+        "white": {
+          "contrast": 0.09480279240758309,
+          "group_bootstrap_interval": [
+            -0.09837200069814728,
+            0.3422058950108455
+          ],
+          "leave_block_range": [
+            0.008169748658169426,
+            0.155995163360875
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.0065273771561201906,
+          "group_bootstrap_interval": [
+            -0.07881511125497236,
+            0.08335670138133183
+          ],
+          "leave_block_range": [
+            -0.03662336037717878,
+            0.010899892744046027
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.009876235531231086,
+          "group_bootstrap_interval": [
+            -0.17471661021578308,
+            0.15742891428902794
+          ],
+          "leave_block_range": [
+            -0.04115768484823988,
+            0.07549749449741416
+          ]
+        },
+        "tubular": {
+          "contrast": 0.0033744665347057706,
+          "group_bootstrap_interval": [
+            -0.16994497338743011,
+            0.14352164128763964
+          ],
+          "leave_block_range": [
+            -0.03632207177347836,
+            0.06609823734253065
+          ]
+        }
+      }
+    },
+    "direct_cover0.1_area20_n50_broad": {
+      "eligible": 71,
+      "informative_blocks": 8,
+      "informative_islands": 39,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 40,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1322,
+      "valid_leave_block": 8,
+      "endpoints": {
+        "white": {
+          "contrast": 0.035095351697713516,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            0.00501491050167604,
+            0.12477740897714727
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.02466566877731076,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.06565831647053919,
+            0.06228806168476891
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.03640441154396548,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            0.01190537638519773,
+            0.05058473258619549
+          ]
+        },
+        "tubular": {
+          "contrast": -0.02706293913637197,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.06185161233859246,
+            0.006926967213679636
+          ]
+        }
+      }
+    },
+    "direct_cover0.1_area20_n50_split": {
+      "eligible": 71,
+      "informative_blocks": 5,
+      "informative_islands": 12,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 12,
+      "status": "not_estimable"
+    },
+    "direct_cover0.1_area100_n5_broad": {
+      "eligible": 140,
+      "informative_blocks": 20,
+      "informative_islands": 111,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 94,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 20,
+      "endpoints": {
+        "white": {
+          "contrast": -0.014277741681256083,
+          "group_bootstrap_interval": [
+            -0.12616408772906754,
+            0.07565272547649472
+          ],
+          "leave_block_range": [
+            -0.040891192876049746,
+            0.011436968319997267
+          ]
+        },
+        "white_open_brush": {
+          "contrast": 0.0005780141254506099,
+          "group_bootstrap_interval": [
+            -0.0368230546158213,
+            0.058984355202324874
+          ],
+          "leave_block_range": [
+            -0.011204935789448343,
+            0.0113248376141941
+          ]
+        },
+        "red_pink": {
+          "contrast": -0.05514101563553459,
+          "group_bootstrap_interval": [
+            -0.1627673946069485,
+            0.039323376387573515
+          ],
+          "leave_block_range": [
+            -0.0755926177012585,
+            -0.015539207236839875
+          ]
+        },
+        "tubular": {
+          "contrast": 0.005921530760588422,
+          "group_bootstrap_interval": [
+            -0.10638771019456643,
+            0.07854600173927101
+          ],
+          "leave_block_range": [
+            -0.01542059773618181,
+            0.03905131598459083
+          ]
+        }
+      }
+    },
+    "direct_cover0.1_area100_n5_split": {
+      "eligible": 140,
+      "informative_blocks": 15,
+      "informative_islands": 83,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 59,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 15,
+      "endpoints": {
+        "white": {
+          "contrast": 0.11523724494792557,
+          "group_bootstrap_interval": [
+            -0.07736622498390938,
+            0.3358625423598312
+          ],
+          "leave_block_range": [
+            0.029601618107588976,
+            0.17087560659044163
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.009954075211937129,
+          "group_bootstrap_interval": [
+            -0.07537297511397735,
+            0.08428809254333963
+          ],
+          "leave_block_range": [
+            -0.02728407430721171,
+            0.0025790568406146223
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.03010028311586767,
+          "group_bootstrap_interval": [
+            -0.16099749985274842,
+            0.17484170733283855
+          ],
+          "leave_block_range": [
+            -0.017573413850849727,
+            0.08966670424590209
+          ]
+        },
+        "tubular": {
+          "contrast": -0.02589312491161342,
+          "group_bootstrap_interval": [
+            -0.19778408909281894,
+            0.14378880618828035
+          ],
+          "leave_block_range": [
+            -0.08419998675898979,
+            0.031829373615181705
+          ]
+        }
+      }
+    },
+    "direct_cover0.1_area100_n50_broad": {
+      "eligible": 56,
+      "informative_blocks": 7,
+      "informative_islands": 28,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 31,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1112,
+      "valid_leave_block": 6,
+      "endpoints": {
+        "white": {
+          "contrast": 0.020425162890338504,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.058845938300852565,
+            0.11030085309001386
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.02500116906916754,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.10320065445577262,
+            0.06446348905068414
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.03949170415036545,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            0.022607755972980096,
+            0.052950268995495556
+          ]
+        },
+        "tubular": {
+          "contrast": -0.03728036078742966,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.05776085968932364,
+            -0.00475435561480245
+          ]
+        }
+      }
+    },
+    "direct_cover0.1_area100_n50_split": {
+      "eligible": 56,
+      "informative_blocks": 4,
+      "informative_islands": 10,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 12,
+      "status": "not_estimable"
+    },
+    "direct_cover0.5_area20_n5_broad": {
+      "eligible": 192,
+      "informative_blocks": 22,
+      "informative_islands": 147,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 121,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 22,
+      "endpoints": {
+        "white": {
+          "contrast": -0.02831292529606789,
+          "group_bootstrap_interval": [
+            -0.1380025184353678,
+            0.06509900751868725
+          ],
+          "leave_block_range": [
+            -0.050939277274169054,
+            -0.00414631314185579
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.01357026977672671,
+          "group_bootstrap_interval": [
+            -0.04731247836666894,
+            0.040895674416517244
+          ],
+          "leave_block_range": [
+            -0.022834460455482868,
+            -0.00468422398389595
+          ]
+        },
+        "red_pink": {
+          "contrast": -0.03335785551416547,
+          "group_bootstrap_interval": [
+            -0.13320694339754638,
+            0.05324358789116734
+          ],
+          "leave_block_range": [
+            -0.06353653888653438,
+            -0.00007316137962564122
+          ]
+        },
+        "tubular": {
+          "contrast": 0.008938709843838594,
+          "group_bootstrap_interval": [
+            -0.09208006892105326,
+            0.07361147373001975
+          ],
+          "leave_block_range": [
+            -0.00888997645145291,
+            0.04091265185840163
+          ]
+        }
+      }
+    },
+    "direct_cover0.5_area20_n5_split": {
+      "eligible": 192,
+      "informative_blocks": 16,
+      "informative_islands": 101,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 66,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 16,
+      "endpoints": {
+        "white": {
+          "contrast": 0.06914637778719383,
+          "group_bootstrap_interval": [
+            -0.12816626926755773,
+            0.31637948963965606
+          ],
+          "leave_block_range": [
+            -0.004899893215807272,
+            0.11835170376347784
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.02881940122640962,
+          "group_bootstrap_interval": [
+            -0.10402149701929815,
+            0.05606123989700156
+          ],
+          "leave_block_range": [
+            -0.05913694231597137,
+            -0.01197785700068663
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.02849628983856426,
+          "group_bootstrap_interval": [
+            -0.151702919741069,
+            0.1806037581215963
+          ],
+          "leave_block_range": [
+            -0.02054183106699903,
+            0.09065922771591539
+          ]
+        },
+        "tubular": {
+          "contrast": 0.0055908997622043065,
+          "group_bootstrap_interval": [
+            -0.18852972950148206,
+            0.14348307080973238
+          ],
+          "leave_block_range": [
+            -0.03807848458744963,
+            0.06607104459022634
+          ]
+        }
+      }
+    },
+    "direct_cover0.5_area20_n50_broad": {
+      "eligible": 72,
+      "informative_blocks": 8,
+      "informative_islands": 39,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 41,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1322,
+      "valid_leave_block": 8,
+      "endpoints": {
+        "white": {
+          "contrast": 0.03651350026933707,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            0.014557722460915867,
+            0.11290913556764703
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.028785991466645414,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.06054985368301139,
+            0.04707084089534503
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.04310949620185321,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            0.010355657206189223,
+            0.05281487500009047
+          ]
+        },
+        "tubular": {
+          "contrast": -0.02140675286159417,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.07392640417263849,
+            0.030426584110276295
+          ]
+        }
+      }
+    },
+    "direct_cover0.5_area20_n50_split": {
+      "eligible": 72,
+      "informative_blocks": 5,
+      "informative_islands": 12,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 13,
+      "status": "not_estimable"
+    },
+    "direct_cover0.5_area100_n5_broad": {
+      "eligible": 144,
+      "informative_blocks": 21,
+      "informative_islands": 116,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 96,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 21,
+      "endpoints": {
+        "white": {
+          "contrast": -0.0215230440124489,
+          "group_bootstrap_interval": [
+            -0.14379980842405016,
+            0.07166905575006816
+          ],
+          "leave_block_range": [
+            -0.052337000007862323,
+            0.0040298103779447345
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.0077257880191562685,
+          "group_bootstrap_interval": [
+            -0.046450876737050936,
+            0.048201363423670325
+          ],
+          "leave_block_range": [
+            -0.02051469240321283,
+            0.0004980618474137374
+          ]
+        },
+        "red_pink": {
+          "contrast": -0.05127647475331633,
+          "group_bootstrap_interval": [
+            -0.15317744160107974,
+            0.04507067648738548
+          ],
+          "leave_block_range": [
+            -0.06811852429751641,
+            -0.00908845381410678
+          ]
+        },
+        "tubular": {
+          "contrast": 0.022043990715180227,
+          "group_bootstrap_interval": [
+            -0.09590653271471793,
+            0.10103930759297967
+          ],
+          "leave_block_range": [
+            -0.005526273644488665,
+            0.05555686415283688
+          ]
+        }
+      }
+    },
+    "direct_cover0.5_area100_n5_split": {
+      "eligible": 144,
+      "informative_blocks": 15,
+      "informative_islands": 85,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 60,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 15,
+      "endpoints": {
+        "white": {
+          "contrast": 0.09001799955026375,
+          "group_bootstrap_interval": [
+            -0.1127111441166112,
+            0.3204195385171678
+          ],
+          "leave_block_range": [
+            0.014496525976767967,
+            0.14595571381079536
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.029148838107910593,
+          "group_bootstrap_interval": [
+            -0.10676853516706769,
+            0.053096093033694836
+          ],
+          "leave_block_range": [
+            -0.048488930439276476,
+            -0.015222979561770194
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.0353250135191963,
+          "group_bootstrap_interval": [
+            -0.16456653924812595,
+            0.18507122757659566
+          ],
+          "leave_block_range": [
+            -0.007115077184733889,
+            0.09660223461692323
+          ]
+        },
+        "tubular": {
+          "contrast": -0.053160443084626,
+          "group_bootstrap_interval": [
+            -0.263158541938664,
+            0.1176127582033999
+          ],
+          "leave_block_range": [
+            -0.12037334824111462,
+            0.0054313729063979604
+          ]
+        }
+      }
+    },
+    "direct_cover0.5_area100_n50_broad": {
+      "eligible": 57,
+      "informative_blocks": 7,
+      "informative_islands": 28,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 32,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1112,
+      "valid_leave_block": 6,
+      "endpoints": {
+        "white": {
+          "contrast": 0.020771406171399498,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.060461272893227995,
+            0.10279204827799548
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.02395802336853256,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.10444113564058424,
+            0.061612397002040124
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.04415419647866371,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            0.025150518933121774,
+            0.052522739197119965
+          ]
+        },
+        "tubular": {
+          "contrast": -0.03701952243489165,
+          "group_bootstrap_interval": null,
+          "leave_block_range": [
+            -0.0587104288365451,
+            0.0011879242327598617
+          ]
+        }
+      }
+    },
+    "direct_cover0.5_area100_n50_split": {
+      "eligible": 57,
+      "informative_blocks": 4,
+      "informative_islands": 10,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 13,
+      "status": "not_estimable"
+    },
+    "direct_single_state_cover0.1_area20_n5_broad": {
+      "eligible": 152,
+      "informative_blocks": 19,
+      "informative_islands": 104,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 94,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 19,
+      "endpoints": {
+        "white": {
+          "contrast": -0.014468027055534613,
+          "group_bootstrap_interval": [
+            -0.22919445777652317,
+            0.14803292036931406
+          ],
+          "leave_block_range": [
+            -0.09432943653778864,
+            0.02045626251144852
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.030435990234949785,
+          "group_bootstrap_interval": [
+            -0.11797545549660149,
+            0.06494641425977589
+          ],
+          "leave_block_range": [
+            -0.052953745254280774,
+            -0.004482259805233181
+          ]
+        },
+        "red_pink": {
+          "contrast": -0.020455539485067505,
+          "group_bootstrap_interval": [
+            -0.10181358683422828,
+            0.04668315291719407
+          ],
+          "leave_block_range": [
+            -0.047909708632111844,
+            -0.0038844768482901096
+          ]
+        },
+        "tubular": {
+          "contrast": 0.10302799274414152,
+          "group_bootstrap_interval": [
+            -0.02115534310955731,
+            0.19689584701304502
+          ],
+          "leave_block_range": [
+            0.07968996527934216,
+            0.1187034394082119
+          ]
+        }
+      }
+    },
+    "direct_single_state_cover0.1_area20_n5_split": {
+      "eligible": 152,
+      "informative_blocks": 13,
+      "informative_islands": 62,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 48,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1991,
+      "valid_leave_block": 13,
+      "endpoints": {
+        "white": {
+          "contrast": -0.049180173731271024,
+          "group_bootstrap_interval": [
+            -0.4718917415632934,
+            0.2718011591801665
+          ],
+          "leave_block_range": [
+            -0.17914295924974374,
+            0.04512852710384877
+          ]
+        },
+        "white_open_brush": {
+          "contrast": 0.017326574424376268,
+          "group_bootstrap_interval": [
+            -0.14817395564504404,
+            0.150996575538424
+          ],
+          "leave_block_range": [
+            -0.05665198672270326,
+            0.03720852080718149
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.05898483081883768,
+          "group_bootstrap_interval": [
+            -0.09210280098830669,
+            0.1905319475388958
+          ],
+          "leave_block_range": [
+            0.02644891444774447,
+            0.09586807204984926
+          ]
+        },
+        "tubular": {
+          "contrast": 0.09854834754408562,
+          "group_bootstrap_interval": [
+            -0.1121514103766246,
+            0.3495964206459071
+          ],
+          "leave_block_range": [
+            0.046393530701250206,
+            0.1523007162786365
+          ]
+        }
+      }
+    },
+    "direct_single_state_cover0.1_area20_n50_broad": {
+      "eligible": 27,
+      "informative_blocks": 1,
+      "informative_islands": 14,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 16,
+      "status": "not_estimable"
+    },
+    "direct_single_state_cover0.1_area20_n50_split": {
+      "eligible": 27,
+      "informative_blocks": 0,
+      "informative_islands": 0,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 1,
+      "status": "not_estimable"
+    },
+    "direct_single_state_cover0.1_area100_n5_broad": {
+      "eligible": 116,
+      "informative_blocks": 18,
+      "informative_islands": 83,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 75,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 18,
+      "endpoints": {
+        "white": {
+          "contrast": -0.04072831442958795,
+          "group_bootstrap_interval": [
+            -0.29919182579245285,
+            0.1755983960608886
+          ],
+          "leave_block_range": [
+            -0.1367314061452822,
+            0.047318599237949455
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.04440637390787895,
+          "group_bootstrap_interval": [
+            -0.16028698817118042,
+            0.07154234625868156
+          ],
+          "leave_block_range": [
+            -0.07769796744815424,
+            0.008039110596433103
+          ]
+        },
+        "red_pink": {
+          "contrast": -0.020929160994659052,
+          "group_bootstrap_interval": [
+            -0.10842788092038505,
+            0.059404734615257214
+          ],
+          "leave_block_range": [
+            -0.04750929278720209,
+            -0.003565682374414132
+          ]
+        },
+        "tubular": {
+          "contrast": 0.12870117067219658,
+          "group_bootstrap_interval": [
+            0.027596757759933355,
+            0.23886540893760755
+          ],
+          "leave_block_range": [
+            0.1014445862953671,
+            0.14574719061322972
+          ]
+        }
+      }
+    },
+    "direct_single_state_cover0.1_area100_n5_split": {
+      "eligible": 116,
+      "informative_blocks": 12,
+      "informative_islands": 54,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 45,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1958,
+      "valid_leave_block": 12,
+      "endpoints": {
+        "white": {
+          "contrast": -0.10146847281905133,
+          "group_bootstrap_interval": [
+            -0.5699769395156892,
+            0.3081704052706358
+          ],
+          "leave_block_range": [
+            -0.27228023689704267,
+            0.02065735621158986
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.011984209128395911,
+          "group_bootstrap_interval": [
+            -0.19182798459558875,
+            0.1717682496337896
+          ],
+          "leave_block_range": [
+            -0.10467685897333659,
+            0.046543251412637945
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.07678900579309861,
+          "group_bootstrap_interval": [
+            -0.07449605753818554,
+            0.20120368509668074
+          ],
+          "leave_block_range": [
+            0.03549054086119954,
+            0.10300252032292347
+          ]
+        },
+        "tubular": {
+          "contrast": 0.10333292584603374,
+          "group_bootstrap_interval": [
+            -0.1042318714953644,
+            0.37616061971068765
+          ],
+          "leave_block_range": [
+            0.02718586245580147,
+            0.16183082946099794
+          ]
+        }
+      }
+    },
+    "direct_single_state_cover0.1_area100_n50_broad": {
+      "eligible": 20,
+      "informative_blocks": 1,
+      "informative_islands": 9,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 11,
+      "status": "not_estimable"
+    },
+    "direct_single_state_cover0.1_area100_n50_split": {
+      "eligible": 20,
+      "informative_blocks": 0,
+      "informative_islands": 0,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 1,
+      "status": "not_estimable"
+    },
+    "direct_single_state_cover0.5_area20_n5_broad": {
+      "eligible": 153,
+      "informative_blocks": 19,
+      "informative_islands": 105,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 95,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 19,
+      "endpoints": {
+        "white": {
+          "contrast": -0.02442982633629283,
+          "group_bootstrap_interval": [
+            -0.23268711622268906,
+            0.12567799783336706
+          ],
+          "leave_block_range": [
+            -0.10641173188624652,
+            0.015928966725923664
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.034923726865691604,
+          "group_bootstrap_interval": [
+            -0.1293191178234114,
+            0.04794455465095797
+          ],
+          "leave_block_range": [
+            -0.060502436950605656,
+            -0.014771913193393028
+          ]
+        },
+        "red_pink": {
+          "contrast": -0.019606334320246457,
+          "group_bootstrap_interval": [
+            -0.09948188870635663,
+            0.05221432591704244
+          ],
+          "leave_block_range": [
+            -0.04428680810676579,
+            -0.003678432843174765
+          ]
+        },
+        "tubular": {
+          "contrast": 0.08137016398209518,
+          "group_bootstrap_interval": [
+            -0.017669217838728945,
+            0.18029729135369665
+          ],
+          "leave_block_range": [
+            0.05854221027860107,
+            0.09571721116162057
+          ]
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area20_n5_split": {
+      "eligible": 153,
+      "informative_blocks": 13,
+      "informative_islands": 64,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 49,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1995,
+      "valid_leave_block": 13,
+      "endpoints": {
+        "white": {
+          "contrast": -0.0961752395711774,
+          "group_bootstrap_interval": [
+            -0.5207258871446385,
+            0.188819434125305
+          ],
+          "leave_block_range": [
+            -0.1753233984653566,
+            -0.008563492489960123
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.03208943175197342,
+          "group_bootstrap_interval": [
+            -0.18515908962683786,
+            0.08945516503015867
+          ],
+          "leave_block_range": [
+            -0.07676543241098985,
+            -0.014851638317628497
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.11717117038369586,
+          "group_bootstrap_interval": [
+            -0.03298983297451979,
+            0.2514134827070603
+          ],
+          "leave_block_range": [
+            0.05347607718162482,
+            0.15834535912763442
+          ]
+        },
+        "tubular": {
+          "contrast": 0.05761560152673817,
+          "group_bootstrap_interval": [
+            -0.1783852180274803,
+            0.2226367334988823
+          ],
+          "leave_block_range": [
+            0.013028950080241297,
+            0.10159116597105448
+          ]
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area20_n50_broad": {
+      "eligible": 27,
+      "informative_blocks": 1,
+      "informative_islands": 14,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 16,
+      "status": "not_estimable"
+    },
+    "direct_single_state_cover0.5_area20_n50_split": {
+      "eligible": 27,
+      "informative_blocks": 0,
+      "informative_islands": 0,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 1,
+      "status": "not_estimable"
+    },
+    "direct_single_state_cover0.5_area100_n5_broad": {
+      "eligible": 119,
+      "informative_blocks": 18,
+      "informative_islands": 85,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 77,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1999,
+      "valid_leave_block": 18,
+      "endpoints": {
+        "white": {
+          "contrast": -0.05106400805317031,
+          "group_bootstrap_interval": [
+            -0.3058508444130397,
+            0.1503835627482515
+          ],
+          "leave_block_range": [
+            -0.14272116959535538,
+            0.049608028171357246
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.05357533034530544,
+          "group_bootstrap_interval": [
+            -0.16903260638240722,
+            0.055528415001463126
+          ],
+          "leave_block_range": [
+            -0.0912377001669635,
+            0.006912887928546873
+          ]
+        },
+        "red_pink": {
+          "contrast": -0.01718786775066177,
+          "group_bootstrap_interval": [
+            -0.10898967685443102,
+            0.06797338695453811
+          ],
+          "leave_block_range": [
+            -0.050634623938648475,
+            0.0006296154057445751
+          ]
+        },
+        "tubular": {
+          "contrast": 0.11080455319278831,
+          "group_bootstrap_interval": [
+            0.023563601886647308,
+            0.21741376682323985
+          ],
+          "leave_block_range": [
+            0.084230786651731,
+            0.12858009990615948
+          ]
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area100_n5_split": {
+      "eligible": 119,
+      "informative_blocks": 12,
+      "informative_islands": 56,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 46,
+      "status": "insufficient_support",
+      "valid_bootstrap": 1979,
+      "valid_leave_block": 12,
+      "endpoints": {
+        "white": {
+          "contrast": -0.1780889524388474,
+          "group_bootstrap_interval": [
+            -0.6636821534758832,
+            0.17739336503699885
+          ],
+          "leave_block_range": [
+            -0.2768782430239071,
+            -0.07145376830349796
+          ]
+        },
+        "white_open_brush": {
+          "contrast": -0.0568786395628834,
+          "group_bootstrap_interval": [
+            -0.21552225727691054,
+            0.10394586565187577
+          ],
+          "leave_block_range": [
+            -0.11356883796398157,
+            -0.001583220295778704
+          ]
+        },
+        "red_pink": {
+          "contrast": 0.11994903721349828,
+          "group_bootstrap_interval": [
+            -0.05163993919102173,
+            0.26437897951996076
+          ],
+          "leave_block_range": [
+            0.053969017215841755,
+            0.15698443711248916
+          ]
+        },
+        "tubular": {
+          "contrast": 0.03000430712309026,
+          "group_bootstrap_interval": [
+            -0.21750984238092402,
+            0.22019280257706916
+          ],
+          "leave_block_range": [
+            -0.03501915444775458,
+            0.08363627150577602
+          ]
+        }
+      }
+    },
+    "direct_single_state_cover0.5_area100_n50_broad": {
+      "eligible": 20,
+      "informative_blocks": 1,
+      "informative_islands": 9,
+      "features": [
+        "log_nectar",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 11,
+      "status": "not_estimable"
+    },
+    "direct_single_state_cover0.5_area100_n50_split": {
+      "eligible": 20,
+      "informative_blocks": 0,
+      "informative_islands": 0,
+      "features": [
+        "log_specialist",
+        "log_partial",
+        "log_other"
+      ],
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4"
+      ],
+      "nectar_positive_eligible": 1,
+      "status": "not_estimable"
+    }
+  },
+  "shared": {
+    "panels": {
+      "direct_n5_cover0.1_area20": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 129,
+          "bird_candidate": 32,
+          "butterfly_positive": 57,
+          "three_guild_positive_record_cohort": 8
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 51,
+          "informative_blocks": 4,
+          "informative_islands": 20,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 18,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 24,
+          "informative_blocks": 3,
+          "informative_islands": 10,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 7,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 14,
+        "butterfly_10_records": 21,
+        "four_source_10_records": 6
+      },
+      "direct_n5_cover0.1_area100": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 129,
+          "bird_candidate": 32,
+          "butterfly_positive": 57,
+          "three_guild_positive_record_cohort": 8
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 43,
+          "informative_blocks": 4,
+          "informative_islands": 16,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 14,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 22,
+          "informative_blocks": 3,
+          "informative_islands": 10,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 5,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 11,
+        "butterfly_10_records": 20,
+        "four_source_10_records": 5
+      },
+      "direct_n5_cover0.5_area20": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 129,
+          "bird_candidate": 32,
+          "butterfly_positive": 57,
+          "three_guild_positive_record_cohort": 8
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 53,
+          "informative_blocks": 5,
+          "informative_islands": 23,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 18,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 25,
+          "informative_blocks": 4,
+          "informative_islands": 13,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 7,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 14,
+        "butterfly_10_records": 22,
+        "four_source_10_records": 6
+      },
+      "direct_n5_cover0.5_area100": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 129,
+          "bird_candidate": 32,
+          "butterfly_positive": 57,
+          "three_guild_positive_record_cohort": 8
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 45,
+          "informative_blocks": 5,
+          "informative_islands": 19,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 14,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 23,
+          "informative_blocks": 4,
+          "informative_islands": 13,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 5,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 11,
+        "butterfly_10_records": 21,
+        "four_source_10_records": 5
+      },
+      "direct_n50_cover0.1_area20": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 104,
+          "bird_candidate": 24,
+          "butterfly_positive": 41,
+          "three_guild_positive_record_cohort": 4
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 36,
+          "informative_blocks": 2,
+          "informative_islands": 12,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 13,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 13,
+          "informative_blocks": 1,
+          "informative_islands": 2,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 4,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 9,
+        "butterfly_10_records": 12,
+        "four_source_10_records": 4
+      },
+      "direct_n50_cover0.1_area100": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 104,
+          "bird_candidate": 24,
+          "butterfly_positive": 41,
+          "three_guild_positive_record_cohort": 4
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 30,
+          "informative_blocks": 2,
+          "informative_islands": 8,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 11,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 12,
+          "informative_blocks": 1,
+          "informative_islands": 2,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 3,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 8,
+        "butterfly_10_records": 11,
+        "four_source_10_records": 3
+      },
+      "direct_n50_cover0.5_area20": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 104,
+          "bird_candidate": 24,
+          "butterfly_positive": 41,
+          "three_guild_positive_record_cohort": 4
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 37,
+          "informative_blocks": 2,
+          "informative_islands": 12,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 13,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 14,
+          "informative_blocks": 1,
+          "informative_islands": 2,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 4,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 9,
+        "butterfly_10_records": 13,
+        "four_source_10_records": 4
+      },
+      "direct_n50_cover0.5_area100": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 104,
+          "bird_candidate": 24,
+          "butterfly_positive": 41,
+          "three_guild_positive_record_cohort": 4
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 31,
+          "informative_blocks": 2,
+          "informative_islands": 8,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 11,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 13,
+          "informative_blocks": 1,
+          "informative_islands": 2,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 3,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 8,
+        "butterfly_10_records": 12,
+        "four_source_10_records": 3
+      },
+      "direct_single_state_n5_cover0.1_area20": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 123,
+          "bird_candidate": 29,
+          "butterfly_positive": 54,
+          "three_guild_positive_record_cohort": 6
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 46,
+          "informative_blocks": 4,
+          "informative_islands": 19,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 15,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 21,
+          "informative_blocks": 3,
+          "informative_islands": 9,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 5,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 11,
+        "butterfly_10_records": 19,
+        "four_source_10_records": 5
+      },
+      "direct_single_state_n5_cover0.1_area100": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 123,
+          "bird_candidate": 29,
+          "butterfly_positive": 54,
+          "three_guild_positive_record_cohort": 6
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 40,
+          "informative_blocks": 4,
+          "informative_islands": 15,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 13,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 20,
+          "informative_blocks": 3,
+          "informative_islands": 9,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 4,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 10,
+        "butterfly_10_records": 18,
+        "four_source_10_records": 4
+      },
+      "direct_single_state_n5_cover0.5_area20": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 123,
+          "bird_candidate": 29,
+          "butterfly_positive": 54,
+          "three_guild_positive_record_cohort": 6
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 48,
+          "informative_blocks": 5,
+          "informative_islands": 21,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 15,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 22,
+          "informative_blocks": 4,
+          "informative_islands": 11,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 5,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 11,
+        "butterfly_10_records": 20,
+        "four_source_10_records": 5
+      },
+      "direct_single_state_n5_cover0.5_area100": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 123,
+          "bird_candidate": 29,
+          "butterfly_positive": 54,
+          "three_guild_positive_record_cohort": 6
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 42,
+          "informative_blocks": 5,
+          "informative_islands": 17,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 13,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 21,
+          "informative_blocks": 4,
+          "informative_islands": 11,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 4,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 10,
+        "butterfly_10_records": 19,
+        "four_source_10_records": 4
+      },
+      "direct_single_state_n50_cover0.1_area20": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 70,
+          "bird_candidate": 18,
+          "butterfly_positive": 23,
+          "three_guild_positive_record_cohort": 1
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 19,
+          "informative_blocks": 1,
+          "informative_islands": 9,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 8,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 3,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 1,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 5,
+        "butterfly_10_records": 3,
+        "four_source_10_records": 1
+      },
+      "direct_single_state_n50_cover0.1_area100": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 70,
+          "bird_candidate": 18,
+          "butterfly_positive": 23,
+          "three_guild_positive_record_cohort": 1
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 15,
+          "informative_blocks": 1,
+          "informative_islands": 6,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 7,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 3,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 1,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 5,
+        "butterfly_10_records": 3,
+        "four_source_10_records": 1
+      },
+      "direct_single_state_n50_cover0.5_area20": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 70,
+          "bird_candidate": 18,
+          "butterfly_positive": 23,
+          "three_guild_positive_record_cohort": 1
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 19,
+          "informative_blocks": 1,
+          "informative_islands": 9,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 8,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 3,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 1,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 5,
+        "butterfly_10_records": 3,
+        "four_source_10_records": 1
+      },
+      "direct_single_state_n50_cover0.5_area100": {
+        "before_bat_filter": {
+          "bee_geometry_flora": 70,
+          "bird_candidate": 18,
+          "butterfly_positive": 23,
+          "three_guild_positive_record_cohort": 1
+        },
+        "bat_bee_geometry_overlap": {
+          "islands": 15,
+          "informative_blocks": 1,
+          "informative_islands": 6,
+          "gate_pass": false
+        },
+        "bat_bird_bee_candidate": {
+          "islands": 7,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "bat_butterfly_bee_positive": {
+          "islands": 3,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "all_four_source_intersection": {
+          "islands": 1,
+          "informative_blocks": 0,
+          "informative_islands": 0,
+          "gate_pass": false
+        },
+        "strict_bird_name_area": 5,
+        "butterfly_10_records": 3,
+        "four_source_10_records": 1
+      }
+    },
+    "thresholds": {
+      "informative_blocks": 30,
+      "informative_islands": 200
+    },
+    "warning": "Eligibility and variation census only. Bird identity provisional; butterfly counts positive records, not complete richness; bat range opportunity not confirmed current occurrence. Bee geometry match alone does not certify a positive native list. No zeros from missing sources, no model fit or causal substitution claim."
+  },
+  "provenance": {
+    "run": 45541189213,
+    "artifact": 14990115350,
+    "artifact_digest_reported": "sha256:3a7c56fc104002b18b05b28faa45246102ab86801c81ab9ffa764879f84e006c",
+    "method": "Complete original job logs; archive digest from GitHub metadata, not independently downloaded."
+  }
+}

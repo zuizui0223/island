@@ -1,0 +1,7 @@
+channel,n_heldout_genera,n_evidence_strata,n_genus_labels_shufflable,n_source_effort_matched_shuffles,observed_MSE_gain,matched_label_null_median,matched_label_null_025,matched_label_null_975,posthoc_one_sided_tail_fraction
+bombus,486,40,480,999,0.00149053,-0.0001741,-0.0006360,0.0003393,0.001
+non_bombus_bees,486,40,480,999,0.00140273,-0.0002710,-0.0009520,0.0005100,0.002
+lepidoptera,486,40,480,999,0.00159853,-0.0003382,-0.0012908,0.0007320,0.004
+flower_visiting_birds,486,40,480,999,0.00097442,-0.0000845,-0.0004227,0.0002439,0.001
+diptera,486,40,480,999,0.00258861,-0.0001255,-0.0004903,0.0003425,0.001
+all_5_channels_equal_weight,486,40,480,999,0.00161096,-0.0001945,-0.0005026,0.0001573,0.001

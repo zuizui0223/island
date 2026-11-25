@@ -1,0 +1,5 @@
+grouping,n_candidate_edges,n_selected_pairs,n_northern_midlatitude,n_tropical,n_distinct_spatial_blocks_used,n_distinct_labelled_archipelagos_used,n_unknown_archipelago_endpoints,median_matching_cost
+spatial_block,219,13,7,6,23,18,1,1.5911859804498913
+weigelt_archipelago,219,11,6,5,19,17,2,1.5319866490452259
+both,219,11,6,5,21,18,2,1.5911859804498913
+both_verified,210,10,5,5,18,17,0,1.4966299973980564

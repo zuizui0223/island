@@ -1,0 +1,4 @@
+heldout_genus_model,n_direct_morphological_species,n_genus_test_units,n_features,n_crossfit_folds,ridge_alpha,outofgenus_RMSE,outofgenus_MAE,outofgenus_R2,second_shuffle_RMSE,MSE_improvement_over_evidence_only,conditional_genus_bootstrap_lower,conditional_genus_bootstrap_upper
+evidence_only,1597,486,3,5,10,0.705049,0.573161,0.245549,0.703314,0.000000,0.000000,0.000000
+morph_marginal,1597,486,25,5,10,0.729457,0.579891,0.192409,0.726819,-0.035013,-0.104070,0.010108
+morph_marginal_plus_joint,1597,486,115,5,10,0.783576,0.605221,0.068132,0.823014,-0.116897,-0.222684,-0.033624

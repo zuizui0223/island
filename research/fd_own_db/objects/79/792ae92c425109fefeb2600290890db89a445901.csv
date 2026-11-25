@@ -1,0 +1,13 @@
+scope,native_only,n_pairs,mainland_source_mode,shrinkage,genus_global_logloss_improvement,genus_global_distance_improvement,local_vs_global_genus_logloss_improvement,local_vs_global_genus_distance_improvement,analysis_status
+all,false,37,geo_k5,8,0.70892,0.14423,-0.01446,0.01404,primary_exploratory
+direct,false,37,geo_k5,8,0.33826,0.08423,-0.01937,0.01066,primary_exploratory
+all,false,37,geo_k10,8,0.70892,0.14423,-0.01904,0.01739,posthoc_sensitivity
+direct,false,37,geo_k10,8,0.33826,0.08423,-0.02472,0.01356,posthoc_sensitivity
+all,false,37,geo_k20,8,0.70892,0.14423,-0.02797,0.01965,posthoc_sensitivity
+direct,false,37,geo_k20,8,0.33826,0.08423,-0.03422,0.01541,posthoc_sensitivity
+all,false,37,geo_k5,2,0.5698,0.2082,-0.1192,0.0153,posthoc_smoothing
+direct,false,37,geo_k5,2,0.1737,0.1405,-0.1126,0.0137,posthoc_smoothing
+all,false,37,geo_k5,20,0.6836,0.1000,0.0150,0.0105,posthoc_smoothing
+direct,false,37,geo_k5,20,0.3398,0.0521,0.0063,0.0071,posthoc_smoothing
+all,true,28,geo_k5,8,0.8746,0.1635,-0.0063,0.0235,native_only_selected_sensitivity
+direct,true,28,geo_k5,8,0.5068,0.1048,-0.0143,0.0208,native_only_selected_sensitivity

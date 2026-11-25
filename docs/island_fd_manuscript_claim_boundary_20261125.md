@@ -1,0 +1,26 @@
+# Proposed manuscript boundary: island vs fd (25 November 2026)
+
+Editorial proposal, not an approved alteration to either primary manuscript. Shared data are not independent replication. Checked island HEAD 9354a282154252006bf0c5c39e13a0adf19e8338; fd PR #65 manuscript at dbea01d985a4ad6c4e72a8d4bc4225e07baaed07 and PR #69 design at a9d24c11657cfd6a48d0aa980cbbb6b3576aa85e. The latter explicitly reserves morphology proxy composition, coherence, reproductive covariance and roster inclusion for fd. Therefore an unqualified "floral reassembly plus reproduction" claim in both papers would overlap substantially.
+
+## Primary ownership (proposed)
+
+| Scientific claim | Primary paper | Other paper |
+|---|---|---|
+| Recurrent compatibility response (SC) to isolation, versus selfing mating and autonomous capacity; conditional accessibility and colour response | island H1/H2 | Cite parent evidence; do not reprint as new discovery |
+| Morphological repertoire recurrence, category-space occupancy/turnover, marginal versus joint diversity, syndrome-proxy coherence, genus attribution, source-pool comparisons and roster inclusion | fd Q1/Q2/Q4 | Minimal context or prespecified capacity denominator; no duplicated primary FD figures |
+| Association of reproductive state with predefined syndrome-score H, within genus-grade relative to mainland candidate pools | fd Q3, subordinate syndrome sensitivity (not a second assurance paper) | Do not reproduce same covariance contrast; refer to fd if needed |
+| Capacity-conditioned categorical volume: positive-only, negative-only, shared mass; SC vs autonomous capability; actual prevalence versus matched-label random expectation; unknown bounds | island exploratory H4 extension | No identical capacity-volume result as fd main evidence |
+| Independent experimental GloPL pollen limitation gradient and exact-species functional compatibility | island H3/H4 | Cite, not independent replication |
+| Independent animal range/diet records, two-sided matching/null and guild interpretation | fd exploratory | Not promoted into island mechanism |
+
+Island question: **Does isolation reorganize which parts of floral trait space are represented by plants with different reproductive-assurance capacities, and how do these capacities relate to experimental pollen limitation?** FD question: **How are floral trait combinations, their coherence and repertoire assembled across islands relative to potential source pools and taxonomic turnover?** Distinct outcome, contrast and ecological interpretation, not different data labels.
+
+Both can share a published database, ontology and descriptive cohort audit. The legacy fd text calling 4505 floras a GIFT-derived roster needs source-path audit/correction before submission: verified canonical status-flora is GBIF incidence with attached status, whereas the GIFT mainland donor is separate. Do not justify publication separation by claiming independent island inventories. The new island raw-GBIF analysis explicitly uses no GIFT source or status tables.
+
+## Verified own-DB atlas outcome and consequence
+
+Run [45554652041](https://github.com/zuizui0223/island/actions/runs/45554652041) success; artifact 14995346247, ZIP digest sha256:e8b40eee3e6d16992564449a8c9799ad3eae854748c89babcd5ed2a3d9fd86e7; eight tests passed. Exact aggregate archived at 9354a282. 3310 category-capacity atlas rows, 1324 category-frequency slope slots (7 BY-supported), 160 pure-geometry slope slots (0 BY-supported), 2240 capacity-partition slope slots (26 BY-supported: 25 SC, one autonomy). No category capacity enrichment against exact genus-positive-count null passes BY. Counts include nested metrics and reference variants, not independent ecological confirmations. FDR families as recorded in the design, not a new global adjustment over all slots. Among illustrative signals, northern-high-latitude colour SC-only mass increases (uniform, n171/41 blocks, beta+.04098, qBY=.01136), colour SI-only mass decreases (-.01553, qBY=.01475); tropical colour×symmetry SI-only mass decreases (uniform n295/74, -.00982, qBY=.03397; frequency-weighted also supported). Only autonomous result: northern-high-latitude form positive-only mass (species-frequency weighted n78/10, +.02627, qBY=.00175), limited blocks and weighting sensitivity. No evidence that floral space itself universally shrinks or that all capacities buffer it. Prior exact same-carrier triple autonomy coverage medians positive vs negative fixed-total-label excess in north-mid/tropics are descriptive; high missingness and small tropical sample preclude an established regional difference.
+
+Use the capacity atlas as an exploratory bridge to H4, not a second H3 or a direct measurement of pollinator service. SC allows compatible self-fertilization but need not permit autonomous reproduction. The previous GloPL 30-island FD analysis was unsupported and has zero exact island/species matches. Do not claim community-level service or causal mediation from joining different scales. A new primary claim requires stronger origin/coverage and category-prevalence null sensitivity, independent/held-out reproductive evidence where available, and review of overlapping results; keep original frozen GEB selector unchanged.
+
+No change to fd PRs, manuscript or primary submission files was made by this editorial note.

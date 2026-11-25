@@ -1,0 +1,66 @@
+name: Archive verified FD own-database anonymous aggregate
+on:
+  push:
+    branches:
+      - analysis/fd-self-db-integration-20261125
+    paths:
+      - .github/workflows/archive-fd-self-db-isolation.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: analysis/fd-self-db-integration-20261125
+      - name: Restore and validate the exact anonymous aggregate
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/zuizui0223/island/actions/artifacts/14989104736 --jq .digest)" = "sha256:92e3df6b91193d4c9c958a5314d238231cf773169b3bbdfd0c128daf4a18a6f2"
+          test "$(gh api repos/zuizui0223/island/actions/runs/45542455705 --jq .conclusion)" = success
+          test "$(gh api repos/zuizui0223/island/actions/runs/45542455705 --jq .head_sha)" = b717ef84bc7da077467e1f10c82e56cc4c0283c5
+          mkdir -p /tmp/fd-anonymous
+          gh run download 45542455705 --repo zuizui0223/island --name fd-own-db-corrected-isolation-45542455705 --dir /tmp/fd-anonymous
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from hashlib import sha256
+          source=Path('/tmp/fd-anonymous/anonymous_fd_isolation.json')
+          raw=source.read_bytes()
+          d=json.loads(raw)
+          assert d['status']=='EXPLORATORY_DIRECT_FD_ISOLATION_NOT_CAUSAL'
+          assert d['no_row_level_export'] is True and d['n_original_flora_islands']==4505
+          assert len(d['models'])==384 and len(d['support'])==12
+          assert len({(r['scope'],r['endpoint'],r['region'],r['variant'],r['metric']) for r in d['models']})==384
+          assert d['source_sha256']['flora']=='6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a'
+          assert d['source_sha256']['ledger']=='9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745'
+          assert d['source_sha256']['geography']=='08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7'
+          allowed_model={'scope','endpoint','region','family','variant','metric','n','blocks','status','beta','se','lo','hi','p','distance_sd_raw','q_bh','q_by','family_slots'}
+          allowed_support={'scope','endpoint','direct_species','eligible_pre_geography','matched_geography'}
+          allowed_top={'status','n_original_flora_rows','n_original_flora_islands','n_geography','support','models','seed','mi_repeats','n_selfing_score_species','uncertainty','not_independent_replication','no_row_level_export','source_sha256'}
+          assert set(d)==allowed_top and all(set(r)<=allowed_model for r in d['models']) and all(set(r)<=allowed_support for r in d['support'])
+          root=Path('results/fd_self_db_20261125')
+          logged=json.loads((root/'corrected_isolation_logged_204.json').read_text())
+          lookup={(r['scope'],r['endpoint'],r['region'],r['variant'],r['metric']):r for r in d['models']}
+          assert all(lookup[(r['scope'],r['endpoint'],r['region'],r['variant'],r['metric'])]==r for r in logged['models'])
+          assert logged['support']==d['support']
+          (root/'corrected_isolation_full_384.json').write_bytes(raw)
+          (root/'corrected_isolation_archive_receipt.json').write_text(json.dumps({'source_run':45542455705,'source_artifact':14989104736,'source_zip_digest':'sha256:92e3df6b91193d4c9c958a5314d238231cf773169b3bbdfd0c128daf4a18a6f2','json_sha256':sha256(raw).hexdigest(),'logged_rows_matched':204,'full_slots':384,'archive_validated':True},indent=2)+'\n')
+          for row in d['models']:
+              if row.get('q_by',1)<.05:
+                  print('FD_BY_POSITIVE '+json.dumps(row))
+          PY
+      - name: Commit only verified anonymous results to integration branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/fd_self_db_20261125/corrected_isolation_full_384.json results/fd_self_db_20261125/corrected_isolation_archive_receipt.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Archive source-verified complete 384-model FD isolation aggregate"
+          git push origin HEAD:analysis/fd-self-db-integration-20261125

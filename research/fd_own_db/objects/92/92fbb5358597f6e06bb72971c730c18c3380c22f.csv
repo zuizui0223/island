@@ -1,0 +1,9 @@
+source_feature_holdout,scope,source_model,n_test_islands,mean_heldout_name_log_loss,mean_original_trait_distance,mean_flora_frequency_L2_error,mean_flora_frequency_similarity_kernel_error,median_source_candidate_genera,median_source_genera_with_floral_donors
+strict_all_74_island_target_names,all,global_prior,74,5.356288,0.769790,0.012261,0.020476,1128.5,337.0
+strict_all_74_island_target_names,all,source_genus_density,74,5.350484,0.769778,0.012014,0.018107,1128.5,337.0
+strict_all_74_island_target_names,all,source_genus_prevalence,74,5.347463,0.769505,0.011687,0.018521,1128.5,337.0
+strict_all_74_island_target_names,all,known_genus_oracle,74,5.295574,0.764722,0.009810,0.012699,1128.5,337.0
+strict_all_74_island_target_names,direct,global_prior,74,5.468725,0.779200,0.013721,0.024446,1129.5,328.0
+strict_all_74_island_target_names,direct,source_genus_density,74,5.472117,0.778941,0.013465,0.021582,1129.5,328.0
+strict_all_74_island_target_names,direct,source_genus_prevalence,74,5.466109,0.779022,0.013045,0.021984,1129.5,328.0
+strict_all_74_island_target_names,direct,known_genus_oracle,74,5.447311,0.777201,0.011935,0.018572,1129.5,328.0

@@ -1,0 +1,6 @@
+documented_visitor_guild,n_islands_with_source_cited_exact_plant_species_polygon_match_all_origins,n_distinct_plant_species_with_source_cited_locality_relation_all_origins,n_islands_with_strict_native_flora_plant_locality_relation,original_visit_success_measured
+bombus,39,128,7,false
+non_bombus_bees,51,143,24,false
+lepidoptera_undivided,62,127,21,false
+flower_visiting_birds,16,18,11,false
+diptera,41,108,15,false

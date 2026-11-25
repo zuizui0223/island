@@ -1,0 +1,26 @@
+{
+  "analysis_date": "2026-11-10",
+  "scientific_scope": "GBIF recorded island frequencies, not true endemism or functional traits",
+  "source_repository": "zuizui0223/island",
+  "source_commit": "3bfa818ffbc7a0dea4319933c4b0a0eb41cfabb5",
+  "taxa_csv_blob_sha": "5ae92313517118f0dbb29d8863aa2e379ce88747",
+  "collection_status_blob_sha": "9b186799a43f9108cf62f6a54eef074f8d42d3c3",
+  "n_accepted_taxon_names": 115328,
+  "n_island_taxon_occurrences": 1039757,
+  "n_islands_with_any_record": 4549,
+  "n_source_blocks": 103,
+  "taxa_recorded_on_one_island": 58660,
+  "fraction_recorded_on_one_island": 0.5086362375138734,
+  "island_count_by_taxon_recording_frequency": {
+    "1": 58660,
+    "2": 15981,
+    "3_5": 17184,
+    "6_10": 9015,
+    "11_plus": 14488
+  },
+  "median_recorded_islands_per_taxon": 1,
+  "p90_recorded_islands_per_taxon": 14,
+  "p99_recorded_islands_per_taxon": 148,
+  "max_recorded_islands_per_taxon": 993,
+  "cross_domain_boundary": "These 115328 GBIF candidate taxa are not the 106295 eligible current Chapter 1 trait-analysis species; this table contains no per-island functional-trait values."
+}

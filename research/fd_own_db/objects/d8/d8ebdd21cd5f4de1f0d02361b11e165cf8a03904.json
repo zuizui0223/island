@@ -1,0 +1,20 @@
+{
+  "analysis_date": "2026-11-11",
+  "status": "NOT_RUN_MISSING_ORIGINAL_PROVIDER_AND_REFERENCE_IDENTITIES",
+  "source_genus_breadth_rows_checked": 2228,
+  "original_provider_reference_rows_available_in_current_checkpoint": 0,
+  "frozen_GloBI_interactions_tsv_sha256": "095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17",
+  "source_publication": "GloBI interpreted products version 0.9, published 2026-06-04, Zenodo 20546682",
+  "required_original_fields_after_normalization": [
+    "plant_genus",
+    "visitor_channel",
+    "provider_id",
+    "reference_id",
+    "argument_type",
+    "evidence_class"
+  ],
+  "checked_aggregated_columns_adequate_for_provider_holdout": false,
+  "provider_heldout_empirical_result": null,
+  "available_proxy_sensitivity": "88 botanical families each held out; GloBI independent-reference depth and Direct botanical trait evidence thresholds",
+  "inference_limit": "The provider-independent impact of morphology on GloBI documented guild reference fractions is UNRESOLVED."
+}

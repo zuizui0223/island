@@ -1,0 +1,55 @@
+name: fd floral-distance, G1 and hypervolume
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests-and-public-aggregate-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install package and test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate recorded categorical distances and new inference contracts
+        run: python -m pytest -q
+      - name: Fetch only public aggregate evidence from frozen island commit
+        run: python scripts/fetch_island_aggregates.py --output work/island_public
+      - name: Compute G0 island Rao Q and matched pair functional dissimilarity
+        run: python -m fd.pipeline --input work/island_public --output results/run_fd_v1
+      - name: G1 fixed-margins functional distance null (two 200-draw chains)
+        run: |
+          python -m fd.g1_fixed_margins \
+            --input work/island_public \
+            --g0 results/run_fd_v1 \
+            --output results/run_fd_g1 \
+            --draws 200 --local-n 128 --pair-n 128
+      - name: Compute category occupancy and explicitly projected Gaussian hypervolumes
+        run: |
+          python -m fd.hypervolume \
+            --input work/island_public \
+            --g0 results/run_fd_v1 \
+            --output results/run_fd_hypervolume
+      - name: Retain source manifests and all aggregate results
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-g0-g1-kde90-results
+          path: |
+            work/island_public/source_manifest.json
+            results/run_fd_v1
+            results/run_fd_g1
+            results/run_fd_hypervolume
+          retention-days: 30

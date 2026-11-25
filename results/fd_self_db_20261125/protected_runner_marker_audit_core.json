@@ -1,0 +1,1386 @@
+{
+  "date": "2026-11-25",
+  "method": "Changed workflow/script patch markers for six representative source PRs, first page only; incomplete PRs explicitly marked. Source markers are not raw data or complete run validation. Absence of a marker is not absence of a source. Compare canonical chain and workflow/runner directly before relabeling.",
+  "results": [
+    {
+      "pr": 326,
+      "reference_head": "4c0ab253c870dfb352c0a57b9c9fb979d15b5c98",
+      "first_page_count": 100,
+      "complete": false,
+      "rows": [
+        {
+          "path": ".github/workflows/audit-fd-gbotb-tree-source.yml",
+          "blob_sha": "edf62b8a8c1787c0b85075d9088b2efa8ff709e5",
+          "patch_available": true,
+          "markers": []
+        },
+        {
+          "path": ".github/workflows/audit-fd-original-family-map.yml",
+          "blob_sha": "eab9f003d7ad7334602de5566b6a5822649cd4d4",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212"
+          ]
+        },
+        {
+          "path": ".github/workflows/inspect-fd-nhm-cm-syntax.yml",
+          "blob_sha": "83d9f97ac2763df2b8dc5ff1f5878b030ab71165",
+          "patch_available": true,
+          "markers": []
+        },
+        {
+          "path": ".github/workflows/run-fd-4505-original-manuscript-figures.yml",
+          "blob_sha": "dbe85911caab56ee591a5edceeb10a3af131c7dc",
+          "patch_available": true,
+          "markers": []
+        },
+        {
+          "path": ".github/workflows/run-fd-colxr-family-preflight.yml",
+          "blob_sha": "de239203488fb80ac7203e916286165832f974d8",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-direct-endemic-mainland-congeners.yml",
+          "blob_sha": "e164dd0e80e22d7afc9e07e6b429f9319bdb9f89",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-direct-source-breadth-matched.yml",
+          "blob_sha": "ea25c053f8ae457b0e99bc2fc031f1d696300e0c",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-direct-source-distance-conditioned-genus-null.yml",
+          "blob_sha": "31a61d5f81ca83d623c9847977f63259103a294d",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-direct-source-finite-sampling-null.yml",
+          "blob_sha": "138b12034250c9ac681bd754c0abdab501fcbf9b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-direct-source-genus-accounting.yml",
+          "blob_sha": "0612e58a971dbc754e82cd001989728470f503f8",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-direct-three-stage-floristic-comparison.yml",
+          "blob_sha": "cea2b7083cd9c357944a012b4467e4350718aa95",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-directional-flower-isolation-gradients.yml",
+          "blob_sha": "8099493ab61f01ec294af6bd39995c7bb6d4ea5b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-directional-flower-missing-profile-null.yml",
+          "blob_sha": "d7adf0e8be73c67f50b49410092d1ff975706624",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-directional-flower-space-preflight.yml",
+          "blob_sha": "68b7d0e3cc728e0b8f90020fbf26c4247db351d9",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-directional-near-far-nestedness.yml",
+          "blob_sha": "13de97eaf6d311d0a8b199585e3483349bfdc1f9",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-discrete-functional-volume.yml",
+          "blob_sha": "4d8c54faf92865c0539554089bdb7cec0195d309",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-endemic-gift-mainland-photo-pilot.yml",
+          "blob_sha": "cec4a9c92904039cd9ef83746da64273c293dbfa",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-endemic-vs-gift-local-mainland-photo.yml",
+          "blob_sha": "6f24fd58bca75309c69cf9eb72cf343e74be8dac",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-family-conditioned-rare-volume.yml",
+          "blob_sha": "9b985c05fe39b6e9a529574a4c709273fe2804f5",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-fcp-colxr-endemic-synonyms.yml",
+          "blob_sha": "ca1ead1edf02acbb9692d3d75357904ab3dc5bc4",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-fcp-island-endemic-photo-opportunity.yml",
+          "blob_sha": "c4ee66cccdbf3153cd3019b57cc2c40c71accfd2",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-focused-geo-source-training-holdout.yml",
+          "blob_sha": "c4880f2e119f44c34e69456966d5a5d6512fd596",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-gbotb-direct-phylogeny-preflight.yml",
+          "blob_sha": "2f0435237a0aa67cadea9f7e9fc70a0aac46f265",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-genus-matched-rare-volume.yml",
+          "blob_sha": "e89ce2635d09a1a03593fecebbf767068c813281",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-genus-richness-rare-volume.yml",
+          "blob_sha": "8573c221dd2ee7c2b3c7ebe41dfe2fbe6dcfd255",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-genus-shapley-functional-volume.yml",
+          "blob_sha": "d3f1223d0fe55925fd8aabe9b10691374b3ce852",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-geological-directional-sector-contrasts.yml",
+          "blob_sha": "ce2987684f51546301535d0d5fe65b5599a06d01",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-geology-endemic-shared-genus.yml",
+          "blob_sha": "c11ab1ba2f529d36f7ae948022bdc9fc06f32caa",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-geology-endemic-singletrait.yml",
+          "blob_sha": "633f1fe1aa17ab8968fec2586d694a366f0cf0da",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-geology-endemic-trait-divergence.yml",
+          "blob_sha": "bd1c12da7a23a6e3a8cba2136dc0fdc15b039937",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-global-genus-assembly-geometry.yml",
+          "blob_sha": "6568efe3c08adbff448adfb3563611916f7aa960",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-global-genus-name-heldout-prediction.yml",
+          "blob_sha": "35e6a22660eef52c68cc401f8e2f687925ac26cd",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-global-guild-cooccurrence.yml",
+          "blob_sha": "0288b54ab8b1ec26faa67232d538555f4a3b61d9",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-global-guild-effort-coverage.yml",
+          "blob_sha": "2ddb54fb929c500a1c5b8680f5264fa83a9ca9fc",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-global-guild-same-cohort.yml",
+          "blob_sha": "585fc1fe6d9ab665e32a7f19fb90f75288d19ea9",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-global-partial-guild-bridge.yml",
+          "blob_sha": "1b1e08ba1703c48380fab222dea1c3a9df31a814",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-global-partial-traits.yml",
+          "blob_sha": "45d327e9833b0bd8843a9f4e57021aaaa04a318f",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-global-taxonomic-mask.yml",
+          "blob_sha": "2b56268f9d5c03fd158bbc7009dfb9079fa7ac6b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-globi-real-joint-species-locality.yml",
+          "blob_sha": "7e0c447540954d63a951476e4131b2507f84fbab",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-independent-network-site-preflight.yml",
+          "blob_sha": "fb12dff206cb2f316be7e3e6ac30f9ee90ac7ce9",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-independent-nhm-numeric-tube-length.yml",
+          "blob_sha": "a4e7bc67c2cfd548cfe3d16344aa618a0d84928b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-independent-nhm-radial-depth-support.yml",
+          "blob_sha": "00446e4960e2e195092c1dd8bcceae040206b8b4",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-interregional-genus-transfer.yml",
+          "blob_sha": "5e933a6526bdc33ef5ca29286cd0675d8b50b9b3",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-island-beta-block-matching.yml",
+          "blob_sha": "5926a1b92b96c34fca0b91245871282697243bfa",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-island-beta-geographic-null.yml",
+          "blob_sha": "7e13ea1c5249adcdf6163a396a60b1c0305e520f",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-island-beta-n10-rarefaction.yml",
+          "blob_sha": "d337895012a62eb65b6ed61b0adb9ec238f92de6",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-island-beta-native-matched.yml",
+          "blob_sha": "fa5acd182aa18554394d79e2fef9bc951dfbe172",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-island-beta-regional-genus.yml",
+          "blob_sha": "84651dd235e3430cdd3a02e1e576583863a9a5da",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-island-floral-beta.yml",
+          "blob_sha": "5c46a6dd9c265ccbe3ff368ca74a7d60465f76c9",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-island-floral-pair-structure.yml",
+          "blob_sha": "104b06e0358b49c7b1d2bc14abc4e44b54fdc2b6",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-island-functional-beta.yml",
+          "blob_sha": "949dd52418bdf3a3aebe23d9af0c2e453274a118",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-lcvp-phylo-source-match.yml",
+          "blob_sha": "e59fb18da01389a565c12f4133ce060a8c51f2a6",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-mangal-island-flower-nodes.yml",
+          "blob_sha": "77dd8c84dc2b134d609894912dde30f973551e02",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-native-taxon-matched-pairing.yml",
+          "blob_sha": "26c27a66a19fe24073a699e07bf6991eb31d53cb",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-nhm-bhl-china-paired-source.yml",
+          "blob_sha": "9061615d9f1d81004d1f7c8d353b63fbb72a023b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-nhm-external-flora-preflight.yml",
+          "blob_sha": "0a2c24400ac48375143b1862f6219eb642475bb1",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-nhm-global-source-only-colour.yml",
+          "blob_sha": "4fbd2e369d7a55c0964c2608b7fc3c182820d763",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-nhm-numeric-genus-concentration.yml",
+          "blob_sha": "08c767523635ccdbaf6c6de50cb8644524cb445f",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-nhm-numeric-provider-disjoint-source.yml",
+          "blob_sha": "e4dff663bae4e95a3a937769ac8ab10ce165e905",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-nhm-numeric-source-congener-predict.yml",
+          "blob_sha": "1d8f0c41636dc14e23e3dd5a739ef9c61e1121c0",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-nhm-original-provider-audit.yml",
+          "blob_sha": "f16005b4c6229de8b08b3154b9e0f5d06502f2fe",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-nhm-source-only-joint-colour-form.yml",
+          "blob_sha": "feb7015e94624515922175c6f23488e2e06244e4",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-oc-endemic-near-island-photo.yml",
+          "blob_sha": "e10de85f74622fd5dd461389137413ee25c3d333",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-oc-endemic-photo-pilot.yml",
+          "blob_sha": "1ae2998cd348fb3e6ac2f2f52f44cd9dd601a0ac",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-oceanic-continental-assembly.yml",
+          "blob_sha": "b5f7b7bca61d42864b37ad9f595287a9daf44b5b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-dopi-guild-motifs.yml",
+          "blob_sha": "422bd03be6f607b0cebdddd21343e4141fa8189d",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-environmental-genus-composition.yml",
+          "blob_sha": "4ecce80a483b73f2ade0155bd1a2149b0e09c351",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "ORIGINAL_ROOT=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT\" | sha256sum --check --strict",
+            "ORIGINAL_ROOT=\"${ORIGINAL_ROOT%/fixed/canonical/input/chapter1_status_flora.csv.gz}\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-euppollnet-flower-supply.yml",
+          "blob_sha": "0b466f2968aa647c77ee2f81ef4f78ca989b6f2c",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-euppollnet-gift-site.yml",
+          "blob_sha": "52e3a3346615c1f123b22ca9e4d0889c0b1e9e94",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-full4505-globi-locality.yml",
+          "blob_sha": "5f7381b30006d374f5d183bd681bec1689783b5b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-full4505-wol-locality.yml",
+          "blob_sha": "fc6ad61ac5ff19f2dfe768de400652c6e16addfb",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-genus-disjoint-matched.yml",
+          "blob_sha": "9fb8b1605bee2887bbfa5db147e7779353313866",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-genus-flower-pair-covariance.yml",
+          "blob_sha": "9e9549409725e0f3a256ec29c7ac6e79bffc8ee4",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-geo-source-training-holdout.yml",
+          "blob_sha": "1b64c6e99999c6dd13cff95158e70301d0ce0fa3",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-geology-genus-flower-pair.yml",
+          "blob_sha": "86792518cbe3eeb9612759e2e329c32c0b395ae2",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-geology-lgm-joint-identifiability.yml",
+          "blob_sha": "292882ff6bf57433480bd0c2fbdeae2620ff7e90",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-interregional-transfer-robustness.yml",
+          "blob_sha": "2d5dc76df55efbbb927769963e04bda22016ccb8",
+          "patch_available": true,
+          "markers": []
+        },
+        {
+          "path": ".github/workflows/run-fd-original-mainland-vs-region-genus-gate.yml",
+          "blob_sha": "c85f314969326a54529078e75a11e3e9fd294a39",
+          "patch_available": true,
+          "markers": []
+        },
+        {
+          "path": ".github/workflows/run-fd-original-oracle-free-genus-macro.yml",
+          "blob_sha": "f46a97f7fa4631397840b40b41d3f970e232c23e",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-paired-congener-gain.yml",
+          "blob_sha": "b8600a224a0cdd0c9a0fb0d11fd26fc0abc3c178",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-phylo-functional-beta.yml",
+          "blob_sha": "95ed5bad228ade8619adb8b062344615f4f08434",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-region-transfer-replication-summary.yml",
+          "blob_sha": "16c60095daea510b7b7d2f8e681652d27acfee16",
+          "patch_available": true,
+          "markers": []
+        },
+        {
+          "path": ".github/workflows/run-fd-original-source-only-joint-congener-prediction.yml",
+          "blob_sha": "ec3741e7bdf4baed2de7eb65c661ff1e403cd01b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-source-trait-free-genus-null.yml",
+          "blob_sha": "1b8b0dd2cb58cd6c0d7586a3534cba001c57b5c0",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-syndrome-ensemble.yml",
+          "blob_sha": "2b32c5ea697dc2481daf64326538c5034addc81b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-triple-matched-congener.yml",
+          "blob_sha": "328e297e7786439376294008a8493e701db5b3dc",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-original-visitor-documentation-gate.yml",
+          "blob_sha": "a2a04adcaab9446e3af94ff106d5601c6f9c9df6",
+          "patch_available": true,
+          "markers": []
+        },
+        {
+          "path": ".github/workflows/run-fd-rare-profile-support.yml",
+          "blob_sha": "f406a958810abca5e6a45a79811ea76bfad45343",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-real-joint-genus-accounting.yml",
+          "blob_sha": "ad2c681105a38781587bc5195495a71d6d734b19",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-real-joint-syndrome-access.yml",
+          "blob_sha": "7a37f92318cd24d6a3bced2a7224a8a203035df1",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-real-joint-within-genus-coupling.yml",
+          "blob_sha": "c7e618d0c2417127e94b7a9c78e773d4d6ca2f71",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-reproductive-parallel-isolation.yml",
+          "blob_sha": "d0cc29a3edc3a1bd165adafdeb9195e7ecdb6ac4",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-source-genus-exact-modes.yml",
+          "blob_sha": "e0585ec5ca52a44b0d244aa71d013486f1cdfefb",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-source-genus-same-island.yml",
+          "blob_sha": "a21d476febc6ca0abbfe4342b6b8b668ee7c638f",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-source-guild-mode-robustness.yml",
+          "blob_sha": "d339759b567e1cee11299be1532a6b591ace2f96",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-source-guild-support.yml",
+          "blob_sha": "53fcfa56900062ecfcface3c193206766bc0516c",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-source-name-heldout-macro.yml",
+          "blob_sha": "615b1257ba5b02ea0794e2b749fd79b69e2923a1",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-source-name-heldout-placebo.yml",
+          "blob_sha": "b3a285a520273b4d9ffb645fb673e4c264aa5a73",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-source-pool-geo5-climate10-sensitivity.yml",
+          "blob_sha": "1c68af6960f1e60df81ecc2a045452d0085d959d",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $LEDGER\" | sha256sum --check --strict",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": ".github/workflows/run-fd-true-tip-native-pairing.yml",
+          "blob_sha": "3f7f80cede4a6c846a0d663aa13bdc4febef3d5a",
+          "patch_available": true,
+          "markers": [
+            "ARTIFACT_ID=10058653212",
+            "test -s \"$ORIGINAL_ROOT/fixed/canonical/input/chapter1_status_flora.csv.gz\"",
+            "test -s \"$ORIGINAL_ROOT/fixed/source/source/gift_native_mainland_flora.csv.gz\""
+          ]
+        }
+      ]
+    },
+    {
+      "pr": 331,
+      "reference_head": "7ea397cbc0f3f0ad50896c1fff1617e4ca4be686",
+      "first_page_count": 3,
+      "complete": true,
+      "rows": [
+        {
+          "path": ".github/workflows/fd-original-gift-stage2-name-disjoint.yml",
+          "blob_sha": "bc4a65455706b7a6e3acce0f363b610f38ebf0fb",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "-path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' \\",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_FLORA\" | sha256sum --check --strict",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $ORIGINAL_ROOT/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": "scripts/fd_original_stage2_name_disjoint_flower_forecast.py",
+          "blob_sha": "a9b9ce8133b81b610da5d35b659a72c131c33c7e",
+          "patch_available": true,
+          "markers": [
+            "\"flora\": \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a\",",
+            "\"traits\": \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745\",",
+            "\"flora\": args.original_root/\"fixed/canonical/input/chapter1_status_flora.csv.gz\","
+          ]
+        }
+      ]
+    },
+    {
+      "pr": 333,
+      "reference_head": "6cc73abf7327ede43a702d68db96ae3196b21c72",
+      "first_page_count": 1,
+      "complete": true,
+      "rows": [
+        {
+          "path": ".github/workflows/fd-original-gift-stage2-all13.yml",
+          "blob_sha": "75b4455a57dee965aad8d66f84998886a8adb891",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "-path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' \\",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_FLORA\" | sha256sum --check --strict",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $ORIGINAL_ROOT/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz\" | sha256sum --check --strict"
+          ]
+        }
+      ]
+    },
+    {
+      "pr": 337,
+      "reference_head": "7d59578d4b3e95d96757c931865a468f35bde817",
+      "first_page_count": 1,
+      "complete": true,
+      "rows": [
+        {
+          "path": ".github/workflows/fd-original-gift-stage2-all13-raoq.yml",
+          "blob_sha": "d4a6238d6281e1cc9f9bb3d9737e47253ef0781c",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "-path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' \\",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_FLORA\" | sha256sum --check --strict",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $ORIGINAL_ROOT/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz\" | sha256sum --check --strict"
+          ]
+        }
+      ]
+    },
+    {
+      "pr": 344,
+      "reference_head": "4dfa541b187c8cdca71da59ded8a8dff68d71fbb",
+      "first_page_count": 3,
+      "complete": true,
+      "rows": [
+        {
+          "path": ".github/workflows/fd-original-direct-quality-audit.yml",
+          "blob_sha": "3740ffa346db20a1b4be5615c1f23bbb13d08052",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island \\",
+            "--name chapter1-progressive-analysis-34232450884 \\",
+            "-path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' \\",
+            "echo \"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $ORIGINAL_FLORA\" | sha256sum --check --strict",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\"",
+            "echo \"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745  $ORIGINAL_ROOT/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz\" | sha256sum --check --strict"
+          ]
+        },
+        {
+          "path": "scripts/fd_original_gift_direct_evidence_quality_audit.py",
+          "blob_sha": "a4b1a9a7b6626c6be85b85f2a5e94b6206d676fb",
+          "patch_available": true,
+          "markers": [
+            "\"flora\":\"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a\",",
+            "\"traits\":\"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745\",",
+            "\"flora\":args.original_root/\"fixed/canonical/input/chapter1_status_flora.csv.gz\","
+          ]
+        }
+      ]
+    },
+    {
+      "pr": 346,
+      "reference_head": "420ff350e73a485c40da2f6e24782347a11889cf",
+      "first_page_count": 23,
+      "complete": true,
+      "rows": [
+        {
+          "path": ".github/workflows/fd-gift-control-traits.yml",
+          "blob_sha": "8bd1e0d61b6c0ec2df34293f78191f031fb7b07e",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": ".github/workflows/fd-gift-fruit-support-replay.yml",
+          "blob_sha": "ff8c1c9d1d6d5ddbc1aa71265e552814ab50e94a",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": ".github/workflows/fd-original-dual-plant-bird-null.yml",
+          "blob_sha": "979310f4442416482fe2795eb19ead240314e622",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": ".github/workflows/fd-original-flower-origin-decomposition.yml",
+          "blob_sha": "0212831f1c452ac5a21fb93aa4db79168603e631",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": ".github/workflows/fd-original-native-origin-bounds.yml",
+          "blob_sha": "faabe687a68ea9c59d679f666fb5c9431e53fda5",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": ".github/workflows/fd-original-source-relative-pollinator.yml",
+          "blob_sha": "da4883e25f917dfc58ef70ded79baa6a00cd31d1",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": ".github/workflows/fd-original-tropical-pollinator-bridge.yml",
+          "blob_sha": "ecd547e91058502d4349f50239ceea9233c12d0b",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": ".github/workflows/fd-original-tubular-depth-diet-split.yml",
+          "blob_sha": "c9a4a3216a02378c2ee4d81a8ea14efb97af2635",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": ".github/workflows/fd-original-tubular-taxonomy-decomposition.yml",
+          "blob_sha": "60d00989e4f0d7552722861ca3cf933a2c60372f",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": ".github/workflows/fd-partner-source-eligibility.yml",
+          "blob_sha": "40f43716e3d835e917ec572d99f3c8d8dac98437",
+          "patch_available": true,
+          "markers": [
+            "gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir \"$STAGE/original\"",
+            "ORIGINAL_FLORA=\"$(find \"$STAGE/original\" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)\"",
+            "ORIGINAL_ROOT=\"$(printf '%s' \"$ORIGINAL_FLORA\" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')\""
+          ]
+        },
+        {
+          "path": "scripts/fd_gift_control_trait_acquisition.py",
+          "blob_sha": "e808e8e54f3a400b706a93f296c04acc65b605a7",
+          "patch_available": true,
+          "markers": [
+            "f=pd.read_csv(io.BytesIO(read_pin(a.original_root/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")),compression=\"gzip\",dtype=str,usecols=[\"island_id\",\"accepted_species\",\"origin_status\"])"
+          ]
+        },
+        {
+          "path": "scripts/fd_gift_fruit_support_replay.py",
+          "blob_sha": "e25edd5ead9389352263ea28d93d9ab9db5b2e27",
+          "patch_available": true,
+          "markers": [
+            "f=pd.read_csv(io.BytesIO(read_pin(a.original_root/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")),compression=\"gzip\",dtype=str,usecols=[\"island_id\",\"accepted_species\",\"origin_status\"])"
+          ]
+        },
+        {
+          "path": "scripts/fd_original_dual_plant_bird_null.py",
+          "blob_sha": "2388f9c9a25aae449fe37bfd0b222312c01c5cd6",
+          "patch_available": true,
+          "markers": [
+            "f=pd.read_csv(io.BytesIO(read_pin(r/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")),compression=\"gzip\",dtype=str,usecols=[\"island_id\",\"accepted_species\",\"origin_status\"])",
+            "mraw=(r/\"fixed/source/source/gift_native_mainland_flora.csv.gz\").read_bytes()"
+          ]
+        },
+        {
+          "path": "scripts/fd_original_flower_origin_decomposition.py",
+          "blob_sha": "28adac7b762c9a96ea45bc90f478da5f5e2cd397",
+          "patch_available": true,
+          "markers": [
+            "f=pd.read_csv(io.BytesIO(read_pin(r/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")),compression=\"gzip\",dtype=str,usecols=[\"island_id\",\"accepted_species\",\"origin_status\"])",
+            "mraw=(r/\"fixed/source/source/gift_native_mainland_flora.csv.gz\").read_bytes()"
+          ]
+        },
+        {
+          "path": "scripts/fd_original_native_origin_bounds.py",
+          "blob_sha": "48c981cf2792782881dc0d177ed53432ca8c482f",
+          "patch_available": true,
+          "markers": [
+            "f=pd.read_csv(io.BytesIO(read_pin(r/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")),compression=\"gzip\",dtype=str,usecols=[\"island_id\",\"accepted_species\",\"origin_status\"])",
+            "mraw=(r/\"fixed/source/source/gift_native_mainland_flora.csv.gz\").read_bytes()"
+          ]
+        },
+        {
+          "path": "scripts/fd_original_source_relative_pollinator.py",
+          "blob_sha": "700cb7bef7fe72c2d3716e0f11cb37b695e12e65",
+          "patch_available": true,
+          "markers": [
+            "flora=pd.read_csv(io.BytesIO(read_pin(r/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")),compression=\"gzip\",dtype=str,usecols=[\"island_id\",\"accepted_species\",\"origin_status\"])",
+            "raw=(r/\"fixed/source/source/gift_native_mainland_flora.csv.gz\").read_bytes();mainland_sha=hashlib.sha256(raw).hexdigest()"
+          ]
+        },
+        {
+          "path": "scripts/fd_original_tropical_pollinator_bridge.py",
+          "blob_sha": "da7d9a75711bfb1091b34c5ef9d800bf1d226e87",
+          "patch_available": true,
+          "markers": [
+            "PIN={\"flora\":\"6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a\",",
+            "\"traits\":\"9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745\",",
+            "fb=read_pin(root/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")"
+          ]
+        },
+        {
+          "path": "scripts/fd_original_tubular_depth_diet_split.py",
+          "blob_sha": "568f2aad2a8e3ea2a6491a783a46821fc8e7abb6",
+          "patch_available": true,
+          "markers": [
+            "f=pd.read_csv(io.BytesIO(read_pin(r/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")),compression=\"gzip\",dtype=str,usecols=[\"island_id\",\"accepted_species\",\"origin_status\"])",
+            "raw=(r/\"fixed/source/source/gift_native_mainland_flora.csv.gz\").read_bytes();mainland_sha=hashlib.sha256(raw).hexdigest()"
+          ]
+        },
+        {
+          "path": "scripts/fd_original_tubular_taxonomy_decomposition.py",
+          "blob_sha": "16a36905b5e3482c879b830cca48e51c3d79f8a7",
+          "patch_available": true,
+          "markers": [
+            "f=pd.read_csv(io.BytesIO(read_pin(r/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")),compression=\"gzip\",dtype=str,usecols=[\"island_id\",\"accepted_species\",\"origin_status\"])",
+            "mraw=(r/\"fixed/source/source/gift_native_mainland_flora.csv.gz\").read_bytes()"
+          ]
+        },
+        {
+          "path": "scripts/fd_partner_source_eligibility.py",
+          "blob_sha": "4286b3c659260f9e3851a814c48bc4a551ca581f",
+          "patch_available": true,
+          "markers": [
+            "f=pd.read_csv(io.BytesIO(read_pin(r/\"fixed/canonical/input/chapter1_status_flora.csv.gz\",\"flora\")),compression=\"gzip\",dtype=str,usecols=[\"island_id\",\"accepted_species\",\"origin_status\"])"
+          ]
+        }
+      ]
+    }
+  ]
+}

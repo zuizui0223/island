@@ -1,0 +1,59 @@
+name: fd geological origin and LGM-connectivity analysis
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  origin-classification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install package and run provenance/origin tests
+        run: |
+          python -m pip install -e '.[test]'
+          python -m pytest -q
+      - name: Retrieve source-commit-pinned public trait aggregate inputs
+        run: python scripts/fetch_island_aggregates.py --output work/island_public
+      - name: Reconstruct floral Rao Q and original-distance comparisons
+        run: python -m fd.pipeline --input work/island_public --output work/fd_g0
+      - name: Recompute common projected KDE sensitivity
+        run: python -m fd.hypervolume --input work/island_public --g0 work/fd_g0 --output work/fd_hv
+      - name: Crosswalk verified geological origin and historical mainland connection, then stratify
+        run: |
+          python -m fd.origin_analysis \
+            --g0 work/fd_g0 \
+            --hypervolume work/fd_hv \
+            --crosswalk work/fd_crosswalk \
+            --output results/origin_strata
+      - name: Test geological-origin differences under within-origin fixed-profile margins
+        run: |
+          python -m fd.origin_null \
+            --input work/island_public \
+            --g0 work/fd_g0 \
+            --crosswalk work/fd_crosswalk/island_origin_crosswalk.csv \
+            --output results/origin_g1 \
+            --draws 200
+      - name: Preserve aggregate results and crosswalk audit without row-level geology joins
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-origin-strata-analysis
+          path: |
+            results/origin_strata
+            results/origin_g1
+            work/fd_crosswalk/crosswalk_audit.json
+            work/island_public/source_manifest.json
+          retention-days: 30

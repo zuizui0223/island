@@ -1,0 +1,6 @@
+floristic_scope,analysis_regime,n_islands,n_spatial_blocks,median_marginal_rao,median_color_architecture_excess_nats,fraction_positive_color_arch,median_form_symmetry_excess_nats,fraction_positive_form_sym,median_color_form_excess_nats,fraction_positive_color_form,median_within_genus_color_shuffle_support,equal_block_mean_color_arch_excess_nats,conditional_block_ci025,conditional_block_ci975
+all_recorded,northern_high_latitude,53,7,0.506667,0.193254,1.000000,0.246715,1.000000,0.109781,1.000000,0.078431,0.172809,0.131922,0.208307
+all_recorded,northern_midlatitude,743,53,0.553481,0.181894,0.994616,0.243093,1.000000,0.118238,0.967699,0.108108,0.158517,0.140257,0.175986
+all_recorded,southern_extratropical,26,13,0.622519,0.082512,0.961538,0.220914,1.000000,0.056716,0.923077,0.139936,0.105051,0.081786,0.133624
+all_recorded,tropical,106,42,0.605852,0.066009,0.867925,0.080584,0.924528,0.032435,0.735849,0.059149,0.072583,0.059046,0.085835
+source_native,northern_midlatitude,67,16,0.612000,0.155580,1.000000,0.321785,1.000000,0.135078,1.000000,0.081395,0.161859,0.136887,0.188649

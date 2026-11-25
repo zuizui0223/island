@@ -1,0 +1,354 @@
+{
+  "status": "source_eligibility_only",
+  "source_run": 45529579281,
+  "source_job": 138921261109,
+  "artifact": 14984725127,
+  "artifact_digest": "0d16ef3cf068f92c7ca5491f715046200e9459b00591ee90f5bd87ea90be4262",
+  "source_commit": "91b369a79506ab21e5f98589aa8f530424448005",
+  "original_botanical_parent": 4505,
+  "original_geography_parent": 8264,
+  "contract_initial": "ab0ee26f99c854ee7c8e73c3dc686a77a5a80f57",
+  "fruit_and_growth": {
+    "ledger_direct_distinct_species_by_trait": {
+      "autonomous_selfing_capacity": 1595,
+      "cleistogamy": 1347,
+      "floral_form": 9854,
+      "floral_symmetry": 32670,
+      "flower_primary_color": 39681,
+      "flower_size_class": 7509,
+      "inflorescence_display": 24840,
+      "mating_system": 3050,
+      "self_incompatibility": 6877,
+      "tube_depth_class": 4865
+    },
+    "candidate_direct_traits": {},
+    "fruit_primary_status": "no_certified_direct_fleshy_fruit_endpoint",
+    "warning": "Trait names or dispersal mode alone do not certify fruit morphology. No effect was fitted.",
+    "gift_3_2_metadata": {
+      "status": "read",
+      "sha256": "ee20bafd237be38b4cb97d65219f65d1f02ecc5fca09867c9cdfc1640fb30af4",
+      "records": 109,
+      "candidates": [
+        {
+          "Lvl1": "1",
+          "Category": "Morphology",
+          "Lvl2": "1.2",
+          "Trait1": "Growth form",
+          "Lvl3": "1.2.1",
+          "Trait2": "Growth_form_1",
+          "Units": "herb, shrub, tree, other",
+          "type": "categorical",
+          "comment": "Combinations possible (e.g. herb/shrub).",
+          "count": 222338
+        },
+        {
+          "Lvl1": "1",
+          "Category": "Morphology",
+          "Lvl2": "1.2",
+          "Trait1": "Growth form",
+          "Lvl3": "1.2.2",
+          "Trait2": "Growth_form_2",
+          "Units": "herb, graminoid, forb, subshrub, shrub, tree, palm, other",
+          "type": "categorical",
+          "comment": "Combinations possible (e.g. herb/subshrub).",
+          "count": 178875
+        },
+        {
+          "Lvl1": "2",
+          "Category": "Life history",
+          "Lvl2": "2.3",
+          "Trait1": "Life form",
+          "Lvl3": "2.3.1",
+          "Trait2": "Life_form_1",
+          "Units": "phanerophyte, chamaephyte, hemicryptophyte, cryptophyte, therophyte",
+          "type": "categorical",
+          "comment": "Combinations possible (e.g. hemicryptophyte/therophyte). Note that cryptophytes encompass geophytes, hydrophytes and helophytes. ",
+          "count": 100390
+        },
+        {
+          "Lvl1": "2",
+          "Category": "Life history",
+          "Lvl2": "2.3",
+          "Trait1": "Life form",
+          "Lvl3": "2.3.2",
+          "Trait2": "Life_form_2",
+          "Units": "nanophanerophyte, phanerophyte, chamaephyte, hemicryptophyte, geophyte, hydrophyte, helophyte, therophyte, lithophyte",
+          "type": "categorical",
+          "comment": "Combinations possible (e.g. hemicryptophyte/therophyte); Lithophytes include Chasmophytes here",
+          "count": 111531
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.13",
+          "Trait1": "Fruit length",
+          "Lvl3": "3.13.1",
+          "Trait2": "Fruit_length_min",
+          "Units": "cm",
+          "type": "numeric",
+          "comment": null,
+          "count": 10239
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.13",
+          "Trait1": "Fruit length",
+          "Lvl3": "3.13.2",
+          "Trait2": "Fruit_length_max",
+          "Units": "cm",
+          "type": "numeric",
+          "comment": null,
+          "count": 10499
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.13",
+          "Trait1": "Fruit length",
+          "Lvl3": "3.13.3",
+          "Trait2": "Fruit_length_mean",
+          "Units": "cm",
+          "type": "numeric",
+          "comment": null,
+          "count": 11332
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.14",
+          "Trait1": "Fruit width",
+          "Lvl3": "3.14.1",
+          "Trait2": "Fruit_width_min",
+          "Units": "cm",
+          "type": "numeric",
+          "comment": null,
+          "count": 6036
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.14",
+          "Trait1": "Fruit width",
+          "Lvl3": "3.14.2",
+          "Trait2": "Fruit_width_max",
+          "Units": "cm",
+          "type": "numeric",
+          "comment": null,
+          "count": 6198
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.14",
+          "Trait1": "Fruit width",
+          "Lvl3": "3.14.3",
+          "Trait2": "Fruit_width_mean",
+          "Units": "cm",
+          "type": "numeric",
+          "comment": null,
+          "count": 7229
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.15",
+          "Trait1": "Fruit height",
+          "Lvl3": "3.15.1",
+          "Trait2": "Fruit_height_min",
+          "Units": "cm",
+          "type": "numeric",
+          "comment": null,
+          "count": 54
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.15",
+          "Trait1": "Fruit height",
+          "Lvl3": "3.15.2",
+          "Trait2": "Fruit_height_max",
+          "Units": "cm",
+          "type": "numeric",
+          "comment": null,
+          "count": 54
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.15",
+          "Trait1": "Fruit height",
+          "Lvl3": "3.15.3",
+          "Trait2": "Fruit_height_mean",
+          "Units": "cm",
+          "type": "numeric",
+          "comment": null,
+          "count": 54
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.16",
+          "Trait1": "Fruit type",
+          "Lvl3": "3.16.1",
+          "Trait2": "Fruit_type_1",
+          "Units": "achene, baccate, berry, capsule, drupe, follicle, lomentum, nut, pod, pome, schizocarp, siliqua, utricle, anthocarp, cone, other",
+          "type": "categorical",
+          "comment": null,
+          "count": 6567
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.18",
+          "Trait1": "Fruit dryness",
+          "Lvl3": "3.18.1",
+          "Trait2": "Fruit_dryness_1",
+          "Units": "dry, fleshy",
+          "type": "categorical",
+          "comment": null,
+          "count": 2578
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.22",
+          "Trait1": "Fruit colour",
+          "Lvl3": "3.22.1",
+          "Trait2": "Fruit_colour",
+          "Units": "red, pink, blue, yellow, orange, green, white, violet, black, grey, brown, other",
+          "type": "categorical",
+          "comment": "combinations possible",
+          "count": 2087
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.3",
+          "Trait1": "Dispersal syndrome",
+          "Lvl3": "3.3.1",
+          "Trait2": "Dispersal_syndrome_1",
+          "Units": "anemochorous, zoochorous, autochorous, hydrochorous, unspecialized",
+          "type": "categorical",
+          "comment": null,
+          "count": 9602
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.3",
+          "Trait1": "Dispersal syndrome",
+          "Lvl3": "3.3.2",
+          "Trait2": "Dispersal_syndrome_2",
+          "Units": "anemochorous, anthropochorous, autochorous, endozoochorous, epizoochorous, hydrochorous, myrmecochorous, unspecialized, zoochorous",
+          "type": "categorical",
+          "comment": null,
+          "count": 6518
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.8",
+          "Trait1": "Fruiting time",
+          "Lvl3": "3.8.1",
+          "Trait2": "Fruiting_start",
+          "Units": "Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, variable",
+          "type": "categorical",
+          "comment": null,
+          "count": 514
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.8",
+          "Trait1": "Fruiting time",
+          "Lvl3": "3.8.2",
+          "Trait2": "Fruiting_end",
+          "Units": "Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, variable",
+          "type": "categorical",
+          "comment": null,
+          "count": 512
+        },
+        {
+          "Lvl1": "3",
+          "Category": "Reproduction",
+          "Lvl2": "3.9",
+          "Trait1": "Seeds_per_fruit",
+          "Lvl3": "3.9.1",
+          "Trait2": "Seeds_per_fruit",
+          "Units": "0, 1-10, 11-100, 101-1000, >1000",
+          "type": "categorical",
+          "comment": null,
+          "count": 947
+        }
+      ],
+      "warning": "Published metadata counts, not direct/eligible island coverage. Need raw un-derived un-restricted records and fixed ontology."
+    }
+  },
+  "bombus": {
+    "status": "eligibility_only",
+    "source": {
+      "source_model_rows": 305,
+      "species_rows": 11424,
+      "native_bombus_distinct_names": 68,
+      "native_bombus_recorded_model_islands": 64,
+      "native_bombus_uncertain_islands": 25,
+      "model_reconciled_islands": 304,
+      "model_qualified_islands": 87,
+      "coverage_nonmissing": 303,
+      "coverage_outside_0_1": 0,
+      "coverage_range": [
+        0.001188354,
+        1
+      ],
+      "native_flag_values": {
+        "0": 11065,
+        "1": 359
+      },
+      "uncertain_flag_values": {
+        "0": 10843,
+        "1": 581
+      },
+      "geometry_matches": 234,
+      "geometry_by_regime": {
+        "tropical": 133,
+        "northern_midlatitude": 92,
+        "southern_extratropical": 6,
+        "northern_high_latitude": 3
+      }
+    },
+    "north_matched_with_any_checklist": {
+      "islands": 92,
+      "groups": 28,
+      "positive": 47,
+      "nonrecord": 45,
+      "informative_presence_groups": 7,
+      "gate_200_islands_30_groups": false
+    },
+    "north_qualified": {
+      "islands": 26,
+      "groups": 12,
+      "positive": 18,
+      "nonrecord": 8,
+      "informative_presence_groups": 4,
+      "gate_200_islands_30_groups": false
+    },
+    "north_qualified_pair_ge5": {
+      "islands": 25,
+      "groups": 12,
+      "positive": 18,
+      "nonrecord": 7,
+      "informative_presence_groups": 3,
+      "gate_200_islands_30_groups": false
+    },
+    "all_region_qualified": {
+      "islands": 69,
+      "groups": 36,
+      "positive": 20,
+      "nonrecord": 49,
+      "informative_presence_groups": 4,
+      "gate_200_islands_30_groups": false
+    },
+    "warning": "Nonrecord is checklist qualified, not verified absence; no E1 or E2 fitted. No plant traits compared by Bombus exposure."
+  }
+}

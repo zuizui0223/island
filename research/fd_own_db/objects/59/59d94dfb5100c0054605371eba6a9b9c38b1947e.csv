@@ -1,0 +1,5 @@
+template,n_native_exact_source_matched_species,n_species_with_template_score,n_species_with_3plus_informative_Direct_traits,n_species_with_3plus_informative_Direct_traits_and_score_at_least_0_75,observed_pollinator_identity_confirmed
+large_bee_like,54,30,14,12,false
+butterfly_like,54,16,5,5,false
+bird_like,54,24,5,4,false
+all_three_templates_comparably_supported,54,3,3,3,false

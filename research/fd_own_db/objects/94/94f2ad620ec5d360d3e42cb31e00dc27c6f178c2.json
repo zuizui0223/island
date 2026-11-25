@@ -1,0 +1,1503 @@
+{
+  "original_botanical_parent": 4505,
+  "original_geography_parent": 8264,
+  "original_tropical_parent": 1558,
+  "source": {
+    "range": {
+      "rds_md5": "493d2e09b0810a5291326c55892526d3",
+      "rds_sha256": "56daae8dfb79a7821b5a48200f18c28625f4b14d66e9a02efba76b98b36b7e2f",
+      "map_species": 1428,
+      "polygon_pieces": 163790,
+      "crossing_polygons": 4,
+      "crossing_species": 2,
+      "wide_no_jump": 0
+    },
+    "diet": {
+      "sha256": "51acbe6215b3c1f742463ff3fb37ef607150c052e0f7a9dc0d97fcaca61d3f76",
+      "valid_species": 5400,
+      "conflicting_names": 0
+    },
+    "exact_coverage": {
+      "0.1": {
+        "map_species_with_island_overlap": 1023,
+        "matched_species_with_overlap": 770,
+        "potential_bat_positive_islands": 2674,
+        "potential_nectar_positive_lower_bound": 1140,
+        "complete_bat_diet_positive_islands": 1309,
+        "coverage_ge95_bat_positive": 1379,
+        "unknown_species_island_pairs": 5397
+      },
+      "0.5": {
+        "map_species_with_island_overlap": 989,
+        "matched_species_with_overlap": 751,
+        "potential_bat_positive_islands": 2600,
+        "potential_nectar_positive_lower_bound": 1109,
+        "complete_bat_diet_positive_islands": 1283,
+        "coverage_ge95_bat_positive": 1351,
+        "unknown_species_island_pairs": 5193
+      },
+      "exact_map_species_diet_matches": 979,
+      "map_species_unmatched": 449
+    },
+    "mdd_coverage": {
+      "0.1": {
+        "map_species_with_island_overlap": 1023,
+        "matched_species_with_overlap": 826,
+        "potential_bat_positive_islands": 2674,
+        "potential_nectar_positive_lower_bound": 1171,
+        "complete_bat_diet_positive_islands": 1505,
+        "coverage_ge95_bat_positive": 1624,
+        "unknown_species_island_pairs": 4066
+      },
+      "0.5": {
+        "map_species_with_island_overlap": 989,
+        "matched_species_with_overlap": 804,
+        "potential_bat_positive_islands": 2600,
+        "potential_nectar_positive_lower_bound": 1140,
+        "complete_bat_diet_positive_islands": 1471,
+        "coverage_ge95_bat_positive": 1584,
+        "unknown_species_island_pairs": 3907
+      },
+      "exact_map_species_diet_matches": 1052,
+      "map_species_unmatched": 376
+    },
+    "family_taxonomy_counts": {
+      "assigned": 1382,
+      "pteropodidae": 191,
+      "phyllostomidae": 220,
+      "unresolved_family": 21,
+      "diet_family_conflict": 25
+    }
+  },
+  "panels": {
+    "white_all_recorded_n5_cov0.5": {
+      "eligible_islands": 611,
+      "eligible_groups": 81,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 14593,
+      "regional_pool_genera": 3583,
+      "informative_groups": 36,
+      "informative_islands": 481,
+      "scored_distinct_species": 11715,
+      "median_scored_species": 47,
+      "movable_regional_pool_species": 7976,
+      "movable_scored_species": 6588,
+      "status": "exploratory_estimable",
+      "contrast_observed": -0.02390014580615915,
+      "contrast_genus_grade_expected": -0.015333889682965856,
+      "contrast_beyond_genus_grade": -0.008566256123193327,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.10342241608959307,
+          0.054047378789375176
+        ],
+        "expected": [
+          -0.06937995199421744,
+          0.04154142511932086
+        ],
+        "residual": [
+          -0.045495939680040114,
+          0.029240474807821663
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.04544341086739105,
+          0.00733880685133146
+        ],
+        "expected": [
+          -0.032345978685077784,
+          0.0012391357994737378
+        ],
+        "residual": [
+          -0.013123798370698814,
+          0.006099671051857767
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 36,
+      "null_analytic_mean": -0.015333889682965634,
+      "null_simulated_mean": -0.015531551360506829,
+      "null_quantiles": [
+        -0.045787149190314895,
+        0.015091450004310813
+      ],
+      "p_two_sided_genus_grade": 0.559,
+      "p_positive_genus_grade": 0.713,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "white_all_recorded_n5_cov0.8": {
+      "eligible_islands": 516,
+      "eligible_groups": 67,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 14593,
+      "regional_pool_genera": 3583,
+      "informative_groups": 32,
+      "informative_islands": 427,
+      "scored_distinct_species": 10524,
+      "median_scored_species": 47,
+      "movable_regional_pool_species": 7976,
+      "movable_scored_species": 5825,
+      "status": "exploratory_estimable",
+      "contrast_observed": 0.004687600626325419,
+      "contrast_genus_grade_expected": -0.0009933586523172867,
+      "contrast_beyond_genus_grade": 0.005680959278642684,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.06436397165909717,
+          0.07228380883914294
+        ],
+        "expected": [
+          -0.05859037256486024,
+          0.061556995332392214
+        ],
+        "residual": [
+          -0.027182959822927257,
+          0.032826971328146715
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.01721836466721793,
+          0.019644748606263432
+        ],
+        "expected": [
+          -0.019932510103278442,
+          0.013898017139962337
+        ],
+        "residual": [
+          0.0017305113942139962,
+          0.013773367782309708
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 32,
+      "null_analytic_mean": -0.0009933586523170473,
+      "null_simulated_mean": -0.001261891852079835,
+      "null_quantiles": [
+        -0.03186805763257263,
+        0.027858670368638684
+      ],
+      "p_two_sided_genus_grade": 0.691,
+      "p_positive_genus_grade": 0.345,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "white_all_recorded_n30_cov0.5": {
+      "eligible_islands": 371,
+      "eligible_groups": 68,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 14593,
+      "regional_pool_genera": 3583,
+      "informative_groups": 31,
+      "informative_islands": 282,
+      "scored_distinct_species": 11553,
+      "median_scored_species": 111,
+      "movable_regional_pool_species": 7976,
+      "movable_scored_species": 6520,
+      "status": "exploratory_estimable",
+      "contrast_observed": 0.0044998121858318,
+      "contrast_genus_grade_expected": -0.007032936858319413,
+      "contrast_beyond_genus_grade": 0.01153274904415119,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.03577766952195774,
+          0.035771745423783516
+        ],
+        "expected": [
+          -0.04142228728708914,
+          0.02103855131060387
+        ],
+        "residual": [
+          -0.009236403821637254,
+          0.030725550446095512
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.005043559090185421,
+          0.011472187014383527
+        ],
+        "expected": [
+          -0.01628886501223251,
+          -0.0029113465541381724
+        ],
+        "residual": [
+          0.008163379804368258,
+          0.015916293102581205
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 31,
+      "null_analytic_mean": -0.007032936858319027,
+      "null_simulated_mean": -0.0067746997070932844,
+      "null_quantiles": [
+        -0.027513708225159906,
+        0.013612300928019414
+      ],
+      "p_two_sided_genus_grade": 0.28,
+      "p_positive_genus_grade": 0.145,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "white_original_native_n5_cov0.5": {
+      "eligible_islands": 99,
+      "eligible_groups": 32,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 7158,
+      "regional_pool_genera": 2292,
+      "informative_groups": 7,
+      "informative_islands": 46,
+      "scored_distinct_species": 3238,
+      "median_scored_species": 124.5,
+      "movable_regional_pool_species": 3369,
+      "movable_scored_species": 1421,
+      "status": "insufficient_support",
+      "contrast_observed": 0.03183614234451392,
+      "contrast_genus_grade_expected": -0.025044555331246013,
+      "contrast_beyond_genus_grade": 0.05688069767575993,
+      "group_bootstrap_intervals": {
+        "observed": null,
+        "expected": null,
+        "residual": null
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.008739066577212008,
+          0.14791082453340318
+        ],
+        "expected": [
+          -0.030416854262640347,
+          0.0996443559041924
+        ],
+        "residual": [
+          0.00883759008812178,
+          0.08458250362705037
+        ]
+      },
+      "valid_bootstrap": 1337,
+      "valid_leave_group": 6,
+      "null_analytic_mean": -0.025044555331246582,
+      "null_simulated_mean": -0.02717113919107166,
+      "null_quantiles": [
+        -0.1343060075538746,
+        0.0799673346121374
+      ],
+      "p_two_sided_genus_grade": 0.32,
+      "p_positive_genus_grade": 0.145,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "white_high_quality_only_n5_cov0.5": {
+      "eligible_islands": 553,
+      "eligible_groups": 81,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 8328,
+      "regional_pool_genera": 2469,
+      "informative_groups": 36,
+      "informative_islands": 435,
+      "scored_distinct_species": 6949,
+      "median_scored_species": 34,
+      "movable_regional_pool_species": 4471,
+      "movable_scored_species": 3852,
+      "status": "exploratory_estimable",
+      "contrast_observed": -0.006091391549934601,
+      "contrast_genus_grade_expected": -0.01738982271900965,
+      "contrast_beyond_genus_grade": 0.011298431169075075,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.09409452316951503,
+          0.07330561171960277
+        ],
+        "expected": [
+          -0.08784172068354922,
+          0.04127465228789291
+        ],
+        "residual": [
+          -0.029413715190073946,
+          0.05442027777728673
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.028966912410203334,
+          0.019712543085093466
+        ],
+        "expected": [
+          -0.035123657679151515,
+          -0.0010023863519582476
+        ],
+        "residual": [
+          0.004708313436303322,
+          0.020714929437051707
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 36,
+      "null_analytic_mean": -0.017389822719009865,
+      "null_simulated_mean": -0.018186451711103804,
+      "null_quantiles": [
+        -0.05598430146025809,
+        0.017926797777801776
+      ],
+      "p_two_sided_genus_grade": 0.57,
+      "p_positive_genus_grade": 0.275,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "white_family_pteropodidae_mdd": {
+      "eligible_islands": 167,
+      "eligible_groups": 40,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_nonfamily"
+      ],
+      "regional_pool_species": 14593,
+      "regional_pool_genera": 3583,
+      "informative_groups": 17,
+      "informative_islands": 112,
+      "scored_distinct_species": 2967,
+      "median_scored_species": 52,
+      "movable_regional_pool_species": 7976,
+      "movable_scored_species": 1565,
+      "status": "insufficient_support",
+      "contrast_observed": -0.01959101552128521,
+      "contrast_genus_grade_expected": 0.008832947926993288,
+      "contrast_beyond_genus_grade": -0.028423963448278494,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.21107054187707033,
+          0.08011541044111187
+        ],
+        "expected": [
+          -0.14470374308357092,
+          0.0962254226328828
+        ],
+        "residual": [
+          -0.10089781832376528,
+          0.015631659096101584
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.10390423034558877,
+          0.00948973858924682
+        ],
+        "expected": [
+          -0.0620121016491984,
+          0.03277527673828443
+        ],
+        "residual": [
+          -0.04189212869639035,
+          -0.013769621590124738
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 17,
+      "null_analytic_mean": 0.008832947926993255,
+      "null_simulated_mean": 0.008915574332604034,
+      "null_quantiles": [
+        -0.051362616584388725,
+        0.06801658613906407
+      ],
+      "p_two_sided_genus_grade": 0.33,
+      "p_positive_genus_grade": 0.844,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "white_family_phyllostomidae_mdd": {
+      "eligible_islands": 58,
+      "eligible_groups": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_nonfamily"
+      ],
+      "regional_pool_species": 14593,
+      "regional_pool_genera": 3583,
+      "informative_groups": 4,
+      "informative_islands": 53,
+      "scored_distinct_species": 2694,
+      "median_scored_species": 111,
+      "movable_regional_pool_species": 7976,
+      "movable_scored_species": 1236,
+      "status": "insufficient_support",
+      "contrast_observed": -0.03260494300332001,
+      "contrast_genus_grade_expected": -0.04577220260163364,
+      "contrast_beyond_genus_grade": 0.013167259598313654,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.23899603242152467,
+          -0.006148030762859099
+        ],
+        "expected": [
+          -0.1530569801859737,
+          0.005924139691083841
+        ],
+        "residual": [
+          -0.08593905223555093,
+          0.04075575035069135
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.08128131311565243,
+          -0.010381768258725322
+        ],
+        "expected": [
+          -0.09053343749373216,
+          -0.041577049156004
+        ],
+        "residual": [
+          -0.009774970252744469,
+          0.034323309244196354
+        ]
+      },
+      "valid_bootstrap": 1867,
+      "valid_leave_group": 4,
+      "null_analytic_mean": -0.04577220260163463,
+      "null_simulated_mean": -0.043624452425133076,
+      "null_quantiles": [
+        -0.12749875521089996,
+        0.037696286699701265
+      ],
+      "p_two_sided_genus_grade": 0.756,
+      "p_positive_genus_grade": 0.4,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "tubular_all_recorded_n5_cov0.5": {
+      "eligible_islands": 515,
+      "eligible_groups": 75,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 4488,
+      "regional_pool_genera": 1534,
+      "informative_groups": 33,
+      "informative_islands": 398,
+      "scored_distinct_species": 3764,
+      "median_scored_species": 29,
+      "movable_regional_pool_species": 1439,
+      "movable_scored_species": 1241,
+      "status": "exploratory_estimable",
+      "contrast_observed": -0.006024490269634381,
+      "contrast_genus_grade_expected": 0.005589627344117082,
+      "contrast_beyond_genus_grade": -0.01161411761375151,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.06890651629343168,
+          0.03630708810283256
+        ],
+        "expected": [
+          -0.04873179382235635,
+          0.04189990090205087
+        ],
+        "residual": [
+          -0.027165022129102066,
+          0.00040634079548453
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.022732227101275405,
+          0.004776108865167276
+        ],
+        "expected": [
+          -0.008521164378914968,
+          0.01554881390956691
+        ],
+        "residual": [
+          -0.014211062722360387,
+          -0.008177122255708566
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 33,
+      "null_analytic_mean": 0.005589627344117102,
+      "null_simulated_mean": 0.005689051066336246,
+      "null_quantiles": [
+        -0.014468493144968982,
+        0.025736761535220674
+      ],
+      "p_two_sided_genus_grade": 0.283,
+      "p_positive_genus_grade": 0.854,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "tubular_all_recorded_n5_cov0.8": {
+      "eligible_islands": 435,
+      "eligible_groups": 63,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 4488,
+      "regional_pool_genera": 1534,
+      "informative_groups": 30,
+      "informative_islands": 359,
+      "scored_distinct_species": 3508,
+      "median_scored_species": 28,
+      "movable_regional_pool_species": 1439,
+      "movable_scored_species": 1155,
+      "status": "exploratory_estimable",
+      "contrast_observed": -0.034974522661663246,
+      "contrast_genus_grade_expected": -0.020825012452480012,
+      "contrast_beyond_genus_grade": -0.014149510209183343,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.10685064702366978,
+          0.016962859941711293
+        ],
+        "expected": [
+          -0.0848078183774781,
+          0.024151992664592798
+        ],
+        "residual": [
+          -0.028749203920087237,
+          -0.0027759113595224936
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.052093966053865154,
+          -0.018337308171104252
+        ],
+        "expected": [
+          -0.03442838850696351,
+          -0.004792323261455896
+        ],
+        "residual": [
+          -0.01766557754690162,
+          -0.01192365632641429
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 30,
+      "null_analytic_mean": -0.020825012452479988,
+      "null_simulated_mean": -0.02087481454629911,
+      "null_quantiles": [
+        -0.04146009554691524,
+        -0.00006450966310671395
+      ],
+      "p_two_sided_genus_grade": 0.173,
+      "p_positive_genus_grade": 0.914,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "tubular_all_recorded_n30_cov0.5": {
+      "eligible_islands": 267,
+      "eligible_groups": 65,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 4488,
+      "regional_pool_genera": 1534,
+      "informative_groups": 26,
+      "informative_islands": 180,
+      "scored_distinct_species": 3707,
+      "median_scored_species": 85,
+      "movable_regional_pool_species": 1439,
+      "movable_scored_species": 1222,
+      "status": "insufficient_support",
+      "contrast_observed": -0.01725628095820239,
+      "contrast_genus_grade_expected": -0.01620508200484614,
+      "contrast_beyond_genus_grade": -0.0010511989533562559,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.05856620690339114,
+          0.015541217235648469
+        ],
+        "expected": [
+          -0.05063940050660234,
+          0.012604907157203367
+        ],
+        "residual": [
+          -0.018237557104344375,
+          0.015498187649194823
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.02701253368588148,
+          -0.011834949195280591
+        ],
+        "expected": [
+          -0.023220879732159524,
+          -0.011128993433023083
+        ],
+        "residual": [
+          -0.005216616458364597,
+          0.0037666901482741122
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 26,
+      "null_analytic_mean": -0.016205082004846147,
+      "null_simulated_mean": -0.01623663521089129,
+      "null_quantiles": [
+        -0.034506321277246475,
+        0.0031041494384426945
+      ],
+      "p_two_sided_genus_grade": 0.896,
+      "p_positive_genus_grade": 0.549,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "tubular_original_native_n5_cov0.5": {
+      "eligible_islands": 88,
+      "eligible_groups": 31,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 1915,
+      "regional_pool_genera": 923,
+      "informative_groups": 6,
+      "informative_islands": 44,
+      "scored_distinct_species": 860,
+      "median_scored_species": 74,
+      "movable_regional_pool_species": 395,
+      "movable_scored_species": 161,
+      "status": "insufficient_support",
+      "contrast_observed": -0.09994575799876701,
+      "contrast_genus_grade_expected": -0.06815897544957916,
+      "contrast_beyond_genus_grade": -0.03178678254918785,
+      "group_bootstrap_intervals": {
+        "observed": null,
+        "expected": null,
+        "residual": null
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.1630069712780299,
+          -0.08683930006143747
+        ],
+        "expected": [
+          -0.11552777774654249,
+          -0.06513533284680387
+        ],
+        "residual": [
+          -0.04747919353148729,
+          -0.021703967214633645
+        ]
+      },
+      "valid_bootstrap": 1351,
+      "valid_leave_group": 5,
+      "null_analytic_mean": -0.06815897544957931,
+      "null_simulated_mean": -0.0673414546004861,
+      "null_quantiles": [
+        -0.12000536077549012,
+        -0.013309419123656964
+      ],
+      "p_two_sided_genus_grade": 0.286,
+      "p_positive_genus_grade": 0.86,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "tubular_high_quality_only_n5_cov0.5": {
+      "eligible_islands": 419,
+      "eligible_groups": 73,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 2563,
+      "regional_pool_genera": 861,
+      "informative_groups": 32,
+      "informative_islands": 318,
+      "scored_distinct_species": 2158,
+      "median_scored_species": 18.5,
+      "movable_regional_pool_species": 1059,
+      "movable_scored_species": 925,
+      "status": "exploratory_estimable",
+      "contrast_observed": -0.009314509880980119,
+      "contrast_genus_grade_expected": -0.013653224968141909,
+      "contrast_beyond_genus_grade": 0.0043387150871618315,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.06655955630020896,
+          0.05107670130914541
+        ],
+        "expected": [
+          -0.06744913411277559,
+          0.04465596635171489
+        ],
+        "residual": [
+          -0.020484476575226482,
+          0.02649257122656628
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.029661843531156744,
+          0.004673115332411906
+        ],
+        "expected": [
+          -0.03234896329063285,
+          -0.002663239768901913
+        ],
+        "residual": [
+          0.00015876551921120263,
+          0.007984258017066672
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 32,
+      "null_analytic_mean": -0.013653224968141942,
+      "null_simulated_mean": -0.01358947852811601,
+      "null_quantiles": [
+        -0.038937018861850005,
+        0.01107302734984384
+      ],
+      "p_two_sided_genus_grade": 0.763,
+      "p_positive_genus_grade": 0.393,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "tubular_family_pteropodidae_mdd": {
+      "eligible_islands": 147,
+      "eligible_groups": 39,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_nonfamily"
+      ],
+      "regional_pool_species": 4488,
+      "regional_pool_genera": 1534,
+      "informative_groups": 16,
+      "informative_islands": 93,
+      "scored_distinct_species": 832,
+      "median_scored_species": 27,
+      "movable_regional_pool_species": 1439,
+      "movable_scored_species": 182,
+      "status": "insufficient_support",
+      "contrast_observed": 0.012327790715830017,
+      "contrast_genus_grade_expected": 0.0226938885606411,
+      "contrast_beyond_genus_grade": -0.0103660978448111,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.10707619320066311,
+          0.11778538716944842
+        ],
+        "expected": [
+          -0.10002869531989432,
+          0.10435646909460583
+        ],
+        "residual": [
+          -0.05591768256559896,
+          0.04868005235046201
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.01580739290273538,
+          0.040553790881049115
+        ],
+        "expected": [
+          -0.0004609879741234342,
+          0.04367636195944045
+        ],
+        "residual": [
+          -0.025891971631905326,
+          0.014056917085835197
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 16,
+      "null_analytic_mean": 0.022693888560641078,
+      "null_simulated_mean": 0.02264468022994395,
+      "null_quantiles": [
+        -0.00947356304258073,
+        0.06008371621247587
+      ],
+      "p_two_sided_genus_grade": 0.575,
+      "p_positive_genus_grade": 0.705,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "tubular_family_phyllostomidae_mdd": {
+      "eligible_islands": 54,
+      "eligible_groups": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_nonfamily"
+      ],
+      "regional_pool_species": 4488,
+      "regional_pool_genera": 1534,
+      "informative_groups": 4,
+      "informative_islands": 49,
+      "scored_distinct_species": 1203,
+      "median_scored_species": 73,
+      "movable_regional_pool_species": 1439,
+      "movable_scored_species": 254,
+      "status": "insufficient_support",
+      "contrast_observed": 0.11423198554868445,
+      "contrast_genus_grade_expected": 0.05171827030325664,
+      "contrast_beyond_genus_grade": 0.06251371524542769,
+      "group_bootstrap_intervals": {
+        "observed": [
+          0.015827135815706703,
+          0.22963014666480003
+        ],
+        "expected": [
+          -0.017318848721590015,
+          0.08094941606951561
+        ],
+        "residual": [
+          0.001657139255921152,
+          0.17428149697279988
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          0.0844136921603226,
+          0.2072784808873201
+        ],
+        "expected": [
+          0.04366592984001484,
+          0.07391008528334927
+        ],
+        "residual": [
+          0.030645650603224148,
+          0.13336839560397054
+        ]
+      },
+      "valid_bootstrap": 1882,
+      "valid_leave_group": 4,
+      "null_analytic_mean": 0.05171827030325689,
+      "null_simulated_mean": 0.05168024056848086,
+      "null_quantiles": [
+        0.004861809592724504,
+        0.10123997997030941
+      ],
+      "p_two_sided_genus_grade": 0.013,
+      "p_positive_genus_grade": 0.009,
+      "permutations": 999,
+      "holm_p_two_sided": 0.27299999999999996,
+      "supported_positive_residual": false
+    },
+    "deep_all_recorded_n5_cov0.5": {
+      "eligible_islands": 487,
+      "eligible_groups": 74,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 2812,
+      "regional_pool_genera": 946,
+      "informative_groups": 33,
+      "informative_islands": 373,
+      "scored_distinct_species": 2457,
+      "median_scored_species": 28,
+      "movable_regional_pool_species": 798,
+      "movable_scored_species": 712,
+      "status": "exploratory_estimable",
+      "contrast_observed": -0.014732143789810297,
+      "contrast_genus_grade_expected": -0.008531248043298217,
+      "contrast_beyond_genus_grade": -0.006200895746512159,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.08292131522856883,
+          0.041973823501855294
+        ],
+        "expected": [
+          -0.07338319276427659,
+          0.04302021266813124
+        ],
+        "residual": [
+          -0.028535820275432833,
+          0.019017766112387455
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.02600375996715518,
+          -0.005439202767616821
+        ],
+        "expected": [
+          -0.018843591062569012,
+          -0.0010706422156336864
+        ],
+        "residual": [
+          -0.010370435961253624,
+          -0.001850155106652548
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 33,
+      "null_analytic_mean": -0.008531248043298136,
+      "null_simulated_mean": -0.008564310640126053,
+      "null_quantiles": [
+        -0.03098105540416779,
+        0.015346137901763769
+      ],
+      "p_two_sided_genus_grade": 0.601,
+      "p_positive_genus_grade": 0.691,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "deep_all_recorded_n5_cov0.8": {
+      "eligible_islands": 410,
+      "eligible_groups": 62,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 2812,
+      "regional_pool_genera": 946,
+      "informative_groups": 31,
+      "informative_islands": 338,
+      "scored_distinct_species": 2386,
+      "median_scored_species": 26.5,
+      "movable_regional_pool_species": 798,
+      "movable_scored_species": 697,
+      "status": "exploratory_estimable",
+      "contrast_observed": -0.02934033903115162,
+      "contrast_genus_grade_expected": -0.013925493198842169,
+      "contrast_beyond_genus_grade": -0.01541484583230945,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.10202181057360486,
+          0.036971481461641385
+        ],
+        "expected": [
+          -0.0809017454734705,
+          0.04507812583122626
+        ],
+        "residual": [
+          -0.04178265695779979,
+          0.013327460901033426
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.04298080385577381,
+          -0.01849953735140572
+        ],
+        "expected": [
+          -0.025868718716441613,
+          -0.005240636098337829
+        ],
+        "residual": [
+          -0.021136468689573286,
+          -0.008938712363574857
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 31,
+      "null_analytic_mean": -0.013925493198842155,
+      "null_simulated_mean": -0.014231821213664654,
+      "null_quantiles": [
+        -0.0413567661336536,
+        0.015011466452869507
+      ],
+      "p_two_sided_genus_grade": 0.257,
+      "p_positive_genus_grade": 0.867,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "deep_all_recorded_n30_cov0.5": {
+      "eligible_islands": 240,
+      "eligible_groups": 63,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 2812,
+      "regional_pool_genera": 946,
+      "informative_groups": 26,
+      "informative_islands": 167,
+      "scored_distinct_species": 2425,
+      "median_scored_species": 77,
+      "movable_regional_pool_species": 798,
+      "movable_scored_species": 702,
+      "status": "insufficient_support",
+      "contrast_observed": -0.01634126534870368,
+      "contrast_genus_grade_expected": -0.02560583855565296,
+      "contrast_beyond_genus_grade": 0.009264573206949206,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.07422112643255654,
+          0.043855676811602726
+        ],
+        "expected": [
+          -0.070195886885554,
+          0.013878887936858127
+        ],
+        "residual": [
+          -0.017281971754047935,
+          0.04271864838149826
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.031660120550806005,
+          -0.0014496205979952883
+        ],
+        "expected": [
+          -0.03868734795868311,
+          -0.0183298327517753
+        ],
+        "residual": [
+          -0.0002784428043879488,
+          0.01688021215377996
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 26,
+      "null_analytic_mean": -0.025605838555652908,
+      "null_simulated_mean": -0.025598451607813627,
+      "null_quantiles": [
+        -0.048494816267067614,
+        -0.0030753896753579315
+      ],
+      "p_two_sided_genus_grade": 0.431,
+      "p_positive_genus_grade": 0.217,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "deep_original_native_n5_cov0.5": {
+      "eligible_islands": 86,
+      "eligible_groups": 31,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 1517,
+      "regional_pool_genera": 629,
+      "informative_groups": 6,
+      "informative_islands": 43,
+      "scored_distinct_species": 629,
+      "median_scored_species": 60,
+      "movable_regional_pool_species": 352,
+      "movable_scored_species": 164,
+      "status": "insufficient_support",
+      "contrast_observed": -0.1836586788228768,
+      "contrast_genus_grade_expected": -0.16018011627086215,
+      "contrast_beyond_genus_grade": -0.02347856255201472,
+      "group_bootstrap_intervals": {
+        "observed": null,
+        "expected": null,
+        "residual": null
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.21754649288797528,
+          -0.12838233243353703
+        ],
+        "expected": [
+          -0.19194373281252278,
+          -0.07658852830401089
+        ],
+        "residual": [
+          -0.05179380412952593,
+          -0.015600551343669018
+        ]
+      },
+      "valid_bootstrap": 1340,
+      "valid_leave_group": 5,
+      "null_analytic_mean": -0.16018011627086196,
+      "null_simulated_mean": -0.15672048409020073,
+      "null_quantiles": [
+        -0.26571167497144366,
+        -0.04866553903618921
+      ],
+      "p_two_sided_genus_grade": 0.713,
+      "p_positive_genus_grade": 0.664,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "deep_high_quality_only_n5_cov0.5": {
+      "eligible_islands": 487,
+      "eligible_groups": 74,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_unknown"
+      ],
+      "regional_pool_species": 2785,
+      "regional_pool_genera": 940,
+      "informative_groups": 33,
+      "informative_islands": 373,
+      "scored_distinct_species": 2431,
+      "median_scored_species": 28,
+      "movable_regional_pool_species": 798,
+      "movable_scored_species": 712,
+      "status": "exploratory_estimable",
+      "contrast_observed": -0.013259663367018129,
+      "contrast_genus_grade_expected": -0.007219248451777464,
+      "contrast_beyond_genus_grade": -0.0060404149152405474,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.0823754398709276,
+          0.04630353204322735
+        ],
+        "expected": [
+          -0.07352460066384764,
+          0.04484192880232184
+        ],
+        "residual": [
+          -0.02981973073122781,
+          0.016476696403927595
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.026059443430976596,
+          -0.0037846019236328077
+        ],
+        "expected": [
+          -0.017686799639808425,
+          0.0004585287366931524
+        ],
+        "residual": [
+          -0.010206659955404644,
+          -0.001634010353361151
+        ]
+      },
+      "valid_bootstrap": 1999,
+      "valid_leave_group": 33,
+      "null_analytic_mean": -0.007219248451777547,
+      "null_simulated_mean": -0.007547309758230203,
+      "null_quantiles": [
+        -0.031653522256937905,
+        0.01671848324799087
+      ],
+      "p_two_sided_genus_grade": 0.616,
+      "p_positive_genus_grade": 0.683,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "deep_family_pteropodidae_mdd": {
+      "eligible_islands": 137,
+      "eligible_groups": 39,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_nonfamily"
+      ],
+      "regional_pool_species": 2812,
+      "regional_pool_genera": 946,
+      "informative_groups": 15,
+      "informative_islands": 82,
+      "scored_distinct_species": 709,
+      "median_scored_species": 27,
+      "movable_regional_pool_species": 798,
+      "movable_scored_species": 223,
+      "status": "insufficient_support",
+      "contrast_observed": -0.0593059281566145,
+      "contrast_genus_grade_expected": -0.021346674882961204,
+      "contrast_beyond_genus_grade": -0.03795925327365329,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.151870682408138,
+          0.033789268848185415
+        ],
+        "expected": [
+          -0.14176331769348305,
+          0.1153007790617106
+        ],
+        "residual": [
+          -0.1148050533762904,
+          0.02686338371921957
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.07552010386557481,
+          -0.01935630145560704
+        ],
+        "expected": [
+          -0.04736361460821424,
+          0.04810593120734969
+        ],
+        "residual": [
+          -0.06746223266295676,
+          -0.019877110826927863
+        ]
+      },
+      "valid_bootstrap": 1996,
+      "valid_leave_group": 15,
+      "null_analytic_mean": -0.02134667488296127,
+      "null_simulated_mean": -0.020620362103656434,
+      "null_quantiles": [
+        -0.06184044688782773,
+        0.0220361060452574
+      ],
+      "p_two_sided_genus_grade": 0.086,
+      "p_positive_genus_grade": 0.964,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    },
+    "deep_family_phyllostomidae_mdd": {
+      "eligible_islands": 55,
+      "eligible_groups": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "abs_lat",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "direct_coverage",
+        "log_nonfamily"
+      ],
+      "regional_pool_species": 2812,
+      "regional_pool_genera": 946,
+      "informative_groups": 4,
+      "informative_islands": 51,
+      "scored_distinct_species": 886,
+      "median_scored_species": 59,
+      "movable_regional_pool_species": 798,
+      "movable_scored_species": 276,
+      "status": "insufficient_support",
+      "contrast_observed": -0.055129095916527995,
+      "contrast_genus_grade_expected": -0.04924450870107808,
+      "contrast_beyond_genus_grade": -0.00588458721545003,
+      "group_bootstrap_intervals": {
+        "observed": [
+          -0.2358211324899684,
+          -0.005074682198298507
+        ],
+        "expected": [
+          -0.21525773356702704,
+          -0.013398708679032123
+        ],
+        "residual": [
+          -0.022814222888918243,
+          0.009372868019161366
+        ]
+      },
+      "leave_group_ranges": {
+        "observed": [
+          -0.17471216344287901,
+          -0.005404984736284771
+        ],
+        "expected": [
+          -0.1573367582181227,
+          -0.013400361039329733
+        ],
+        "residual": [
+          -0.02240298535209605,
+          0.007995376303044841
+        ]
+      },
+      "valid_bootstrap": 1879,
+      "valid_leave_group": 4,
+      "null_analytic_mean": -0.04924450870107792,
+      "null_simulated_mean": -0.047158419025162164,
+      "null_quantiles": [
+        -0.11040959345868538,
+        0.015246390103996935
+      ],
+      "p_two_sided_genus_grade": 0.852,
+      "p_positive_genus_grade": 0.609,
+      "permutations": 999,
+      "holm_p_two_sided": 1,
+      "supported_positive_residual": false
+    }
+  },
+  "provenance": {
+    "repository": "zuizui0223/island",
+    "run": 45546558230,
+    "artifact": 14991891592,
+    "artifact_digest_reported": "sha256:afb30fa4b15ca0973ebe0ad2f27357c7f089f3ed284e2a5131bd0ea7918adb41",
+    "method": "Complete original source job logs; ZIP digest from GitHub metadata, not independently downloaded."
+  }
+}

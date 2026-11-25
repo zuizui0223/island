@@ -1,0 +1,163 @@
+name: fd Direct floral diversity and syndrome pairing safeguards
+
+on:
+  pull_request:
+    paths:
+      - 'src/fd/floral_syndrome_coupling.py'
+      - 'tests/test_floral_syndrome_coupling.py'
+      - 'src/fd/pollinator_assemblage_bridge.py'
+      - 'src/fd/pollinator_shift_opportunity.py'
+      - 'src/fd/pollinator_shift_source_pool.py'
+      - 'src/fd/globi_morphology_falsification.py'
+      - 'src/fd/globi_channel_composition_cv.py'
+      - 'src/fd/globi_family_holdout_cv.py'
+      - 'src/fd/globi_family_lofo.py'
+      - 'src/fd/globi_family_guild_audit.py'
+      - 'src/fd/globi_provider_provenance_gate.py'
+      - 'tests/test_pollinator_assemblage_bridge.py'
+      - 'tests/test_pollinator_shift_opportunity.py'
+      - 'tests/test_pollinator_shift_source_pool.py'
+      - 'tests/test_globi_morphology_falsification.py'
+      - 'tests/test_globi_channel_composition_cv.py'
+      - 'tests/test_globi_family_holdout_cv.py'
+      - 'tests/test_globi_family_lofo.py'
+      - 'tests/test_globi_family_guild_audit.py'
+      - 'tests/test_globi_provider_provenance_gate.py'
+      - 'results/20261111_floral_syndrome_coupling/**'
+      - 'results/20261112_pollinator_shift/**'
+      - '.github/workflows/floral-syndrome-coupling.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-logic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install package and synthetic test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Test Direct categorical diversity, conditioning and privacy
+        run: |
+          python -m pytest -q tests/test_floral_syndrome_coupling.py tests/test_pollinator_assemblage_bridge.py tests/test_pollinator_shift_opportunity.py tests/test_pollinator_shift_source_pool.py tests/test_globi_morphology_falsification.py tests/test_globi_channel_composition_cv.py tests/test_globi_family_holdout_cv.py tests/test_globi_family_lofo.py tests/test_globi_provider_provenance_gate.py tests/test_globi_family_guild_audit.py
+      - name: Verify privacy-gated public grouped result tables
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          base = Path("results/20261111_floral_syndrome_coupling")
+          x = pd.read_csv(base / "direct_morphology_region_aggregate.csv")
+          a = pd.read_csv(base / "direct_template_ambiguity_aggregate.csv")
+          forbidden = {"island_id", "accepted_species", "genus", "spatial_block", "entity_ID"}
+          assert not forbidden.intersection(x.columns)
+          assert not forbidden.intersection(a.columns)
+          g = pd.read_csv(base / 'per_guild_88_family_within_family_morphology_null.csv')
+          assert not forbidden.intersection(g.columns)
+          assert set(g.channel) == {'bombus','non_bombus_bees','lepidoptera','diptera','flower_visiting_birds','five_channel_mean'}
+          assert set(g.n_heldout_families) == {88} and set(g.n_heldout_genera) == {484}
+          assert not g.source_level_provider_independence_verified.any()
+          p = pd.read_csv(base / 'pollination_evidence_family_coverage_sensitivity.csv')
+          assert not forbidden.intersection(p.columns)
+          assert set(p.min_genus_explicit_pollination_rows) == {0,1,3,10,20,50}
+          assert (p.n_heldout_families >= 50).all()
+          assert (p.n_heldout_genera >= 150).all()
+          assert p.shape[0] == 18
+          shift = pd.read_csv('results/20261111_floral_syndrome_coupling/bombus_nondetection_multiguild_candidate_support.csv')
+          pair = pd.read_csv('results/20261111_floral_syndrome_coupling/paired_provider_omission_77families_fiveguilds.csv')
+          assert shift.shape[0] == 4 and pair.shape[0] == 6
+          assert not forbidden.intersection(shift.columns)
+          assert not forbidden.intersection(pair.columns)
+          assert set(shift.n_islands_candidate_co_record) == {21,22}
+          assert (shift.actual_species_level_pollinator_shift_certified == False).all()
+          source = pd.read_csv('results/20261112_pollinator_shift/source_matched_direct_flora_region_aggregate.csv')
+          blocks = pd.read_csv('results/20261112_pollinator_shift/source_matched_candidate_21_block_sensitivity.csv')
+          import json
+          receipt = json.loads(Path('results/20261112_pollinator_shift/source_matched_21_candidate_receipt.json').read_text())
+          assert len(source) == 6 and len(blocks) == 8
+          assert not forbidden.intersection(source.columns)
+          assert not forbidden.intersection(blocks.columns)
+          assert (source.n_islands >= 10).all() and (source.n_spatial_blocks >= 5).all()
+          assert set(blocks.n_candidate_islands)=={21} and set(blocks.n_spatial_blocks)=={14}
+          assert not blocks.actual_pollinator_shift_tested.any()
+          assert receipt['n_30plus_complete_flora_islands'] == 928
+          assert receipt['n_candidate_island_plant_species_occurrences'] == 1125
+          assert receipt['n_strict_native_island_species_occurrences_same_name_as_geo_k5_source'] == 197
+          assert receipt['n_plant_species_by_island_effective_visitor_matrix_rows_in_joined_source'] == 0
+          evidence = pd.read_csv('results/20261112_pollinator_shift/native_54_species_direct_functional_trait_coverage.csv')
+          templates = pd.read_csv('results/20261112_pollinator_shift/native_54_morphology_template_ambiguity.csv')
+          assert not forbidden.intersection(evidence.columns)
+          assert not forbidden.intersection(templates.columns)
+          assert set(evidence.n_direct_species_with_record_among_54) <= set(range(55))
+          assert set(evidence.n_direct_single_category_among_54) <= set(range(55))
+          assert (evidence.n_direct_species_with_record_among_54 +
+                  evidence.n_species_without_direct_record_among_54).eq(54).all()
+          sc = evidence.set_index('trait')
+          assert int(sc.loc['self_incompatibility','n_direct_species_with_record_among_54']) == 17
+          assert int(sc.loc['mating_system','n_direct_species_with_record_among_54']) == 8
+          assert int(sc.loc['autonomous_selfing_capacity','n_direct_single_category_among_54']) == 11
+          assert int(sc.loc['floral_form','n_direct_species_with_record_among_54']) == 54
+          assert len(templates) == 4 and (templates.n_native_exact_source_matched_species == 54).all()
+          assert not templates.observed_pollinator_identity_confirmed.any()
+          assert int(templates.loc[templates.template.eq('bird_like'),
+                     'n_species_with_3plus_informative_Direct_traits'].iloc[0]) == 5
+          species_guild = pd.read_csv('results/20261112_pollinator_shift/native_54_exact_species_globi_v09_guild_reference_coverage.csv')
+          species_receipt = json.loads(Path('results/20261112_pollinator_shift/native_54_exact_species_globi_v09_coverage_receipt.json').read_text())
+          assert species_guild.shape[0] == 5
+          assert not forbidden.intersection(species_guild.columns)
+          assert (species_guild.source_matched_native_plant_species_universe == 54).all()
+          assert species_receipt['source_workflow_run'] == 43144106425
+          assert species_receipt['n_candidate_species'] == 54
+          assert species_receipt['n_species_with_1plus_cited_exact_flower_relation'] == 27
+          assert species_receipt['n_species_with_3plus_distinct_bibliography_keys'] == 12
+          assert species_receipt['n_species_with_2plus_recorded_guilds'] == 11
+          assert species_receipt['n_exact_species_guild_provider_bibliography_units'] == 622
+          assert species_receipt['n_date_resolved_species'] is None
+          assert not species_guild.observed_actual_same_species_island_mainland_pollinator_shift.any()
+          assert species_receipt['n_verified_island_and_continental_plant_visitation_pairs'] == 0
+          assert species_receipt['n_certified_evolutionary_pollinator_shifts_in_available_input'] == 0
+          local = pd.read_csv('results/20261112_pollinator_shift/native_54_exact_same_island_GloBI_v09_geo_5guild_counts.csv')
+          locality = json.loads(Path('results/20261112_pollinator_shift/native_54_exact_same_island_GloBI_v09_locality_receipt.json').read_text())
+          assert local.shape[0] == 5
+          assert not forbidden.intersection(local.columns)
+          assert locality['source_workflow_run'] == 43163702599
+          assert locality['original_focal_polygon_IDs_source_verified'] == 21
+          assert locality['n_georeferenced_source_cited_relations_matching_same_native_plant_species_on_same_island'] == 6
+          assert locality['n_distinct_native_source_matched_species_with_locality_matched_documented_visitor'] == 3
+          assert locality['n_native_focal_islands_with_locality_matched_plant_species_visitors'] == 3
+          assert locality['n_same_native_island_plant_species_pairs_with_two_or_more_documented_guilds'] == 2
+          assert locality['n_evolutionary_source_mainland_island_pollinator_shifts_verified'] == 0
+          assert not local.original_source_archive_independence_verified.any()
+          assert not local.effective_pollen_deposition_verified.any()
+          assert locality['original_species_island_provider_reference_ids_not_released'] is True
+          macro_guild = pd.read_csv('results/20261112_pollinator_shift/globi_928_island_exact_species_locality_guild_aggregate.csv')
+          macro_receipt = json.loads(Path('results/20261112_pollinator_shift/globi_928_island_original_source_locality_receipt.json').read_text())
+          assert len(macro_guild)==5
+          assert not forbidden.intersection(macro_guild.columns)
+          assert macro_receipt['source_verified_run']==43198808095
+          assert macro_receipt['original_Direct_complete_928_flora_islands']==928
+          assert macro_receipt['original_historical_geometries_verified']==927
+          assert macro_receipt['n_same_island_plant_species_pairs_with_source_cited_relation']==552
+          assert macro_receipt['n_distinct_islands_with_cited_exact_plant_relation']==109
+          assert macro_receipt['n_island_plant_pairs_with_2plus_documented_visitor_guilds']==213
+          assert macro_receipt['n_island_plant_pairs_with_3plus_bibliography_keys']==149
+          assert macro_receipt['n_strict_native_island_species_pairs_with_cited_relation']==157
+          assert macro_receipt['n_islands_with_strict_native_plant_relationship']==40
+          assert macro_receipt['n_original_origin_unresolved_island_plant_pairs_with_relation']==265
+          assert macro_receipt['n_confirmed_historical_same_plant_mainland_island_pollinator_shifts']==0
+          assert macro_receipt['n_measured_effective_pollen_delivery_or_seedset_outcomes']==0
+          assert macro_receipt['GloBI_v09_original_event_time_present'] is False
+          assert not macro_guild.original_visit_success_measured.any()
+          assert not pair.effective_local_pollination_measured.any()
+          assert set(pair.n_matched_genera) == {344}
+          assert set(pair.n_matched_families) == {77}
+          assert (x.n_islands >= 20).all()
+          assert (x.n_spatial_blocks >= 5).all()
+          assert len(a) == 1 and int(a.n_species_with_all_3_templates.iloc[0]) >= 50
+          assert (x.median_color_architecture_excess_nats > 0).all()
+          print("Source-private identifiers not in grouped released CSVs")
+          PY
