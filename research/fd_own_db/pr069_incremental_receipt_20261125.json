@@ -1,0 +1,30 @@
+{
+  "source_repository": "zuizui0223/fd",
+  "source_pr": 69,
+  "previous_head": "85769a811d151b05940b554b27dc1a662c28b1df",
+  "new_head": "3097c8553dc96fe17a9e2d60653e89d5bb6b34ff",
+  "owner": "island",
+  "classification": "own_gbif_flora_and_own_trait_ledger_plus_external_gift_mainland_donor",
+  "source_artifact": 10058653212,
+  "verified_git_blobs": [
+    {
+      "path": ".github/workflows/plant-syndrome-q2.yml",
+      "dest": "research/fd_own_db/current/plant_syndrome/docs/legacy_workflows/plant-syndrome-q2.yml",
+      "sha": "55b3db4329bee7997e9ee412bd8179213bfdaa8a",
+      "bytes": 9046
+    },
+    {
+      "path": "results/20261125_plant_syndrome_q2/origin_size_verified_job_log_summary.json",
+      "dest": "research/fd_own_db/current/plant_syndrome/results/20261125_plant_syndrome_q2/origin_size_verified_job_log_summary.json",
+      "sha": "ff8a765a42d661a33d3cec7d02a2eed098959f7c",
+      "bytes": 170323
+    },
+    {
+      "path": "scripts/plant_syndrome_color_taxon_sensitivity.py",
+      "dest": "research/fd_own_db/current/plant_syndrome/scripts/plant_syndrome_color_taxon_sensitivity.py",
+      "sha": "f47ef06ae7a4d50bcfe8a54ab0ac2910800fc947",
+      "bytes": 9619
+    }
+  ],
+  "scope": "Public tracked source and aggregate only. No protected source copied, no numerical rerun. Prior snapshot and historical receipt preserved."
+}
