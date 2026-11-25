@@ -1,0 +1,61 @@
+name: Protected original GIFT4505 source supply × bat interaction
+on:
+  pull_request:
+    branches: [analysis/fd-original-tropical-pollinator-bridge-20261124]
+    paths:
+      - scripts/fd_original_bat_source_supply_interaction.py
+      - scripts/fd_original_bat_genus_null.py
+      - .github/workflows/fd-original-bat-source-supply.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  protected:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-bat-source-supply
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy geopandas shapely pyogrio pyshp pyproj
+      - run: python scripts/fd_original_bat_source_supply_interaction.py --self-test
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends r-base r-cran-terra
+      - name: Restore pinned source and public FD code
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/fd"
+          git -C "$STAGE/fd" init
+          git -C "$STAGE/fd" remote add origin https://github.com/zuizui0223/fd.git
+          git -C "$STAGE/fd" fetch --depth 1 origin 225bcff506fd114c46824274cd77768b00480684
+          git -C "$STAGE/fd" checkout --detach FETCH_HEAD
+          test "$(git -C "$STAGE/fd" rev-parse HEAD)" = 225bcff506fd114c46824274cd77768b00480684
+          pip install -e "$STAGE/fd"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          curl --fail --location --silent --show-error 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o "$STAGE/geography.csv"
+      - name: Test fixed candidate-source supply by bat guild interaction
+        run: |
+          set -euo pipefail
+          python -u scripts/fd_original_bat_source_supply_interaction.py --original-root "$ORIGINAL_ROOT" --geography "$STAGE/geography.csv" --fd-root "$STAGE/fd" --out "$STAGE/anonymous_original_bat_source_supply.json"
+          python - <<'PY'
+          import json,os,pathlib
+          s=(pathlib.Path(os.environ["STAGE"])/"anonymous_original_bat_source_supply.json").read_text()
+          a=json.loads(s)
+          assert a["original_botanical_parent"]==4505 and a["original_geography_parent"]==8264 and a["original_tropical_parent"]==1558 and len(a["panels"])==36 and a["mainland_candidate_regions"]==748
+          for k in ("island_id","accepted_species","genus_name","latitude","longitude","entity_ID","work_species","species_name","range_geometry"):
+              assert '"'+k+'":' not in s
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anonymous-original-bat-source-supply
+          path: /tmp/fd-original-bat-source-supply/anonymous_original_bat_source_supply.json
