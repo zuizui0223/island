@@ -46,6 +46,9 @@ jobs:
           tar={i:set(sp[:6]) for i in d.island_id}
           src={i:set(sp[:6]) for i in d.island_id}
           z=summarize(d,tar,src,tab,perms=9,boots=9)
+          h=summarize(d,tar,src,tab,perms=9,boots=9,matched_high=(tar,src))
+          for rr in h["regions"].values():
+              for e in rr["endpoints"].values():assert e["residual"]==0 and e["genus_influence"]["nonzero_genera"]==0
           for r in z["regions"].values():
               for e in r["endpoints"].values():assert e["residual"]==0 and e["coherent_p"]==1
           PY
@@ -55,7 +58,7 @@ jobs:
           p=pathlib.Path(os.environ["STAGE"])/"anonymous_source_architecture.json"
           s=p.read_text();a=json.loads(s)
           assert a["botanical_parent"]==4505 and a["geography_parent"]==8264
-          assert len(a["panels"])==12
+          assert len(a["panels"])==12 and len(a["quality_matched_panels"])==4
           for k in ("island_id","accepted_species","genus_name","latitude","longitude"):
               assert '"'+k+'":' not in s
           PY
