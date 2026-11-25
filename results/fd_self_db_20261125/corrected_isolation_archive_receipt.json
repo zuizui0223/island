@@ -1,0 +1,9 @@
+{
+  "source_run": 45542455705,
+  "source_artifact": 14989104736,
+  "source_zip_digest": "sha256:92e3df6b91193d4c9c958a5314d238231cf773169b3bbdfd0c128daf4a18a6f2",
+  "json_sha256": "d06af1e649bd7070f251927dfafe1000ac08f951355c4bf514cf87950a692871",
+  "logged_rows_matched": 204,
+  "full_slots": 384,
+  "archive_validated": true
+}
