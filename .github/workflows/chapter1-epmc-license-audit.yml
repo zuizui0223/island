@@ -1,0 +1,48 @@
+name: Chapter 1 Europe PMC article-level rights triage
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'research/chapter1_fd_integration_20261125/rights_review/europe_pmc_license_audit.py'
+      - '.github/workflows/chapter1-epmc-license-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  article-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas requests
+      - run: python research/chapter1_fd_integration_20261125/rights_review/europe_pmc_license_audit.py --self-test
+      - name: Restore original rights and provenance snapshots
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/epmc-private" "$RUNNER_TEMP/epmc-anonymous"
+          cd "$RUNNER_TEMP/epmc-private"
+          gh api repos/zuizui0223/island/actions/artifacts/10042377593/zip > 10042377593-source-scale-batch-integration-34191508045.zip
+          gh api repos/zuizui0223/island/actions/artifacts/10154261753/zip > 10154261753-chapter1-database-v1-rights-audit-34482428564.zip
+          gh api repos/zuizui0223/island/actions/artifacts/10186293306/zip > 10186293306-chapter1-database-v1-cell-rights-34566271397.zip
+      - name: Exact article ID roster and official REST metadata
+        run: |
+          python research/chapter1_fd_integration_20261125/rights_review/europe_pmc_license_audit.py --source-dir "$RUNNER_TEMP/epmc-private" --roster-only
+          python research/chapter1_fd_integration_20261125/rights_review/europe_pmc_license_audit.py --source-dir "$RUNNER_TEMP/epmc-private" --out "$RUNNER_TEMP/epmc-anonymous/aggregate.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-epmc-metadata-aggregate-only
+          path: ${{ runner.temp }}/epmc-anonymous/aggregate.json
+          if-no-files-found: warn
+      - name: Remove temporary source files
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/epmc-private"
