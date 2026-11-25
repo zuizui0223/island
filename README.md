@@ -18,6 +18,10 @@
 8. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
 9. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
 
+## Research boundary with FD (coordinated ownership proposal)
+
+[FD PR #76](https://github.com/zuizui0223/fd/pull/76) assigns floral functional diversity, trait-space reassembly, pollination-syndrome composition, guild opportunity and channel-specific functional responses to FD, including analyses using the shared canonical GBIF-derived flora. island remains the source custodian and protected execution host, and owns Chapter 1 H1–H4, reproductive assurance, mating-system transitions, pollen limitation and establishment/evolution research. Source provenance and scientific ownership are separate. Existing island protected runs remain replayable, not independent FD replication. No restricted raw records or new credentials are transferred. Frozen GEB manuscript, selectors and results are unchanged. This boundary is effective after coordinated acceptance of the two ownership PRs.
+
 ## Current baseline
 
 - analysis universe: **8,264 island units**;
