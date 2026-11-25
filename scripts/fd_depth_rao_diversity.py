@@ -127,11 +127,24 @@ def self_test():
         assert np.allclose(x[:4],weights@vals/den)
         b=rng.integers(0,12,size=15)
         Y=components(np.bincount(b,minlength=12)[None,:],np.bincount(b%4,minlength=4)[None,:])
-        assert np.allclose(difference(x[None,:],Y),-difference(Y,x[None,:]))
+        forward=difference(x[None,:],Y)
+        reverse=difference(Y,x[None,:])
+        # Joint/marginal contrasts, common exposure and common within
+        # terms are individually antisymmetric. One-sided support terms
+        # exchange roles under T <-> S, in addition to reversing sign.
+        assert np.allclose(forward[:,:20],-reverse[:,:20])
+        assert np.allclose(forward[:,20:24],-reverse[:,24:28])
+        assert np.allclose(forward[:,24:28],-reverse[:,20:24])
+        assert np.allclose(forward[:,20:24]+forward[:,24:28],-(reverse[:,20:24]+reverse[:,24:28]))
     # One-sided depth support is not assigned a fabricated Q.
     T=components(np.array([[1,0,0,1,0,0,0,1,0,0,0,0]]),np.array([[1,0,0,2]]))
     S=components(np.array([[2,0,0,0,0,0,0,1,0,0,0,0]]),np.array([[2,0,0,1]]))
-    d=difference(T,S)[0];assert d[23]>0 and np.isclose(d[19],0)
+    d=difference(T,S)[0];rev=difference(S,T)[0]
+    assert d[23]>0 and np.isclose(d[19],0)
+    assert np.isclose(d[23],-rev[27]) and np.isclose(d[27],0)
+    assert np.allclose(d[:20],-rev[:20])
+    assert np.allclose(d[20:24],-rev[24:28])
+    assert np.allclose(d[24:28],-rev[20:24])
     print("FD_DEPTH_RAO_SYNTHETIC_PASS",flush=True)
 
 def main():
