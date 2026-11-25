@@ -1,0 +1,18 @@
+{
+  "analysis_date": "2026-11-11",
+  "morphology_predictors": ["fraction_actinomorphic", "fraction_open_radial"],
+  "test_unit": "one previously unseen botanical genus from a completely heldout family",
+  "n_genera": 486,
+  "n_family_blocks": 88,
+  "n_genus_vectors_shufflable_within_families": 449,
+  "ridge_alpha": 100,
+  "fold_seed": 20261111,
+  "null_seed": 20261111,
+  "n_whole_structural_vector_within_family_permutations": 999,
+  "observed_five_channel_MSE_gain": 0.0015580332,
+  "null_gain_median": 0.0007292848,
+  "null_central_95_reference_interval": [0.0003973299, 0.0010680970],
+  "posthoc_upper_tail_fraction": 0.001,
+  "interactions_are_globally_documented_GloBI_reference_shares": true,
+  "does_not_measure_real_local_island_pollinator_fauna": true
+}

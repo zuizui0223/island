@@ -1,0 +1,32 @@
+name: fd_joint_nominal_gower_invariance
+on:
+  push:
+    branches: [analysis/joint-floral-syndrome-gower-invisibility-20261120]
+    paths:
+      - ".github/workflows/fd-joint-gower-invariance.yml"
+      - "src/fd/paired_nominal_trait_diversity.py"
+      - "tests/test_paired_nominal_trait_diversity.py"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/fd-joint-gower-invariance.yml"
+      - "src/fd/paired_nominal_trait_diversity.py"
+      - "tests/test_paired_nominal_trait_diversity.py"
+permissions:
+  contents: read
+jobs:
+  test-paired-trait-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install nominal trait matrix test runtime
+        run: python -m pip install -q numpy pytest
+      - name: Prove coupling-invariance of additive two-axis Gower Rao Q
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python -m pytest -q tests/test_paired_nominal_trait_diversity.py
+          python -m compileall -q src/fd/paired_nominal_trait_diversity.py

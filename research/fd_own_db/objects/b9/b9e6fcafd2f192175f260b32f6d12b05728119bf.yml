@@ -1,0 +1,54 @@
+name: fd source-original EuPPollNet quantitative flower supply denominator preflight
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/full4505-local-visitor-guild-20261118]
+    paths:
+      - .github/workflows/fd-euppollnet-original-flower-denominator.yml
+      - src/fd/euppollnet_flower_availability.py
+      - tests/test_euppollnet_flower_availability.py
+      - scripts/run_fd_public_euppollnet_flower_count_gate.py
+permissions:
+  contents: read
+jobs:
+  source-original-flower-availability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install source pandas and synthetic regression runtime
+        run: python -m pip install -q -e ".[test]"
+      - name: Verify unambiguous original flower abundance link semantics
+        run: |
+          set -euo pipefail
+          python -m pytest -q tests/test_euppollnet_flower_availability.py
+          python -m compileall -q src/fd/euppollnet_flower_availability.py scripts/run_fd_public_euppollnet_flower_count_gate.py
+      - name: Download exact 2025 EuPPollNet Flower_counts Git blob and measure availability join
+        run: |
+          set -euo pipefail
+          python scripts/run_fd_public_euppollnet_flower_count_gate.py --output /tmp/anonymous_euppollnet_public_flower_availability.json
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          q=json.loads(Path("/tmp/anonymous_euppollnet_public_flower_availability.json").read_text())
+          assert q["status"]=="PUBLIC_EUPPOLLNET_ORIGINAL_FLOWER_EXPOSURE_KEY_FEASIBILITY"
+          assert q["source_original_flower_receipt"]["original_file_bytes"]==20315455
+          assert q["n_original_interaction_raw_rows"]==623476
+          assert q["conclusions"]["flower_source_duplicate_join_keys_not_auto_aggregated"]
+          assert q["conclusions"]["no_effect_coefficient_or_pvalue_estimated"]
+          print("Published original flower abundance available key and source checksum gate PASS")
+          PY
+      - name: Save public original flower abundance research feasibility summary
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-euppollnet-public-flower-availability-${{ github.run_id }}
+          path: /tmp/anonymous_euppollnet_public_flower_availability.json
+          retention-days: 30
+          if-no-files-found: error

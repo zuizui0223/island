@@ -1,0 +1,1512 @@
+{
+  "snapshot": "pr014",
+  "source_commit": "4309409d0285bd963589dcacbfb5ecc60cd0333a",
+  "source_pr": 14,
+  "state": "open",
+  "title": "Distinguish floral marginal diversity from syndrome-like trait pairing across islands",
+  "files": [
+    {
+      "path": ".github/workflows/analysis.yml",
+      "mode": "100644",
+      "git_blob": "cee4a3213f2a3ee9a802aebdea084596862f13b4",
+      "bytes": 1935,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ce/cee4a3213f2a3ee9a802aebdea084596862f13b4.yml"
+    },
+    {
+      "path": ".github/workflows/floral-syndrome-coupling.yml",
+      "mode": "100644",
+      "git_blob": "94a298b6b330dae74257dd45b4615b47afc75ea9",
+      "bytes": 11510,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/94/94a298b6b330dae74257dd45b4615b47afc75ea9.yml"
+    },
+    {
+      "path": ".github/workflows/origin-analysis.yml",
+      "mode": "100644",
+      "git_blob": "d7699aeb74ed022441bf6c12b6b1c42f21c4524e",
+      "bytes": 5950,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d7/d7699aeb74ed022441bf6c12b6b1c42f21c4524e.yml"
+    },
+    {
+      "path": ".github/workflows/origin-audit.yml",
+      "mode": "100644",
+      "git_blob": "6fbd8f6d006e4edaef34d5815ba923deaf913566",
+      "bytes": 1043,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6f/6fbd8f6d006e4edaef34d5815ba923deaf913566.yml"
+    },
+    {
+      "path": ".github/workflows/roeble-origin-audit.yml",
+      "mode": "100644",
+      "git_blob": "1365fa3d8a742e377317a635dde1ff2ec797f253",
+      "bytes": 717,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/13/1365fa3d8a742e377317a635dde1ff2ec797f253.yml"
+    },
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "git_blob": "fbbd6ff9aa94d1ef0012a9d118e99a30580835c2",
+      "bytes": 91,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/fb/fbbd6ff9aa94d1ef0012a9d118e99a30580835c2.txt"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "git_blob": "a032c1a2c9aa2e93f474907981f447d23b59a3b6",
+      "bytes": 26630,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/a0/a032c1a2c9aa2e93f474907981f447d23b59a3b6.md"
+    },
+    {
+      "path": "docs/ANALYSIS_CONTRACT.md",
+      "mode": "100644",
+      "git_blob": "7fb22352a0830f933307fccac4330380c933f915",
+      "bytes": 8608,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/7f/7fb22352a0830f933307fccac4330380c933f915.md"
+    },
+    {
+      "path": "docs/ARCHIPELAGO_FLORAL_HOLDOUT.md",
+      "mode": "100644",
+      "git_blob": "bcdc0719826d1a0109797dbb8cec5c313fd3294b",
+      "bytes": 7207,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/bc/bcdc0719826d1a0109797dbb8cec5c313fd3294b.md"
+    },
+    {
+      "path": "docs/COVERAGE_RAREFACTION_SENSITIVITY.md",
+      "mode": "100644",
+      "git_blob": "9dcbbc85a46cde0b14eb3f3fbc7fc010febf0380",
+      "bytes": 9902,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/9d/9dcbbc85a46cde0b14eb3f3fbc7fc010febf0380.md"
+    },
+    {
+      "path": "docs/G1_HYPERVOLUME.md",
+      "mode": "100644",
+      "git_blob": "d94a088d09b28ce66fa84610d854ec5b3d2e97e6",
+      "bytes": 6262,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d9/d94a088d09b28ce66fa84610d854ec5b3d2e97e6.md"
+    },
+    {
+      "path": "docs/GBIF_EFFORT_SENSITIVITY.md",
+      "mode": "100644",
+      "git_blob": "593cac37b72d6916c49c98756b4314ef630edac2",
+      "bytes": 6636,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/59/593cac37b72d6916c49c98756b4314ef630edac2.md"
+    },
+    {
+      "path": "docs/GENUS_SOURCE_CONDITIONED_PROTOCOL.md",
+      "mode": "100644",
+      "git_blob": "9b92fa665d204ec2e9d7a0f2948d492f8c0b0e02",
+      "bytes": 11359,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/9b/9b92fa665d204ec2e9d7a0f2948d492f8c0b0e02.md"
+    },
+    {
+      "path": "docs/GEOGRAPHIC_INDEPENDENCE.md",
+      "mode": "100644",
+      "git_blob": "ffa5246217e22efc730c7067c19dc4263bf1adc9",
+      "bytes": 6787,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ff/ffa5246217e22efc730c7067c19dc4263bf1adc9.md"
+    },
+    {
+      "path": "docs/GEOGRAPHY_DISJOINT_ORIGIN_TEST.md",
+      "mode": "100644",
+      "git_blob": "1f748f45d795f934fd8a14a6f34b639cba297205",
+      "bytes": 6871,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/1f/1f748f45d795f934fd8a14a6f34b639cba297205.md"
+    },
+    {
+      "path": "docs/HELDOUT_MAINLAND_PREDICTION.md",
+      "mode": "100644",
+      "git_blob": "8cef5b6f3f24160eaf38b5e7de61f3b0a1b18c11",
+      "bytes": 9201,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/8c/8cef5b6f3f24160eaf38b5e7de61f3b0a1b18c11.md"
+    },
+    {
+      "path": "docs/MATCHED_REPERTOIRE_PROTOCOL.md",
+      "mode": "100644",
+      "git_blob": "9def348d7a59fec5219c512bd113f7e849ce45ba",
+      "bytes": 7126,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/9d/9def348d7a59fec5219c512bd113f7e849ce45ba.md"
+    },
+    {
+      "path": "docs/NOVELTY_LITERATURE_AUDIT.md",
+      "mode": "100644",
+      "git_blob": "a02495bdac4e15fed1597763cf80cec91d5de917",
+      "bytes": 9318,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/a0/a02495bdac4e15fed1597763cf80cec91d5de917.md"
+    },
+    {
+      "path": "docs/SOURCE_OPPORTUNITY_HYPERVOLUME17.md",
+      "mode": "100644",
+      "git_blob": "140e3b0907afb8543ce460477b64030b0a0617aa",
+      "bytes": 11690,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/14/140e3b0907afb8543ce460477b64030b0a0617aa.md"
+    },
+    {
+      "path": "pyproject.toml",
+      "mode": "100644",
+      "git_blob": "c198549be468c5545a335257ea564fb91c2e9f7c",
+      "bytes": 475,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/c1/c198549be468c5545a335257ea564fb91c2e9f7c.toml"
+    },
+    {
+      "path": "results/20261108_g1_hypervolume/README.md",
+      "mode": "100644",
+      "git_blob": "e4fb4388235454606fddcd2b2602cdbb9a6c26af",
+      "bytes": 7462,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e4/e4fb4388235454606fddcd2b2602cdbb9a6c26af.md"
+    },
+    {
+      "path": "results/20261108_gbif_effort_robustness/README.md",
+      "mode": "100644",
+      "git_blob": "4df3b82228d02338247156cfe4602099678a5a7f",
+      "bytes": 7934,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/4d/4df3b82228d02338247156cfe4602099678a5a7f.md"
+    },
+    {
+      "path": "results/20261108_gbif_effort_robustness/effort_coverage_by_origin.csv",
+      "mode": "100644",
+      "git_blob": "6dc6bedf6a37798f2bd525c71e8d06f75f46c9b5",
+      "bytes": 206,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6d/6dc6bedf6a37798f2bd525c71e8d06f75f46c9b5.csv"
+    },
+    {
+      "path": "results/20261108_gbif_effort_robustness/effort_pair_support_summary.csv",
+      "mode": "100644",
+      "git_blob": "011a60377c4bdddd7ee4ebd848a268ee73fc582f",
+      "bytes": 434,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/01/011a60377c4bdddd7ee4ebd848a268ee73fc582f.csv"
+    },
+    {
+      "path": "results/20261108_gbif_effort_robustness/effort_screen_repertoire_tests.csv",
+      "mode": "100644",
+      "git_blob": "825a06c58de1fab450610058b3ed24d51e18e7c6",
+      "bytes": 4044,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/82/825a06c58de1fab450610058b3ed24d51e18e7c6.csv"
+    },
+    {
+      "path": "results/20261108_genus_source_control/README.md",
+      "mode": "100644",
+      "git_blob": "d8a923f48cf7209ca07970ed82d96d8615d0461b",
+      "bytes": 11795,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d8/d8a923f48cf7209ca07970ed82d96d8615d0461b.md"
+    },
+    {
+      "path": "results/20261108_genus_source_control/gift_source_coverage_primary.csv",
+      "mode": "100644",
+      "git_blob": "2b5d3d388cdc5d978684398d59418b02967b407b",
+      "bytes": 579,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/2b/2b5d3d388cdc5d978684398d59418b02967b407b.csv"
+    },
+    {
+      "path": "results/20261108_genus_source_control/gift_source_residual_primary.csv",
+      "mode": "100644",
+      "git_blob": "c38c63e4904d920b0682e1fa8f5c7fbc9bbc30fb",
+      "bytes": 793,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/c3/c38c63e4904d920b0682e1fa8f5c7fbc9bbc30fb.csv"
+    },
+    {
+      "path": "results/20261108_genus_source_control/global_genus_null_summary.csv",
+      "mode": "100644",
+      "git_blob": "8857e7e4f4c68d2040463d3d1c3f1000ed161a69",
+      "bytes": 2489,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/88/8857e7e4f4c68d2040463d3d1c3f1000ed161a69.csv"
+    },
+    {
+      "path": "results/20261108_geological_origin/README.md",
+      "mode": "100644",
+      "git_blob": "98631c6b04982b666e7e506bd0ba3154758aa41f",
+      "bytes": 11059,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/98/98631c6b04982b666e7e506bd0ba3154758aa41f.md"
+    },
+    {
+      "path": "results/20261108_heldout_mainland_prediction/README.md",
+      "mode": "100644",
+      "git_blob": "2f922274ff6bb11d07ddfee4794e57b2290ff7bf",
+      "bytes": 11948,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/2f/2f922274ff6bb11d07ddfee4794e57b2290ff7bf.md"
+    },
+    {
+      "path": "results/20261108_heldout_mainland_prediction/main_model_scores.csv",
+      "mode": "100644",
+      "git_blob": "720416eae40ad99e0d1bcb95d039ccddcfec87ec",
+      "bytes": 1144,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/72/720416eae40ad99e0d1bcb95d039ccddcfec87ec.csv"
+    },
+    {
+      "path": "results/20261108_heldout_mainland_prediction/model_sensitivity.csv",
+      "mode": "100644",
+      "git_blob": "792ae92c425109fefeb2600290890db89a445901",
+      "bytes": 1139,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/79/792ae92c425109fefeb2600290890db89a445901.csv"
+    },
+    {
+      "path": "results/20261108_heldout_mainland_prediction/origin_predictive_residuals.csv",
+      "mode": "100644",
+      "git_blob": "a51a4be43a33b293da65d1e8ba2d7c967cd3413e",
+      "bytes": 1336,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/a5/a51a4be43a33b293da65d1e8ba2d7c967cd3413e.csv"
+    },
+    {
+      "path": "results/20261108_heldout_mainland_prediction/paired_score_improvements.csv",
+      "mode": "100644",
+      "git_blob": "69a32d48e8230674e6d11ac26e41b930376f48a9",
+      "bytes": 1065,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/69/69a32d48e8230674e6d11ac26e41b930376f48a9.csv"
+    },
+    {
+      "path": "results/20261108_heldout_mainland_prediction/source_genus_coverage.csv",
+      "mode": "100644",
+      "git_blob": "74db894e3d80ef9a4fb1e195d8dc867ad8384dc6",
+      "bytes": 365,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/74/74db894e3d80ef9a4fb1e195d8dc867ad8384dc6.csv"
+    },
+    {
+      "path": "results/20261108_matched_flower_repertoire/README.md",
+      "mode": "100644",
+      "git_blob": "12eebcd10074af2516404b4abeac457162484d94",
+      "bytes": 10974,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/12/12eebcd10074af2516404b4abeac457162484d94.md"
+    },
+    {
+      "path": "results/20261108_source_opportunity_hv17/README.md",
+      "mode": "100644",
+      "git_blob": "4cd3f0fd94cf49a75f284e492e51d812f9630571",
+      "bytes": 10679,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/4c/4cd3f0fd94cf49a75f284e492e51d812f9630571.md"
+    },
+    {
+      "path": "results/20261108_source_opportunity_hv17/paired_source_gain_contrasts.csv",
+      "mode": "100644",
+      "git_blob": "4b39aa59b683126bea85b8b989fcf5c1b56a4e8f",
+      "bytes": 1819,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/4b/4b39aa59b683126bea85b8b989fcf5c1b56a4e8f.csv"
+    },
+    {
+      "path": "results/20261108_source_opportunity_hv17/source_genus_rank_scores.csv",
+      "mode": "100644",
+      "git_blob": "4ba15afd0bdf212cf35ed7101d7a4a16950f29eb",
+      "bytes": 958,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/4b/4ba15afd0bdf212cf35ed7101d7a4a16950f29eb.csv"
+    },
+    {
+      "path": "results/20261108_source_opportunity_hv17/two_stage_flora_scores.csv",
+      "mode": "100644",
+      "git_blob": "92fbb5358597f6e06bb72971c730c18c3380c22f",
+      "bytes": 1145,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/92/92fbb5358597f6e06bb72971c730c18c3380c22f.csv"
+    },
+    {
+      "path": "results/20261109_archipelago_flower_transfer/README.md",
+      "mode": "100644",
+      "git_blob": "5d7ad718a109d15e284074b5c1f3495d8ea1251c",
+      "bytes": 11515,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/5d/5d7ad718a109d15e284074b5c1f3495d8ea1251c.md"
+    },
+    {
+      "path": "results/20261109_archipelago_flower_transfer/archipelago_holdout_tests.csv",
+      "mode": "100644",
+      "git_blob": "5e0d4561a761658e00dd93590c70dd2d7006e2cc",
+      "bytes": 1882,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/5e/5e0d4561a761658e00dd93590c70dd2d7006e2cc.csv"
+    },
+    {
+      "path": "results/20261109_archipelago_flower_transfer/archipelago_support_by_region.csv",
+      "mode": "100644",
+      "git_blob": "89568d436675568f321faa36260e3c977f1cf2a0",
+      "bytes": 723,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/89/89568d436675568f321faa36260e3c977f1cf2a0.csv"
+    },
+    {
+      "path": "results/20261109_archipelago_flower_transfer/predictive_errors.csv",
+      "mode": "100644",
+      "git_blob": "22da2dd3a8afd55c1ecfd28a103f4c9bf67cc59e",
+      "bytes": 469,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/22/22da2dd3a8afd55c1ecfd28a103f4c9bf67cc59e.csv"
+    },
+    {
+      "path": "results/20261109_coverage_rarefaction/README.md",
+      "mode": "100644",
+      "git_blob": "6135a5052d9cd513cbafec7461ad843827355ba8",
+      "bytes": 12031,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/61/6135a5052d9cd513cbafec7461ad843827355ba8.md"
+    },
+    {
+      "path": "results/20261109_coverage_rarefaction/spatial_component_tests.csv",
+      "mode": "100644",
+      "git_blob": "5995312db407eac115a3369b7bfca8fb9204ab67",
+      "bytes": 1586,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/59/5995312db407eac115a3369b7bfca8fb9204ab67.csv"
+    },
+    {
+      "path": "results/20261109_coverage_rarefaction/support_rarefaction_results.csv",
+      "mode": "100644",
+      "git_blob": "d7d1633e2c38a78f076e6e05c9f3e777e753d5b7",
+      "bytes": 4853,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d7/d7d1633e2c38a78f076e6e05c9f3e777e753d5b7.csv"
+    },
+    {
+      "path": "results/20261109_geography_independent/README.md",
+      "mode": "100644",
+      "git_blob": "934dc80961dee2a586619c0bce0d57e07cc8a893",
+      "bytes": 8247,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/93/934dc80961dee2a586619c0bce0d57e07cc8a893.md"
+    },
+    {
+      "path": "results/20261109_geography_independent/independent_matching_support.csv",
+      "mode": "100644",
+      "git_blob": "52cc297bcc942f76b9456fe748f35f2c1eaed330",
+      "bytes": 405,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/52/52cc297bcc942f76b9456fe748f35f2c1eaed330.csv"
+    },
+    {
+      "path": "results/20261109_geography_independent/independent_origin_repertoire_tests.csv",
+      "mode": "100644",
+      "git_blob": "19351edf3d01a3e23d021c75cfe971b8f07fc34d",
+      "bytes": 1563,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/19/19351edf3d01a3e23d021c75cfe971b8f07fc34d.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/FAMILY_DISJOINT_GLOBI_TRANSFER.md",
+      "mode": "100644",
+      "git_blob": "6aad5838333c59121a00bf3d34d5df2652422e43",
+      "bytes": 14609,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6a/6aad5838333c59121a00bf3d34d5df2652422e43.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/FAMILY_UNAMBIGUOUS_484_AUDIT.md",
+      "mode": "100644",
+      "git_blob": "393421f5c5b80c4013e65907884718fcb16606cd",
+      "bytes": 9285,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/39/393421f5c5b80c4013e65907884718fcb16606cd.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/GLOBI_CHANNEL_COMPOSITION_TRANSFER.md",
+      "mode": "100644",
+      "git_blob": "8efc4ddd8eae7e00f79664b1d5827dba5a6bdd80",
+      "bytes": 10260,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/8e/8efc4ddd8eae7e00f79664b1d5827dba5a6bdd80.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/GLOBI_ORIGINAL_PROVIDER_REPLAY.md",
+      "mode": "100644",
+      "git_blob": "dfa5093d367322882b2bc507005810804e1413e4",
+      "bytes": 5676,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/df/dfa5093d367322882b2bc507005810804e1413e4.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/GLOBI_PROVIDER_OMISSION_FAMILY_RESULT.md",
+      "mode": "100644",
+      "git_blob": "b8b407021a0f19b2ce977bb819b7208c13613cba",
+      "bytes": 9593,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/b8/b8b407021a0f19b2ce977bb819b7208c13613cba.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/GLOBI_V09_PROVIDER_COVERAGE_RESULT.md",
+      "mode": "100644",
+      "git_blob": "d10a42398eeab57923e10c9f7b0ac6cadee3b108",
+      "bytes": 5155,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d1/d10a42398eeab57923e10c9f7b0ac6cadee3b108.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/GUILD_POLLINATION_EVIDENCE_AUDIT.md",
+      "mode": "100644",
+      "git_blob": "a74fc12c45f2dae464fed5348ba54607ede72015",
+      "bytes": 10246,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/a7/a74fc12c45f2dae464fed5348ba54607ede72015.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/PER_GUILD_FAMILY_AUDIT.md",
+      "mode": "100644",
+      "git_blob": "99a1f3ff2ba024995c533853cfcc72398e583120",
+      "bytes": 8065,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/99/99a1f3ff2ba024995c533853cfcc72398e583120.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/POLLINATOR_ASSEMBLAGE_BRIDGE.md",
+      "mode": "100644",
+      "git_blob": "ac49bba5369d3ea31cb17245834d8417fcc96e38",
+      "bytes": 12938,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ac/ac49bba5369d3ea31cb17245834d8417fcc96e38.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/PROVIDER_GATE_AND_LOFO.md",
+      "mode": "100644",
+      "git_blob": "f44aa391f8713b985c59342a8bfd97c25c4dcdce",
+      "bytes": 8288,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/f4/f44aa391f8713b985c59342a8bfd97c25c4dcdce.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/README.md",
+      "mode": "100644",
+      "git_blob": "1a4716dfa0151e2de98ddf1274ea0963bd4fd87c",
+      "bytes": 12035,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/1a/1a4716dfa0151e2de98ddf1274ea0963bd4fd87c.md"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/bombus_nondetection_multiguild_candidate_support.csv",
+      "mode": "100644",
+      "git_blob": "8701562ce962397773f729f525787ccbfb7f8838",
+      "bytes": 504,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/87/8701562ce962397773f729f525787ccbfb7f8838.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/direct_morphology_region_aggregate.csv",
+      "mode": "100644",
+      "git_blob": "b378e3440f01c01e245762bf6fe8a5b34fa95bab",
+      "bytes": 1084,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/b3/b378e3440f01c01e245762bf6fe8a5b34fa95bab.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/direct_template_ambiguity_aggregate.csv",
+      "mode": "100644",
+      "git_blob": "402d9e7a6eb517b8531d439fedd8527e4fba4331",
+      "bytes": 321,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/40/402d9e7a6eb517b8531d439fedd8527e4fba4331.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/exact_island_pollinator_channel_support.csv",
+      "mode": "100644",
+      "git_blob": "7256f0eb55ce75206c9b6c24d41284cec8522d85",
+      "bytes": 1287,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/72/7256f0eb55ce75206c9b6c24d41284cec8522d85.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/family_disjoint_five_seed_robustness.csv",
+      "mode": "100644",
+      "git_blob": "5372b4ffbbbf14118a841631ebb510b085df4c44",
+      "bytes": 559,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/53/5372b4ffbbbf14118a841631ebb510b085df4c44.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/family_disjoint_guild_prediction_aggregate.csv",
+      "mode": "100644",
+      "git_blob": "1b30a6597b03dfb5877869ead953fd955b184ff4",
+      "bytes": 779,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/1b/1b30a6597b03dfb5877869ead953fd955b184ff4.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/family_holdout_private_source_aggregate_receipt.json",
+      "mode": "100644",
+      "git_blob": "21ecd7d66a1a120b332bb694da0dbeea172ed6e8",
+      "bytes": 1867,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/21/21ecd7d66a1a120b332bb694da0dbeea172ed6e8.json"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/family_morphology_ablation_aggregate.csv",
+      "mode": "100644",
+      "git_blob": "c2cb608198d691adf3948def4a456eb7426e1e4d",
+      "bytes": 619,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/c2/c2cb608198d691adf3948def4a456eb7426e1e4d.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/family_structural_within_family_placebo_aggregate.json",
+      "mode": "100644",
+      "git_blob": "cb80313fea9285e27611cf54b7a7cd8cdfcea6a0",
+      "bytes": 766,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/cb/cb80313fea9285e27611cf54b7a7cd8cdfcea6a0.json"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/family_unambiguous_484_prediction_aggregate.csv",
+      "mode": "100644",
+      "git_blob": "bf17b1325269f04ab056ebe3b9bcc5b9224ec31f",
+      "bytes": 1911,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/bf/bf17b1325269f04ab056ebe3b9bcc5b9224ec31f.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/family_unambiguous_484_structural_ablation.csv",
+      "mode": "100644",
+      "git_blob": "d509c5dbc053be2d778a2ed2c247301cf939e8e9",
+      "bytes": 679,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d5/d509c5dbc053be2d778a2ed2c247301cf939e8e9.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/fivechannel_documented_prediction_aggregate.csv",
+      "mode": "100644",
+      "git_blob": "1678eac1e60a569c1464f71d085909f592086bbb",
+      "bytes": 401,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/16/1678eac1e60a569c1464f71d085909f592086bbb.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/fivechannel_effort_stratified_label_null.csv",
+      "mode": "100644",
+      "git_blob": "0738cb48d3bd82dda2d7780d8f4675bd2afec8ec",
+      "bytes": 701,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/07/0738cb48d3bd82dda2d7780d8f4675bd2afec8ec.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/globi_documented_genus_breadth_sensitivity.csv",
+      "mode": "100644",
+      "git_blob": "e8fe224bff4faae772f71c9012bb4e9d9410c159",
+      "bytes": 592,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e8/e8fe224bff4faae772f71c9012bb4e9d9410c159.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/globi_qualified_pollinator_catalog_evidence_classes.csv",
+      "mode": "100644",
+      "git_blob": "b712e0a3b31d287b011e9a09676b198a0b26c8ca",
+      "bytes": 502,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/b7/b712e0a3b31d287b011e9a09676b198a0b26c8ca.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/lofo_88_family_scores.csv",
+      "mode": "100644",
+      "git_blob": "b509dea6210874a5e4892d25bb7e9127b614f571",
+      "bytes": 562,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/b5/b509dea6210874a5e4892d25bb7e9127b614f571.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/lofo_globi_reference_and_trait_coverage_gates.csv",
+      "mode": "100644",
+      "git_blob": "12921c41d63c9535dee84874c9ac788faf51e848",
+      "bytes": 983,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/12/12921c41d63c9535dee84874c9ac788faf51e848.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/outofgenus_globi_guild_breadth_prediction.csv",
+      "mode": "100644",
+      "git_blob": "b5b59f288339182e2ba5f46e999920eb5e41bfdd",
+      "bytes": 578,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/b5/b5b59f288339182e2ba5f46e999920eb5e41bfdd.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/paired_provider_omission_77families_fiveguilds.csv",
+      "mode": "100644",
+      "git_blob": "89023a097afa784cb4ec4fab97312a6be3241cd0",
+      "bytes": 1010,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/89/89023a097afa784cb4ec4fab97312a6be3241cd0.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/per_guild_88_family_within_family_morphology_null.csv",
+      "mode": "100644",
+      "git_blob": "7ddea1306800991cd01a31205e2bc7f7262b95ac",
+      "bytes": 1649,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/7d/7ddea1306800991cd01a31205e2bc7f7262b95ac.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/pollination_evidence_family_coverage_sensitivity.csv",
+      "mode": "100644",
+      "git_blob": "efe6389cb2201193902a47ad0752b5f89520adeb",
+      "bytes": 1296,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ef/efe6389cb2201193902a47ad0752b5f89520adeb.csv"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/pollinator_bridge_aggregate_receipt.json",
+      "mode": "100644",
+      "git_blob": "9fce62ce94fee22a78bc04ba8015ab075b0a4d7e",
+      "bytes": 2794,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/9f/9fce62ce94fee22a78bc04ba8015ab075b0a4d7e.json"
+    },
+    {
+      "path": "results/20261111_floral_syndrome_coupling/provider_heldout_feasibility_receipt.json",
+      "mode": "100644",
+      "git_blob": "d8ebdd21cd5f4de1f0d02361b11e165cf8a03904",
+      "bytes": 1022,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d8/d8ebdd21cd5f4de1f0d02361b11e165cf8a03904.json"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/EXACT_ISLAND_NATIVE_VISIT_LINKS_AND_928_MACRO_PREFLIGHT.md",
+      "mode": "100644",
+      "git_blob": "36cb854a24639c4e22ef98c242f3bfaf8c871bdd",
+      "bytes": 11006,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/36/36cb854a24639c4e22ef98c242f3bfaf8c871bdd.md"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/EXACT_SPECIES_GLOBI_V09_VISITOR_GATE.md",
+      "mode": "100644",
+      "git_blob": "e2f9d0e6d34a9d6b67c92d16d802a99591f3ca53",
+      "bytes": 24288,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e2/e2f9d0e6d34a9d6b67c92d16d802a99591f3ca53.md"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/GLOBI_V09_928_PROVIDER_OMISSION_AND_SPECIES_FAMILY.md",
+      "mode": "100644",
+      "git_blob": "d4aa901998d834ddeedf0c975e31ec49a0dd8155",
+      "bytes": 9478,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d4/d4aa901998d834ddeedf0c975e31ec49a0dd8155.md"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/GLOBI_V09_ALL928_LOCALITY_EVIDENCE_PRECHECK.md",
+      "mode": "100644",
+      "git_blob": "2de1e0de06224a44a57f8e5c472cede3f1d8d314",
+      "bytes": 8804,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/2d/2de1e0de06224a44a57f8e5c472cede3f1d8d314.md"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/POLLINATOR_SHIFT_EVIDENCE_AUDIT.md",
+      "mode": "100644",
+      "git_blob": "0746e6cbd6ad805666a6269c3ffee814e2cad5b4",
+      "bytes": 9462,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/07/0746e6cbd6ad805666a6269c3ffee814e2cad5b4.md"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/SOURCE_POOL_LINEAGE_MATCH.md",
+      "mode": "100644",
+      "git_blob": "59578a97a9a0d76c774c7798d8eb71de1836ea4e",
+      "bytes": 15843,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/59/59578a97a9a0d76c774c7798d8eb71de1836ea4e.md"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/globi_928_island_exact_species_locality_guild_aggregate.csv",
+      "mode": "100644",
+      "git_blob": "f29745d16c388901cef2ae357a956a7f1cff3e42",
+      "bytes": 416,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/f2/f29745d16c388901cef2ae357a956a7f1cff3e42.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/globi_928_island_original_source_locality_receipt.json",
+      "mode": "100644",
+      "git_blob": "15d92707b6308d1edd2899dc01a97c1984cd2285",
+      "bytes": 2036,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/15/15d92707b6308d1edd2899dc01a97c1984cd2285.json"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native54_evidence_waterfall_source_study_and_locality_gates.csv",
+      "mode": "100644",
+      "git_blob": "32943af2bbc898807a2c8c977948392d5261c305",
+      "bytes": 2073,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/32/32943af2bbc898807a2c8c977948392d5261c305.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_54_exact_same_island_GloBI_v09_geo_5guild_counts.csv",
+      "mode": "100644",
+      "git_blob": "aeee1a4a5016e6a59a4503a34f70c60ae5808529",
+      "bytes": 428,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ae/aeee1a4a5016e6a59a4503a34f70c60ae5808529.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_54_exact_same_island_GloBI_v09_locality_receipt.json",
+      "mode": "100644",
+      "git_blob": "66692d362c446d07db12028d2c61e824927e0d32",
+      "bytes": 1932,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/66/66692d362c446d07db12028d2c61e824927e0d32.json"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_54_exact_species_globi_v09_coverage_receipt.json",
+      "mode": "100644",
+      "git_blob": "e1f4b35f3d4abd18e4f40c9bdcbdb687eae024c0",
+      "bytes": 2136,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e1/e1f4b35f3d4abd18e4f40c9bdcbdb687eae024c0.json"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_54_exact_species_globi_v09_guild_reference_coverage.csv",
+      "mode": "100644",
+      "git_blob": "6d83ae20bc7a552f168e6896b11772981daddb80",
+      "bytes": 389,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6d/6d83ae20bc7a552f168e6896b11772981daddb80.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_54_exact_species_globi_v09_provider_omission.csv",
+      "mode": "100644",
+      "git_blob": "488fed3e76a5bb2f06396e0f64f4114c0dc55bf9",
+      "bytes": 445,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/48/488fed3e76a5bb2f06396e0f64f4114c0dc55bf9.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_54_exact_species_guild_direct_open_flower_crosscheck.csv",
+      "mode": "100644",
+      "git_blob": "fb123e51eca2ddfabd99ebccb52f09d6cdccc595",
+      "bytes": 540,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/fb/fb123e51eca2ddfabd99ebccb52f09d6cdccc595.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_54_exact_species_guild_pair_documentation.csv",
+      "mode": "100644",
+      "git_blob": "8eb9cd626ef693be4428b90bd860f6bd0e8e3c98",
+      "bytes": 558,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/8e/8eb9cd626ef693be4428b90bd860f6bd0e8e3c98.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_54_morphology_template_ambiguity.csv",
+      "mode": "100644",
+      "git_blob": "59d94dfb5100c0054605371eba6a9b9c38b1947e",
+      "bytes": 380,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/59/59d94dfb5100c0054605371eba6a9b9c38b1947e.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_54_species_direct_functional_trait_coverage.csv",
+      "mode": "100644",
+      "git_blob": "e152085dee84b7f45984c797d37cb94d19167064",
+      "bytes": 383,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e1/e152085dee84b7f45984c797d37cb94d19167064.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/native_same_species_GIFT_source_fieldwork_feasibility.json",
+      "mode": "100644",
+      "git_blob": "bcfab058f8d695889fba8c091ba4e0e08ef88652",
+      "bytes": 1847,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/bc/bcfab058f8d695889fba8c091ba4e0e08ef88652.json"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/source_matched_21_candidate_receipt.json",
+      "mode": "100644",
+      "git_blob": "e1122f0316bdad251addcc38a08c656efb5250ca",
+      "bytes": 1790,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e1/e1122f0316bdad251addcc38a08c656efb5250ca.json"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/source_matched_21_island_RaoQ_trait_coordination.csv",
+      "mode": "100644",
+      "git_blob": "ac6f7eaa463d5d6aedc4b3e69131aa9d88012c56",
+      "bytes": 547,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ac/ac6f7eaa463d5d6aedc4b3e69131aa9d88012c56.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/source_matched_candidate_21_block_sensitivity.csv",
+      "mode": "100644",
+      "git_blob": "2a426c7653c9e2e6dd6e35ebc37307a22d66af07",
+      "bytes": 1074,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/2a/2a426c7653c9e2e6dd6e35ebc37307a22d66af07.csv"
+    },
+    {
+      "path": "results/20261112_pollinator_shift/source_matched_direct_flora_region_aggregate.csv",
+      "mode": "100644",
+      "git_blob": "1e099b5eb8a61cc13c4915a40cdb4f4e3c43c071",
+      "bytes": 1312,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/1e/1e099b5eb8a61cc13c4915a40cdb4f4e3c43c071.csv"
+    },
+    {
+      "path": "scripts/fetch_island_aggregates.py",
+      "mode": "100644",
+      "git_blob": "6ab27bedbb6e6300d4e410d7be24cc2bbf026922",
+      "bytes": 3434,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6a/6ab27bedbb6e6300d4e410d7be24cc2bbf026922.py"
+    },
+    {
+      "path": "scripts/fetch_public_origin_refs.py",
+      "mode": "100644",
+      "git_blob": "94fa2c2f3a4425f50c190032d17494c898b9feb2",
+      "bytes": 2206,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/94/94fa2c2f3a4425f50c190032d17494c898b9feb2.py"
+    },
+    {
+      "path": "scripts/probe_island_origin_sources.py",
+      "mode": "100644",
+      "git_blob": "e5ae8a26599ee68a5578bd0b1c2de5bb71228b7f",
+      "bytes": 5368,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e5/e5ae8a26599ee68a5578bd0b1c2de5bb71228b7f.py"
+    },
+    {
+      "path": "scripts/probe_roeble_origin.py",
+      "mode": "100644",
+      "git_blob": "637f9ced1c4ad5e3a64989ea1820850520893f3a",
+      "bytes": 4517,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/63/637f9ced1c4ad5e3a64989ea1820850520893f3a.py"
+    },
+    {
+      "path": "src/fd/__init__.py",
+      "mode": "100644",
+      "git_blob": "a0907de48c396e3989cc683e9b59fa4e8652a1da",
+      "bytes": 116,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/a0/a0907de48c396e3989cc683e9b59fa4e8652a1da.py"
+    },
+    {
+      "path": "src/fd/archipelago_cv.py",
+      "mode": "100644",
+      "git_blob": "447d5057b570e3edb22299f3bcc604b45a109f1c",
+      "bytes": 25831,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/44/447d5057b570e3edb22299f3bcc604b45a109f1c.py"
+    },
+    {
+      "path": "src/fd/core.py",
+      "mode": "100644",
+      "git_blob": "179a14597b860297a41e5b0cbd79932ad7d9168f",
+      "bytes": 6515,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/17/179a14597b860297a41e5b0cbd79932ad7d9168f.py"
+    },
+    {
+      "path": "src/fd/coverage_rarefaction.py",
+      "mode": "100644",
+      "git_blob": "7f986748ea47b596efe926e4d0d07e93fdb0a599",
+      "bytes": 13209,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/7f/7f986748ea47b596efe926e4d0d07e93fdb0a599.py"
+    },
+    {
+      "path": "src/fd/effort_audit.py",
+      "mode": "100644",
+      "git_blob": "7e04da45c729a3b836843cf4cc880a916b863066",
+      "bytes": 15065,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/7e/7e04da45c729a3b836843cf4cc880a916b863066.py"
+    },
+    {
+      "path": "src/fd/floral_syndrome_coupling.py",
+      "mode": "100644",
+      "git_blob": "2267a593d78975a9251c9df372a00cdfde257118",
+      "bytes": 11170,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/22/2267a593d78975a9251c9df372a00cdfde257118.py"
+    },
+    {
+      "path": "src/fd/g1_fixed_margins.py",
+      "mode": "100644",
+      "git_blob": "fcd518c4fb15cd52a345b3cf892e3ce575c73ea1",
+      "bytes": 17192,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/fc/fcd518c4fb15cd52a345b3cf892e3ce575c73ea1.py"
+    },
+    {
+      "path": "src/fd/genus_source_null.py",
+      "mode": "100644",
+      "git_blob": "52f964aa2f78c893266c95067196974ae7813184",
+      "bytes": 19035,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/52/52f964aa2f78c893266c95067196974ae7813184.py"
+    },
+    {
+      "path": "src/fd/geography_independent.py",
+      "mode": "100644",
+      "git_blob": "48565896e4fd7c9d6a06eff30bb8ff85562bd8df",
+      "bytes": 17637,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/48/48565896e4fd7c9d6a06eff30bb8ff85562bd8df.py"
+    },
+    {
+      "path": "src/fd/globi_channel_composition_cv.py",
+      "mode": "100644",
+      "git_blob": "9a1f6d43e7fca5728d41e6485ddf2ff04db929d9",
+      "bytes": 9253,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/9a/9a1f6d43e7fca5728d41e6485ddf2ff04db929d9.py"
+    },
+    {
+      "path": "src/fd/globi_family_guild_audit.py",
+      "mode": "100644",
+      "git_blob": "1ef8cba17e2b34307aa570883236af35119e567c",
+      "bytes": 4886,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/1e/1ef8cba17e2b34307aa570883236af35119e567c.py"
+    },
+    {
+      "path": "src/fd/globi_family_holdout_cv.py",
+      "mode": "100644",
+      "git_blob": "d8f33554aab11bd7354620fbff804a3d171c7a1b",
+      "bytes": 11723,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d8/d8f33554aab11bd7354620fbff804a3d171c7a1b.py"
+    },
+    {
+      "path": "src/fd/globi_family_lofo.py",
+      "mode": "100644",
+      "git_blob": "e120599e6f6b99de3be63079ea8faca85e4ccc77",
+      "bytes": 5044,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e1/e120599e6f6b99de3be63079ea8faca85e4ccc77.py"
+    },
+    {
+      "path": "src/fd/globi_morphology_falsification.py",
+      "mode": "100644",
+      "git_blob": "83c7bdcf77407e0ebb2a0826dac09b608c352804",
+      "bytes": 7145,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/83/83c7bdcf77407e0ebb2a0826dac09b608c352804.py"
+    },
+    {
+      "path": "src/fd/globi_provider_provenance_gate.py",
+      "mode": "100644",
+      "git_blob": "83c111fd4c01b7cc015c83f9363ff1027d7977ab",
+      "bytes": 5256,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/83/83c111fd4c01b7cc015c83f9363ff1027d7977ab.py"
+    },
+    {
+      "path": "src/fd/heldout_mainland_prediction.py",
+      "mode": "100644",
+      "git_blob": "213adc5a1799430b5c634cb3b6ce99958f13a6fb",
+      "bytes": 26915,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/21/213adc5a1799430b5c634cb3b6ce99958f13a6fb.py"
+    },
+    {
+      "path": "src/fd/hypervolume.py",
+      "mode": "100644",
+      "git_blob": "6589e001bfbad8210f8158d3e178b3ab17839dd3",
+      "bytes": 11107,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/65/6589e001bfbad8210f8158d3e178b3ab17839dd3.py"
+    },
+    {
+      "path": "src/fd/hypervolume17.py",
+      "mode": "100644",
+      "git_blob": "0688e61138e1e7ca4beb8d5aad3df4aac2884f07",
+      "bytes": 14260,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/06/0688e61138e1e7ca4beb8d5aad3df4aac2884f07.py"
+    },
+    {
+      "path": "src/fd/mainland_source_residual.py",
+      "mode": "100644",
+      "git_blob": "672f0a3bcb379fa69c02b3cce5eb9bd5be8ef1a6",
+      "bytes": 13732,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/67/672f0a3bcb379fa69c02b3cce5eb9bd5be8ef1a6.py"
+    },
+    {
+      "path": "src/fd/origin.py",
+      "mode": "100644",
+      "git_blob": "8cbd6e0e11923f393b8191e18a38a2eb7901ef07",
+      "bytes": 17846,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/8c/8cbd6e0e11923f393b8191e18a38a2eb7901ef07.py"
+    },
+    {
+      "path": "src/fd/origin_analysis.py",
+      "mode": "100644",
+      "git_blob": "ae255d01e61e94c5d690b3d51c8a90655d8ffe57",
+      "bytes": 12315,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ae/ae255d01e61e94c5d690b3d51c8a90655d8ffe57.py"
+    },
+    {
+      "path": "src/fd/origin_null.py",
+      "mode": "100644",
+      "git_blob": "6869b7833751fc459db6c730cf08a0ebac7b8527",
+      "bytes": 10881,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/68/6869b7833751fc459db6c730cf08a0ebac7b8527.py"
+    },
+    {
+      "path": "src/fd/pipeline.py",
+      "mode": "100644",
+      "git_blob": "ed0443d5dbfdaa67ca854045999b4f4685882185",
+      "bytes": 7881,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ed/ed0443d5dbfdaa67ca854045999b4f4685882185.py"
+    },
+    {
+      "path": "src/fd/pollinator_assemblage_bridge.py",
+      "mode": "100644",
+      "git_blob": "b623714bb19e892e73d631d6db84a1b3a73d744a",
+      "bytes": 8810,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/b6/b623714bb19e892e73d631d6db84a1b3a73d744a.py"
+    },
+    {
+      "path": "src/fd/pollinator_shift_opportunity.py",
+      "mode": "100644",
+      "git_blob": "ef97ba725443f9418b7aadd54ebd2ac21ff99487",
+      "bytes": 5149,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ef/ef97ba725443f9418b7aadd54ebd2ac21ff99487.py"
+    },
+    {
+      "path": "src/fd/pollinator_shift_source_pool.py",
+      "mode": "100644",
+      "git_blob": "aea1a0e7020521de3f504f0a01519307c6823dcd",
+      "bytes": 11972,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ae/aea1a0e7020521de3f504f0a01519307c6823dcd.py"
+    },
+    {
+      "path": "src/fd/repertoire.py",
+      "mode": "100644",
+      "git_blob": "3703b1d7a931f3901724c4ce3f6251b3a5ad1023",
+      "bytes": 22757,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/37/3703b1d7a931f3901724c4ce3f6251b3a5ad1023.py"
+    },
+    {
+      "path": "src/fd/repertoire_sensitivity.py",
+      "mode": "100644",
+      "git_blob": "6b79df7bfc7aa4a7e80079700efa9489c37c12e8",
+      "bytes": 7274,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6b/6b79df7bfc7aa4a7e80079700efa9489c37c12e8.py"
+    },
+    {
+      "path": "src/fd/source_genus_opportunity.py",
+      "mode": "100644",
+      "git_blob": "6729abae8138f9711d62a07b1cf9bdd993435fb8",
+      "bytes": 19091,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/67/6729abae8138f9711d62a07b1cf9bdd993435fb8.py"
+    },
+    {
+      "path": "src/fd/spatial_clusters.py",
+      "mode": "100644",
+      "git_blob": "9c292cc98074a09fc0a0dee6214c6fe9cbba125f",
+      "bytes": 13313,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/9c/9c292cc98074a09fc0a0dee6214c6fe9cbba125f.py"
+    },
+    {
+      "path": "src/fd/two_stage_assembly.py",
+      "mode": "100644",
+      "git_blob": "61cf822221f0caafeced66a1ca7fe3f3d34a78d9",
+      "bytes": 17285,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/61/61cf822221f0caafeced66a1ca7fe3f3d34a78d9.py"
+    },
+    {
+      "path": "tests/test_archipelago_cv.py",
+      "mode": "100644",
+      "git_blob": "63f6c467ead7bd5dd8f0d3c2e29e0e091482488c",
+      "bytes": 4032,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/63/63f6c467ead7bd5dd8f0d3c2e29e0e091482488c.py"
+    },
+    {
+      "path": "tests/test_coverage_rarefaction.py",
+      "mode": "100644",
+      "git_blob": "7bab07c649901055c32270c387cf86f729a4aacf",
+      "bytes": 4195,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/7b/7bab07c649901055c32270c387cf86f729a4aacf.py"
+    },
+    {
+      "path": "tests/test_effort_audit.py",
+      "mode": "100644",
+      "git_blob": "0ff0a99509f0df90522e76a1a12c6d787fab9ab1",
+      "bytes": 3381,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/0f/0ff0a99509f0df90522e76a1a12c6d787fab9ab1.py"
+    },
+    {
+      "path": "tests/test_fd.py",
+      "mode": "100644",
+      "git_blob": "abebedf29999fd6d4db4fac11e7c7197821ee129",
+      "bytes": 5956,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ab/abebedf29999fd6d4db4fac11e7c7197821ee129.py"
+    },
+    {
+      "path": "tests/test_floral_syndrome_coupling.py",
+      "mode": "100644",
+      "git_blob": "cbd499ce22ec5701e7bd9ed0760c01d016796ba6",
+      "bytes": 4003,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/cb/cbd499ce22ec5701e7bd9ed0760c01d016796ba6.py"
+    },
+    {
+      "path": "tests/test_g1_hypervolume.py",
+      "mode": "100644",
+      "git_blob": "6624031a2c04a91f04acd65d68be5856999cd265",
+      "bytes": 4604,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/66/6624031a2c04a91f04acd65d68be5856999cd265.py"
+    },
+    {
+      "path": "tests/test_genus_source_null.py",
+      "mode": "100644",
+      "git_blob": "a6b26384d97b0428c0917078561e22f571d23834",
+      "bytes": 5285,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/a6/a6b26384d97b0428c0917078561e22f571d23834.py"
+    },
+    {
+      "path": "tests/test_geography_independent.py",
+      "mode": "100644",
+      "git_blob": "e080377de404eb51eac68c6996c6fb7ba73b07f2",
+      "bytes": 4735,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e0/e080377de404eb51eac68c6996c6fb7ba73b07f2.py"
+    },
+    {
+      "path": "tests/test_globi_channel_composition_cv.py",
+      "mode": "100644",
+      "git_blob": "cbfd31e6bb1c3cc16b38bdaee748c68dfaed9a41",
+      "bytes": 3717,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/cb/cbfd31e6bb1c3cc16b38bdaee748c68dfaed9a41.py"
+    },
+    {
+      "path": "tests/test_globi_family_guild_audit.py",
+      "mode": "100644",
+      "git_blob": "81736a8ac4ac34b865dc493a98f2d6ebe0857a59",
+      "bytes": 2185,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/81/81736a8ac4ac34b865dc493a98f2d6ebe0857a59.py"
+    },
+    {
+      "path": "tests/test_globi_family_holdout_cv.py",
+      "mode": "100644",
+      "git_blob": "3d83b02f2d6020c6f99aa2ba0661c34d8ad91c60",
+      "bytes": 4727,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/3d/3d83b02f2d6020c6f99aa2ba0661c34d8ad91c60.py"
+    },
+    {
+      "path": "tests/test_globi_family_lofo.py",
+      "mode": "100644",
+      "git_blob": "511e1c33b1327584c7f993fb35169d8e9fb8adcb",
+      "bytes": 2421,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/51/511e1c33b1327584c7f993fb35169d8e9fb8adcb.py"
+    },
+    {
+      "path": "tests/test_globi_morphology_falsification.py",
+      "mode": "100644",
+      "git_blob": "6e6de8819cb11fbd4bb4a9d2183af9f7dae89ad9",
+      "bytes": 3179,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6e/6e6de8819cb11fbd4bb4a9d2183af9f7dae89ad9.py"
+    },
+    {
+      "path": "tests/test_globi_provider_provenance_gate.py",
+      "mode": "100644",
+      "git_blob": "5b03bd6c3f68cec71a470ed222cdff2e665c9356",
+      "bytes": 2347,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/5b/5b03bd6c3f68cec71a470ed222cdff2e665c9356.py"
+    },
+    {
+      "path": "tests/test_heldout_mainland_prediction.py",
+      "mode": "100644",
+      "git_blob": "8b6b35f3ccad02ae23540173bef8f071fb9d8408",
+      "bytes": 4431,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/8b/8b6b35f3ccad02ae23540173bef8f071fb9d8408.py"
+    },
+    {
+      "path": "tests/test_mainland_source_residual.py",
+      "mode": "100644",
+      "git_blob": "733f3d4add17fa54ce5223d84401cb8cb473298e",
+      "bytes": 2872,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/73/733f3d4add17fa54ce5223d84401cb8cb473298e.py"
+    },
+    {
+      "path": "tests/test_origin_strata.py",
+      "mode": "100644",
+      "git_blob": "6bc0f6dc5777cb929402ca177c93c8baa76c9b47",
+      "bytes": 4029,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6b/6bc0f6dc5777cb929402ca177c93c8baa76c9b47.py"
+    },
+    {
+      "path": "tests/test_pollinator_assemblage_bridge.py",
+      "mode": "100644",
+      "git_blob": "13d133b8b8f21476366d5d0f68e493b9b88077aa",
+      "bytes": 3962,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/13/13d133b8b8f21476366d5d0f68e493b9b88077aa.py"
+    },
+    {
+      "path": "tests/test_pollinator_shift_opportunity.py",
+      "mode": "100644",
+      "git_blob": "98acd464d8219130e7561422b2954ab1630afe63",
+      "bytes": 2596,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/98/98acd464d8219130e7561422b2954ab1630afe63.py"
+    },
+    {
+      "path": "tests/test_pollinator_shift_source_pool.py",
+      "mode": "100644",
+      "git_blob": "8d39dc153b07b74e649063bc8b8bb0ebaaf2df20",
+      "bytes": 3939,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/8d/8d39dc153b07b74e649063bc8b8bb0ebaaf2df20.py"
+    },
+    {
+      "path": "tests/test_repertoire.py",
+      "mode": "100644",
+      "git_blob": "1ce8b5bd26516d41fd7eadb4070d1c6ab43282e4",
+      "bytes": 4791,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/1c/1ce8b5bd26516d41fd7eadb4070d1c6ab43282e4.py"
+    },
+    {
+      "path": "tests/test_source_opportunity_hv17.py",
+      "mode": "100644",
+      "git_blob": "a3259d196d3db67b7569d78251052e02b6106187",
+      "bytes": 4106,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/a3/a3259d196d3db67b7569d78251052e02b6106187.py"
+    },
+    {
+      "path": "tests/test_spatial_clusters.py",
+      "mode": "100644",
+      "git_blob": "7dbcd2cc1635acadc1938f2649b19518c8fcd43d",
+      "bytes": 3587,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/7d/7dbcd2cc1635acadc1938f2649b19518c8fcd43d.py"
+    },
+    {
+      "path": "tests/test_two_stage_assembly.py",
+      "mode": "100644",
+      "git_blob": "2f05b70a1534e336f00ec5922e740f295752f8a2",
+      "bytes": 3742,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/2f/2f05b70a1534e336f00ec5922e740f295752f8a2.py"
+    }
+  ]
+}

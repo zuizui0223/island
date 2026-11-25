@@ -1,0 +1,5 @@
+analysis_regime,n_named_archipelago_islands,n_archipelago_regime_groups_at_least_4,n_targets_with_source_predictions,n_groups_with_source_predictions,n_targets_with_distance_matched_controls,n_groups_with_distance_matched_controls,median_same_archipelago_third_donor_km,median_matched_distance_gap_log,n_three_nearest_geo_donors_all_same_archipelago,fraction_three_nearest_geo_donors_all_same_archipelago,mean_source_geo_donor_overlap_of_three
+northern_high_latitude,14,1,8,1,0,0,43.018758,,8,1.0,3.0
+northern_midlatitude,482,31,450,31,33,14,47.459051,0.793974,433,0.962222,2.951111
+southern_extratropical,41,2,25,2,0,0,135.503982,,24,0.960000,2.960000
+tropical,174,11,123,11,18,5,201.722026,0.871401,116,0.943089,2.910569

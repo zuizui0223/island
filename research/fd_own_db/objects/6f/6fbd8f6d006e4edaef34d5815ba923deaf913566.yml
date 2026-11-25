@@ -1,0 +1,32 @@
+name: Audit island geological-origin data
+
+on:
+  push:
+    branches: [analysis/origin-stratified-functional-diversity]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-origin-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Inspect geography and third-party origin data availability
+        run: python scripts/probe_island_origin_sources.py --output results/origin_source_audit
+      - name: Fetch public geology supplementary references, not commit them
+        run: python scripts/fetch_public_origin_refs.py --output work/origin_references
+      - name: Retain evidence and original reference table artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: origin-source-audit
+          path: |
+            results/origin_source_audit/origin_source_audit.json
+            work/origin_references
+          retention-days: 14

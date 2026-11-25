@@ -1,0 +1,1067 @@
+{
+  "geology": {
+    "contrasts": [
+      [
+        "Oceanic − continental",
+        6.69,
+        3.56,
+        10,
+        124,
+        37
+      ],
+      [
+        "LGM unconnected − connected",
+        6.9,
+        2.91,
+        10.71,
+        347,
+        257
+      ]
+    ],
+    "overlap": [
+      [
+        16,
+        21
+      ],
+      [
+        0,
+        122
+      ]
+    ]
+  },
+  "q": [
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "autonomous_selfing_capacity",
+      "n": 1477,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "cleistogamy",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "floral_form",
+      "n": 1661,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "floral_form__floral_symmetry",
+      "n": 1590,
+      "category": "negative",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "floral_symmetry",
+      "n": 1722,
+      "category": "negative",
+      "Q": "negative"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "flower_primary_color",
+      "n": 1727,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "flower_primary_color__floral_form",
+      "n": 1463,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "flower_primary_color__floral_symmetry",
+      "n": 1564,
+      "category": "negative",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "flower_size_class",
+      "n": 1601,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "inflorescence_display",
+      "n": 1741,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "mating_system",
+      "n": 1613,
+      "category": "ambiguous",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "self_incompatibility",
+      "n": 1712,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "northern_midlatitude",
+      "endpoint": "tube_depth_class",
+      "n": 1537,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "autonomous_selfing_capacity",
+      "n": 122,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "cleistogamy",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "floral_form",
+      "n": 157,
+      "category": "positive",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "floral_form__floral_symmetry",
+      "n": 144,
+      "category": "positive",
+      "Q": "negative"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "floral_symmetry",
+      "n": 178,
+      "category": "positive",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "flower_primary_color",
+      "n": 184,
+      "category": "positive",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "flower_primary_color__floral_form",
+      "n": 140,
+      "category": "positive",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "flower_primary_color__floral_symmetry",
+      "n": 162,
+      "category": "positive",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "flower_size_class",
+      "n": 150,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "inflorescence_display",
+      "n": 175,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "mating_system",
+      "n": 141,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "self_incompatibility",
+      "n": 179,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "southern_extratropical",
+      "endpoint": "tube_depth_class",
+      "n": 124,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "autonomous_selfing_capacity",
+      "n": 606,
+      "category": "positive",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "cleistogamy",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "floral_form",
+      "n": 771,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "floral_form__floral_symmetry",
+      "n": 691,
+      "category": "negative",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "floral_symmetry",
+      "n": 925,
+      "category": "positive",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "flower_primary_color",
+      "n": 921,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "flower_primary_color__floral_form",
+      "n": 582,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "flower_primary_color__floral_symmetry",
+      "n": 769,
+      "category": "negative",
+      "Q": "negative"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "flower_size_class",
+      "n": 843,
+      "category": "ambiguous",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "inflorescence_display",
+      "n": 950,
+      "category": "ambiguous",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "mating_system",
+      "n": 381,
+      "category": "ambiguous",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "self_incompatibility",
+      "n": 766,
+      "category": "positive",
+      "Q": "positive"
+    },
+    {
+      "scope": "all_recorded",
+      "region": "tropical",
+      "endpoint": "tube_depth_class",
+      "n": 727,
+      "category": "negative",
+      "Q": "negative"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "autonomous_selfing_capacity",
+      "n": 145,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "cleistogamy",
+      "n": 14,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "floral_form",
+      "n": 224,
+      "category": "negative",
+      "Q": "positive"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "floral_form__floral_symmetry",
+      "n": 216,
+      "category": "negative",
+      "Q": "negative"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "floral_symmetry",
+      "n": 229,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "flower_primary_color",
+      "n": 229,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "flower_primary_color__floral_form",
+      "n": 214,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "flower_primary_color__floral_symmetry",
+      "n": 221,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "flower_size_class",
+      "n": 223,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "inflorescence_display",
+      "n": 229,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "mating_system",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "self_incompatibility",
+      "n": 227,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "northern_midlatitude",
+      "endpoint": "tube_depth_class",
+      "n": 208,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "autonomous_selfing_capacity",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "cleistogamy",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "floral_form",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "floral_form__floral_symmetry",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "floral_symmetry",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "flower_primary_color",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "flower_primary_color__floral_form",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "flower_primary_color__floral_symmetry",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "flower_size_class",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "inflorescence_display",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "mating_system",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "self_incompatibility",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "southern_extratropical",
+      "endpoint": "tube_depth_class",
+      "n": 0,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "autonomous_selfing_capacity",
+      "n": 51,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "cleistogamy",
+      "n": 16,
+      "category": "unsupported",
+      "Q": "unsupported"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "floral_form",
+      "n": 112,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "floral_form__floral_symmetry",
+      "n": 102,
+      "category": "negative",
+      "Q": "negative"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "floral_symmetry",
+      "n": 124,
+      "category": "positive",
+      "Q": "positive"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "flower_primary_color",
+      "n": 126,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "flower_primary_color__floral_form",
+      "n": 91,
+      "category": "negative",
+      "Q": "positive"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "flower_primary_color__floral_symmetry",
+      "n": 106,
+      "category": "ambiguous",
+      "Q": "negative"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "flower_size_class",
+      "n": 109,
+      "category": "negative",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "inflorescence_display",
+      "n": 127,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "mating_system",
+      "n": 65,
+      "category": "ambiguous",
+      "Q": "ambiguous"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "self_incompatibility",
+      "n": 115,
+      "category": "ambiguous",
+      "Q": "positive"
+    },
+    {
+      "scope": "original_native",
+      "region": "tropical",
+      "endpoint": "tube_depth_class",
+      "n": 107,
+      "category": "negative",
+      "Q": "negative"
+    }
+  ],
+  "qcount": {
+    "all_recorded__northern_midlatitude": {
+      "n": 13,
+      "supported": 12,
+      "category": 0,
+      "Q": 3,
+      "both": 0
+    },
+    "all_recorded__southern_extratropical": {
+      "n": 13,
+      "supported": 12,
+      "category": 6,
+      "Q": 3,
+      "both": 3
+    },
+    "all_recorded__tropical": {
+      "n": 13,
+      "supported": 12,
+      "category": 3,
+      "Q": 7,
+      "both": 3
+    },
+    "original_native__northern_midlatitude": {
+      "n": 13,
+      "supported": 11,
+      "category": 0,
+      "Q": 1,
+      "both": 0
+    },
+    "original_native__southern_extratropical": {
+      "n": 13,
+      "supported": 0,
+      "category": 0,
+      "Q": 0,
+      "both": 0
+    },
+    "original_native__tropical": {
+      "n": 13,
+      "supported": 12,
+      "category": 1,
+      "Q": 3,
+      "both": 1
+    }
+  },
+  "flight": [
+    [
+      "All birds",
+      497,
+      9,
+      10,
+      0.0844262
+    ],
+    [
+      "Nectar >0",
+      66,
+      4,
+      5,
+      0.2367252
+    ],
+    [
+      "Nectar ≥20",
+      41,
+      2,
+      4,
+      0.2130432
+    ],
+    [
+      "Nectar ≥50",
+      16,
+      1,
+      1,
+      1.0907006
+    ],
+    [
+      "Nectar =0",
+      431,
+      9,
+      10,
+      0.0779588
+    ]
+  ],
+  "butter": [
+    {
+      "panel": "all_log_wingspan_10",
+      "n": 58,
+      "groups": 7,
+      "species": 897,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.0046770047641125105,
+      "p_genus": 0.569,
+      "p_family": 0.355
+    },
+    {
+      "panel": "all_log_wingspan_10",
+      "n": 58,
+      "groups": 7,
+      "species": 897,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": -0.002454053572486702,
+      "p_genus": 0.642,
+      "p_family": 0.393
+    },
+    {
+      "panel": "all_log_wingspan_50",
+      "n": 44,
+      "groups": 5,
+      "species": 897,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.0020747651635809393,
+      "p_genus": 0.138,
+      "p_family": 0.685
+    },
+    {
+      "panel": "all_log_wingspan_50",
+      "n": 44,
+      "groups": 5,
+      "species": 897,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": 0.0005705015746813337,
+      "p_genus": 0.2,
+      "p_family": 0.759
+    },
+    {
+      "panel": "all_log_host_families_10",
+      "n": 75,
+      "groups": 8,
+      "species": 1088,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.026071460057301668,
+      "p_genus": 0.004,
+      "p_family": 0.013
+    },
+    {
+      "panel": "all_log_host_families_10",
+      "n": 75,
+      "groups": 8,
+      "species": 1088,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": -0.020829682315450418,
+      "p_genus": 0.005,
+      "p_family": 0.022
+    },
+    {
+      "panel": "all_log_host_families_50",
+      "n": 56,
+      "groups": 6,
+      "species": 1085,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.005520522587068802,
+      "p_genus": 0.202,
+      "p_family": 0.563
+    },
+    {
+      "panel": "all_log_host_families_50",
+      "n": 56,
+      "groups": 6,
+      "species": 1085,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": -0.0005073383287671593,
+      "p_genus": 0.386,
+      "p_family": 0.975
+    },
+    {
+      "panel": "precision_le1km_log_wingspan_10",
+      "n": 40,
+      "groups": 6,
+      "species": 740,
+      "status": "estimated",
+      "model": "raw",
+      "slope": 0.009200182730041206,
+      "p_genus": 0.785,
+      "p_family": 0.608
+    },
+    {
+      "panel": "precision_le1km_log_wingspan_10",
+      "n": 40,
+      "groups": 6,
+      "species": 740,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": 0.009062936375579696,
+      "p_genus": 0.781,
+      "p_family": 0.591
+    },
+    {
+      "panel": "precision_le1km_log_wingspan_50",
+      "n": 26,
+      "groups": 3,
+      "species": 739,
+      "status": "estimated",
+      "model": "raw",
+      "slope": 0.00741448575100621,
+      "p_genus": 0.28,
+      "p_family": 0.939
+    },
+    {
+      "panel": "precision_le1km_log_wingspan_50",
+      "n": 26,
+      "groups": 3,
+      "species": 739,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": 0.022460425307042373,
+      "p_genus": 0.425,
+      "p_family": 0.806
+    },
+    {
+      "panel": "precision_le1km_log_host_families_10",
+      "n": 50,
+      "groups": 7,
+      "species": 904,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.013776519077723745,
+      "p_genus": 0.182,
+      "p_family": 0.371
+    },
+    {
+      "panel": "precision_le1km_log_host_families_10",
+      "n": 50,
+      "groups": 7,
+      "species": 904,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": -0.014146394110522069,
+      "p_genus": 0.174,
+      "p_family": 0.335
+    },
+    {
+      "panel": "precision_le1km_log_host_families_50",
+      "n": 31,
+      "groups": 3,
+      "species": 898,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.026200475993200783,
+      "p_genus": 0.073,
+      "p_family": 0.029
+    },
+    {
+      "panel": "precision_le1km_log_host_families_50",
+      "n": 31,
+      "groups": 3,
+      "species": 898,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": -0.005068409176012438,
+      "p_genus": 0.877,
+      "p_family": 0.904
+    },
+    {
+      "panel": "no_gbifid_with_reference_log_wingspan_10",
+      "n": 35,
+      "groups": 4,
+      "species": 614,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.00754542388035781,
+      "p_genus": 0.24,
+      "p_family": 0.734
+    },
+    {
+      "panel": "no_gbifid_with_reference_log_wingspan_10",
+      "n": 35,
+      "groups": 4,
+      "species": 614,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": -0.011330554856678717,
+      "p_genus": 0.239,
+      "p_family": 0.749
+    },
+    {
+      "panel": "no_gbifid_with_reference_log_wingspan_50",
+      "n": 19,
+      "groups": 3,
+      "species": 594,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.004361565013250676,
+      "p_genus": 0.175,
+      "p_family": 0.565
+    },
+    {
+      "panel": "no_gbifid_with_reference_log_wingspan_50",
+      "n": 19,
+      "groups": 3,
+      "species": 594,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": 0.003509753419591447,
+      "p_genus": 0.127,
+      "p_family": 0.574
+    },
+    {
+      "panel": "no_gbifid_with_reference_log_host_families_10",
+      "n": 42,
+      "groups": 4,
+      "species": 681,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.042402187636279384,
+      "p_genus": 0.002,
+      "p_family": 0.047
+    },
+    {
+      "panel": "no_gbifid_with_reference_log_host_families_10",
+      "n": 42,
+      "groups": 4,
+      "species": 681,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": -0.035158579040983684,
+      "p_genus": 0.004,
+      "p_family": 0.056
+    },
+    {
+      "panel": "no_gbifid_with_reference_log_host_families_50",
+      "n": 25,
+      "groups": 3,
+      "species": 662,
+      "status": "estimated",
+      "model": "raw",
+      "slope": -0.024271989757658284,
+      "p_genus": 0.001,
+      "p_family": 0.025
+    },
+    {
+      "panel": "no_gbifid_with_reference_log_host_families_50",
+      "n": 25,
+      "groups": 3,
+      "species": 662,
+      "status": "estimated",
+      "model": "effort_adjusted",
+      "slope": -0.018024992427176773,
+      "p_genus": 0.001,
+      "p_family": 0.067
+    }
+  ],
+  "nullcounts": {
+    "source_relative": {
+      "n": 336,
+      "raw": 10,
+      "adjusted": 0,
+      "minq": 0.7691566265060241
+    },
+    "form_depth": {
+      "n": 500,
+      "raw": 113,
+      "adjusted": 0,
+      "minq": 0.09259259259259259
+    },
+    "dual": {
+      "n": 160,
+      "raw": 4,
+      "adjusted": 0,
+      "minq": 1
+    }
+  },
+  "origin": {
+    "geo5": [
+      0.19558,
+      -0.204975,
+      0.019164,
+      -0.067116,
+      -0.038007,
+      -0.095353
+    ],
+    "climate10": [
+      0.18768,
+      -0.202644,
+      -0.003318,
+      -0.075749,
+      -0.066967,
+      -0.160997
+    ],
+    "bounds": [
+      [
+        0.25,
+        -1.2493808567827878,
+        0.9986399039412148
+      ],
+      [
+        0.5,
+        -1.2496285230266082,
+        1.0007642588112338
+      ],
+      [
+        0.75,
+        -1.2496285230266082,
+        1.002151876439238
+      ],
+      [
+        1,
+        -1.2496285230266082,
+        1.003298169262372
+      ]
+    ],
+    "allBounds": 460,
+    "sign": 0
+  }
+}

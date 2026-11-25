@@ -1,0 +1,144 @@
+{
+  "snapshot": "pr002",
+  "source_commit": "c93b4a794b5fbe6fbbc0dcf2c77a8c1c1fd092d7",
+  "source_pr": 2,
+  "state": "closed",
+  "title": "Test functional-distance fixed-margin nulls and calculate projected floral hypervolumes",
+  "files": [
+    {
+      "path": ".github/workflows/analysis.yml",
+      "mode": "100644",
+      "git_blob": "cee4a3213f2a3ee9a802aebdea084596862f13b4",
+      "bytes": 1935,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ce/cee4a3213f2a3ee9a802aebdea084596862f13b4.yml"
+    },
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "git_blob": "fbbd6ff9aa94d1ef0012a9d118e99a30580835c2",
+      "bytes": 91,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/fb/fbbd6ff9aa94d1ef0012a9d118e99a30580835c2.txt"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "git_blob": "f994364ceac25bf91eee490da1e70a93a22b714a",
+      "bytes": 6563,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/f9/f994364ceac25bf91eee490da1e70a93a22b714a.md"
+    },
+    {
+      "path": "docs/ANALYSIS_CONTRACT.md",
+      "mode": "100644",
+      "git_blob": "7fb22352a0830f933307fccac4330380c933f915",
+      "bytes": 8608,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/7f/7fb22352a0830f933307fccac4330380c933f915.md"
+    },
+    {
+      "path": "docs/G1_HYPERVOLUME.md",
+      "mode": "100644",
+      "git_blob": "d94a088d09b28ce66fa84610d854ec5b3d2e97e6",
+      "bytes": 6262,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d9/d94a088d09b28ce66fa84610d854ec5b3d2e97e6.md"
+    },
+    {
+      "path": "pyproject.toml",
+      "mode": "100644",
+      "git_blob": "c2d800b3d4420cab32ed74ff6de4240507215da1",
+      "bytes": 439,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/c2/c2d800b3d4420cab32ed74ff6de4240507215da1.toml"
+    },
+    {
+      "path": "results/20261108_g1_hypervolume/README.md",
+      "mode": "100644",
+      "git_blob": "e4fb4388235454606fddcd2b2602cdbb9a6c26af",
+      "bytes": 7462,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e4/e4fb4388235454606fddcd2b2602cdbb9a6c26af.md"
+    },
+    {
+      "path": "scripts/fetch_island_aggregates.py",
+      "mode": "100644",
+      "git_blob": "6ab27bedbb6e6300d4e410d7be24cc2bbf026922",
+      "bytes": 3434,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6a/6ab27bedbb6e6300d4e410d7be24cc2bbf026922.py"
+    },
+    {
+      "path": "src/fd/__init__.py",
+      "mode": "100644",
+      "git_blob": "a0907de48c396e3989cc683e9b59fa4e8652a1da",
+      "bytes": 116,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/a0/a0907de48c396e3989cc683e9b59fa4e8652a1da.py"
+    },
+    {
+      "path": "src/fd/core.py",
+      "mode": "100644",
+      "git_blob": "179a14597b860297a41e5b0cbd79932ad7d9168f",
+      "bytes": 6515,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/17/179a14597b860297a41e5b0cbd79932ad7d9168f.py"
+    },
+    {
+      "path": "src/fd/g1_fixed_margins.py",
+      "mode": "100644",
+      "git_blob": "fcd518c4fb15cd52a345b3cf892e3ce575c73ea1",
+      "bytes": 17192,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/fc/fcd518c4fb15cd52a345b3cf892e3ce575c73ea1.py"
+    },
+    {
+      "path": "src/fd/hypervolume.py",
+      "mode": "100644",
+      "git_blob": "6589e001bfbad8210f8158d3e178b3ab17839dd3",
+      "bytes": 11107,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/65/6589e001bfbad8210f8158d3e178b3ab17839dd3.py"
+    },
+    {
+      "path": "src/fd/pipeline.py",
+      "mode": "100644",
+      "git_blob": "ed0443d5dbfdaa67ca854045999b4f4685882185",
+      "bytes": 7881,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ed/ed0443d5dbfdaa67ca854045999b4f4685882185.py"
+    },
+    {
+      "path": "tests/test_fd.py",
+      "mode": "100644",
+      "git_blob": "abebedf29999fd6d4db4fac11e7c7197821ee129",
+      "bytes": 5956,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ab/abebedf29999fd6d4db4fac11e7c7197821ee129.py"
+    },
+    {
+      "path": "tests/test_g1_hypervolume.py",
+      "mode": "100644",
+      "git_blob": "6624031a2c04a91f04acd65d68be5856999cd265",
+      "bytes": 4604,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/66/6624031a2c04a91f04acd65d68be5856999cd265.py"
+    }
+  ]
+}

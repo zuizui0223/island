@@ -1,0 +1,3 @@
+metric,n_candidate_islands,n_spatial_blocks,standardized_species_per_pool,rarefaction_repeats,colour_shuffle_draws_per_rarefaction,median_island_minus_geographic_source,n_islands_higher_than_source,equal_spatial_block_mean_difference,conditional_block_bootstrap_025,conditional_block_bootstrap_975,actual_pollinator_shift_measured
+marginal_floral_Rao_Q,21,14,30,120,29,-0.018858025,7,-0.001568673,-0.018059221,0.014363442,false
+colour_architecture_coupling_excess_MI_nats,21,14,30,120,29,-0.026626189,9,-0.015501432,-0.049419088,0.018282360,false

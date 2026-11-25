@@ -1,0 +1,2754 @@
+{
+  "q3": {
+    "autonomous_all_recorded_geo_k5_inclusive": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 27,
+        "target_geographic_eligible": 15,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_all_recorded_geo_k5_disjoint": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 27,
+        "target_geographic_eligible": 15,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_all_recorded_geo50_climate10_inclusive": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 27,
+        "target_geographic_eligible": 15,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_all_recorded_geo50_climate10_disjoint": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 27,
+        "target_geographic_eligible": 15,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_original_native_geo_k5_inclusive": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 27,
+        "target_geographic_eligible": 0,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_original_native_geo_k5_disjoint": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 27,
+        "target_geographic_eligible": 0,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_original_native_geo50_climate10_inclusive": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 27,
+        "target_geographic_eligible": 0,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_original_native_geo50_climate10_disjoint": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 27,
+        "target_geographic_eligible": 0,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_high_quality_only_geo_k5_inclusive": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 9,
+        "target_geographic_eligible": 0,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_high_quality_only_geo_k5_disjoint": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 9,
+        "target_geographic_eligible": 0,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_high_quality_only_geo50_climate10_inclusive": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 9,
+        "target_geographic_eligible": 0,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "autonomous_high_quality_only_geo50_climate10_disjoint": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 9,
+        "target_geographic_eligible": 0,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "SC_all_recorded_geo_k5_inclusive": {
+      "status": "insufficient_support",
+      "eligible_islands": 432,
+      "metric_order": [
+        "within_genus_grade",
+        "total",
+        "between_genus_grade",
+        "within_genus",
+        "between_genus"
+      ],
+      "spatial_block": {
+        "islands": 432,
+        "groups": 50,
+        "mean": [
+          -5.067955590228646e-18,
+          -0.0056842121099589995,
+          -0.005684212109958995,
+          0.000047355154000943945,
+          -0.005731567263959945
+        ],
+        "interval": [
+          [
+            -1.1262577654559562e-17,
+            8.849750416625822e-19
+          ],
+          [
+            -0.018306068393004818,
+            0.006451457655389492
+          ],
+          [
+            -0.018306068393004808,
+            0.006451457655389497
+          ],
+          [
+            -0.0006386519144679374,
+            0.000690150726721799
+          ],
+          [
+            -0.018332038936064728,
+            0.006601769494994904
+          ]
+        ],
+        "tail_negative": [
+          0.051,
+          0.179,
+          0.179,
+          0.5505,
+          0.1765
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "first_source_group": {
+        "islands": 432,
+        "groups": 64,
+        "mean": [
+          -4.267080155342788e-18,
+          -0.0022420403038423183,
+          -0.002242040303842313,
+          0.00011644371454034747,
+          -0.0023584840183826657
+        ],
+        "interval": [
+          [
+            -1.0379456208884646e-17,
+            1.4425500412376147e-18
+          ],
+          [
+            -0.012723137766154115,
+            0.0090026073055079
+          ],
+          [
+            -0.012723137766154111,
+            0.009002607305507905
+          ],
+          [
+            -0.0005710744666402784,
+            0.0007576477747040535
+          ],
+          [
+            -0.012720840806902594,
+            0.008933610098966163
+          ]
+        ],
+        "tail_negative": [
+          0.0755,
+          0.335,
+          0.335,
+          0.6245,
+          0.3305
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "worst_directional_bootstrap_tail": null,
+      "interim_four_question_p_upper_bound": null,
+      "interim_directional_candidate": false,
+      "target_informative_genus_grade_strata_median": 0,
+      "source_informative_genus_grade_strata_median": 0,
+      "island_equal_assurance_share_delta": -0.04387658049389772,
+      "support_census": {
+        "complete_trait_species": 130,
+        "target_geographic_eligible": 523,
+        "paired_size_eligible": 432,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false
+    },
+    "SC_all_recorded_geo_k5_disjoint": {
+      "status": "insufficient_support",
+      "eligible_islands": 432,
+      "metric_order": [
+        "within_genus_grade",
+        "total",
+        "between_genus_grade",
+        "within_genus",
+        "between_genus"
+      ],
+      "spatial_block": {
+        "islands": 432,
+        "groups": 50,
+        "mean": [
+          -5.831240892685446e-19,
+          -0.002478006907291174,
+          -0.0024780069072911732,
+          0.0003206326465917252,
+          -0.0027986395538829078
+        ],
+        "interval": [
+          [
+            -6.0605206696858876e-18,
+            4.5158292276795746e-18
+          ],
+          [
+            -0.02223753287066416,
+            0.017604216248174518
+          ],
+          [
+            -0.022237532870664167,
+            0.01760421624817452
+          ],
+          [
+            -0.00043627490269347455,
+            0.001024347810087576
+          ],
+          [
+            -0.02257855947020846,
+            0.017022894292786108
+          ]
+        ],
+        "tail_negative": [
+          0.4275,
+          0.3865,
+          0.3865,
+          0.8,
+          0.3695
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "first_source_group": {
+        "islands": 432,
+        "groups": 64,
+        "mean": [
+          -3.555355903158682e-18,
+          0.00038172370700041334,
+          0.0003817237070004183,
+          0.0004762035088964542,
+          -0.00009447980189604085
+        ],
+        "interval": [
+          [
+            -1.0864427390133607e-17,
+            3.7466367753488595e-18
+          ],
+          [
+            -0.016039887297975043,
+            0.017760545723613668
+          ],
+          [
+            -0.016039887297975033,
+            0.017760545723613668
+          ],
+          [
+            -0.0003226372073129281,
+            0.0012050696103120416
+          ],
+          [
+            -0.016598349365077272,
+            0.017452005101005204
+          ]
+        ],
+        "tail_negative": [
+          0.1585,
+          0.5075,
+          0.5075,
+          0.885,
+          0.484
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "worst_directional_bootstrap_tail": null,
+      "interim_four_question_p_upper_bound": null,
+      "interim_directional_candidate": false,
+      "target_informative_genus_grade_strata_median": 0,
+      "source_informative_genus_grade_strata_median": 0,
+      "island_equal_assurance_share_delta": -0.07933244005276922,
+      "support_census": {
+        "complete_trait_species": 130,
+        "target_geographic_eligible": 523,
+        "paired_size_eligible": 432,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false
+    },
+    "SC_all_recorded_geo50_climate10_inclusive": {
+      "status": "insufficient_support",
+      "eligible_islands": 479,
+      "metric_order": [
+        "within_genus_grade",
+        "total",
+        "between_genus_grade",
+        "within_genus",
+        "between_genus"
+      ],
+      "spatial_block": {
+        "islands": 479,
+        "groups": 63,
+        "mean": [
+          5.893306410248868e-19,
+          -0.0036787454704409147,
+          -0.0036787454704409247,
+          0.00020614073608831593,
+          -0.0038848862065292383
+        ],
+        "interval": [
+          [
+            -5.272503294399461e-18,
+            7.136450229419003e-18
+          ],
+          [
+            -0.015659317921546137,
+            0.008276934640603271
+          ],
+          [
+            -0.015659317921546137,
+            0.008276934640603265
+          ],
+          [
+            -0.00040282936737791666,
+            0.0007799793882019715
+          ],
+          [
+            -0.015943399668948824,
+            0.00816199639659942
+          ]
+        ],
+        "tail_negative": [
+          0.57,
+          0.2645,
+          0.2645,
+          0.744,
+          0.2555
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "first_source_group": {
+        "islands": 479,
+        "groups": 78,
+        "mean": [
+          8.387994249439377e-19,
+          0.004479055822416487,
+          0.004479055822416484,
+          0.0007040675777992264,
+          0.0037749882446172587
+        ],
+        "interval": [
+          [
+            -3.8292978933272e-18,
+            5.545926856418476e-18
+          ],
+          [
+            -0.005157428122338495,
+            0.01425799869233108
+          ],
+          [
+            -0.005157428122338493,
+            0.014257998692331072
+          ],
+          [
+            0.00020541575691075854,
+            0.001193041905739811
+          ],
+          [
+            -0.005866871929494189,
+            0.013498874246499594
+          ]
+        ],
+        "tail_negative": [
+          0.622,
+          0.805,
+          0.805,
+          0.998,
+          0.7695
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "worst_directional_bootstrap_tail": null,
+      "interim_four_question_p_upper_bound": null,
+      "interim_directional_candidate": false,
+      "target_informative_genus_grade_strata_median": 0,
+      "source_informative_genus_grade_strata_median": 0,
+      "island_equal_assurance_share_delta": -0.033849354552158914,
+      "support_census": {
+        "complete_trait_species": 130,
+        "target_geographic_eligible": 523,
+        "paired_size_eligible": 479,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 1
+      },
+      "within_stratum_information_gate": false
+    },
+    "SC_all_recorded_geo50_climate10_disjoint": {
+      "status": "insufficient_support",
+      "eligible_islands": 479,
+      "metric_order": [
+        "within_genus_grade",
+        "total",
+        "between_genus_grade",
+        "within_genus",
+        "between_genus"
+      ],
+      "spatial_block": {
+        "islands": 479,
+        "groups": 63,
+        "mean": [
+          -1.746596606452446e-18,
+          -0.0022748602298283196,
+          -0.002274860229828309,
+          0.00020488904392341944,
+          -0.0024797492737517295
+        ],
+        "interval": [
+          [
+            -9.101512413789705e-18,
+            5.592529068538045e-18
+          ],
+          [
+            -0.020262085115970267,
+            0.0157168067560786
+          ],
+          [
+            -0.020262085115970257,
+            0.015716806756078602
+          ],
+          [
+            -0.000534375165845061,
+            0.0009107678417873622
+          ],
+          [
+            -0.020350108762825708,
+            0.015435347023448507
+          ]
+        ],
+        "tail_negative": [
+          0.3365,
+          0.3945,
+          0.3945,
+          0.707,
+          0.3845
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "first_source_group": {
+        "islands": 479,
+        "groups": 78,
+        "mean": [
+          8.584335888722486e-19,
+          0.012350669121228836,
+          0.012350669121228838,
+          0.0006295088324823168,
+          0.011721160288746523
+        ],
+        "interval": [
+          [
+            -5.5657935720402086e-18,
+            7.483354123749723e-18
+          ],
+          [
+            -0.003239268631404335,
+            0.02846998787650964
+          ],
+          [
+            -0.003239268631404337,
+            0.02846998787650964
+          ],
+          [
+            0.000006940788190076567,
+            0.0012322819651871624
+          ],
+          [
+            -0.003740484341122872,
+            0.027682187253332928
+          ]
+        ],
+        "tail_negative": [
+          0.5875,
+          0.941,
+          0.941,
+          0.976,
+          0.9305
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "worst_directional_bootstrap_tail": null,
+      "interim_four_question_p_upper_bound": null,
+      "interim_directional_candidate": false,
+      "target_informative_genus_grade_strata_median": 0,
+      "source_informative_genus_grade_strata_median": 0,
+      "island_equal_assurance_share_delta": -0.05760149237108855,
+      "support_census": {
+        "complete_trait_species": 130,
+        "target_geographic_eligible": 523,
+        "paired_size_eligible": 479,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 1
+      },
+      "within_stratum_information_gate": false
+    },
+    "SC_original_native_geo_k5_inclusive": {
+      "status": "insufficient_support",
+      "eligible_islands": 28,
+      "metric_order": [
+        "within_genus_grade",
+        "total",
+        "between_genus_grade",
+        "within_genus",
+        "between_genus"
+      ],
+      "spatial_block": {
+        "islands": 28,
+        "groups": 9,
+        "mean": [
+          4.1499680830487625e-19,
+          0.00649097540979904,
+          0.006490975409799042,
+          0.0020425525952877796,
+          0.004448422814511259
+        ],
+        "interval": [
+          [
+            -5.95596979469002e-18,
+            5.557099745408716e-18
+          ],
+          [
+            -0.019226863272650663,
+            0.03357837850700443
+          ],
+          [
+            -0.01922686327265066,
+            0.03357837850700444
+          ],
+          [
+            0.0011125994709051878,
+            0.002771497258958048
+          ],
+          [
+            -0.020954670086525684,
+            0.031016500562994525
+          ]
+        ],
+        "tail_negative": [
+          0.594,
+          0.666,
+          0.666,
+          1,
+          0.6105
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "first_source_group": {
+        "islands": 28,
+        "groups": 14,
+        "mean": [
+          5.005674535866222e-18,
+          0.0005771119371078845,
+          0.0005771119371078806,
+          0.002017624988995649,
+          -0.0014405130518877645
+        ],
+        "interval": [
+          [
+            -3.5240695575679156e-18,
+            1.3443450788177524e-17
+          ],
+          [
+            -0.01754804668247524,
+            0.021950466164128508
+          ],
+          [
+            -0.017548046682475248,
+            0.021950466164128518
+          ],
+          [
+            0.0013317777964935646,
+            0.0026047658377802096
+          ],
+          [
+            -0.019319858730231416,
+            0.01949353515807114
+          ]
+        ],
+        "tail_negative": [
+          0.865,
+          0.4945,
+          0.4945,
+          1,
+          0.409
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "worst_directional_bootstrap_tail": null,
+      "interim_four_question_p_upper_bound": null,
+      "interim_directional_candidate": false,
+      "target_informative_genus_grade_strata_median": 0,
+      "source_informative_genus_grade_strata_median": 0,
+      "island_equal_assurance_share_delta": 0.06381312525958828,
+      "support_census": {
+        "complete_trait_species": 130,
+        "target_geographic_eligible": 36,
+        "paired_size_eligible": 28,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false
+    },
+    "SC_original_native_geo_k5_disjoint": {
+      "status": "insufficient_support",
+      "eligible_islands": 28,
+      "metric_order": [
+        "within_genus_grade",
+        "total",
+        "between_genus_grade",
+        "within_genus",
+        "between_genus"
+      ],
+      "spatial_block": {
+        "islands": 28,
+        "groups": 9,
+        "mean": [
+          -4.836773597754088e-18,
+          0.003867535985516049,
+          0.003867535985516052,
+          0.0016743316705628212,
+          0.002193204314953225
+        ],
+        "interval": [
+          [
+            -1.4622824462442644e-17,
+            4.364746125339416e-18
+          ],
+          [
+            -0.03804745057590924,
+            0.04583783250335236
+          ],
+          [
+            -0.038047450575909234,
+            0.045837832503352355
+          ],
+          [
+            0.0006089297893548539,
+            0.0027119384534765537
+          ],
+          [
+            -0.040410236951096835,
+            0.04473260816295631
+          ]
+        ],
+        "tail_negative": [
+          0.1545,
+          0.562,
+          0.562,
+          1,
+          0.5315
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "first_source_group": {
+        "islands": 28,
+        "groups": 14,
+        "mean": [
+          -2.3168102797946746e-18,
+          -0.004886675615360595,
+          -0.004886675615360596,
+          0.0021773714724379464,
+          -0.007064047087798543
+        ],
+        "interval": [
+          [
+            -1.1458396708916642e-17,
+            7.282005788508014e-18
+          ],
+          [
+            -0.03693979528402575,
+            0.03121383370025538
+          ],
+          [
+            -0.03693979528402574,
+            0.031213833700255367
+          ],
+          [
+            0.0011827225434221961,
+            0.0031103526691166595
+          ],
+          [
+            -0.0398920077179278,
+            0.029859121413432645
+          ]
+        ],
+        "tail_negative": [
+          0.277,
+          0.368,
+          0.368,
+          1,
+          0.3215
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "worst_directional_bootstrap_tail": null,
+      "interim_four_question_p_upper_bound": null,
+      "interim_directional_candidate": false,
+      "target_informative_genus_grade_strata_median": 0,
+      "source_informative_genus_grade_strata_median": 0,
+      "island_equal_assurance_share_delta": 0.10589693627366935,
+      "support_census": {
+        "complete_trait_species": 130,
+        "target_geographic_eligible": 36,
+        "paired_size_eligible": 28,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false
+    },
+    "SC_original_native_geo50_climate10_inclusive": {
+      "status": "insufficient_support",
+      "eligible_islands": 34,
+      "metric_order": [
+        "within_genus_grade",
+        "total",
+        "between_genus_grade",
+        "within_genus",
+        "between_genus"
+      ],
+      "spatial_block": {
+        "islands": 34,
+        "groups": 13,
+        "mean": [
+          -2.3922577175187175e-18,
+          0.0012509047389544993,
+          0.0012509047389545026,
+          0.002379933063604875,
+          -0.0011290283246503717
+        ],
+        "interval": [
+          [
+            -5.358058059817411e-18,
+            9.410025792998921e-19
+          ],
+          [
+            -0.024359679946014363,
+            0.02939933280407973
+          ],
+          [
+            -0.024359679946014363,
+            0.02939933280407973
+          ],
+          [
+            0.001474941761455363,
+            0.003213600347511477
+          ],
+          [
+            -0.026774169463824177,
+            0.02739769378509548
+          ]
+        ],
+        "tail_negative": [
+          0.078,
+          0.5325,
+          0.5325,
+          1,
+          0.466
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "first_source_group": {
+        "islands": 34,
+        "groups": 20,
+        "mean": [
+          3.271303198370427e-19,
+          -0.0004749872267628519,
+          -0.0004749872267628529,
+          0.00247817183708114,
+          -0.002953159063843994
+        ],
+        "interval": [
+          [
+            -4.984810036184913e-18,
+            5.792328445001098e-18
+          ],
+          [
+            -0.020358536874313174,
+            0.021627987172143506
+          ],
+          [
+            -0.020358536874313177,
+            0.021627987172143502
+          ],
+          [
+            0.0017550764136921252,
+            0.0031992994147239883
+          ],
+          [
+            -0.022502973888152006,
+            0.019102996809214675
+          ]
+        ],
+        "tail_negative": [
+          0.533,
+          0.4755,
+          0.4755,
+          1,
+          0.3935
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "worst_directional_bootstrap_tail": null,
+      "interim_four_question_p_upper_bound": null,
+      "interim_directional_candidate": false,
+      "target_informative_genus_grade_strata_median": 0,
+      "source_informative_genus_grade_strata_median": 0,
+      "island_equal_assurance_share_delta": 0.07219117105512028,
+      "support_census": {
+        "complete_trait_species": 130,
+        "target_geographic_eligible": 36,
+        "paired_size_eligible": 34,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false
+    },
+    "SC_original_native_geo50_climate10_disjoint": {
+      "status": "insufficient_support",
+      "eligible_islands": 34,
+      "metric_order": [
+        "within_genus_grade",
+        "total",
+        "between_genus_grade",
+        "within_genus",
+        "between_genus"
+      ],
+      "spatial_block": {
+        "islands": 34,
+        "groups": 13,
+        "mean": [
+          -3.1664986707810097e-18,
+          -0.014838405706532378,
+          -0.014838405706532371,
+          0.0017681714307976222,
+          -0.016606577137330002
+        ],
+        "interval": [
+          [
+            -1.0867433135470233e-17,
+            5.644754244448367e-18
+          ],
+          [
+            -0.06808266056990468,
+            0.03424227837692693
+          ],
+          [
+            -0.06808266056990467,
+            0.03424227837692693
+          ],
+          [
+            0.000579989910778456,
+            0.0030920034749337398
+          ],
+          [
+            -0.06930795900651099,
+            0.03259878021334208
+          ]
+        ],
+        "tail_negative": [
+          0.246,
+          0.299,
+          0.299,
+          0.9995,
+          0.2765
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "first_source_group": {
+        "islands": 34,
+        "groups": 20,
+        "mean": [
+          -1.4660502325470532e-18,
+          -0.007975145004099444,
+          -0.00797514500409945,
+          0.0017572027217195104,
+          -0.009732347725818963
+        ],
+        "interval": [
+          [
+            -8.740279768670865e-18,
+            5.949641081709028e-18
+          ],
+          [
+            -0.04862854713251251,
+            0.03016392086061989
+          ],
+          [
+            -0.04862854713251251,
+            0.030163920860619878
+          ],
+          [
+            0.0007812665027857034,
+            0.0028232708462389094
+          ],
+          [
+            -0.049988804915513385,
+            0.028615775012580325
+          ]
+        ],
+        "tail_negative": [
+          0.332,
+          0.3535,
+          0.3535,
+          1,
+          0.3175
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": false
+      },
+      "worst_directional_bootstrap_tail": null,
+      "interim_four_question_p_upper_bound": null,
+      "interim_directional_candidate": false,
+      "target_informative_genus_grade_strata_median": 0,
+      "source_informative_genus_grade_strata_median": 0,
+      "island_equal_assurance_share_delta": 0.12141944391734108,
+      "support_census": {
+        "complete_trait_species": 130,
+        "target_geographic_eligible": 36,
+        "paired_size_eligible": 34,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false
+    },
+    "SC_high_quality_only_geo_k5_inclusive": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 19,
+        "target_geographic_eligible": 14,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "SC_high_quality_only_geo_k5_disjoint": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 19,
+        "target_geographic_eligible": 14,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "SC_high_quality_only_geo50_climate10_inclusive": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 19,
+        "target_geographic_eligible": 14,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    },
+    "SC_high_quality_only_geo50_climate10_disjoint": {
+      "status": "not_estimable",
+      "eligible_islands": 0,
+      "support_census": {
+        "complete_trait_species": 19,
+        "target_geographic_eligible": 14,
+        "paired_size_eligible": 0,
+        "target_within_stratum_informative": 0,
+        "both_source_variants_informative": 0,
+        "missing_donor": 0
+      },
+      "within_stratum_information_gate": false,
+      "interim_directional_candidate": false
+    }
+  },
+  "size": {
+    "size_expanded_geo_k5_inclusive": {
+      "part_order": [
+        "core_original_weights",
+        "core_expanded_weights",
+        "size_pairs_expanded_weights",
+        "core_reweighting",
+        "expanded_minus_core"
+      ],
+      "component_order": [
+        "total",
+        "within",
+        "between",
+        "within_genus",
+        "between_genus"
+      ],
+      "size_template_order": [
+        "specialist_bee",
+        "bird",
+        "hawkmoth",
+        "bat",
+        "open_generalist"
+      ],
+      "spatial_block": {
+        "islands": 568,
+        "groups": 76,
+        "mean": [
+          0.003665090480735267,
+          0.00007042546918310585,
+          0.0035946650115521567,
+          0.000948506473455761,
+          0.0027165840072795044,
+          -0.0006254830372357581,
+          0.000011379187732548749,
+          -0.0006368622249683069,
+          0.00007707058522785728,
+          -0.0007025536224636153,
+          -0.0027998159444304134,
+          -0.0002694169797048881,
+          -0.0025303989647255253,
+          -0.00041912669537170604,
+          -0.0023806892490587065,
+          -0.004290573517971022,
+          -0.0000590462814505571,
+          -0.004231527236520466,
+          -0.0008714358882279031,
+          -0.0034191376297431184,
+          -0.0070903894624014365,
+          -0.0003284632611554451,
+          -0.006761926201245987,
+          -0.0012905625835996097,
+          -0.005799826878801824,
+          -0.002201748928109779,
+          0.003196559872218337,
+          0,
+          -0.002343177802614662,
+          -0.0014514490859243092
+        ],
+        "interval": [
+          [
+            0.00014915978708243072,
+            0.006922002069954103
+          ],
+          [
+            -0.0001795005834155997,
+            0.0003454342696168889
+          ],
+          [
+            -0.00002163128864965609,
+            0.006928867319237786
+          ],
+          [
+            0.0003471223964728039,
+            0.0015953478322873527
+          ],
+          [
+            -0.0008784917465250874,
+            0.005799127470920401
+          ],
+          [
+            -0.0024464112199232536,
+            0.0009342908162277156
+          ],
+          [
+            -0.00019480155251708366,
+            0.00024295779883863857
+          ],
+          [
+            -0.002529480390618795,
+            0.0009840772795962995
+          ],
+          [
+            -0.00021951536173559012,
+            0.00038364908432017884
+          ],
+          [
+            -0.0026069767855131216,
+            0.0009144793804108243
+          ],
+          [
+            -0.004220854701794151,
+            -0.001432408564646012
+          ],
+          [
+            -0.00038828109916644603,
+            -0.00015381777287902155
+          ],
+          [
+            -0.003940506593470057,
+            -0.0011686675071581045
+          ],
+          [
+            -0.0006169369067527231,
+            -0.00022974994172036544
+          ],
+          [
+            -0.0037776102636261047,
+            -0.001070432916838983
+          ],
+          [
+            -0.006629390482785606,
+            -0.0019975594401599865
+          ],
+          [
+            -0.00017460337450211355,
+            0.00002661069385077146
+          ],
+          [
+            -0.006607259443123359,
+            -0.0019129496909156916
+          ],
+          [
+            -0.0012976682638424014,
+            -0.000499206659028699
+          ],
+          [
+            -0.005613239043564821,
+            -0.0011694777120629216
+          ],
+          [
+            -0.010092451575459061,
+            -0.004173220318246084
+          ],
+          [
+            -0.0005108996804725659,
+            -0.00016994193256112113
+          ],
+          [
+            -0.009728463953266183,
+            -0.00378622323784286
+          ],
+          [
+            -0.0017658977136673737,
+            -0.0008474710962763242
+          ],
+          [
+            -0.008532099060809758,
+            -0.003040287093383614
+          ],
+          [
+            -0.002971621493855789,
+            -0.0014666088355887502
+          ],
+          [
+            0.002197313431757908,
+            0.004238051972471158
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -0.003479248383864713,
+            -0.0013156483903913896
+          ],
+          [
+            -0.002130401529594709,
+            -0.0008031301207505716
+          ]
+        ],
+        "tail_negative": [
+          0.978,
+          0.7,
+          0.9745,
+          1,
+          0.937,
+          0.223,
+          0.539,
+          0.227,
+          0.6975,
+          0.207,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.1265,
+          0.0005,
+          0.0005,
+          0.002,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          1,
+          1,
+          0.0005,
+          0.0005
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": true
+      },
+      "first_source_group": {
+        "islands": 568,
+        "groups": 81,
+        "mean": [
+          0.0031850372606088816,
+          0.000012868694273630204,
+          0.003172168566335252,
+          0.0006985522569892489,
+          0.002486485003619633,
+          0.0002140622114448009,
+          -0.000029338036352107386,
+          0.000243400247796908,
+          0.00007706564096648686,
+          0.00013699657047831383,
+          -0.0020283334548627397,
+          -0.00028231651268869793,
+          -0.0017460169421740415,
+          -0.0005124266492479269,
+          -0.001515906805614812,
+          -0.0029709750491640806,
+          -0.00004220673062573761,
+          -0.002928768318538343,
+          -0.0006214866160227619,
+          -0.0023494884331413195,
+          -0.004999308504026819,
+          -0.00032452324331443556,
+          -0.004674785260712383,
+          -0.0011339132652706887,
+          -0.0038653952387561305,
+          -0.0018433366531601736,
+          0.002347671720613462,
+          0,
+          -0.0014814875989601762,
+          -0.0010511809233558513
+        ],
+        "interval": [
+          [
+            0.0002317251064646497,
+            0.005960194218351996
+          ],
+          [
+            -0.00023141863256781733,
+            0.00029010957810210756
+          ],
+          [
+            0.00010764116802132,
+            0.006029745119218768
+          ],
+          [
+            0.00015596454366337528,
+            0.00128713388026532
+          ],
+          [
+            -0.000545524330168879,
+            0.005314060928080628
+          ],
+          [
+            -0.0012408423396617467,
+            0.0016258205574471935
+          ],
+          [
+            -0.0002499349926381049,
+            0.00020233063595530737
+          ],
+          [
+            -0.0012618145768169854,
+            0.0017374070367087112
+          ],
+          [
+            -0.0002054132780312934,
+            0.00036920551002032805
+          ],
+          [
+            -0.0013624933368784735,
+            0.0016218900650072077
+          ],
+          [
+            -0.0031759101932289243,
+            -0.0008275859004233129
+          ],
+          [
+            -0.00040235974268283166,
+            -0.00017047831905102448
+          ],
+          [
+            -0.002887604740851788,
+            -0.0005510726168848235
+          ],
+          [
+            -0.0007348966188282413,
+            -0.00031019727220354184
+          ],
+          [
+            -0.0026376621346186056,
+            -0.0003558976969850928
+          ],
+          [
+            -0.004878808738613901,
+            -0.0009327877931265765
+          ],
+          [
+            -0.0001407889827920997,
+            0.000030364594941019622
+          ],
+          [
+            -0.004857698218663007,
+            -0.0008711103514244488
+          ],
+          [
+            -0.0009899579795376499,
+            -0.0003146377756978487
+          ],
+          [
+            -0.004222782529921178,
+            -0.00032290692427091266
+          ],
+          [
+            -0.007499713811286164,
+            -0.0024610999260205363
+          ],
+          [
+            -0.0004993925663183227,
+            -0.00018143524102251572
+          ],
+          [
+            -0.007139658238192389,
+            -0.002171435709272701
+          ],
+          [
+            -0.0016114699034614126,
+            -0.0007324625645454008
+          ],
+          [
+            -0.006204256289765764,
+            -0.001409457238065672
+          ],
+          [
+            -0.0024604894366957886,
+            -0.0012212197375980405
+          ],
+          [
+            0.0015061198097988365,
+            0.0031764291087259906
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -0.002245460921554365,
+            -0.0007043149493165415
+          ],
+          [
+            -0.0015611588161401646,
+            -0.0005561294874050995
+          ]
+        ],
+        "tail_negative": [
+          0.9815,
+          0.5335,
+          0.9785,
+          0.995,
+          0.945,
+          0.6195,
+          0.3955,
+          0.6255,
+          0.691,
+          0.572,
+          0.0005,
+          0.0005,
+          0.0025,
+          0.0005,
+          0.004,
+          0.003,
+          0.18,
+          0.0035,
+          0.0005,
+          0.012,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.001,
+          0.0005,
+          1,
+          1,
+          0.0005,
+          0.0005
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": true
+      },
+      "warning": "Post-outcome paired algebraic diagnostic; size contribution and reweighting are not causal effects."
+    },
+    "size_expanded_geo_k5_disjoint": {
+      "part_order": [
+        "core_original_weights",
+        "core_expanded_weights",
+        "size_pairs_expanded_weights",
+        "core_reweighting",
+        "expanded_minus_core"
+      ],
+      "component_order": [
+        "total",
+        "within",
+        "between",
+        "within_genus",
+        "between_genus"
+      ],
+      "size_template_order": [
+        "specialist_bee",
+        "bird",
+        "hawkmoth",
+        "bat",
+        "open_generalist"
+      ],
+      "spatial_block": {
+        "islands": 568,
+        "groups": 76,
+        "mean": [
+          0.003575758066204108,
+          0.00015170681065963397,
+          0.003424051255544474,
+          0.0013397845215560916,
+          0.0022359735446480155,
+          -0.0009046474197268533,
+          0.00007781934172256316,
+          -0.0009824667614494157,
+          0.0002751233182001379,
+          -0.0011797707379269918,
+          -0.0025998551382565628,
+          -0.00021170151232855294,
+          -0.0023881536259280096,
+          -0.00035743388024415674,
+          -0.0022424212580124067,
+          -0.00448040548593096,
+          -0.00007388746893707075,
+          -0.0044065180169938906,
+          -0.0010646612033559544,
+          -0.0034157442825750064,
+          -0.0070802606241875225,
+          -0.00028558898126562364,
+          -0.006794671642921899,
+          -0.0014220950836001105,
+          -0.005658165540587413,
+          -0.002311442365444065,
+          0.0035235863624389556,
+          0,
+          -0.002567978113622933,
+          -0.001244021021628517
+        ],
+        "interval": [
+          [
+            -0.0002836023988783138,
+            0.0072726645964425185
+          ],
+          [
+            -0.00013304561747997574,
+            0.0004684338678691578
+          ],
+          [
+            -0.000530471964772444,
+            0.007178888067149547
+          ],
+          [
+            0.0006977008556335361,
+            0.002041800911231597
+          ],
+          [
+            -0.001736435876594792,
+            0.005943767250280269
+          ],
+          [
+            -0.0031403390700508486,
+            0.001099598612804422
+          ],
+          [
+            -0.00016083470332846838,
+            0.00034680724755144926
+          ],
+          [
+            -0.0032644811349740984,
+            0.001101988883727407
+          ],
+          [
+            -0.00005000552984849556,
+            0.0006120480788082334
+          ],
+          [
+            -0.003491664429631537,
+            0.0009104217145535565
+          ],
+          [
+            -0.004302628549592657,
+            -0.0008812899887430016
+          ],
+          [
+            -0.00035236979036079645,
+            -0.00007496183195951533
+          ],
+          [
+            -0.004068115280007913,
+            -0.0006803830114214896
+          ],
+          [
+            -0.0006221473780051126,
+            -0.00011241898255722244
+          ],
+          [
+            -0.0039039648663777154,
+            -0.0005622962091472015
+          ],
+          [
+            -0.006877307046147014,
+            -0.002091672764174288
+          ],
+          [
+            -0.0002257358183021381,
+            0.00004311781453607008
+          ],
+          [
+            -0.006790997339510887,
+            -0.002015605534377354
+          ],
+          [
+            -0.0015663911665326333,
+            -0.0006291587724731264
+          ],
+          [
+            -0.005621589980600299,
+            -0.001049967880878452
+          ],
+          [
+            -0.010164588720081321,
+            -0.004032252075827591
+          ],
+          [
+            -0.0005209944446098084,
+            -0.00008050741839817497
+          ],
+          [
+            -0.009872243274458499,
+            -0.003698124391314721
+          ],
+          [
+            -0.0019986574641514244,
+            -0.0009025531535073483
+          ],
+          [
+            -0.008459107790577883,
+            -0.002731802674928033
+          ],
+          [
+            -0.0032431967908094867,
+            -0.0014025055001958247
+          ],
+          [
+            0.002358360971625053,
+            0.00470650920937879
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -0.0037708466889726203,
+            -0.0014099351268605685
+          ],
+          [
+            -0.00206091685078107,
+            -0.00042815273225928647
+          ]
+        ],
+        "tail_negative": [
+          0.967,
+          0.8275,
+          0.957,
+          1,
+          0.8705,
+          0.1755,
+          0.717,
+          0.167,
+          0.9505,
+          0.12,
+          0.0015,
+          0.0025,
+          0.0035,
+          0.0025,
+          0.005,
+          0.001,
+          0.1515,
+          0.001,
+          0.0005,
+          0.0045,
+          0.0005,
+          0.002,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          1,
+          1,
+          0.0005,
+          0.0025
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": true
+      },
+      "first_source_group": {
+        "islands": 568,
+        "groups": 81,
+        "mean": [
+          0.0033718957391797853,
+          0.00004996123095614164,
+          0.0033219345082236423,
+          0.001060910971161511,
+          0.0023109847680182734,
+          0.00031484263419539793,
+          -9.263842638575432e-7,
+          0.0003157690184592556,
+          0.00023894929607413105,
+          0.00007589333812126666,
+          -0.0018396489176618223,
+          -0.00020568248131065247,
+          -0.00163396643635117,
+          -0.0004323525022478942,
+          -0.0014072964154139282,
+          -0.003057053104984387,
+          -0.000050887615219999215,
+          -0.0030061654897643865,
+          -0.0008219616750873802,
+          -0.0022350914298970067,
+          -0.004896702022646208,
+          -0.00025657009653065165,
+          -0.004640131926115557,
+          -0.0012543141773352748,
+          -0.003642387845310935,
+          -0.0019772506781465336,
+          0.0026838658898326426,
+          0,
+          -0.0016343638755215426,
+          -0.0009119002538263908
+        ],
+        "interval": [
+          [
+            -0.00005352892589581705,
+            0.006603583529009527
+          ],
+          [
+            -0.00024832386960002827,
+            0.0003617326843976872
+          ],
+          [
+            -0.00020429597160098107,
+            0.00662723060214823
+          ],
+          [
+            0.0004162276689926908,
+            0.0017535412862111114
+          ],
+          [
+            -0.001212397479608039,
+            0.005638268085930005
+          ],
+          [
+            -0.0014936085177113113,
+            0.0021286251923760217
+          ],
+          [
+            -0.00025557554835367374,
+            0.0002665875184021307
+          ],
+          [
+            -0.0015558928184258275,
+            0.0022196736473758887
+          ],
+          [
+            -0.00008789597031456196,
+            0.0005582285185354488
+          ],
+          [
+            -0.0018218300361744321,
+            0.00200286186644236
+          ],
+          [
+            -0.003253178579316618,
+            -0.0003047823458812004
+          ],
+          [
+            -0.0003482115443662392,
+            -0.00006156744824118843
+          ],
+          [
+            -0.00304809613588186,
+            -0.00013383356988771545
+          ],
+          [
+            -0.0007024134047370043,
+            -0.00017802493052758393
+          ],
+          [
+            -0.002830146171506324,
+            0.00009096899708437584
+          ],
+          [
+            -0.005075160291954799,
+            -0.0009262890891676192
+          ],
+          [
+            -0.0001849971686757716,
+            0.00005213103998238725
+          ],
+          [
+            -0.004993376685137998,
+            -0.0008843861582762845
+          ],
+          [
+            -0.0012585803954166448,
+            -0.00042711898312523285
+          ],
+          [
+            -0.004153691957483158,
+            -0.0001979245638032882
+          ],
+          [
+            -0.0074206765433199266,
+            -0.0022159743402250364
+          ],
+          [
+            -0.00048225788661921266,
+            -0.0000645933205625858
+          ],
+          [
+            -0.007161312812640591,
+            -0.0019251351616730145
+          ],
+          [
+            -0.0018404437474529103,
+            -0.0007306853412784033
+          ],
+          [
+            -0.006103726360938557,
+            -0.0010365205667722574
+          ],
+          [
+            -0.002764287565841325,
+            -0.0011583709319995003
+          ],
+          [
+            0.0016791486867649226,
+            0.003648353545329033
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -0.0024853271166065914,
+            -0.0008027462808997938
+          ],
+          [
+            -0.0015611559720645537,
+            -0.0002958740359004267
+          ]
+        ],
+        "tail_negative": [
+          0.9725,
+          0.628,
+          0.9685,
+          0.9995,
+          0.9085,
+          0.6425,
+          0.496,
+          0.638,
+          0.9315,
+          0.5425,
+          0.008,
+          0.0045,
+          0.0175,
+          0.0015,
+          0.0355,
+          0.0015,
+          0.2095,
+          0.002,
+          0.0005,
+          0.0175,
+          0.0005,
+          0.0035,
+          0.0015,
+          0.0005,
+          0.0025,
+          0.0005,
+          1,
+          1,
+          0.001,
+          0.0025
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": true
+      },
+      "warning": "Post-outcome paired algebraic diagnostic; size contribution and reweighting are not causal effects."
+    },
+    "size_expanded_geo50_climate10_inclusive": {
+      "part_order": [
+        "core_original_weights",
+        "core_expanded_weights",
+        "size_pairs_expanded_weights",
+        "core_reweighting",
+        "expanded_minus_core"
+      ],
+      "component_order": [
+        "total",
+        "within",
+        "between",
+        "within_genus",
+        "between_genus"
+      ],
+      "size_template_order": [
+        "specialist_bee",
+        "bird",
+        "hawkmoth",
+        "bat",
+        "open_generalist"
+      ],
+      "spatial_block": {
+        "islands": 605,
+        "groups": 88,
+        "mean": [
+          0.0054293306414534975,
+          0.00028991343795809464,
+          0.005139417203495402,
+          0.0008709709591118111,
+          0.004558359682341687,
+          0.0002873855405953039,
+          0.00015219012808609774,
+          0.0001351954125092064,
+          0.00013054809131161997,
+          0.00015683744928368407,
+          -0.001933009076005305,
+          -0.0002728882822450113,
+          -0.0016601207937602953,
+          -0.0004988864178986083,
+          -0.0014341226581066958,
+          -0.005141945100858198,
+          -0.00013772330987199687,
+          -0.005004221790986199,
+          -0.0007404228678001914,
+          -0.004401522233058001,
+          -0.007074954176863498,
+          -0.00041061159211700784,
+          -0.006664342584746485,
+          -0.0012393092856987995,
+          -0.005835644891164701,
+          -0.0012565598759588946,
+          0.0024044739215994676,
+          0,
+          -0.0018364848688927043,
+          -0.001244438252753175
+        ],
+        "interval": [
+          [
+            0.0027823017185627514,
+            0.008232600618685776
+          ],
+          [
+            0.00005019644309550468,
+            0.0005530993656794374
+          ],
+          [
+            0.0023979358615544358,
+            0.007989291652171415
+          ],
+          [
+            0.0002411799278397069,
+            0.0015547599050194454
+          ],
+          [
+            0.0018116293269949623,
+            0.007253313947051498
+          ],
+          [
+            -0.0011022538301727314,
+            0.0016011767081794402
+          ],
+          [
+            -0.000038666027793929415,
+            0.0003569624804938753
+          ],
+          [
+            -0.001333048134700281,
+            0.0014891789297100495
+          ],
+          [
+            -0.00015198344294934516,
+            0.00045297282900616097
+          ],
+          [
+            -0.0013035916466107344,
+            0.0015159303402953708
+          ],
+          [
+            -0.003055694399718465,
+            -0.0008595429758375513
+          ],
+          [
+            -0.00037955417313162513,
+            -0.00016825301048435716
+          ],
+          [
+            -0.002759155213495076,
+            -0.0006049614649945333
+          ],
+          [
+            -0.0007485780370334093,
+            -0.0002805791961190234
+          ],
+          [
+            -0.0025404181274413917,
+            -0.00040813015827019023
+          ],
+          [
+            -0.007151650721783718,
+            -0.00332984964498935
+          ],
+          [
+            -0.00026179814645489464,
+            -0.00003780652790909771
+          ],
+          [
+            -0.007031972512606178,
+            -0.00320029723317249
+          ],
+          [
+            -0.001179491466171653,
+            -0.0003513278934764404
+          ],
+          [
+            -0.006238559404583552,
+            -0.0027208357905099726
+          ],
+          [
+            -0.009897446302620141,
+            -0.004592091651591226
+          ],
+          [
+            -0.0005914289994611707,
+            -0.0002654303387977476
+          ],
+          [
+            -0.009403580827021593,
+            -0.004223303688947302
+          ],
+          [
+            -0.0018555942403009347,
+            -0.0006823097296866574
+          ],
+          [
+            -0.008407603104752862,
+            -0.003594761865139727
+          ],
+          [
+            -0.0018455647258487872,
+            -0.0006587160077060537
+          ],
+          [
+            0.0015386502794426618,
+            0.00332669316943886
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -0.002875662240590998,
+            -0.0008211209700566476
+          ],
+          [
+            -0.00181790171251925,
+            -0.0006760400293343819
+          ]
+        ],
+        "tail_negative": [
+          1,
+          0.991,
+          0.9995,
+          0.9955,
+          0.9985,
+          0.673,
+          0.939,
+          0.59,
+          0.7945,
+          0.5995,
+          0.0005,
+          0.0005,
+          0.001,
+          0.0005,
+          0.0035,
+          0.0005,
+          0.0025,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          1,
+          1,
+          0.001,
+          0.0005
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": true
+      },
+      "first_source_group": {
+        "islands": 605,
+        "groups": 109,
+        "mean": [
+          0.004768944309817183,
+          0.0003006752022976267,
+          0.0044682691075195536,
+          0.0006033740338652512,
+          0.004165570275951929,
+          0.00089778153972046,
+          0.00005572753583036579,
+          0.0008420540038900944,
+          0.000006383451717933935,
+          0.0008913980880025257,
+          -0.001515420678052631,
+          -0.0002787053394079319,
+          -0.0012367153386446997,
+          -0.0004384972536072822,
+          -0.00107692342444535,
+          -0.0038711627700967212,
+          -0.0002449476664672612,
+          -0.0036262151036294604,
+          -0.0005969905821473174,
+          -0.0032741721879494057,
+          -0.0053865834481493504,
+          -0.0005236530058751929,
+          -0.004862930442274157,
+          -0.0010354878357545993,
+          -0.004351095612394754,
+          -0.0010404647602046033,
+          0.0015573175622041855,
+          0,
+          -0.0009285426072547789,
+          -0.0011037308727974344
+        ],
+        "interval": [
+          [
+            0.0023355198640820983,
+            0.007160551733321576
+          ],
+          [
+            0.000057776572846131354,
+            0.000549488500073662
+          ],
+          [
+            0.0019682777476325557,
+            0.006886471196825986
+          ],
+          [
+            0.00007757687197176139,
+            0.0011556600444790855
+          ],
+          [
+            0.0016967129411916706,
+            0.006522428107974753
+          ],
+          [
+            -0.00030203667032835797,
+            0.0020521237485684523
+          ],
+          [
+            -0.00009926151953528296,
+            0.00022661835100935542
+          ],
+          [
+            -0.00036270489848253164,
+            0.0020096949039598785
+          ],
+          [
+            -0.00025235582034635395,
+            0.00027500218058480866
+          ],
+          [
+            -0.0003352424850375461,
+            0.0020487834900772186
+          ],
+          [
+            -0.0024790671498670426,
+            -0.0005376903872276478
+          ],
+          [
+            -0.00037616145454871667,
+            -0.00018155132895324692
+          ],
+          [
+            -0.0021788690513838624,
+            -0.0002645094607436683
+          ],
+          [
+            -0.0006204405599005842,
+            -0.0002540870990078648
+          ],
+          [
+            -0.0019907406512987736,
+            -0.00009569938227765207
+          ],
+          [
+            -0.005474521396153658,
+            -0.0021914445751762624
+          ],
+          [
+            -0.0003942838253287726,
+            -0.00010728208885122509
+          ],
+          [
+            -0.005236856620968967,
+            -0.0019817965358012533
+          ],
+          [
+            -0.0009184386847805325,
+            -0.0002763642301946572
+          ],
+          [
+            -0.004788188302219878,
+            -0.0017133214741476557
+          ],
+          [
+            -0.007541016759959069,
+            -0.003121456449470158
+          ],
+          [
+            -0.0007331707640056507,
+            -0.0003337317494817193
+          ],
+          [
+            -0.007029643943576614,
+            -0.002625686787346439
+          ],
+          [
+            -0.0014813339854576194,
+            -0.0005761762913903363
+          ],
+          [
+            -0.00645828397096643,
+            -0.0022225601437058954
+          ],
+          [
+            -0.00154805223562366,
+            -0.000514366707982228
+          ],
+          [
+            0.0009410820690674003,
+            0.0021529836398046062
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -0.0015838092131980172,
+            -0.00019478441228501622
+          ],
+          [
+            -0.001611959830481344,
+            -0.000621875872220887
+          ]
+        ],
+        "tail_negative": [
+          1,
+          0.998,
+          1,
+          0.988,
+          1,
+          0.9325,
+          0.734,
+          0.9175,
+          0.5305,
+          0.925,
+          0.003,
+          0.0005,
+          0.0065,
+          0.0005,
+          0.0165,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          1,
+          1,
+          0.007,
+          0.0005
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": true
+      },
+      "warning": "Post-outcome paired algebraic diagnostic; size contribution and reweighting are not causal effects."
+    },
+    "size_expanded_geo50_climate10_disjoint": {
+      "part_order": [
+        "core_original_weights",
+        "core_expanded_weights",
+        "size_pairs_expanded_weights",
+        "core_reweighting",
+        "expanded_minus_core"
+      ],
+      "component_order": [
+        "total",
+        "within",
+        "between",
+        "within_genus",
+        "between_genus"
+      ],
+      "size_template_order": [
+        "specialist_bee",
+        "bird",
+        "hawkmoth",
+        "bat",
+        "open_generalist"
+      ],
+      "spatial_block": {
+        "islands": 605,
+        "groups": 88,
+        "mean": [
+          0.005669833315159768,
+          0.00047028842108131285,
+          0.005199544894078458,
+          0.0013482428808371742,
+          0.0043215904343226,
+          0.00010527619605423388,
+          0.00028366102398889783,
+          -0.00017838482793466415,
+          0.0003751990629678641,
+          -0.00026992286691362977,
+          -0.001361098898965867,
+          -0.0001572141306728193,
+          -0.001203884768293048,
+          -0.0004505426640325013,
+          -0.0009105562349333653,
+          -0.005564557119105539,
+          -0.0001866273970924149,
+          -0.005377929722013125,
+          -0.0009730438178693104,
+          -0.004591513301236228,
+          -0.006925656018071404,
+          -0.0003438415277652341,
+          -0.006581814490306171,
+          -0.0014235864819018111,
+          -0.005502069536169592,
+          -0.0011349394790631919,
+          0.002702052894389705,
+          0,
+          -0.0017027980198821297,
+          -0.0012254142944102475
+        ],
+        "interval": [
+          [
+            0.0026594342095372595,
+            0.008908505352813529
+          ],
+          [
+            0.00016366272488835723,
+            0.0008069737334691272
+          ],
+          [
+            0.0021460255298026715,
+            0.008491732303106368
+          ],
+          [
+            0.0007413930727615598,
+            0.0020671543825244868
+          ],
+          [
+            0.0012812768886379952,
+            0.0074159231929281175
+          ],
+          [
+            -0.0017041740869888488,
+            0.0018857460081823053
+          ],
+          [
+            0.00006350859787824512,
+            0.0005159663243311229
+          ],
+          [
+            -0.0019962024863420195,
+            0.0016339566420385033
+          ],
+          [
+            0.00006974550643334658,
+            0.0007004299353797813
+          ],
+          [
+            -0.0021150560894334577,
+            0.0014996363041380831
+          ],
+          [
+            -0.0027129273577492616,
+            0.00005412335245011015
+          ],
+          [
+            -0.00029725293425955385,
+            -0.000017537170315328686
+          ],
+          [
+            -0.0025464299408996896,
+            0.0001627744044812943
+          ],
+          [
+            -0.0007217116993191226,
+            -0.00021884043669659483
+          ],
+          [
+            -0.0021917708597576696,
+            0.00039930781022565827
+          ],
+          [
+            -0.007610932843311305,
+            -0.003593378249752175
+          ],
+          [
+            -0.00039294765435742246,
+            -0.00003017722843890292
+          ],
+          [
+            -0.007431477928248,
+            -0.003440402272739013
+          ],
+          [
+            -0.0014557963938475196,
+            -0.0005939841988697487
+          ],
+          [
+            -0.006501358218527845,
+            -0.0027961383649592357
+          ],
+          [
+            -0.009766975125156056,
+            -0.004297502920205026
+          ],
+          [
+            -0.0006355099978875471,
+            -0.00010596816845419353
+          ],
+          [
+            -0.00933690647851994,
+            -0.004027165016570213
+          ],
+          [
+            -0.0021004114921776553,
+            -0.0008951221309368345
+          ],
+          [
+            -0.008141442560515052,
+            -0.0030670196618299934
+          ],
+          [
+            -0.0019046502456506373,
+            -0.00031263822067285814
+          ],
+          [
+            0.0016835514602682976,
+            0.003799696453074788
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -0.0028666764823405584,
+            -0.0005413986272371977
+          ],
+          [
+            -0.0019706887100275784,
+            -0.0005041887457818973
+          ]
+        ],
+        "tail_negative": [
+          0.999,
+          0.9985,
+          0.999,
+          1,
+          0.9935,
+          0.5615,
+          0.9945,
+          0.432,
+          0.9905,
+          0.393,
+          0.029,
+          0.0125,
+          0.042,
+          0.0005,
+          0.083,
+          0.0005,
+          0.01,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0025,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0035,
+          1,
+          1,
+          0.002,
+          0.0005
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": true
+      },
+      "first_source_group": {
+        "islands": 605,
+        "groups": 109,
+        "mean": [
+          0.006829619637885065,
+          0.0004542744842083216,
+          0.006375345153676742,
+          0.0011529853937741108,
+          0.005676634244110957,
+          0.0015539446649634318,
+          0.00019370204944830507,
+          0.0013602426155151267,
+          0.0002733237071496351,
+          0.0012806209578137958,
+          -0.0009580761306783905,
+          -0.0001879426601278994,
+          -0.0007701334705504911,
+          -0.0003943642217194221,
+          -0.0005637119089589684,
+          -0.005275674972921636,
+          -0.00026057243476001655,
+          -0.00501510253816162,
+          -0.0008796616866244754,
+          -0.004396013286297162,
+          -0.006233751103600027,
+          -0.0004485150948879158,
+          -0.005785236008712111,
+          -0.001274025908343898,
+          -0.004959725195256132,
+          -0.0009028953834955965,
+          0.0018460870104167644,
+          0,
+          -0.0008608263553294015,
+          -0.0010404414022701577
+        ],
+        "interval": [
+          [
+            0.0038699920282453818,
+            0.009672472852488
+          ],
+          [
+            0.00015855451781202412,
+            0.0007645840104964924
+          ],
+          [
+            0.0034350241117183317,
+            0.009211343627426267
+          ],
+          [
+            0.0006204066884502227,
+            0.001753576662383856
+          ],
+          [
+            0.002895050040266346,
+            0.008309501381769141
+          ],
+          [
+            0.000006986861312896316,
+            0.0030179539130717847
+          ],
+          [
+            0.00000572257336197473,
+            0.0004030211989257878
+          ],
+          [
+            -0.00020279962488520414,
+            0.0028564759469122338
+          ],
+          [
+            -0.000005337616643593191,
+            0.0005623245318279791
+          ],
+          [
+            -0.000280329928857847,
+            0.002767581175944717
+          ],
+          [
+            -0.0021416313923692636,
+            0.0003040177148223041
+          ],
+          [
+            -0.0003160949869111263,
+            -0.00006634650448551974
+          ],
+          [
+            -0.001951024420434981,
+            0.0005003964683952079
+          ],
+          [
+            -0.0006007236750813939,
+            -0.0002023474182888921
+          ],
+          [
+            -0.0017246353522443521,
+            0.0006933325886783554
+          ],
+          [
+            -0.007015637867134436,
+            -0.003476062310624807
+          ],
+          [
+            -0.0004557773417139675,
+            -0.00009375814150494179
+          ],
+          [
+            -0.006726130153581025,
+            -0.003259443422737893
+          ],
+          [
+            -0.0012551557905790662,
+            -0.0005498344447441375
+          ],
+          [
+            -0.0059693774147298465,
+            -0.0027365320561259458
+          ],
+          [
+            -0.008677604889959478,
+            -0.0037106824932763003
+          ],
+          [
+            -0.0007321671317893481,
+            -0.00020793396984103302
+          ],
+          [
+            -0.008148183513635008,
+            -0.0032597255919380014
+          ],
+          [
+            -0.0017970399411615517,
+            -0.0008368814108008396
+          ],
+          [
+            -0.007238351144785274,
+            -0.0025733785020143054
+          ],
+          [
+            -0.0015688244800216473,
+            -0.00018562300878726808
+          ],
+          [
+            0.0010824661161738392,
+            0.002581329931852962
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -0.0016392622795638049,
+            -0.000018618306479537173
+          ],
+          [
+            -0.0017072183965576723,
+            -0.00040419676308774545
+          ]
+        ],
+        "tail_negative": [
+          1,
+          0.9995,
+          1,
+          1,
+          1,
+          0.9755,
+          0.979,
+          0.953,
+          0.973,
+          0.947,
+          0.071,
+          0.001,
+          0.1235,
+          0.0005,
+          0.203,
+          0.0005,
+          0.0015,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0005,
+          0.0075,
+          1,
+          1,
+          0.023,
+          0.0005
+        ],
+        "valid_draws": 1999,
+        "nondegenerate": true
+      },
+      "warning": "Post-outcome paired algebraic diagnostic; size contribution and reweighting are not causal effects."
+    }
+  },
+  "provenance": {
+    "run": 45554481026,
+    "original": {
+      "artifact": 14994279199,
+      "digest_reported": "sha256:2ea4160aa3ba50033dd532b2d2c093a49add5e395a0b0fffef2b526a76511054"
+    },
+    "q3": {
+      "artifact": 14994049619,
+      "digest_reported": "sha256:3c2ddaf1c63d5267b762876cbb2c4541bdedb10b28bbebb297eb6bf274732edc"
+    },
+    "method": "Complete anonymous original job logs; artifact ZIP digests reported by GitHub, not independently downloaded."
+  }
+}

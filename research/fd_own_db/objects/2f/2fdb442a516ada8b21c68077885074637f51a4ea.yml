@@ -1,0 +1,37 @@
+name: fd floral-distance analysis
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests-and-public-aggregate-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install package and test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Test distance and input validation contracts
+        run: python -m pytest -q
+      - name: Fetch only public aggregate evidence from frozen island commit
+        run: python scripts/fetch_island_aggregates.py --output work/island_public
+      - name: Compute G0 island Rao Q and matched pair functional dissimilarity
+        run: python -m fd.pipeline --input work/island_public --output results/run_fd_v1
+      - name: Retain the source manifests and aggregate G0 outputs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-g0-aggregate-results
+          path: |
+            work/island_public/source_manifest.json
+            results/run_fd_v1
+          retention-days: 30

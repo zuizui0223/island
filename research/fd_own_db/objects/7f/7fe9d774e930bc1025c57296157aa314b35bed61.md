@@ -1,0 +1,37 @@
+# 15 November 2026 — 500–2,000 km floral beta: post-hoc geographic block-disjoint falsification
+
+**ORIGINAL SOURCE ANALYSIS SUCCESS**: [island Actions #43673785999](https://github.com/zuizui0223/island/actions/runs/43673785999), anonymous [artifact #14145417983](https://github.com/zuizui0223/island/actions/runs/43673785999/artifacts/14145417983), internal aggregate JSON SHA256 `fb350406096b83c1c2b807a4fea4999c3404d087e6eba32bfee10a0431e0e7c4` (8,365 B). Source-original botanically accepted plant species and high/medium directly observed colour/form records were restored from their SHA256-pinned archives. Synthetic max-cardinality, original full-flora species-disjoint, field-privacy and no-trait-use matching tests passed. This is a **post-hoc** targeted falsification, not a confirmatory p-value or independent original flora replication.
+
+## Purpose and frozen support
+
+The previous original analysis of all 4,505 botanical island floras identified 2,324 all-recorded floras with ≥5 **species-direct colour × form** categories. A positive genus-relative **tropical 500–2,000 km** squared profile-frequency distance residual persisted for the original 318 species-disjoint cross-block island pairs. But these 318 dyads reuse islands and 10° spatial blocks, inflating the apparent replication number.
+
+For each broad region and eligible named recorded flora scope, construct EXACT original accepted-flora species-disjoint pairs within 500–2,000 km and between different physical 10° blocks. Calculate once the observed squared joint colour×form frequency distance and **the same in-sample regional within-genus whole-profile-shuffle expected distance**. Select maximum-cardinality disjoint 10° spatial-block pair sets using a block graph without looking at any flower profiles; within each selected block pair, choose one eligible original island dyad without outcome inspection. Repeat **199 deterministic spatial-block match re-selections** to assess the stability of the result to a donor- and flower-outcome-blind graph selection. These are the **same observational floras** repeatedly reselected, not 199 independent evolutionary or population studies.
+
+Rows are exported only when original candidate support contains ≥100 pairs, ≥30 named source floras and ≥10 physical blocks, including the northern-midlatitude n≥10 carriers and ≥10% direct trait documentation opportunities. The **union** of all 4,505 original source floras remains the macro universe. Native-only supports in this short-distance fully species-disjoint subset do not pass the fixed publication gate and are NOT assumed negative biological outcomes.
+
+## Source-original result: matching can reverse the posthoc tropical positive direction
+
+| All-recorded region and source support, 500–2,000km | Eligible dyads / distinct blocks | Maximum block-disjoint matched pairs | Mean regional-genus residual on ALL candidate dyads | Median regional-genus residual across 199 block-disjoint matches | 5th–95th percentile across 199 matched choices | Share of matches with positive mean |
+|---|---:|---:|---:|---:|---|---:|
+| **Tropical n≥5 Direct** | 318 / 41 | **19** | **+0.009101** | **−0.011460** | [−0.033453,+0.013688] | **22.1%** |
+| Northern midlatitude n≥5 Direct | 1,618 / 59 | 23 | −0.001981 | +0.000381 | [−0.015060,+0.011474] | 51.8% |
+| Northern midlatitude n≥10 Direct | 493 / 36 | 14 | +0.004845 | +0.019646 | [+0.008781,+0.029340] | 100% |
+| Northern midlatitude ≥10% documented Direct | 1,366 / 45 | 20 | −0.002791 | −0.007850 | [−0.020128,+0.007084] | 21.6% |
+| **Northern midlatitude n≥10 AND ≥10% documented Direct** | **456 / 29** | **12** | **+0.004601** | **+0.018308** | [+0.003735,+0.030745] | **99.0%** |
+
+**Intervals are the 5–95% spread across outcomes of 199 deterministic outcome-blind choices of independent 10° blocks, NOT a cluster-bootstrap confidence interval and NOT evolutionary independent samples.** Same island floras and original Direct species occur in many re-selections. The five sample/support gates were examined **post-hoc** in response to prior sensitivity, so the observed positive rate cannot be promoted to a preregistered p-value.
+
+The original **318 tropical pair** block graph has 85 distinct possible 10° block-pair edges across **41 observed blocks**, arranged into **four connected components** (largest contains 27 blocks). A single disjoint matching uses **only 19 original dyads**, and all 199 maximum matchings use 19. The positive full 318-dyad pair mean is therefore **NOT robust to avoiding repeated spatial blocks**: selected means have negative median and positive sign only about 22% of the time. This is a direct reason to withhold the previously tempting claim of independent tropical intermediate-distance functional differentiation.
+
+The northern-midlatitude absolute n≥10 and ≥10%-coverage support intersections differ strongly from the unrestricted n≥5 and percentage-only samples; the strongest full-support intersected comparison has **12 geographically block-disjoint dyads**, not 456 independent botanical histories. Moreover, **10° block-disjointness does not establish different source archipelago or phylogenetic colonization histories**. Historical source, climate, nativeness/unknown-status, botanical trait provider and genus taxonomy remain potential confounders.
+
+## Interpretation and next stop-rule
+
+1. **Regional and taxon-source-conditional recorded floral phenotype composition** is genuinely measurable, and same species-free floras retain overlap in source-recorded categories; neither property implies convergent adaptation, guild replacement, actual ecological pollen service or a real 17-dimensional functional niche.
+2. The tropical 500–2,000km earlier apparent +0.00910 effect is **not robust** under equal spatial-block pairing. Do not cite the 318 dyads as independent positive confirmations.
+3. Northern-midlatitude n≥10 **AND** ≥10%-documentation post-hoc conditional contrast is a candidate, but its favorable 12-pair maximal matching is a severely selected original subset and needs an **equal-n Direct-carrier rarefaction** on exactly these 456 candidate dyads and 12 disjoint block comparisons, followed by outside-source/native-history and genus/phylogeny replication. The 199 matching variants alone do not prove a biological effect.
+4. Failure of the strict native short-distance support gate is **evidence unavailable**, not an observation that native plants lack this pattern. Asymmetry of Direct recording fractions can distort source- and geology-specific interpretation.
+5. Keep PRs DRAFT. Local pollinator-plant linkage, pollen effectiveness, historical loss, island population trait change or adaptation are **not identifiable from this fixed species-wide floral category database**.
+
+Code: [original protected block matcher](https://github.com/zuizui0223/island/blob/analysis/fd-discrete-functional-volume-20261113/scripts/fd_island_beta_block_matching.py), [original synthetic regressions](https://github.com/zuizui0223/island/blob/analysis/fd-discrete-functional-volume-20261113/tests/test_fd_island_beta_block_matching.py), standalone original protected [workflow](https://github.com/zuizui0223/island/blob/analysis/fd-discrete-functional-volume-20261113/.github/workflows/run-fd-island-beta-block-matching.yml). Public output contains ONLY anonymized regional support counts and summary statistics; never original plant, island, geographic block, GIFT source entities or archival research relation IDs.

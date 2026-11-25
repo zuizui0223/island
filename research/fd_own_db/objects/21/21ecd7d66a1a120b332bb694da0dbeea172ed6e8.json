@@ -1,0 +1,42 @@
+{
+  "analysis_date": "2026-11-11",
+  "scope": "Direct-only flower morphology known, GloBI global documented five-guild reference shares",
+  "original_source_family_taxonomy": {
+    "repository": "zuizui0223/island",
+    "commit": "3bfa818ffbc7a0dea4319933c4b0a0eb41cfabb5",
+    "gbif_candidate_taxa_blob_sha": "5ae92313517118f0dbb29d8863aa2e379ce88747",
+    "matched_genera_with_family": 486,
+    "matched_families": 88,
+    "family_conflicted_candidate_genera": 2,
+    "taxonomy_is_a_phylogenetic_tree": false
+  },
+  "test_family_holdout": {
+    "fivefold": true,
+    "seed": 20261111,
+    "ridge_alpha": 100,
+    "source_evidence_only_MSE": 0.0419701875,
+    "plus_three_direct_morphology_MSE": 0.0404509599,
+    "gain": 0.0015192276,
+    "relative_reduction_percent": 3.62,
+    "family_block_conditional_95_interval": [0.000403, 0.002716],
+    "n_positive_family_mean_gains": 48,
+    "n_families": 88,
+    "MSE_gain_when_largest_family_excluded": 0.0019768472,
+    "family_folds_5_repeats_alpha100_gain_range": [0.0012403273, 0.0015192276],
+    "family_folds_5_repeats_alpha10_gain_range": [0.001145, 0.001473],
+    "exclude_two_conflicting_family_genera_alpha100_gain_range": [0.001207, 0.001422],
+    "independent_sklearn_groupkfold_alpha100_gain": 0.001205
+  },
+  "within_family_shuffle": {
+    "number_family_blocks": 88,
+    "families_with_two_or_more_genera": 51,
+    "genera_with_shufflable_morphology_triplets": 449,
+    "n_draws": 999,
+    "observed_gain": 0.0015192276,
+    "null_gain_median": 0.0006495644,
+    "null_95_interval": [0.00029137, 0.00107782],
+    "posthoc_upper_tail_fraction": 0.001,
+    "does_not_remove_higher_phylogenetic_or_provider_confounding": true
+  },
+  "biological_claim": "Small botanical family-disjoint predictive association with GloBI source documentation fractions, not real island pollinator presence or effectiveness"
+}

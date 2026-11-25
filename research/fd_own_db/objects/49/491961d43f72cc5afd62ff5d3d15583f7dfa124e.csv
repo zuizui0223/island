@@ -1,0 +1,7 @@
+scope,endpoint,n_folds,n_islands,n_positive_fold_means,island_weighted_mean,leave_one_fold_out_min,leave_one_fold_out_max,sign_configurations,two_sided_sign_tail_if_exchangeable,status
+all,mean_joint_before,5,1007,5,0.0023780506118,0.00198199258501,0.00271138736378,32,0.0625,coarse_diagnostic_not_confirmatory_folds_share_donors
+all,mean_joint_marginal_fixed,5,1007,5,0.000213979301709,0.000183058432346,0.000249369292326,32,0.0625,coarse_diagnostic_not_confirmatory_folds_share_donors
+all,mean_brier_marginal_fixed,5,1007,5,0.000204910629222,0.000178240399337,0.000261207531927,32,0.0625,coarse_diagnostic_not_confirmatory_folds_share_donors
+direct,mean_joint_before,5,950,5,0.00109706359129,0.000809267566348,0.00129133509103,32,0.0625,coarse_diagnostic_not_confirmatory_folds_share_donors
+direct,mean_joint_marginal_fixed,5,950,5,0.000140386348003,0.000100970448104,0.00017525095317,32,0.0625,coarse_diagnostic_not_confirmatory_folds_share_donors
+direct,mean_brier_marginal_fixed,5,950,4,0.000136862275299,0.0000966042696161,0.000179218703781,32,0.1875,coarse_diagnostic_not_confirmatory_folds_share_donors

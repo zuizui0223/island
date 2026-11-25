@@ -1,0 +1,3 @@
+scope,n_islands,n_spatial_blocks,endpoint,mean_form_minus_colour_gain,block_boot_q025,block_boot_q975,status
+all,1007,119,proper_jaccard_source_placebo_form_minus_colour,0.0017382832202,-0.00022087,0.00328803,posthoc_paired_difference_no_verified_form_dominance
+direct,950,116,proper_jaccard_source_placebo_form_minus_colour,0.00066223914117,-0.0008077,0.00196655,posthoc_paired_difference_no_verified_form_dominance

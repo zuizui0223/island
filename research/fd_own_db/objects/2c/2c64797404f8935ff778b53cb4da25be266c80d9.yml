@@ -1,0 +1,76 @@
+name: fd cross-source GIFT-DoPI full motif selection/concordance audit
+on:
+  push:
+    branches: [analysis/discrete-functional-hypervolume-20261113]
+    paths:
+      - src/fd/cross_source_syndrome_concordance.py
+      - tests/test_cross_source_syndrome_concordance.py
+      - .github/workflows/fd-cross-source-syndrome-concordance.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verified-anonymous-source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-syndrome-concordance-20261117
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run original-source-receipt and fixed eight-motif selection tests
+        run: |
+          set -euo pipefail
+          python -m pip install -q -e '.[test]'
+          python -m pytest -q tests/test_cross_source_syndrome_concordance.py
+      - name: Restore original GIFT and original positive-guild DoPI anonymous numerical evidence
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/gift" "$STAGE/dopi"
+          gh run download 43857181963 --repo zuizui0223/island \
+            --name fd-original-4505-true-floral-syndrome-pairs-43857181963 \
+            --dir "$STAGE/gift"
+          gh run download 44082152065 --repo zuizui0223/island \
+            --name fd-original-4505-dopi-guild-motifs-44082152065 \
+            --dir "$STAGE/dopi"
+          echo "478e89e0dbdde12c967c1611c70b4b6fc18f500eb1fc5b8832e53da0f7cbaf54  $STAGE/gift/anonymous_original_true_joint_syndrome_access.json" | sha256sum --check --strict
+          echo "98b36fe81d9e60261c23d6091d264c7e9c9ead28c1654efc4c2cba791a3d6b09  $STAGE/dopi/anonymous_original_dopi_gift_guild_motifs.json" | sha256sum --check --strict
+      - name: All 8 profile original same-species island versus positive European guild audit
+        run: |
+          set -euo pipefail
+          python -m fd.cross_source_syndrome_concordance \
+            --gift-aggregate "$STAGE/gift/anonymous_original_true_joint_syndrome_access.json" \
+            --dopi-aggregate "$STAGE/dopi/anonymous_original_dopi_gift_guild_motifs.json" \
+            --output "$STAGE/anonymous_cross_source_motif_selection_audit.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw=(Path(os.environ["STAGE"])/"anonymous_cross_source_motif_selection_audit.json").read_text()
+          z=json.loads(raw)
+          assert z["n_global_GIFT_botanical_island_floras"]==4505
+          assert z["n_compared_anonymous_motif_scenario_rows"]==128
+          q=next(x for x in z["summaries"] if x["region"]=="tropical" and x["scope"]=="all_recorded" and x["mode"]=="geo5")
+          assert q["n_jointly_supported_motifs"]==8
+          assert (q["structural_sign_matches"],q["structural_total"])==(5,5)
+          assert (q["colour_form_sign_matches"],q["colour_form_total"])==(0,3)
+          assert q["descriptive_profile_label_shuffle"]["n_exact_label_permutations"]==40320
+          assert abs(q["descriptive_profile_label_shuffle"]["sign_tail_fraction"]-18/28)<1e-10
+          assert z["limitations"]["no_pollinator_shift_established"]
+          assert not any('"'+v+'"' in raw for v in
+              ("island_id","accepted_species","work_species","doi","publication",
+               "spatial_block","source_signature","source_species","latitude","longitude"))
+          print("Anonymous 4,505 GIFT island vs DoPI original 8-motif source-selection null: PASS")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fd-gift-dopi-original-8-motif-exhaustive-audit-${{ github.run_id }}
+          path: /tmp/fd-syndrome-concordance-20261117/anonymous_cross_source_motif_selection_audit.json
+          if-no-files-found: error
+          retention-days: 90

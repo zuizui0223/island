@@ -1,0 +1,7 @@
+region,evidence_group,n_islands,n_spatial_blocks,median_direct_island_species,median_complete_direct_GIFT_mainland_source_species,median_exact_species_mainland_source_matches,median_strict_island_native_direct_species,share_islands_with_native_exact_source_species,median_delta_open_form,fraction_positive_delta_open_form,median_delta_actinomorphy,fraction_positive_delta_actinomorphy,median_delta_GLOBAL_GloBI_Bombus_reference_share,median_delta_GLOBAL_GloBI_other_bee_reference_share,median_delta_GLOBAL_GloBI_bird_reference_share
+northern_high_latitude,other_or_unresolved,26,5,48.5,364,45.5,0,0,0.141402,1.0,0.141938,1.0,0.001031,-0.011597,0.002943
+northern_midlatitude,both_bombus_and_birds_recorded,473,37,77,432,66,0,0.099366,0.099220,0.845666,0.107113,0.860465,-0.003757,-0.001129,0.002339
+northern_midlatitude,other_or_unresolved,265,38,55,346,48,0,0.222642,0.069836,0.683019,0.071818,0.800000,-0.006505,-0.002014,0.002022
+southern_extratropical,other_or_unresolved,20,12,57,91,15,4,0.500000,0.173547,1.0,-0.142611,0.05,0.006845,-0.099850,0.000050
+tropical,bombus_undetected_birds_recorded,15,8,53,163,30,20,0.800000,0.057622,0.800000,0.109225,0.666667,-0.026448,0.043474,-0.011517
+tropical,other_or_unresolved,89,41,48,133,26,5,0.471910,0.029844,0.629213,-0.001772,0.494382,-0.029171,0.010813,0.012398

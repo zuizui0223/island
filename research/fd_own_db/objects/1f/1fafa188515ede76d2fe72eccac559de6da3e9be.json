@@ -1,0 +1,1570 @@
+{
+  "source": {
+    "model_islands": 305,
+    "reconciled": 304,
+    "native_name_pairs": 11064,
+    "bombus_positive_source_units": 75,
+    "bombus_native_name_pairs": 374,
+    "bombus_certain_name_pairs": 325
+  },
+  "panels": {
+    "direct_all_n5_native": {
+      "eligible_islands": 227,
+      "informative_groups": 16,
+      "informative_islands": 102,
+      "bombus_positive_eligible": 66,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1999,
+      "leave_group_success": 16,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.014812700589743443,
+          "group_bootstrap_interval": [
+            -0.01542597945159372,
+            0.037921846737231674
+          ],
+          "leave_group_range": [
+            0.003504489381344622,
+            0.02468264594733416
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.0073380579613353,
+          "group_bootstrap_interval": [
+            -0.023877757044651834,
+            0.029332133664393044
+          ],
+          "leave_group_range": [
+            -0.001798541182250792,
+            0.01260361839833314
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.008606849091007309,
+          "group_bootstrap_interval": [
+            -0.03378453374577926,
+            0.02426605153570026
+          ],
+          "leave_group_range": [
+            -0.021499875015904328,
+            0.010709025209823423
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.005296658555101404,
+          "group_bootstrap_interval": [
+            -0.0061682241682416185,
+            0.02152055870069386
+          ],
+          "leave_group_range": [
+            0.0007287992527888626,
+            0.00879401492893947
+          ]
+        }
+      }
+    },
+    "direct_all_n5_certain": {
+      "eligible_islands": 220,
+      "informative_groups": 14,
+      "informative_islands": 89,
+      "bombus_positive_eligible": 56,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1999,
+      "leave_group_success": 14,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.010366937093981433,
+          "group_bootstrap_interval": [
+            -0.02252065457675739,
+            0.0316026775519897
+          ],
+          "leave_group_range": [
+            -0.00034576406436916227,
+            0.022436348503918416
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.012318160763775397,
+          "group_bootstrap_interval": [
+            -0.01955072831942253,
+            0.03605182201020039
+          ],
+          "leave_group_range": [
+            0.002552192892981809,
+            0.019895438487498494
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.012880988160116529,
+          "group_bootstrap_interval": [
+            -0.044117311424778836,
+            0.026262922584090673
+          ],
+          "leave_group_range": [
+            -0.029594484259271605,
+            0.00756348798507976
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.0020399470043393083,
+          "group_bootstrap_interval": [
+            -0.006641448001700603,
+            0.012039182921376608
+          ],
+          "leave_group_range": [
+            -0.00022939839650862272,
+            0.005656399363929217
+          ]
+        }
+      }
+    },
+    "direct_all_n50_native": {
+      "eligible_islands": 196,
+      "informative_groups": 15,
+      "informative_islands": 86,
+      "bombus_positive_eligible": 64,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1999,
+      "leave_group_success": 15,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.007668083516964395,
+          "group_bootstrap_interval": [
+            -0.021237494826898847,
+            0.02427563430742349
+          ],
+          "leave_group_range": [
+            -0.008727504824665217,
+            0.0163493548925611
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.010724420727997022,
+          "group_bootstrap_interval": [
+            -0.01859393134552471,
+            0.03505602569068737
+          ],
+          "leave_group_range": [
+            -0.0018157767829106936,
+            0.01626746685632198
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.011723561024190698,
+          "group_bootstrap_interval": [
+            -0.032423405099034276,
+            0.0291844791423828
+          ],
+          "leave_group_range": [
+            -0.02497354906867872,
+            0.009392146438494068
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.00160547649178706,
+          "group_bootstrap_interval": [
+            -0.004881835598222137,
+            0.007873389111624152
+          ],
+          "leave_group_range": [
+            -0.0002518582846807465,
+            0.004195697378320854
+          ]
+        }
+      }
+    },
+    "direct_all_n50_certain": {
+      "eligible_islands": 191,
+      "informative_groups": 14,
+      "informative_islands": 78,
+      "bombus_positive_eligible": 54,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1999,
+      "leave_group_success": 14,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.012687085535473786,
+          "group_bootstrap_interval": [
+            -0.021935353155977177,
+            0.03470912816400898
+          ],
+          "leave_group_range": [
+            -0.0034804337897606213,
+            0.024298399527301607
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.011224060828701435,
+          "group_bootstrap_interval": [
+            -0.019880561674935227,
+            0.03887463737708399
+          ],
+          "leave_group_range": [
+            -0.0014907508960202258,
+            0.024273405320427974
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.015197407402902596,
+          "group_bootstrap_interval": [
+            -0.0409009481282805,
+            0.03303933016116612
+          ],
+          "leave_group_range": [
+            -0.0317524567247733,
+            0.007543927236549024
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.0028841237835951035,
+          "group_bootstrap_interval": [
+            -0.004203723728418518,
+            0.010293479637457819
+          ],
+          "leave_group_range": [
+            -0.0015105564276169715,
+            0.005352605561150987
+          ]
+        }
+      }
+    },
+    "direct_northern_high_latitude_n5_native": {
+      "eligible_islands": 3,
+      "informative_groups": 1,
+      "informative_islands": 2,
+      "bombus_positive_eligible": 3,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_northern_high_latitude_n5_certain": {
+      "eligible_islands": 3,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 3,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_northern_high_latitude_n50_native": {
+      "eligible_islands": 2,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 2,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_northern_high_latitude_n50_certain": {
+      "eligible_islands": 2,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 2,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_northern_midlatitude_n5_native": {
+      "eligible_islands": 90,
+      "informative_groups": 12,
+      "informative_islands": 72,
+      "bombus_positive_eligible": 57,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1997,
+      "leave_group_success": 12,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": -0.008000658851335496,
+          "group_bootstrap_interval": [
+            -0.028062285835081684,
+            0.023758596807258142
+          ],
+          "leave_group_range": [
+            -0.01349970064292552,
+            -0.0013672577726469575
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.008763186940293814,
+          "group_bootstrap_interval": [
+            -0.04067930263716686,
+            0.02391506063445669
+          ],
+          "leave_group_range": [
+            -0.019554028197644856,
+            -0.0016543863405886908
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.009199074826990504,
+          "group_bootstrap_interval": [
+            -0.013581697345966435,
+            0.025427851072568706
+          ],
+          "leave_group_range": [
+            -0.0003262625309597624,
+            0.014625111718410563
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.0020672845783108796,
+          "group_bootstrap_interval": [
+            -0.007920473990324223,
+            0.009382847465934966
+          ],
+          "leave_group_range": [
+            -0.00003935090041364995,
+            0.005620018984881612
+          ]
+        }
+      }
+    },
+    "direct_northern_midlatitude_n5_certain": {
+      "eligible_islands": 89,
+      "informative_groups": 11,
+      "informative_islands": 63,
+      "bombus_positive_eligible": 47,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1992,
+      "leave_group_success": 11,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": -0.008283633118163726,
+          "group_bootstrap_interval": [
+            -0.03391789790664008,
+            0.03286226360930684
+          ],
+          "leave_group_range": [
+            -0.01598984918949265,
+            0.0013024778822667135
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.003145166529348726,
+          "group_bootstrap_interval": [
+            -0.03390873233513106,
+            0.02813241047217388
+          ],
+          "leave_group_range": [
+            -0.014180596452664212,
+            0.003120930470127604
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.0113405547214134,
+          "group_bootstrap_interval": [
+            -0.02682787936838832,
+            0.03152584383122798
+          ],
+          "leave_group_range": [
+            -0.0003252407264032599,
+            0.01667500844549082
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.0027697263055124397,
+          "group_bootstrap_interval": [
+            -0.007127979289077227,
+            0.010741107133825936
+          ],
+          "leave_group_range": [
+            0.00042162606278971335,
+            0.006572153258865492
+          ]
+        }
+      }
+    },
+    "direct_northern_midlatitude_n50_native": {
+      "eligible_islands": 85,
+      "informative_groups": 12,
+      "informative_islands": 69,
+      "bombus_positive_eligible": 56,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1997,
+      "leave_group_success": 12,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": -0.011409583195143872,
+          "group_bootstrap_interval": [
+            -0.02921541373128444,
+            0.017447748009153934
+          ],
+          "leave_group_range": [
+            -0.016056992141496404,
+            -0.0069504975537916635
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.004701411462559079,
+          "group_bootstrap_interval": [
+            -0.03200873276850489,
+            0.024527935840980748
+          ],
+          "leave_group_range": [
+            -0.015200861801251034,
+            -0.0012242659766420047
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.015413383423278453,
+          "group_bootstrap_interval": [
+            -0.005298952527098639,
+            0.027255828848810008
+          ],
+          "leave_group_range": [
+            0.010136732033938525,
+            0.01768653102001328
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.002844646895196594,
+          "group_bootstrap_interval": [
+            -0.006842409700341507,
+            0.010198468833550783
+          ],
+          "leave_group_range": [
+            0.0010638636952144962,
+            0.006304786750473342
+          ]
+        }
+      }
+    },
+    "direct_northern_midlatitude_n50_certain": {
+      "eligible_islands": 84,
+      "informative_groups": 11,
+      "informative_islands": 61,
+      "bombus_positive_eligible": 46,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1992,
+      "leave_group_success": 11,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": -0.004690829735721224,
+          "group_bootstrap_interval": [
+            -0.032226461986809264,
+            0.035603577920178583
+          ],
+          "leave_group_range": [
+            -0.016111399045884257,
+            0.0065191343291186345
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.006043624620796633,
+          "group_bootstrap_interval": [
+            -0.03390873233513106,
+            0.026072194245353168
+          ],
+          "leave_group_range": [
+            -0.01646060855438461,
+            0.010502101365106323
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.011574594433420793,
+          "group_bootstrap_interval": [
+            -0.026269447335934237,
+            0.030906006919403935
+          ],
+          "leave_group_range": [
+            0.0003020433931293421,
+            0.017032610572868985
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.003839164871660659,
+          "group_bootstrap_interval": [
+            -0.005383904368512032,
+            0.010778618355708406
+          ],
+          "leave_group_range": [
+            -0.0005375212548711132,
+            0.00742034272491228
+          ]
+        }
+      }
+    },
+    "direct_southern_extratropical_n5_native": {
+      "eligible_islands": 5,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 0,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_southern_extratropical_n5_certain": {
+      "eligible_islands": 4,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 0,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_southern_extratropical_n50_native": {
+      "eligible_islands": 5,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 0,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_southern_extratropical_n50_certain": {
+      "eligible_islands": 4,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 0,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_tropical_n5_native": {
+      "eligible_islands": 129,
+      "informative_groups": 2,
+      "informative_islands": 25,
+      "bombus_positive_eligible": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "insufficient_support",
+      "bootstrap_success": 1011,
+      "leave_group_success": 0,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.018658598819745787,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.02195475347076059,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.018751076991418366,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": -0.00124893050086948,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        }
+      }
+    },
+    "direct_tropical_n5_certain": {
+      "eligible_islands": 124,
+      "informative_groups": 2,
+      "informative_islands": 24,
+      "bombus_positive_eligible": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "insufficient_support",
+      "bootstrap_success": 1011,
+      "leave_group_success": 0,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.020142472810775136,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.02652389371385402,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.02294236544424123,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.0019226343476037976,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        }
+      }
+    },
+    "direct_tropical_n50_native": {
+      "eligible_islands": 104,
+      "informative_groups": 2,
+      "informative_islands": 15,
+      "bombus_positive_eligible": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "insufficient_support",
+      "bootstrap_success": 1011,
+      "leave_group_success": 0,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": -0.000913769979002008,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.015905509639783995,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.008163797165120713,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": -0.0008382289672773519,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        }
+      }
+    },
+    "direct_tropical_n50_certain": {
+      "eligible_islands": 101,
+      "informative_groups": 2,
+      "informative_islands": 15,
+      "bombus_positive_eligible": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "insufficient_support",
+      "bootstrap_success": 1011,
+      "leave_group_success": 0,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.006927099402829554,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.017720824018117864,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.0060054255616723675,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.005082461911500153,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        }
+      }
+    },
+    "direct_single_state_all_n5_native": {
+      "eligible_islands": 221,
+      "informative_groups": 16,
+      "informative_islands": 101,
+      "bombus_positive_eligible": 66,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1999,
+      "leave_group_success": 16,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.016994147690127966,
+          "group_bootstrap_interval": [
+            -0.018856680170355557,
+            0.042144912783015416
+          ],
+          "leave_group_range": [
+            0.007372674166553463,
+            0.021837534627788837
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.0172079894801691,
+          "group_bootstrap_interval": [
+            -0.028481823051198566,
+            0.055368513113696526
+          ],
+          "leave_group_range": [
+            -0.00249295678162774,
+            0.029828482700343446
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.0020636522399239453,
+          "group_bootstrap_interval": [
+            -0.026084035522836384,
+            0.024774595789819425
+          ],
+          "leave_group_range": [
+            -0.01193350114249003,
+            0.012490063040604366
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.009810043333466814,
+          "group_bootstrap_interval": [
+            -0.01818182273753277,
+            0.036678237194233305
+          ],
+          "leave_group_range": [
+            0.0018701421275763384,
+            0.016076378177628668
+          ]
+        }
+      }
+    },
+    "direct_single_state_all_n5_certain": {
+      "eligible_islands": 214,
+      "informative_groups": 14,
+      "informative_islands": 88,
+      "bombus_positive_eligible": 56,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1999,
+      "leave_group_success": 14,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.01390684121418284,
+          "group_bootstrap_interval": [
+            -0.017439756496072475,
+            0.03930190541147224
+          ],
+          "leave_group_range": [
+            0.0053108170116955185,
+            0.021655397931609456
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.008073752810574231,
+          "group_bootstrap_interval": [
+            -0.0532327072352681,
+            0.04624507968392788
+          ],
+          "leave_group_range": [
+            -0.011872336103920338,
+            0.020854581518100265
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.001560021535472308,
+          "group_bootstrap_interval": [
+            -0.030690030217263593,
+            0.03806517850895534
+          ],
+          "leave_group_range": [
+            -0.014288336862212224,
+            0.014178583992216108
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.0013757918777319899,
+          "group_bootstrap_interval": [
+            -0.026775424855639895,
+            0.026335767726088824
+          ],
+          "leave_group_range": [
+            -0.005380260146392865,
+            0.01131061872969556
+          ]
+        }
+      }
+    },
+    "direct_single_state_all_n50_native": {
+      "eligible_islands": 150,
+      "informative_groups": 15,
+      "informative_islands": 75,
+      "bombus_positive_eligible": 61,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1998,
+      "leave_group_success": 15,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.01569158232023796,
+          "group_bootstrap_interval": [
+            -0.01693345621006346,
+            0.03317503677828511
+          ],
+          "leave_group_range": [
+            0.008349583461975259,
+            0.022235014051570176
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.012820603355871261,
+          "group_bootstrap_interval": [
+            -0.031031023164507402,
+            0.03951296908329902
+          ],
+          "leave_group_range": [
+            -0.002845385012342964,
+            0.019737967234958548
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.00595052069678096,
+          "group_bootstrap_interval": [
+            -0.03274980532568076,
+            0.050549358655459405
+          ],
+          "leave_group_range": [
+            -0.018880731907012935,
+            0.009504698301757701
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.007164670118372086,
+          "group_bootstrap_interval": [
+            -0.004878297164619758,
+            0.024234132691779774
+          ],
+          "leave_group_range": [
+            0.0040914357990582025,
+            0.012469281967177882
+          ]
+        }
+      }
+    },
+    "direct_single_state_all_n50_certain": {
+      "eligible_islands": 148,
+      "informative_groups": 14,
+      "informative_islands": 67,
+      "bombus_positive_eligible": 53,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1998,
+      "leave_group_success": 14,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.013804398249263827,
+          "group_bootstrap_interval": [
+            -0.019271108813996903,
+            0.031184426087440195
+          ],
+          "leave_group_range": [
+            0.00461272688115909,
+            0.020251200532737913
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": 0.024606818408875276,
+          "group_bootstrap_interval": [
+            -0.021530384068646807,
+            0.050595531806480416
+          ],
+          "leave_group_range": [
+            0.008423285123100716,
+            0.030673973899433472
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": -0.004202472919038188,
+          "group_bootstrap_interval": [
+            -0.04004835808433256,
+            0.07622325730466667
+          ],
+          "leave_group_range": [
+            -0.021467045301106172,
+            0.015488210091966386
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.005016658338880365,
+          "group_bootstrap_interval": [
+            -0.007359838147293003,
+            0.030171221844140478
+          ],
+          "leave_group_range": [
+            0.0015228702360898369,
+            0.01063486352065042
+          ]
+        }
+      }
+    },
+    "direct_single_state_northern_high_latitude_n5_native": {
+      "eligible_islands": 3,
+      "informative_groups": 1,
+      "informative_islands": 2,
+      "bombus_positive_eligible": 3,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_single_state_northern_high_latitude_n5_certain": {
+      "eligible_islands": 3,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 3,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_single_state_northern_high_latitude_n50_native": {
+      "eligible_islands": 1,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 1,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_single_state_northern_high_latitude_n50_certain": {
+      "eligible_islands": 1,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 1,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_single_state_northern_midlatitude_n5_native": {
+      "eligible_islands": 90,
+      "informative_groups": 12,
+      "informative_islands": 72,
+      "bombus_positive_eligible": 57,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1997,
+      "leave_group_success": 12,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": -0.00918945678831164,
+          "group_bootstrap_interval": [
+            -0.0510775666088813,
+            0.025494022837044147
+          ],
+          "leave_group_range": [
+            -0.016953796317155347,
+            -0.0027039071083227225
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.0008944312008195708,
+          "group_bootstrap_interval": [
+            -0.05168671448736928,
+            0.070524193449357
+          ],
+          "leave_group_range": [
+            -0.024205401743568673,
+            0.017440236214905997
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.0008032625053777283,
+          "group_bootstrap_interval": [
+            -0.029265833883890372,
+            0.02921359293770329
+          ],
+          "leave_group_range": [
+            -0.012738267775922513,
+            0.010496740379165427
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.00625906389733728,
+          "group_bootstrap_interval": [
+            -0.02874672381226432,
+            0.029340864827006187
+          ],
+          "leave_group_range": [
+            -0.00843461677138876,
+            0.015218200674938691
+          ]
+        }
+      }
+    },
+    "direct_single_state_northern_midlatitude_n5_certain": {
+      "eligible_islands": 89,
+      "informative_groups": 11,
+      "informative_islands": 63,
+      "bombus_positive_eligible": 47,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1992,
+      "leave_group_success": 11,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.0033768136012168578,
+          "group_bootstrap_interval": [
+            -0.029893848402882728,
+            0.04501823279715046
+          ],
+          "leave_group_range": [
+            -0.006625053603427631,
+            0.013060563179821575
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.010437411730672218,
+          "group_bootstrap_interval": [
+            -0.07037544752673501,
+            0.051390500200577276
+          ],
+          "leave_group_range": [
+            -0.03493244423310205,
+            0.0019255297335154225
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.0051127990896312385,
+          "group_bootstrap_interval": [
+            -0.03506456687441311,
+            0.04221978485872457
+          ],
+          "leave_group_range": [
+            -0.011483428286443643,
+            0.014109307451814875
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.011113399871611735,
+          "group_bootstrap_interval": [
+            -0.019103391294815412,
+            0.03502562978793476
+          ],
+          "leave_group_range": [
+            -0.002417321473133013,
+            0.020424886124733622
+          ]
+        }
+      }
+    },
+    "direct_single_state_northern_midlatitude_n50_native": {
+      "eligible_islands": 74,
+      "informative_groups": 12,
+      "informative_islands": 61,
+      "bombus_positive_eligible": 54,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1996,
+      "leave_group_success": 12,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.003621026816170919,
+          "group_bootstrap_interval": [
+            -0.024265275358812503,
+            0.038512906330786786
+          ],
+          "leave_group_range": [
+            -0.002394252539584511,
+            0.010551271819861749
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.012086756606475173,
+          "group_bootstrap_interval": [
+            -0.06006253799883948,
+            0.023006816035541403
+          ],
+          "leave_group_range": [
+            -0.032284458850594555,
+            -0.0037913005842162934
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.009180808350832154,
+          "group_bootstrap_interval": [
+            -0.013177212241979869,
+            0.03079581712745153
+          ],
+          "leave_group_range": [
+            0.004383176440131356,
+            0.01619551314982748
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.007990127180336478,
+          "group_bootstrap_interval": [
+            -0.007111638449342468,
+            0.024354867202214484
+          ],
+          "leave_group_range": [
+            0.00418270145404147,
+            0.013154442672695842
+          ]
+        }
+      }
+    },
+    "direct_single_state_northern_midlatitude_n50_certain": {
+      "eligible_islands": 74,
+      "informative_groups": 11,
+      "informative_islands": 53,
+      "bombus_positive_eligible": 46,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "exploratory_not_supported",
+      "bootstrap_success": 1979,
+      "leave_group_success": 11,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.0016732550884230512,
+          "group_bootstrap_interval": [
+            -0.02823343808966915,
+            0.03553449058524209
+          ],
+          "leave_group_range": [
+            -0.0037357557998670254,
+            0.011383556764814933
+          ]
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.0013673812122927814,
+          "group_bootstrap_interval": [
+            -0.05664006777945555,
+            0.033819946637032895
+          ],
+          "leave_group_range": [
+            -0.017758310702981128,
+            0.008091130287772164
+          ]
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.010040446130415112,
+          "group_bootstrap_interval": [
+            -0.03206216385287938,
+            0.054224605989215045
+          ],
+          "leave_group_range": [
+            -0.0016343628580936112,
+            0.019894943805389774
+          ]
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": 0.004108308574215877,
+          "group_bootstrap_interval": [
+            -0.01588959560315329,
+            0.023436388717324445
+          ],
+          "leave_group_range": [
+            0.0014930890496000903,
+            0.011140353548251082
+          ]
+        }
+      }
+    },
+    "direct_single_state_southern_extratropical_n5_native": {
+      "eligible_islands": 5,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 0,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_single_state_southern_extratropical_n5_certain": {
+      "eligible_islands": 4,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 0,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_single_state_southern_extratropical_n50_native": {
+      "eligible_islands": 5,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 0,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_single_state_southern_extratropical_n50_certain": {
+      "eligible_islands": 4,
+      "informative_groups": 0,
+      "informative_islands": 0,
+      "bombus_positive_eligible": 0,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_single_state_tropical_n5_native": {
+      "eligible_islands": 123,
+      "informative_groups": 2,
+      "informative_islands": 24,
+      "bombus_positive_eligible": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "insufficient_support",
+      "bootstrap_success": 1011,
+      "leave_group_success": 0,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.04579706597422587,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.0622038181716901,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.04906327944012116,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": -0.01995540952115787,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        }
+      }
+    },
+    "direct_single_state_tropical_n5_certain": {
+      "eligible_islands": 118,
+      "informative_groups": 2,
+      "informative_islands": 23,
+      "bombus_positive_eligible": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "insufficient_support",
+      "bootstrap_success": 1011,
+      "leave_group_success": 0,
+      "endpoints": {
+        "bilabiate_or_papilionaceous": {
+          "contrast_bombus_minus_other": 0.04620218315156788,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "open_radial": {
+          "contrast_bombus_minus_other": -0.05824033714697694,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "tubular_only": {
+          "contrast_bombus_minus_other": 0.04514416007830621,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        },
+        "rao_q_without_replacement": {
+          "contrast_bombus_minus_other": -0.011622944479196592,
+          "group_bootstrap_interval": null,
+          "leave_group_range": null
+        }
+      }
+    },
+    "direct_single_state_tropical_n50_native": {
+      "eligible_islands": 70,
+      "informative_groups": 2,
+      "informative_islands": 12,
+      "bombus_positive_eligible": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    },
+    "direct_single_state_tropical_n50_certain": {
+      "eligible_islands": 69,
+      "informative_groups": 2,
+      "informative_islands": 12,
+      "bombus_positive_eligible": 6,
+      "controls": [
+        "log_area",
+        "log_distance",
+        "log_n",
+        "bee_coverage",
+        "joint_coverage",
+        "AMT",
+        "AP"
+      ],
+      "status": "not_estimable"
+    }
+  },
+  "provenance": {
+    "run": 45535838901,
+    "artifact": 14986627658,
+    "artifact_digest_reported": "sha256:95a3945f5153853922274a6be61330d7abd4bf942adc4eef25d8f6c0e5920234",
+    "method": "Reconstructed from complete original job logs; archive digest from GitHub metadata, not independently downloaded."
+  }
+}

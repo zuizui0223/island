@@ -1,0 +1,32 @@
+name: fd_categorical_brier_rao_identity
+on:
+  push:
+    branches: [analysis/nominal-diversity-forecast-identity-20261120]
+    paths:
+      - ".github/workflows/fd-categorical-brier-rao-identity.yml"
+      - "src/fd/nominal_diversity_identity.py"
+      - "tests/test_nominal_diversity_identity.py"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/fd-categorical-brier-rao-identity.yml"
+      - "src/fd/nominal_diversity_identity.py"
+      - "tests/test_nominal_diversity_identity.py"
+permissions:
+  contents: read
+jobs:
+  brier-rao-mathematical-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: python -m pip install -q numpy pytest
+      - name: Test exact Brier-to-nominal Simpson/Rao and general fixed D projection
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python -m pytest -q tests/test_nominal_diversity_identity.py
+          python -m compileall -q src/fd/nominal_diversity_identity.py

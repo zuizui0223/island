@@ -1,0 +1,5 @@
+scope,matching_policy,n_islands,n_spatial_blocks,mean_kernel_gain,kernel_block_q025,kernel_block_q975,mean_brier_gain,brier_block_q025,brier_block_q975,mean_coverage_difference,median_control_to_actual_donor_names_ratio,mean_source_entity_jaccard,leave_one_block_kernel_min,leave_one_block_kernel_max
+all,genus_coverage_only,1137,127,0.0024385,0.001111,0.003642,0.002132,0.000981,0.003215,0.000524,1.122881,0.118554,0.0018943,0.0025988
+all,genus_coverage_plus_donor_size_factor2,1007,119,0.0018600,0.000687,0.002877,0.002011,0.000788,0.003295,0.000503,1.032468,0.143878,0.0014860,0.0020089
+direct,genus_coverage_only,1077,129,0.0017939,0.000204,0.003319,0.001379,-0.000127,0.002761,0.000453,1.078125,0.117194,0.0010117,0.0019685
+direct,genus_coverage_plus_donor_size_factor2,950,116,0.0009271,-0.000031,0.001741,0.000811,-0.000375,0.001908,0.000603,1.028571,0.138089,0.0006138,0.0010617

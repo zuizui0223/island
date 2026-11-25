@@ -1,0 +1,29 @@
+name: Fast tropical pairwise public floral guild association
+on:
+  push:
+    branches: [analysis/tropical-pollinator-guild-dispersal-20261124]
+    paths:
+      - scripts/tropical_public_flora_guild_pair_only.py
+      - .github/workflows/tropical_public_flora_guild_pair_only.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  pairs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas numpy pyshp pyproj
+      - run: python -u scripts/tropical_public_flora_guild_pair_only.py --out work/public_pair_flora
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tropical-public-flora-pair-guild-association
+          path: work/public_pair_flora

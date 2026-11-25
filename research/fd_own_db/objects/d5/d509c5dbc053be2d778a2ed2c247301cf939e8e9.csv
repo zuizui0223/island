@@ -1,0 +1,9 @@
+morphology_feature_set,n_genera,n_families,n_balanced_family_folds,ridge_alpha,mean_MSE_gain_over_reference,min_MSE_gain_over_reference,max_MSE_gain_over_reference
+evidence_only,484,88,5,100,0.000000000,0.000000000,0.000000000
+symmetry_only,484,88,5,100,0.000501402,0.000347219,0.000595621
+open_form_only,484,88,5,100,0.001064973,0.001018967,0.001097917
+inconspicuous_colour_only,484,88,5,100,-0.000017079,-0.000077619,0.000037429
+symmetry_form,484,88,5,100,0.001349251,0.001234960,0.001444546
+symmetry_colour,484,88,5,100,0.000453146,0.000301057,0.000598319
+form_colour,484,88,5,100,0.001067489,0.000992013,0.001124172
+all_three,484,88,5,100,0.001330577,0.001207454,0.001421734

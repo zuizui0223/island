@@ -1,0 +1,30 @@
+name: Bee GSHHG exact public floral aggregate bridge
+on:
+  push:
+    branches: [analysis/tropical-pollinator-guild-dispersal-20261124]
+    paths:
+      - scripts/tropical_pollinator_public_flora_bridge.py
+      - .github/workflows/tropical_pollinator_public_flora_bridge.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install geopandas pyogrio shapely pyproj pandas numpy pyshp
+      - run: python scripts/tropical_pollinator_public_flora_bridge.py --out work/public_flora_bridge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONPATH: src
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tropical-pollinator-public-flora-bridge
+          path: work/public_flora_bridge
