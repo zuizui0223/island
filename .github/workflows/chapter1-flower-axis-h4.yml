@@ -1,0 +1,60 @@
+name: Own DB H4 floral-combination functional gate
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'scripts/chapter1_flower_axis_h4.py'
+      - '.github/workflows/chapter1-flower-axis-h4.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-species:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - run: python scripts/chapter1_flower_axis_h4.py --self-test
+      - name: Restore pinned source and evaluate exact-species support
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p /tmp/h4-joint/original
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir /tmp/h4-joint/original
+          LEDGER="$(find /tmp/h4-joint/original -path '*/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz' -type f -print -quit)"
+          test -s "$LEDGER"
+          ROOT="${LEDGER%/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz}"
+          curl --fail --silent --show-error --location 'https://raw.githubusercontent.com/idiv-biodiversity/pollen-limitation-data-descriptor/abbe193770981b2c61713e75a0f01e004bdded8e/Output/GloPL.csv' -o /tmp/h4-joint/GloPL.csv
+          python -u scripts/chapter1_flower_axis_h4.py --ledger "$LEDGER" --state-audit "$ROOT/snapshot/chapter1_trait_state_audit_direct.csv.gz" --h3 results/geography_20260924/h3_corrected_effect_rows.csv.gz --glopl /tmp/h4-joint/GloPL.csv --out /tmp/h4-joint/anonymous.json
+          python - <<'PY'
+          import json
+          a=json.load(open('/tmp/h4-joint/anonymous.json'))
+          assert a['owner']=='island' and len(a['panels'])==4
+          forbidden={'island_id','accepted_species','species_key','genus_name','site_key','study_key','entity_ID','latitude','longitude','row_id'}
+          def audit(v):
+              if isinstance(v,dict):
+                  assert not forbidden.intersection(v)
+                  for x in v.values(): audit(x)
+              elif isinstance(v,list):
+                  for x in v:audit(x)
+          audit(a)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: own-db-h4-floral-axis-anonymous
+          path: /tmp/h4-joint/anonymous.json
+          if-no-files-found: error
+      - name: Delete temporary data
+        if: always()
+        run: rm -rf /tmp/h4-joint
