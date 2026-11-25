@@ -18,3 +18,7 @@ New claims: qualified exploratory Direct tropical composition association; High-
 ## Document export
 
 The separate integrated renderer uses the original GEB equal-area figure generator, the frozen S1–S7 figures, and the new S8 SVG. It packages only the candidate prose, aggregate tables and figure derivatives in `BLINDED_REVIEW`, with unapproved cover/title/data-rights material in `IDENTIFYING_ONLY`. Every PDF page is rasterized to a separate QA artifact. Structural/anonymity checks are automated; all-page human visual proof and external approvals remain required. It does not restore or export the protected source ledger, change submission selectors or release a DOI.
+
+## Completed render and verification
+
+[Render receipt and downloads](RENDER_VERIFIED_RECEIPT.md). Actual downloaded archive SHA256 and all 42 inner manifest file hashes verified. CI and contact-sheet layout review passed at their respective scopes; full-resolution proof and external approval remain open.

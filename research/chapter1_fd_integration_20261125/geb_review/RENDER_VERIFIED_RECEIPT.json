@@ -1,0 +1,54 @@
+{
+  "status": "author_review_ready_not_submission",
+  "render_run": 45593987569,
+  "render_head": "ee985b06c0ccb733df8267af96830ec2f512ea0b",
+  "job": 139135134061,
+  "artifacts": [
+    {
+      "id": 15013135181,
+      "name": "geb-integrated-all-page-qa",
+      "digest": "sha256:5e7e09041f97a77c21c5c0739ccd9543f30d95c4ab2edac7230ebd92f5fe17da",
+      "size_in_bytes": 9023416,
+      "expires_at": "2026-12-09T10:21:38Z",
+      "archive_bytes_sha256_verified_locally": true
+    },
+    {
+      "id": 15012142877,
+      "name": "geb-integrated-author-review-only",
+      "digest": "sha256:82475038124d174b0c3b45f6e5b772da2853ef1ade207df6a21faa141b7e1afb",
+      "size_in_bytes": 3708112,
+      "expires_at": "2026-12-25T10:21:37Z",
+      "archive_bytes_sha256_verified_locally": true
+    }
+  ],
+  "inner_manifest_files_verified": 42,
+  "inner_manifest_hash_mismatches": 0,
+  "page_counts": {
+    "manuscript": 17,
+    "supplement": 19,
+    "cover": 1,
+    "title": 1
+  },
+  "automated_page_flags": [],
+  "visual_review": {
+    "scope": "Contact sheets of all 36 manuscript and SI pages, with enlarged S8 figure and S8b table examined; all-page full-resolution human proof not completed.",
+    "major_layout_issues_seen": false,
+    "figure_S8_caption_and_graph_on_same_page": true
+  },
+  "source_preservation": {
+    "id": 10058653212,
+    "run": 34232450884,
+    "size_in_bytes": 105740636,
+    "digest": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999",
+    "expires_at": "2026-12-07T13:31:06Z",
+    "bytes_copied_to_new_storage": false
+  },
+  "external_gates": [
+    "source-level permissions and editor-approved access plan",
+    "coauthor/title-page approval",
+    "anonymous reviewer access",
+    "permanent software/data archive approval",
+    "final full-resolution visual proof"
+  ],
+  "frozen_submission_changed": false
+}
