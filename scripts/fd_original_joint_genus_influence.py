@@ -124,12 +124,19 @@ def influence(d,j):
         point=float(c.sum());ref=float(w@d[a+"__"+b+"__residual"].to_numpy())
         assert np.isclose(point,ref,atol=1e-10)
         active=c[c.abs()>1e-14];ordered=active.abs().sort_values(ascending=False)
+        # Count independently variable strata, not merely species-rich islands.
+        informative=z[(z.a>0)&(z.a<z.n)&(z.b>0)&(z.b<z.n)]
+        local_support={"variable_strata":len(informative),"variable_islands":int(informative.island_id.nunique()),"variable_genera":int(informative.genus.nunique()),"variable_blocks":int(d.iloc[informative.i.unique()].block.nunique())}
         total=float(ordered.sum())
         drops={}
+        # Anonymous concentration by geographic block, same original design.
+        block_c=z.assign(block=d.block.to_numpy()[z.i.to_numpy()]).groupby("block").contribution.sum()
+        block_abs=block_c.abs().sort_values(ascending=False)
+        block_share=float(block_abs.iloc[0]/block_abs.sum()) if block_abs.sum()>0 else None
         for k in [1,3,5,10]:
             names=ordered.index[:k];drops[str(k)]=float(point-c.loc[names].sum())
         # Fixed original denominator and design: remove contribution, not taxa from roster.
-        result[a+"__"+b]={"slope":point,"nonzero_contributing_genera":len(active),"absolute_contribution_sum":total,"top1_absolute_share":float(ordered.iloc[0]/total) if total else None,"top5_absolute_share":float(ordered.iloc[:5].sum()/total) if total else None,"fixed_design_drop_top_k":drops,"single_genus_drop_range":[float((point-active).min()),float((point-active).max())] if len(active) else None,"islands_with_nonzero_local_residual":int(z.loc[z.res.abs()>1e-14,"island_id"].nunique())}
+        result[a+"__"+b]={"slope":point,"local_support":local_support,"top_block_absolute_share":block_share,"nonzero_contributing_genera":len(active),"absolute_contribution_sum":total,"top1_absolute_share":float(ordered.iloc[0]/total) if total else None,"top5_absolute_share":float(ordered.iloc[:5].sum()/total) if total else None,"fixed_design_drop_top_k":drops,"single_genus_drop_range":[float((point-active).min()),float((point-active).max())] if len(active) else None,"islands_with_nonzero_local_residual":int(z.loc[z.res.abs()>1e-14,"island_id"].nunique())}
     return {"status":"descriptive","islands":len(d),"blocks":int(d.block.nunique()),"targets":result}
 
 def main():
