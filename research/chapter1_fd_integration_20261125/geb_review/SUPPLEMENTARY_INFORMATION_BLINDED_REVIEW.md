@@ -82,9 +82,7 @@ The full scientific ledger is identified by SHA-256:
 
 a6eef8d731b2730a99e388ddd0683d7ac9b2af30d43f1f9569c857f89f664b2a
 
-The rights-filtered public derivative contains 46,274 redistribution-authorized cells and is archived at Zenodo:
-
-[Public derivative DOI withheld pending anonymous-access decision]
+The rights-filtered public derivative contains 46,274 redistribution-authorized cells and is archived separately. The public derivative DOI is withheld pending the anonymous-access decision.
 
 This public derivative is not the complete scientific analysis ledger. Omitted cells are omitted because of redistribution-rights status, not biological missingness or exclusion from the analysis.
 
@@ -344,7 +342,7 @@ Table S4 is intentionally represented by the complete corrected raw-pattern file
 
 ## S7.2 Submission data-policy boundary
 
-The rights-filtered trait derivative is publicly archived at [Public derivative DOI withheld pending anonymous-access decision]. The complete 222,688-cell scientific analysis ledger is not yet wholly redistributable.
+The rights-filtered trait derivative is publicly archived; the DOI is withheld pending the anonymous-access decision. The complete 222,688-cell scientific analysis ledger is not yet wholly redistributable.
 
 Data and code access must be reviewed with the GEB editor. The third-party legal/reuse permissions are not automatically waived; permissible paths require either:
 
@@ -382,7 +380,7 @@ Exclude intermediate depth, asymmetric, unresolved and multistate records; requi
 
 ### Table S8a. All regional and cross-region pair contrasts
 
-Machine-readable full 60 slots: `Table_S8a_flower_pair_isolation.csv`; detailed individual cell slopes in original anonymous receipt [review provenance available via approved anonymous access]. The following is the broad Direct conditional n≥10 subset, not all fit slots.
+Machine-readable full 60 slots: `Table_S8a_flower_pair_isolation.csv`; detailed individual cell slopes in original anonymous receipt [anonymous reviewer access pending editorial approval]. The following is the broad Direct conditional n≥10 subset, not all fit slots.
 
 | Region | Islands | Blocks | Slope | 95% spatial interval | Holm p | Joint sensitivity |
 |---|---:|---:|---:|---|---:|---|
@@ -398,7 +396,7 @@ Unsupported slots retain p=1 for the planned adjustment but are not reported as 
 
 The broad tropical conditional slope was 0.02762 (257 islands); on the 62 High-only eligible islands the broad estimate was 0.00970. Changing to High-only on the same islands and broad covariates gave 0.00147. The paired High-minus-broad slope difference was -0.00822, interval [-0.02564, 0.00920], P=0.3423. Original High-only covariates give -0.00072. These are distinct species rosters, not repeat measurements or evidence of grade equivalence. The tropical literal-native conditional n=44 fails support. Original WCVP-compatible replay artifacts were unavailable during the extension, so no substitute or claim of native validation is made.
 
-Table S8d, all grade diagnostic estimates: `Table_S8d_grade_matched_diagnostic.csv`. Signed change identity and source receipt: grade result [review provenance available via approved anonymous access].
+Table S8d, all grade diagnostic estimates: `Table_S8d_grade_matched_diagnostic.csv`. Signed change identity and source receipt: grade result [anonymous reviewer access pending editorial approval].
 
 ## S8.3 Measured reproductive assurance
 
@@ -417,7 +415,7 @@ Use the original species-Direct H2 state audit and equal-weight selfing_core def
 | pair_carriers / SC | 188 | 0.02889 | 0.02463 | 0.00004177 | [0.00273, 0.04588] |
 | pair_carriers / autonomy | 106 | 0.02226 | 0.02089 | 0.00005184 | [0.00087, 0.04294] |
 
-Full 24 slots including unsupported and High-only/native sensitivities: `Table_S8b_reproductive_conditioning.csv`; original H2 [review provenance available via approved anonymous access] and joint weights [review provenance available via approved anonymous access]. The four atomic adjustment ranges stay positive; the whole-flora min2 joint range crosses zero. No equivalence, causal independence, mediation fraction or independent replication inferred.
+Full 24 slots including unsupported and High-only/native sensitivities: `Table_S8b_reproductive_conditioning.csv`; original H2 [anonymous reviewer access pending editorial approval] and joint weights [anonymous reviewer access pending editorial approval]. The four atomic adjustment ranges stay positive; the whole-flora min2 joint range crosses zero. No equivalence, causal independence, mediation fraction or independent replication inferred.
 
 ## S8.4 Depth-specific decomposition
 
@@ -434,13 +432,13 @@ On the exact same mask and covariates, the difference of the two component slope
 
 All 12 component/contrast rows with intervals: `Table_S8c_depth_specific_components.csv`. The deep component is the better-supported contributor. The shallow/open negative unconditioned slope is nominally and Holm2 supported in the spatial model but its joint-weight range crosses zero. The whole-flora min2 and pair-carrier SC deep component remain positive in the joint sensitivity; autonomy-adjusted deep component does not, although the contrast stays positive.
 
-**Figure S8. Depth-dependent symmetry response.** Figure S8. A: radial prevalence slopes in the two tube-depth groups. B: paired difference. Solid intervals denote 95% spatial-cluster intervals; dashed ranges denote 2.5–97.5% joint genus/geography sensitivity, not confidence intervals. Each row has its own fixed cohort, shared by both components. Slopes are absolute proportions per unit raw H1 log-isolation transform, not the standardized original H1 beta-binomial slopes.
+**Figure S8. Depth-dependent symmetry response.** (a) radial prevalence slopes in the two tube-depth groups. (b) Paired difference. Solid intervals denote 95% spatial-cluster intervals; dashed ranges denote 2.5–97.5% joint genus/geography sensitivity, not confidence intervals. Each row has its own fixed cohort, shared by both components. Slopes are absolute proportions per unit raw H1 log-isolation transform, not the standardized original H1 beta-binomial slopes.
 
 ## S8.5 H4 joint architecture support
 
 The exact-species GloPL morphology bridge was assessed before outcome fitting. Require 50 total species, 30 publications, and at least ten distinct species and five publications per each of the four morphology cells. All four planned panels fail, with 32 global and eight tropical matched species before selfing adjustment. No effect estimated.
 
-Table S8e: all 16 cell-support rows: `Table_S8e_GloPL_joint_support.csv`; verified support receipt [review provenance available via approved anonymous access]. Original H4 remains the exact-score functional bridge, not evidence of a depth-dependent pollen-limitation mechanism. H3/H4 share GloPL experiments.
+Table S8e: all 16 cell-support rows: `Table_S8e_GloPL_joint_support.csv`; verified support receipt [anonymous reviewer access pending editorial approval]. Original H4 remains the exact-score functional bridge, not evidence of a depth-dependent pollen-limitation mechanism. H3/H4 share GloPL experiments.
 
 ## S8.6 Reproducibility and claim ceiling
 

@@ -1,0 +1,45 @@
+name: GEB integrated candidate document render
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'scripts/submission/build_chapter1_geb_integrated_candidate.py'
+      - '.github/workflows/build-chapter1-geb-integrated-candidate.yml'
+      - 'research/chapter1_fd_integration_20261125/geb_review/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      MPLBACKEND: Agg
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install document renderer
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libreoffice-writer libcairo2 fonts-liberation fonts-crosextra-carlito fonts-crosextra-caladea
+          python -m pip install -e ".[figures]" python-docx pymupdf cairosvg pillow
+      - name: Build separate integrated candidate from existing aggregates
+        run: python scripts/submission/build_chapter1_geb_integrated_candidate.py --out "$RUNNER_TEMP/geb-integrated" --commit "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: geb-integrated-author-review-only
+          path: ${{ runner.temp }}/geb-integrated/Chapter1_GEB_Integrated_AUTHOR_REVIEW_ONLY.zip
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: geb-integrated-all-page-qa
+          path: ${{ runner.temp }}/geb-integrated/PAGE_QA
+          if-no-files-found: error
+          retention-days: 14

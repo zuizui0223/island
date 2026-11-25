@@ -14,3 +14,7 @@ Publisher sources rechecked: [GEB author guidelines](https://onlinelibrary.wiley
 Current permissions: 46,274 of 222,688 resolved cells are authorized for redistribution; 176,414 are restricted or review-required, not all necessarily legally restricted. No additional raw trait cells released. Need source-level rights determination and an approved editor/reviewer access plan, anonymous link, final author approvals and permanent archive authorization. Final full-page DOCX/PDF proofing and actual submission are not performed by this text revision. Original protected trait source artifact expires 2026-12-07 per prior metadata; preserve lawfully within authorized storage before expiration, do not publish its bytes.
 
 New claims: qualified exploratory Direct tropical composition association; High-only/native robustness unresolved, no confirmed cross-region interaction, no new H4 effect, no measured pollinator replacement. Do not promote without review. 
+
+## Document export
+
+The separate integrated renderer uses the original GEB equal-area figure generator, the frozen S1–S7 figures, and the new S8 SVG. It packages only the candidate prose, aggregate tables and figure derivatives in `BLINDED_REVIEW`, with unapproved cover/title/data-rights material in `IDENTIFYING_ONLY`. Every PDF page is rasterized to a separate QA artifact. Structural/anonymity checks are automated; all-page human visual proof and external approvals remain required. It does not restore or export the protected source ledger, change submission selectors or release a DOI.
