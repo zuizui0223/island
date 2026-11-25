@@ -29,3 +29,7 @@ No original licensed species-level data, raw occurrence records, taxa/island IDs
 ## 25 November follow-up: corrected-geography FD model
 
 [Design and claim boundary](fd_self_db_isolation_design_20261125.md). The new executable workflow tests Direct morphology Q and fixed-margin MI against the current H1 geographic predictors, plus matched H2 conditioning. Source-run marker audit: [core protected replays](../results/fd_self_db_20261125/protected_runner_marker_audit_core.json). The earlier 4505 directional sector slopes and reproductive contrasts are now indexed in the evidence ledger; their older exposure/controls are not treated as equivalent to the corrected H1 coefficients. Preserve the genus-null and native-status falsifications. No new effect is asserted before the protected workflow completes.
+
+## Coherent genus-null follow-up (25 November)
+
+[Design](fd_self_db_genus_null_design_20261125.md) · [Verified results](../results/fd_self_db_20261125/GENUS_NULL_RESULT.md) · [All 144 anonymous model slots](../results/fd_self_db_20261125/genus_null_full_144_from_log.json). Both focal raw FD associations are substantially attenuated under the regional genus null; neither passes the coherent permutation Holm2 gate. Conditional residuals are recorded separately from permutation inference. No new GEB primary claim.
