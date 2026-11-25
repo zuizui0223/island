@@ -131,5 +131,6 @@ def main():
                     panels[key]={"eligible_islands":len(w),"means":{k:float(w[k].mean()) for k in NAMES} if len(w) else {},**fit(w)}
     out={"botanical_parent":4505,"geographic_parent":8264,"pins":PIN,"panels":panels,"warning":"Exploratory geographic association. Island-local fixed-margin null, not coherent species permutation across islands; block bootstrap does not resolve cross-island taxon dependence. No causal or confirmatory inference. Native/high and n thresholds nested. Region definitions use tropical source label and latitude thresholds."}
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(out,allow_nan=False,indent=2))
+    for k,v in panels.items():print("JOINT_MARGIN_PANEL",k,json.dumps(v,allow_nan=False),flush=True)
     print("JOINT_MARGIN_COMPLETE",json.dumps({"panels":len(panels),"supported":sum(x["status"]=="descriptive_supported" for x in panels.values())}),flush=True)
 if __name__=="__main__":main()
