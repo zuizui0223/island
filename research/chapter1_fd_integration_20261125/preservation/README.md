@@ -37,3 +37,7 @@ Run 45660302290 reached the repository-pin check after the ZIP and inner-pin ver
 ## Custodian preservation completed
 
 [Verified private backup](DRIVE_BACKUP_VERIFIED.md): all four current-lineage original archives are preserved and independently checked by Drive readback. The earlier temporary verification remains historical. Alpha1 and missing historical inputs are separate; rights and submission gates remain open.
+
+## Supplemental archives and offline restore
+
+[Supplemental private preservation and restore verification](SUPPLEMENTAL_DRIVE_BACKUP_VERIFIED.md): alpha1 (separate developmental snapshot) and both GEB review artifacts preserved with exact Drive readback checks; the original split archive was restored offline, with order, SHA256 and CRC checks. Missing historical WCVP/TDWG inputs still unrecovered. The current-lineage backup and scientific freeze are unchanged.
