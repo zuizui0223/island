@@ -1,0 +1,655 @@
+{
+  "contract": "source_ownership_20261125",
+  "source_repo": "zuizui0223/fd",
+  "source_public_main_sha": "43b80ab0b3b5fe580f4ad74ffe6af6809af718e2",
+  "source_main_tree": "f3eb5bd9b08e7b6145865ada2947b8d6a3931847",
+  "policy": "any use of own GBIF island roster / own species traits / derived public aggregates => island, mixed external covariates remain island; verified external-only inputs => fd; generic methods neutral; unverified source dependencies held, never activated in fd",
+  "pins": [
+    {
+      "pr": 1,
+      "head": "604ee404796d2faa34a7241257446b5ebe543f80",
+      "base": "6bf584fadd6dc7557e1125bd728a564e65f9c11a",
+      "state": "closed",
+      "title": "Establish fd as standalone floral functional-diversity analysis",
+      "head_ref": "analysis/floral-functional-diversity"
+    },
+    {
+      "pr": 2,
+      "head": "c93b4a794b5fbe6fbbc0dcf2c77a8c1c1fd092d7",
+      "base": "5e1eb32e0421f96b4451852c525e6604511c6e75",
+      "state": "closed",
+      "title": "Test functional-distance fixed-margin nulls and calculate projected floral hypervolumes",
+      "head_ref": "analysis/g1-fixed-margin-hypervolume"
+    },
+    {
+      "pr": 3,
+      "head": "49f5f3f7009af3694e320e2afab9d54fc35cafdd",
+      "base": "c638f9707058540727c0d770f4d0e3d46589c950",
+      "state": "closed",
+      "title": "Analyze continental vs oceanic island floral diversity and audit geological-origin novelty",
+      "head_ref": "analysis/origin-stratified-functional-diversity"
+    },
+    {
+      "pr": 4,
+      "head": "eb423985eadf427003f4223a7481b9858512569e",
+      "base": "1385d87fb4981ccd6582b6663db9c0f2fed63c3d",
+      "state": "closed",
+      "title": "Analyze matched island floral profile repertoires and source-geography robustness",
+      "head_ref": "analysis/origin-floral-repertoire-matched-20261108"
+    },
+    {
+      "pr": 5,
+      "head": "209cf70a36e2d7985dc95b50bf5e438eca7c3b32",
+      "base": "34a0a65bc858d1b127c529ed506f7a92a2e3f8cc",
+      "state": "closed",
+      "title": "Validate island floral repertoire differences against genus/geographic availability and GIFT mainland source pools",
+      "head_ref": "analysis/genus-conditioned-repertoire-20261108"
+    },
+    {
+      "pr": 6,
+      "head": "161493cb9ec8b3dfb857bd701fe08dc2013f2bf6",
+      "base": "29be3b2fb84734f9a421094efb9fc350d6c9c8d9",
+      "state": "closed",
+      "title": "Validate genus-linked floral trait prediction on taxon-held-out GIFT mainland references",
+      "head_ref": "analysis/heldout-mainland-genus-prediction-20261108"
+    },
+    {
+      "pr": 7,
+      "head": "e11fbb9173599d54ea5e2f01a842404e092206bc",
+      "base": "55ed6a7769d4c75e059ac29d8fe88289bb54cee0",
+      "state": "closed",
+      "title": "Validate strict source-genus holdout and 17D floral hypervolume with richness controls",
+      "head_ref": "analysis/source-opportunity-hypervolume17-20261108"
+    },
+    {
+      "pr": 8,
+      "head": "d8c14fde3b0b298e319ed47794ec259a6c34e5fb",
+      "base": "1374088262c2ff80e6d04870701ea0e7eab5144d",
+      "state": "closed",
+      "title": "Validate oceanic–continental floral repertoire contrasts under historical GBIF effort matching",
+      "head_ref": "analysis/gbif-effort-origin-repertoire-audit-20261108"
+    },
+    {
+      "pr": 9,
+      "head": "c80b12b16ab7e38ee0dbb1a781fead1c6c0a077e",
+      "base": "68ae0c0bd5244846e813ede4d6a67644069cbc62",
+      "state": "closed",
+      "title": "Reassess island floral repertoire difference under equal support and exact spatial dependence",
+      "head_ref": "analysis/coverage-rarefaction-sensitivity-20261109"
+    },
+    {
+      "pr": 10,
+      "head": "8f6a732052289952e18418212c0f680269c4e90a",
+      "base": "615e183e704f14bc00331cb7b56510872258f722",
+      "state": "closed",
+      "title": "Re-evaluate continental–oceanic floral repertoires on geographically disjoint island pairs",
+      "head_ref": "analysis/geography-independent-repertoire-20261109"
+    },
+    {
+      "pr": 11,
+      "head": "2469689932f09ba66bcfa515f52e971a7ff53c05",
+      "base": "cce54616ff3015b4d0c484502a3367931f81d89d",
+      "state": "open",
+      "title": "Replace floral KDE volume with discrete distance and lineage/source-linked joint phenotype prediction",
+      "head_ref": "analysis/distance-ses-20261109"
+    },
+    {
+      "pr": 12,
+      "head": "22b18b226c7a0b67528b521845be8b8d5f86842e",
+      "base": "00675a005112bd84229a2e28fc15cfde591cdc50",
+      "state": "closed",
+      "title": "Archipelago floral repertoires predict heldout islands, but source labels add no skill beyond nearest geography",
+      "head_ref": "analysis/archipelago-heldout-floral-prediction-20261109"
+    },
+    {
+      "pr": 13,
+      "head": "afa6190d15c808265dbb50bd06fd220183a84b39",
+      "base": "cce54616ff3015b4d0c484502a3367931f81d89d",
+      "state": "open",
+      "title": "Test lineage-linked island functional-trait turnover beyond taxon sharing",
+      "head_ref": "analysis/functional-turnover-gate-20261110"
+    },
+    {
+      "pr": 14,
+      "head": "4309409d0285bd963589dcacbfb5ecc60cd0333a",
+      "base": "cce54616ff3015b4d0c484502a3367931f81d89d",
+      "state": "open",
+      "title": "Distinguish floral marginal diversity from syndrome-like trait pairing across islands",
+      "head_ref": "analysis/floral-diversity-syndrome-20261111"
+    },
+    {
+      "pr": 15,
+      "head": "4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf",
+      "base": "4309409d0285bd963589dcacbfb5ecc60cd0333a",
+      "state": "open",
+      "title": "Test source-qualified pollinator-channel loss opportunity against island floral functional diversity",
+      "head_ref": "analysis/pollinator-loss-functional-assembly-20261113"
+    },
+    {
+      "pr": 16,
+      "head": "819b8138a8c577754c81ee40a618d058b23aabd2",
+      "base": "4309409d0285bd963589dcacbfb5ecc60cd0333a",
+      "state": "open",
+      "title": "Global 4,505-island floral assemblage sorting: mainland source, endemicity and introductions",
+      "head_ref": "analysis/discrete-functional-hypervolume-20261113"
+    },
+    {
+      "pr": 17,
+      "head": "17cf8160d1f95f343e404505c5f5414c804532c5",
+      "base": "cce54616ff3015b4d0c484502a3367931f81d89d",
+      "state": "closed",
+      "title": "Integrate verified 4,505-island floral functional assembly evidence into main",
+      "head_ref": "integration/positive-evidence-functional-assembly-20261118"
+    },
+    {
+      "pr": 18,
+      "head": "5c15eb539641c363d04096ebd8a99b71e35e2bae",
+      "base": "86fd482b55473bc9fa211dbbd9456014bfe20423",
+      "state": "open",
+      "title": "Test species-vs-genus-disjoint floral repertoire overlap in all 4,505 island floras",
+      "head_ref": "analysis/genus-disjoint-functional-beta-20261118"
+    },
+    {
+      "pr": 19,
+      "head": "a360b0506527da21bae2da0a1d014d9c9f7a8ff6",
+      "base": "979255c49b8e428f40ae5f8ba91571460364cfb8",
+      "state": "closed",
+      "title": "Record source-verified genus-disjoint floral functional recurrence in main",
+      "head_ref": "integration/genus-disjoint-observed-repertoire-20261118"
+    },
+    {
+      "pr": 20,
+      "head": "c07b5439187bfc442a88486c757f7982b6a85249",
+      "base": "5076497cffc5ec9572099803c7938714f8cb965b",
+      "state": "closed",
+      "title": "Correct evidence-ledger status after genus-disjoint original run",
+      "head_ref": "integration/observed-cross-genus-overlap-20261118"
+    },
+    {
+      "pr": 21,
+      "head": "d538e7c0060af176ffdcb187a0bc082cbea12978",
+      "base": "04de7ee59bb195e1ea8b5f82700f35189457d597",
+      "state": "closed",
+      "title": "Integrate source-verified genus-disjoint matched and spatial independence limits",
+      "head_ref": "integration/matched-genus-null-limit-20261118"
+    },
+    {
+      "pr": 22,
+      "head": "1f6623753e668af381ca6daaa040721b158453c1",
+      "base": "86fd482b55473bc9fa211dbbd9456014bfe20423",
+      "state": "open",
+      "title": "Original 4,505 GIFT global floral functional reassembly: genus transfer and source-validated guild/ancestry limits",
+      "head_ref": "analysis/full4505-local-visitor-guild-20261118"
+    },
+    {
+      "pr": 23,
+      "head": "1d1502a3c5b106bf0dd25b3e59c08da7dbcfd5e9",
+      "base": "a3a5b7f36cc3dec62854ea52e662dd2b9d64608e",
+      "state": "closed",
+      "title": "Integrate verified full-GIFT Web of Life island-local visitor coverage limits",
+      "head_ref": "integration/verified-full4505-local-visitor-source-20261118"
+    },
+    {
+      "pr": 24,
+      "head": "8d6158a9e88d0d1949cc677f406f7408ddf0abd1",
+      "base": "a9562fce25a1f4909e8d7d869ca1b6396d4d739e",
+      "state": "closed",
+      "title": "Record source-verified full-GIFT GloBI visitor coverage and provider falsification",
+      "head_ref": "integration/verified-global-globi-source-20261118"
+    },
+    {
+      "pr": 25,
+      "head": "d19aa010063be2edf0cf8b3b4f49cb3a9a665848",
+      "base": "9f42fcf8836c9a878cad9f80b62076749b1fab07",
+      "state": "closed",
+      "title": "Document complete original GloBI 25×guild provider-robust support bottleneck",
+      "head_ref": "integration/global-visitor-source-identification-gate-20261118"
+    },
+    {
+      "pr": 26,
+      "head": "3052e08d24c069ab9ab8f79a3b1c2859380ebcf5",
+      "base": "83988f9bde793bc0ff238cc502eae42b9ad9570e",
+      "state": "closed",
+      "title": "Integrate verified 13-island EuPPollNet field-site visitor/flower evidence limit",
+      "head_ref": "integration/verified-euppollnet-gift-island-sites-20261118"
+    },
+    {
+      "pr": 27,
+      "head": "142e7ead2342a533ed741c31b3c5aea55f3cbaf0",
+      "base": "8f8d0899a57f240ca0ae404da629e85d2efe3b27",
+      "state": "closed",
+      "title": "Record EuPPollNet 13-to-4 GIFT island quantitative flower supply identification gate",
+      "head_ref": "integration/euppollnet-original-flower-supply-limit-20261118"
+    },
+    {
+      "pr": 28,
+      "head": "1932c70c267726e32e6cc95f0c24095aed212640",
+      "base": "21772dbf2831ec5c9009a3c5e2fcb0dce95f47d4",
+      "state": "closed",
+      "title": "Correct EuPPollNet original flower abundance to SAME GIFT botanical species (10,399 rows)",
+      "head_ref": "integration/euppollnet-exact-flower-species-correction-20261119"
+    },
+    {
+      "pr": 29,
+      "head": "87ede4d0651cb337c5ac9a48f39821fe520cfcd7",
+      "base": "5506a91779fb76efe7291096483d52bd2ec00361",
+      "state": "closed",
+      "title": "Record full original flower-census GIFT island resource-choice opportunities without false guild nondetections",
+      "head_ref": "integration/euppollnet-full-flower-census-choice-opportunity-20261119"
+    },
+    {
+      "pr": 30,
+      "head": "6e598b6b19fc40e0dda7d058fc7322a29851c186",
+      "base": "54d340013858db7eca4d2563eac8e5d3d4e06916",
+      "state": "closed",
+      "title": "Integrate verified EuPPollNet sampling-method/observation-effort ceiling for island visitor analysis",
+      "head_ref": "integration/euppollnet-original-study-method-audit-20261119"
+    },
+    {
+      "pr": 31,
+      "head": "5232afe301045906885dca71dee217dd55414a38",
+      "base": "957d46b6edd0449311c8003f44aa71fb55aacfcb",
+      "state": "closed",
+      "title": "Integrate verified 8/13 floral traits transferred across regions by genus, with geographic reversal",
+      "head_ref": "integration/verified-global-genus-transfer-20261119"
+    },
+    {
+      "pr": 32,
+      "head": "3de969d9c25c0328c8062c90d912af2715edfad2",
+      "base": "bc364cd935bbbdf68f2708f9259b90953ea35c0d",
+      "state": "closed",
+      "title": "Separate verified GIFT mainland source donor novelty (zero at full 4505) from transferred island-genus traits",
+      "head_ref": "integration/verified-mainland-vs-interregional-donor-20261119"
+    },
+    {
+      "pr": 33,
+      "head": "0df4b4dee1cb4c61f25978ab6c23ee2a6aa5f45b",
+      "base": "11ec798b2091f28d3dca6f8001b9ed64c80cc5be",
+      "state": "closed",
+      "title": "Integrate verified 13-trait north–tropical genus prediction reversal with strict mainland-source separation",
+      "head_ref": "integration/strict-13endpoint-regional-transfer-reversal-20261119"
+    },
+    {
+      "pr": 34,
+      "head": "de400935bb495ecf55d6457ec31ab699e6783e55",
+      "base": "0ed80e128860123a5952343dc5b9ece5d413ce62",
+      "state": "closed",
+      "title": "Integrate 4,505-island 13-flower-trait prediction after actual same-block/source-group TRAINING exclusion",
+      "head_ref": "integration/strict-geoblock-source-trained-13-endpoint-gift-20261119"
+    },
+    {
+      "pr": 35,
+      "head": "5312df4e507b880a2debcef5cc0121539ed35274",
+      "base": "2f95a1a590de7a1c40c4b9ef013a3934d983d116",
+      "state": "closed",
+      "title": "Confirm 7/13 cross-region GIFT floral traits beat genus-blind source after strict geographic training exclusion",
+      "head_ref": "integration/strict-spatial-genus-over-blind-double-proper-20261119"
+    },
+    {
+      "pr": 36,
+      "head": "25d3fc10c0dc7283d2cfe7c37ea8de704d5de9bd",
+      "base": "987b00f0b38545180e1aed35ee2a6d376f21cefa",
+      "state": "closed",
+      "title": "Qualify conditional 7/13 genus transfer with original oracle-free GIFT island assembly test (1/13; regional blind 0/13)",
+      "head_ref": "integration/4505-oraclefree-floral-genus-mixture-20261119"
+    },
+    {
+      "pr": 37,
+      "head": "76dc00eac257148257d4fcf781e9933750fd6531",
+      "base": "71d63147ca2117e4ca87fd8b5d2abe0cc866290c",
+      "state": "closed",
+      "title": "Validate GIFT 4,505-island geography-conditioned genus composition forecast and direct candidate-source incremental signal",
+      "head_ref": "integration/gift4505-environment-genus-community-20261119"
+    },
+    {
+      "pr": 38,
+      "head": "bbd9c9ee6e1ad3d97ac90f22581448629bc2e79e",
+      "base": "6d64c5b79101f68ebf2fe62c53a7c9a92c549ac9",
+      "state": "open",
+      "title": "Pre-register leakage-audited geography→genus→floral functional forecast",
+      "head_ref": "analysis/geography-genus-to-floral-two-stage-20261119"
+    },
+    {
+      "pr": 39,
+      "head": "e842e04e03f9a6515605a6560b399fc0c21920bf",
+      "base": "6d64c5b79101f68ebf2fe62c53a7c9a92c549ac9",
+      "state": "closed",
+      "title": "Integrate verified original GIFT 4,505-island stage-2 flower predictions and geographic counterexamples",
+      "head_ref": "integration/verified-gift-stage2-floral-20261119"
+    },
+    {
+      "pr": 40,
+      "head": "2140299f000f71f8e575755233f4ec89975472aa",
+      "base": "e5e35e0055e33f925fbd8a2b95873796fe68ed83",
+      "state": "closed",
+      "title": "Correct Southern GIFT stage-2 floral effect interpretation using exact regional blind-reference reversal",
+      "head_ref": "integration/original-stage2-baseline-reversal-20261119"
+    },
+    {
+      "pr": 41,
+      "head": "3d20438f85b4d98099e3170067c2773fde4b8797",
+      "base": "93a9e05f72134d3b12fba02334a72307cf3ee573",
+      "state": "closed",
+      "title": "Integrate verified GIFT external-only congener source expansion and southern/tropical conditional gains",
+      "head_ref": "integration/verified-external-congener-floral-sensitivity-20261119"
+    },
+    {
+      "pr": 42,
+      "head": "293966b95bee062e89f2200bd06ba14df6c340fc",
+      "base": "16b12441d694b283dbbf42f955376a49fd31aba5",
+      "state": "closed",
+      "title": "Confirm original GIFT direct paired north–south floral reference calibration reversal",
+      "head_ref": "integration/verified-stage2-direct-blind-reference-20261119"
+    },
+    {
+      "pr": 43,
+      "head": "f8f217a5d9c4f828bca455b871c98feac1923d09",
+      "base": "4853862f438f4f6565262449bff43045bb96469c",
+      "state": "open",
+      "title": "Draft: fixed tropical floral-sector association with independently mapped bird and hawkmoth guilds",
+      "head_ref": "analysis/tropical-guild-sector-test-20261119"
+    },
+    {
+      "pr": 44,
+      "head": "956ad276c22545fbd16d2af1e226978904657614",
+      "base": "4853862f438f4f6565262449bff43045bb96469c",
+      "state": "closed",
+      "title": "Integrate verified GIFT all-13 floral trait transfer and source-matched Rao diversity counterexample",
+      "head_ref": "integration/gift4505-all13-raoq-source-20261119"
+    },
+    {
+      "pr": 45,
+      "head": "6446b03250d1c287fbf4eab41acefe8438622fdb",
+      "base": "10ba9f4744ed74dcc874b67c881e1bedbe785880",
+      "state": "closed",
+      "title": "Prioritize two robust all-comparator GIFT floral predictions and qualify tropical selfing signal",
+      "head_ref": "integration/gift-all13-triple-baseline-gate-20261119"
+    },
+    {
+      "pr": 46,
+      "head": "304c751bbd4ec2bf4526ad83e9c72ff2cd65ce84",
+      "base": "72fc1060c0e12dc0f0f51b05ca4c0ec5d701f4bc",
+      "state": "closed",
+      "title": "Independently audit all 36 protected GIFT floral architecture×reproductive assurance source outcomes",
+      "head_ref": "analysis/gift-joint-source-audit-20261119"
+    },
+    {
+      "pr": 47,
+      "head": "26d691f2b78e0e31d29a17a411eb3990939a2cb9",
+      "base": "72fc1060c0e12dc0f0f51b05ca4c0ec5d701f4bc",
+      "state": "closed",
+      "title": "Integrate verified GIFT all-13 paired regional transfer and 36 floral architecture×selfing genus-null tests",
+      "head_ref": "analysis/gift-all13-regional-reference-atlas-20261119"
+    },
+    {
+      "pr": 48,
+      "head": "c29c967ee05345264cb3e939bbb7e999635559e9",
+      "base": "d8ec40e06ac754c3f5575948411a86253225a3e6",
+      "state": "closed",
+      "title": "Audit full original GIFT 4505-flora parent and true native-only 13-trait source support",
+      "head_ref": "integration/gift4505-source-support-census-20261120"
+    },
+    {
+      "pr": 49,
+      "head": "19ae44fa8afba0ccd718eca81f536dae91bebcf2",
+      "base": "a72d4598890a56a4b994a0ab954b97d550aa0ef9",
+      "state": "closed",
+      "title": "Add CI-verified full-78 GIFT category-versus-Rao diversity independent auditor",
+      "head_ref": "analysis/gift-category-vs-raoq-crossgate-20261120"
+    },
+    {
+      "pr": 50,
+      "head": "ff1b7d43e125ec883add76ab61a2a23eac13ae3c",
+      "base": "a431b8f2ccd02b2b07ab12db550c53ed49695cc0",
+      "state": "closed",
+      "title": "Prove why proper floral-category Brier gains need not improve nominal or distance-based Rao diversity",
+      "head_ref": "analysis/nominal-diversity-forecast-identity-20261120"
+    },
+    {
+      "pr": 51,
+      "head": "c27658754307b434c1c0f583c1e6c35723976155",
+      "base": "659bdcfc061ef5b25dcbbde9bd04bd48004144f7",
+      "state": "closed",
+      "title": "Prove additive Gower-Rao cannot detect genuine joint flower colour×form coupling",
+      "head_ref": "analysis/joint-floral-syndrome-gower-invisibility-20261120"
+    },
+    {
+      "pr": 52,
+      "head": "e4a5684106663b5d072ad492a2463587aafc8a02",
+      "base": "2e1e6ec91a72661517690bcb402633f261a3dec7",
+      "state": "closed",
+      "title": "Add CI-verified complete GIFT all13 equal-species-donor source audit (no new ecological result)",
+      "head_ref": "analysis/gift-equalN-source-audit-20261120"
+    },
+    {
+      "pr": 53,
+      "head": "b871cf2feb9e8c02c3ca2921aa60fb757c33dd01",
+      "base": "3c8f0c4bb2a7f4726530a525948e3aa01ef2a969",
+      "state": "closed",
+      "title": "Integrate original GIFT all-13 Rao diversity and equal-N regional floral source transfer",
+      "head_ref": "integration/gift-all13-raoq-equalN-verified-20261120"
+    },
+    {
+      "pr": 54,
+      "head": "b871cf2feb9e8c02c3ca2921aa60fb757c33dd01",
+      "base": "1faa149f3a987f9e461a158b4d7f30e0b6abc48c",
+      "state": "closed",
+      "title": "Integrate GIFT original all-13 Rao Q diversity and count-matched geographic floral source checks",
+      "head_ref": "integration/gift-all13-raoq-equalN-verified-20261120"
+    },
+    {
+      "pr": 55,
+      "head": "280df7c483f534dcddc2b11f1d628489f2337aae",
+      "base": "c9b2d371483e6bea3b67811f66dee511be723e6e",
+      "state": "closed",
+      "title": "Audit GIFT repeated accepted target-species and genus-cluster resampling on all 13 floral endpoints",
+      "head_ref": "analysis/gift-target-taxon-cluster-audit-20261120"
+    },
+    {
+      "pr": 56,
+      "head": "95d7a8a70533357e1b6421143c6c05e2478a6786",
+      "base": "4e0c2366c9d7c74c85e6ead933d87f54a6277bee",
+      "state": "closed",
+      "title": "Add CI-tested GIFT 78-panel genus/documentation/trait-transfer residual auditor",
+      "head_ref": "analysis/gift-three-stage-residual-anonymous-audit-20261120"
+    },
+    {
+      "pr": 57,
+      "head": "6a6b1291caea4fc83edb2fb09874824296951cbf",
+      "base": "cb7d8797e2895360b3ac2837067c5924395193c2",
+      "state": "closed",
+      "title": "Integrate verified 4505-GIFT original 13-trait floral source residual decomposition and limits",
+      "head_ref": "integration/gift4505-direct-residual-original-20261120"
+    },
+    {
+      "pr": 58,
+      "head": "f03a0941acb262e0c1414f5ea402338768aa0749",
+      "base": "ea42012600984efc446b9ce2a97c45ec48ff56e9",
+      "state": "closed",
+      "title": "Handle true zero-Direct GIFT source cohorts in species/genus pseudoreplication audit",
+      "head_ref": "fix/gift-target-no-support-empty-cohort-20261120"
+    },
+    {
+      "pr": 59,
+      "head": "50325120cac5ba35674f815e1bab87d53717b47a",
+      "base": "0f56b1b7f70141924be85636c9e5219c17bc931f",
+      "state": "closed",
+      "title": "Integrate independently verified original GIFT 78-panel target-species/genus pseudoreplication sensitivity",
+      "head_ref": "integration/gift4505-target-species-genus-original-20261120"
+    },
+    {
+      "pr": 60,
+      "head": "c37208df05382422fc11d181e9e75dc89cbe7bc1",
+      "base": "33d0b82c794c0e9350e428f0d99d8e132a791f97",
+      "state": "closed",
+      "title": "Audit signed residual projections across all GIFT floral traits: source congener mismatch dominates",
+      "head_ref": "integration/gift-signed-residual-dominance-20261120"
+    },
+    {
+      "pr": 61,
+      "head": "4193288f24774d1b9a8ce113cb2d7a287d1731f4",
+      "base": "6f6f95886351caa0dfa08be2b1883f91041290c6",
+      "state": "closed",
+      "title": "Confirm exact original GIFT full-refit reproduction of 78 species/genus weighted floral panels",
+      "head_ref": "integration/gift-target-taxon-green-rerun-20261121"
+    },
+    {
+      "pr": 62,
+      "head": "01015c26c86331f62e1aaf5e093575b0035be0da",
+      "base": "f81f6a5f009bc28555aa5128c3a22f68ca36b79a",
+      "state": "closed",
+      "title": "CI-verified source-safe GIFT 78-panel high/medium within-genus evidence-quality auditor",
+      "head_ref": "analysis/gift-direct-quality-source-auditor-20261121"
+    },
+    {
+      "pr": 63,
+      "head": "192a3ab888eb7d7a9de27907712f0cc1dcac6903",
+      "base": "8663209a3d70f8d6845ccc7ad46f5726d561dd3e",
+      "state": "closed",
+      "title": "Integrate original GIFT high/medium species-Direct evidence quality association within genera",
+      "head_ref": "integration/gift4505-direct-quality-original-20261121"
+    },
+    {
+      "pr": 64,
+      "head": "e9130528095535433098fdf6c88eef97d9750bff",
+      "base": "220ad6a652c34227ce5dccf00a9c18efee785aa5",
+      "state": "closed",
+      "title": "Tropical pollinator guilds: verified source integration and exploratory floral associations",
+      "head_ref": "analysis/tropical-pollinator-guild-dispersal-20261124"
+    },
+    {
+      "pr": 65,
+      "head": "dbea01d985a4ad6c4e72a8d4bc4225e07baaed07",
+      "base": "43b80ab0b3b5fe580f4ad74ffe6af6809af718e2",
+      "state": "open",
+      "title": "Same-cohort plant and bird taxonomic dual-null test",
+      "head_ref": "analysis/tropical-pollinator-dual-null-20261124"
+    },
+    {
+      "pr": 66,
+      "head": "5e0a65784d222673121628c55c2ba63c006c52a6",
+      "base": "43b80ab0b3b5fe580f4ad74ffe6af6809af718e2",
+      "state": "open",
+      "title": "Freeze range-map nectarivore × floral form test (synthetic design check, no real data)",
+      "head_ref": "analysis/range-map-nectarivore-20261125"
+    },
+    {
+      "pr": 67,
+      "head": "c09a6a4a67e88bad0ba0cc02a33951d280650cb3",
+      "base": "43b80ab0b3b5fe580f4ad74ffe6af6809af718e2",
+      "state": "open",
+      "title": "Separate native Bombus from other bees in geometry-matched island floral forms",
+      "head_ref": "analysis/bombus-floral-shape-20261125"
+    },
+    {
+      "pr": 68,
+      "head": "4fe3baa2ee46549817ffa556cef2432332e410f5",
+      "base": "43b80ab0b3b5fe580f4ad74ffe6af6809af718e2",
+      "state": "open",
+      "title": "Pilot global nectar-feeding bat range × floral category association",
+      "head_ref": "analysis/nectar-bat-range-20261125"
+    },
+    {
+      "pr": 69,
+      "head": "85769a811d151b05940b554b27dc1a662c28b1df",
+      "base": "43b80ab0b3b5fe580f4ad74ffe6af6809af718e2",
+      "state": "open",
+      "title": "Plant-defined floral syndrome research: freeze Q1–Q4 and test Q2 coherence",
+      "head_ref": "analysis/plant-syndrome-coherence-20261125"
+    },
+    {
+      "pr": 70,
+      "head": "addf129fd9523aa2ae1a9ccd645c43feaf732c36",
+      "base": "4fe3baa2ee46549817ffa556cef2432332e410f5",
+      "state": "open",
+      "title": "Freeze Caribbean bird–bat floral specificity case-study contract",
+      "head_ref": "analysis/caribbean-vertebrate-specificity-20261125"
+    }
+  ],
+  "external_candidates_main": [
+    "scripts/global_bird_source_audit.py",
+    "scripts/pollinator_guild_source_sensitivity.py",
+    "scripts/tropical_asian_butterfly_intake.py",
+    "scripts/tropical_bee_bird_crosswalk.py",
+    "scripts/tropical_bird_hwi_occupancy.py",
+    "scripts/tropical_butterfly_bee_overlap.py",
+    "scripts/tropical_butterfly_trait_filtering.py",
+    "scripts/tropical_butterfly_trait_incidence.py",
+    "scripts/tropical_leptraits_intake.py",
+    "scripts/tropical_pollinator_source_intake.py",
+    "scripts/tropical_pollinator_source_preflight.py",
+    "scripts/tropical_three_guild_candidate_audit.py",
+    ".github/workflows/global_bird_source_audit.yml",
+    ".github/workflows/pollinator_guild_source_sensitivity.yml",
+    ".github/workflows/tropical_asian_butterfly_intake.yml",
+    ".github/workflows/tropical_bee_bird_crosswalk.yml",
+    ".github/workflows/tropical_bird_hwi_occupancy.yml",
+    ".github/workflows/tropical_butterfly_bee_overlap.yml",
+    ".github/workflows/tropical_butterfly_trait_filtering.yml",
+    ".github/workflows/tropical_butterfly_trait_incidence.yml",
+    ".github/workflows/tropical_pollinator_source_intake.yml",
+    ".github/workflows/tropical_pollinator_source_preflight.yml",
+    ".github/workflows/tropical_three_guild_candidate_audit.yml",
+    "results/20261124_tropical_pollinator_source_intake/BEE_BIRD_CANDIDATE_CROSSWALK.md",
+    "results/20261124_tropical_pollinator_source_intake/BIRD_HWI_OCCUPANCY_AND_GLOBAL_ARCHIVE.md",
+    "results/20261124_tropical_pollinator_source_intake/BUTTERFLY_TRAIT_FILTERING_VERIFIED.md",
+    "results/20261124_tropical_pollinator_source_intake/GUILD_SENSITIVITY_VERIFIED.md",
+    "results/20261124_tropical_pollinator_source_intake/ORIGINAL_BEE_REVISED_BUTTERFLY.md",
+    "results/20261124_tropical_pollinator_source_intake/THREE_GUILD_AND_LEPTRAITS_VERIFIED.md",
+    "results/20261124_tropical_pollinator_source_intake/VERIFIED_BUTTERFLY_BEE_OVERLAP_AND_SENSITIVITY.md"
+  ],
+  "external_candidates_extra": [
+    {
+      "pr": 15,
+      "paths": [
+        "scripts/run_emln_island_visitor_turnover.py",
+        "src/fd/emln_island_visitor_turnover.py",
+        "tests/test_emln_island_visitor_turnover.py",
+        ".github/workflows/audit-emln-pollination-source.yml",
+        ".github/workflows/export-emln-original-network-panels.yml",
+        ".github/workflows/run-emln-island-visitor-turnover.yml",
+        ".github/workflows/acquire-thousand-island-lake-source.yml",
+        ".github/workflows/audit-til-dryad-source-access.yml"
+      ]
+    },
+    {
+      "pr": 43,
+      "paths": [
+        "src/fd/avoniche_nectar_preflight.py",
+        "src/fd/elton_globi_guild_bridge.py",
+        "src/fd/eltontraits_bird_nectar.py",
+        "tests/test_avoniche_nectar_preflight.py",
+        "tests/test_elton_globi_guild_bridge.py",
+        "tests/test_eltontraits_bird_nectar.py",
+        ".github/workflows/avoniche-bird-nectar-preflight.yml",
+        ".github/workflows/eltontraits-bird-preflight.yml",
+        "results/20261119_elton_globi_guild_catalog/ORIGINAL_AGGREGATE.json",
+        "results/20261119_elton_globi_guild_catalog/README.md"
+      ]
+    },
+    {
+      "pr": 66,
+      "paths": [
+        "scripts/audit_mdd_bat_diet_metadata.py",
+        ".github/workflows/mdd-bat-diet-metadata.yml"
+      ]
+    },
+    {
+      "pr": 68,
+      "paths": [
+        "scripts/bat_mdd_synonym_audit.py",
+        "scripts/export_mdd_bat_ranges.R"
+      ]
+    }
+  ],
+  "shared_scaffold": [
+    ".gitignore",
+    "pyproject.toml",
+    "src/fd/__init__.py"
+  ],
+  "scope_notes": [
+    "External candidate path list is preliminary: confirm workflow/report input and transitive dependency before activation; unreviewed variants remain historical archive.",
+    "No protected artifacts, raw datasets, credentials or new redistribution; only existing publicly tracked code, documentation and result summaries; exclude other types with receipt.",
+    "Old fd workflows archived below research, not enabled automatically. No changes to frozen GEB."
+  ]
+}
