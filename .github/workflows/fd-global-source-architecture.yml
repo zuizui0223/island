@@ -1,0 +1,68 @@
+name: FD protected global source-relative floral architecture
+on:
+  push:
+    branches: [analysis/fd-global-source-architecture-20261125]
+    paths:
+      - "scripts/fd_global_source_architecture.py"
+      - ".github/workflows/fd-global-source-architecture.yml"
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-global-source-architecture
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - name: Restore original pinned protected botanical source
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          curl --fail --location --silent --show-error 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o "$STAGE/geography.csv"
+      - name: Synthetic identity and source-relative analysis
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python - <<'PY'
+          import numpy as np,pandas as pd
+          from fd_global_source_architecture import summarize
+          sp=[f"Plant {i}" for i in range(8)]
+          tab=pd.DataFrame({"pair":[("actinomorphic","deep"),("zygomorphic","deep"),("actinomorphic","shallow"),("zygomorphic","shallow")]*2,"genus":["g"]*4+["h"]*4,"grade":"high"},index=sp)
+          d=pd.DataFrame({"island_id":[1,2,3,4],"region":["north","north","tropical","tropical"],"block":["0","1","0","2"]})
+          tar={i:set(sp[:6]) for i in d.island_id}
+          src={i:set(sp[:6]) for i in d.island_id}
+          z=summarize(d,tar,src,tab,perms=9,boots=9)
+          h=summarize(d,tar,src,tab,perms=9,boots=9,matched_high=(tar,src))
+          for rr in h["regions"].values():
+              for e in rr["endpoints"].values():assert e["residual"]==0 and e["genus_influence"]["nonzero_genera"]==0
+          for r in z["regions"].values():
+              for e in r["endpoints"].values():assert e["residual"]==0 and e["coherent_p"]==1
+          PY
+          python -u scripts/fd_global_source_architecture.py --original-root "$ORIGINAL_ROOT" --geography "$STAGE/geography.csv" --out "$STAGE/anonymous_source_architecture.json"
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["STAGE"])/"anonymous_source_architecture.json"
+          s=p.read_text();a=json.loads(s)
+          assert a["botanical_parent"]==4505 and a["geography_parent"]==8264
+          assert len(a["panels"])==12 and len(a["quality_matched_panels"])==4
+          for k in ("island_id","accepted_species","genus_name","latitude","longitude"):
+              assert '"'+k+'":' not in s
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anonymous-fd-global-source-architecture
+          path: /tmp/fd-global-source-architecture/anonymous_source_architecture.json
