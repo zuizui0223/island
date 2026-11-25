@@ -1,0 +1,10 @@
+{
+  "paired_all_direct_islands": 1442,
+  "four_scope_common_islands": 843,
+  "rarefaction_size": 50,
+  "paired_rarefied_richness_spearman": 0.9545416537981058,
+  "paired_median_rarefied_richness_difference_all_minus_direct": -0.003637536929741003,
+  "paired_singleton_fraction_median_all": 0.607975622681505,
+  "paired_singleton_fraction_median_direct": 0.6222000995520159,
+  "interpretation": "Matched islands and equal taxon sample size; missingness and imputation remain observational differences, not a causal treatment."
+}

@@ -1,0 +1,40 @@
+{
+  "status": "complete",
+  "design": "exploratory fixed row/column margins; separate from genus null",
+  "endpoint": "whole-island recorded profile sets, NOT shared-name-exclusive",
+  "conditional_margins": "profile richness per sampled island; profile prevalence across sampled islands in each regime/scope",
+  "pair_ids": "identical to PR321 genus-conditioned pair cohort, All/Direct matched",
+  "not_preserved": [
+    "genus composition",
+    "taxon co-occurrence",
+    "shared-name-excluded profile sets",
+    "native status",
+    "historic source pools",
+    "sampling detection"
+  ],
+  "mcmc": "two Curveball Markov chains; approximate p only if diagnostics pass; not exact independent randomization",
+  "params": {
+    "per_chain": 200,
+    "seed": 20261107,
+    "burn_multiplier": 12,
+    "gap_multiplier": 3
+  },
+  "inputs_sha256": {
+    "prior_pair_table": "0e66913747ff551cb3d41d82a308ce9addb8de3b665e90c782433bc4f9bd2cdb",
+    "all_incidence": "faba1f3058d16d4e33427467c11d6dba99be4d53876a7337f66d8e0543339df4",
+    "direct_incidence": "6c834cb58105993b3bda10b6816198a6023a25ff4ce407eebccee5b93d5d1c7f",
+    "all_single_state_incidence": "287e7d1ad777f53dbd911318c7dbf7c9b79bb5b643904196d17cdd1fb40b9986",
+    "direct_single_state_incidence": "ebb615091b971606a6626a488c44322340e6f0526c330b86b88ffee287eb9bc2",
+    "all_metrics": "da57fda27c980ba62238c393d5a0280c687869d5e1f9ff01174d820304cc0be3",
+    "direct_metrics": "71694e26cbcfecfeaa54c9988e93aecccafaa48d4f0611039ad163f0af81b5bf",
+    "all_single_state_metrics": "e76b8ce5389b87411f43523668a3934b2e63c471711e42d495eeaee9edf75e08",
+    "direct_single_state_metrics": "de9e645b8a393e6ec15818a79162ef05bac89f9d357ec4004e54e1aaed2002f0"
+  },
+  "outputs_sha256": {
+    "permutation_summary.csv": "6ec680edc046982ea005635166b521c78988ac608e26a65bb3756c75357e7f67",
+    "permutation_draws.csv.gz": "c0ef0ca9db1d20b46c0d528a24d3d375bb62789017ccf47a4df003cc81be8d31"
+  },
+  "comparisons": 16,
+  "significant_bh_0_05_exploratory": 13,
+  "mixing_pass_count": 16
+}

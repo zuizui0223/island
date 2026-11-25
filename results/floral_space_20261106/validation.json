@@ -1,0 +1,91 @@
+{
+  "schema_version": "floral_space_validation_v1",
+  "date": "2026-11-06",
+  "analysis_status": "completed_exploratory_analysis",
+  "repository_baseline": "3bfa818ffbc7a0dea4319933c4b0a0eb41cfabb5",
+  "focused_tests": {
+    "passed": 57,
+    "failed": 0,
+    "duration_seconds": 4.11,
+    "warnings": 1,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m pytest -q tests/test_floral_space.py tests/test_floral_space_data.py tests/test_floral_space_geometry.py tests/test_floral_space_runner.py tests/test_floral_space_null.py"
+  },
+  "full_suite": {
+    "passed": 1477,
+    "failed": 5,
+    "skipped": 1,
+    "warnings": 8,
+    "duration_seconds": 52.25,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m pytest -q",
+    "status": "five pre-existing failures; not green",
+    "log_sha256": "0e5f92fb5b96371bfeb8a0a563a592ca1a8ff50005e48ae5200a0325daf51ada"
+  },
+  "baseline_failure_reproduction": {
+    "status": "all five independently reproduced on unchanged parent in detached worktree",
+    "tests": [
+      "tests/test_chapter1_v13_legacy_boundary.py::test_active_handoff_points_to_archive_boundary",
+      "tests/test_chapter1_v13_submission_surface.py::test_readme_is_v13_only_and_points_pre_v13_to_legacy",
+      "tests/test_chapter1_v13_submission_surface.py::test_pipeline_is_v13_only_and_points_pre_v13_to_legacy",
+      "tests/test_chapter1_v13_submission_surface.py::test_current_handoff_is_global_only",
+      "tests/test_v1_category_search.py::test_disabled_web_provider_does_not_parse_sitemap_snapshot"
+    ],
+    "affected_files_byte_identical_to_baseline": [
+      "README.md",
+      "docs/PAPER_PIPELINE.md",
+      "src/island_v2/v1_category_search.py",
+      "tests/test_chapter1_v13_legacy_boundary.py",
+      "tests/test_chapter1_v13_submission_surface.py",
+      "tests/test_v1_category_search.py"
+    ],
+    "record": "validation_baseline.md"
+  },
+  "lint": {
+    "status": "pass",
+    "command": "python -m ruff check src/island_v2/floral_space*.py scripts/*floral_space*.py tests/test_floral_space*.py"
+  },
+  "replay": {
+    "four_scope_source_runner": "completed on restored pinned source artifacts",
+    "genus_conditioned_permutation": "16 comparisons, 999 draws each, all status ok"
+  },
+  "artifact_checks": {
+    "permutation_comparisons": 16,
+    "permutation_draws": 15984,
+    "bh_matches_scipy": true,
+    "common_coordinates_identical_across_scopes": true,
+    "reference_profiles": 496,
+    "scope_observed_profiles": {
+      "all": 496,
+      "direct": 467,
+      "all_single_state": 54,
+      "direct_single_state": 54
+    },
+    "island_metric_keys_unique": true,
+    "jaccard_bounds_valid": true,
+    "maximum_null_analytic_expectation_difference": 5.684341886080803e-14,
+    "full_record_scope_tests_all_bh_q_above_005": true,
+    "p_values_and_null_quantiles_reconstructed_from_all_saved_draws": true
+  },
+  "visual_verification": {
+    "floral_space_overview.png": "rendered and inspected; units, denominators, shared-taxon removal, 2D inertia, and IQR labels visible",
+    "permutation_results.png": "rendered and inspected; 16 comparisons, n and q, observed points, null medians and 95% null ranges visible"
+  },
+  "public_release_boundary": {
+    "raw_source_ledgers": "excluded",
+    "species_to_profile_rows": "excluded by scoped .gitignore",
+    "full_row_level_disagreement_audit": "excluded by scoped .gitignore",
+    "public_audit": "data_quality_summary.json contains aggregate counts only"
+  },
+  "scope_limits": [
+    "exploratory analysis, not preregistered",
+    "nested All/Direct and single-state scopes are not independent replications",
+    "single-state positive result is not a claim about all floral records",
+    "no hypervolume estimate or causal convergence claim",
+    "island-pair overlap remains descriptive; current null concerns within-island profile richness"
+  ],
+  "independent_code_review": {
+    "critical_issues": 0,
+    "important_issues": 0,
+    "minor_issue_fixed": "Dated renderer now rejects nondefault eligibility, rarefaction size, or permutation count before creating misleading summaries or labels.",
+    "verification": "Current manifests accepted; four nondefault parameter cases rejected."
+  }
+}

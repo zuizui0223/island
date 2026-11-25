@@ -1,0 +1,22 @@
+{
+  "profiles": {
+    "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/all_profiles.csv.gz",
+    "sha256": "9debbd534d87238f087081e68f4e3067779cc5609b3747859812dd730db41ab3"
+  },
+  "space_profiles": {
+    "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/all_profiles.csv.gz",
+    "sha256": "9debbd534d87238f087081e68f4e3067779cc5609b3747859812dd730db41ab3"
+  },
+  "flora": {
+    "path": "/workspace/scratch/625333e4fa64/island/work/floral_space_inputs/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz",
+    "sha256": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a"
+  },
+  "geography": {
+    "path": "/workspace/scratch/625333e4fa64/island/results/geography_20260924/corrected_geography_covariates.csv",
+    "sha256": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7"
+  },
+  "ontology": {
+    "path": "/workspace/scratch/625333e4fa64/island/config/trait_ontology.yml",
+    "sha256": "ca2a7e7d3fe74ab41a50f31d00f17605e45df570d85b291c7895d3da2e9c228a"
+  }
+}
