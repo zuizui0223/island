@@ -33,3 +33,7 @@ No original licensed species-level data, raw occurrence records, taxa/island IDs
 ## Coherent genus-null follow-up (25 November)
 
 [Design](fd_self_db_genus_null_design_20261125.md) · [Verified results](../results/fd_self_db_20261125/GENUS_NULL_RESULT.md) · [All 144 anonymous model slots](../results/fd_self_db_20261125/genus_null_full_144_from_log.json). Both focal raw FD associations are substantially attenuated under the regional genus null; neither passes the coherent permutation Holm2 gate. Conditional residuals are recorded separately from permutation inference. No new GEB primary claim.
+
+## Species-name held-out FD prediction (25 November)
+
+[Design](fd_self_db_genus_crossfit_design_20261125.md) · [Verified result](../results/fd_self_db_20261125/GENUS_CROSSFIT_RESULT.md) · [All aggregate rows](../results/fd_self_db_20261125/genus_crossfit_full_from_log.json). Same-genus donors improve both held-out name proper scores and focal island FD prediction errors; observed isolation slopes are not fully recovered. This does not prove adaptive residual filtering. No change to frozen submission.
