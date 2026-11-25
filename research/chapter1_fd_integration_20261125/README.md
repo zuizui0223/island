@@ -37,3 +37,7 @@ User direction: one island paper and one external-only fd paper. Keep the existi
 4. Review figure/SI integration, internal citations, word count, and claim ceiling before promoting this candidate. This is an editorial and evidence integration candidate, not a completed revised submission. No new empirical fit has been performed here.
 
 The registry of result-level source ownership remains [on main](https://github.com/zuizui0223/island/blob/fcded4b29a7784c2fe9b07466ec4055004498568/research/result_input_provenance_20261125.json). Old fd research references here are immutable historical source links, not a claim of independent GIFT island data. All additions use source-backed aggregates, not newly copied restricted raw records.
+
+## 25 November: prioritize new biological knowledge, not an omnibus FD chapter
+
+The review manuscript has been shortened to the depth-dependent symmetry response (H1) and its atomic reproductive conditioning (H2), with a brief source-relative comparison as a distinct descriptive observation. Earlier joint-Q/forecast, guild and FD–GloPL null diagnostics remain archived and supplementary only; they are not new primary results. [H1 results](FLORAL_AXIS_DECOUPLING_RESULT.md) · [H2](FLORAL_AXIS_H2_RESULT.md) · [coherent weights](FLORAL_AXIS_H2_WEIGHTS_RESULT.md). High-only and native coverage are still unresolved. The former broader manuscript candidate is preserved at 11eeac12183a76cc7f7f35acf6b677dffe7bc737. H3/H4 frozen. The next H4 gate tests joint architecture on exact GloPL species, no fit if four-cell support fails.
