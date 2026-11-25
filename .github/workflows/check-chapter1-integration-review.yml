@@ -19,3 +19,4 @@ jobs:
         with:
           python-version: '3.11'
       - run: python research/chapter1_fd_integration_20261125/verify_review_package.py
+      - run: python research/chapter1_fd_integration_20261125/geb_review/check_geb_candidate.py

@@ -26,3 +26,7 @@ The additional biological finding is suitable as a **qualified exploratory addit
 - [Review manuscript](MANUSCRIPT_REVIEW.md) and [complete SI review](SUPPLEMENTARY_INFORMATION_REVIEW.md), with original S1–S7 and a new S8 appendix.
 - [Targeted prior-art positioning](PRIOR_ART_FLORAL_AXIS.md): no claim that symmetry/depth interaction, island floral geography or pollinator mechanics are newly discovered.
 - [Manifest](REVIEW_PACKAGE_MANIFEST.json) and `verify_review_package.py`: six source receipts and five aggregate supplementary CSVs. Existing main figures 1–6 retained; Figure S8 is the new companion. No frozen files modified.
+
+## GEB-specific editorial candidate
+
+[Start here](geb_review/README.md). This uses the existing GEB-specific manuscript rather than the legacy EL scientific draft. Structured abstract, original Results, shorter additions, anonymous S8 review supplement and cover letter are retained separately from active submission. Text QA is automated; full document rendering and all-page visual proof still pending. No change to the selected science or submission gates.
