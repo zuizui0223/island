@@ -1,0 +1,13 @@
+source_evidence_mode,status,metric,source_model,n_matched_pairs,mean_oceanic_minus_continental_model_gain,paired_bootstrap_q025,paired_bootstrap_q975,p_pair_swap_two_sided,q_bh_12,q_by_12
+strict_all_geological_island_name_holdout,all_recorded,average_precision,local_count,37,-0.018393,-0.040227,0.003818,0.1172,0.4872,1
+strict_all_geological_island_name_holdout,all_recorded,average_precision,local_distance,37,-0.020695,-0.043033,0.002155,0.0847,0.4872,1
+strict_all_geological_island_name_holdout,all_recorded,average_precision,local_density,37,-0.014427,-0.038174,0.009398,0.2436,0.4872,1
+strict_all_geological_island_name_holdout,all_recorded,roc_auc,local_count,37,-0.013015,-0.03381,0.008085,0.2412,0.4872,1
+strict_all_geological_island_name_holdout,all_recorded,roc_auc,local_distance,37,-0.015859,-0.038582,0.007345,0.1896,0.4872,1
+strict_all_geological_island_name_holdout,all_recorded,roc_auc,local_density,37,-0.013682,-0.03444,0.006732,0.206,0.4872,1
+strict_all_geological_island_name_holdout,explicit_native,average_precision,local_count,31,-0.007216,-0.034254,0.021628,0.6154,0.6713454545454545,1
+strict_all_geological_island_name_holdout,explicit_native,average_precision,local_distance,31,-0.009328,-0.036164,0.020242,0.5252,0.6426000000000001,1
+strict_all_geological_island_name_holdout,explicit_native,average_precision,local_density,31,-0.010666,-0.043331,0.021409,0.5292,0.6426000000000001,1
+strict_all_geological_island_name_holdout,explicit_native,roc_auc,local_count,31,-0.005186,-0.031358,0.022074,0.7119,0.7119,1
+strict_all_geological_island_name_holdout,explicit_native,roc_auc,local_distance,31,-0.009344,-0.037595,0.020057,0.5355,0.6426000000000001,1
+strict_all_geological_island_name_holdout,explicit_native,roc_auc,local_density,31,-0.012635,-0.040934,0.015769,0.3921,0.6426000000000001,1

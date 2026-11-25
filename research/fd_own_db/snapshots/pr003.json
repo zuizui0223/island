@@ -1,0 +1,252 @@
+{
+  "snapshot": "pr003",
+  "source_commit": "49f5f3f7009af3694e320e2afab9d54fc35cafdd",
+  "source_pr": 3,
+  "state": "closed",
+  "title": "Analyze continental vs oceanic island floral diversity and audit geological-origin novelty",
+  "files": [
+    {
+      "path": ".github/workflows/analysis.yml",
+      "mode": "100644",
+      "git_blob": "cee4a3213f2a3ee9a802aebdea084596862f13b4",
+      "bytes": 1935,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ce/cee4a3213f2a3ee9a802aebdea084596862f13b4.yml"
+    },
+    {
+      "path": ".github/workflows/origin-analysis.yml",
+      "mode": "100644",
+      "git_blob": "d0cba20e475fac396d9f89a7686bc6c1b768a501",
+      "bytes": 2152,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d0/d0cba20e475fac396d9f89a7686bc6c1b768a501.yml"
+    },
+    {
+      "path": ".github/workflows/origin-audit.yml",
+      "mode": "100644",
+      "git_blob": "6fbd8f6d006e4edaef34d5815ba923deaf913566",
+      "bytes": 1043,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6f/6fbd8f6d006e4edaef34d5815ba923deaf913566.yml"
+    },
+    {
+      "path": ".github/workflows/roeble-origin-audit.yml",
+      "mode": "100644",
+      "git_blob": "1365fa3d8a742e377317a635dde1ff2ec797f253",
+      "bytes": 717,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/13/1365fa3d8a742e377317a635dde1ff2ec797f253.yml"
+    },
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "git_blob": "fbbd6ff9aa94d1ef0012a9d118e99a30580835c2",
+      "bytes": 91,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/fb/fbbd6ff9aa94d1ef0012a9d118e99a30580835c2.txt"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "git_blob": "cc0030d220e9a5e5a3e0a9f819e3df7058fe2017",
+      "bytes": 8713,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/cc/cc0030d220e9a5e5a3e0a9f819e3df7058fe2017.md"
+    },
+    {
+      "path": "docs/ANALYSIS_CONTRACT.md",
+      "mode": "100644",
+      "git_blob": "7fb22352a0830f933307fccac4330380c933f915",
+      "bytes": 8608,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/7f/7fb22352a0830f933307fccac4330380c933f915.md"
+    },
+    {
+      "path": "docs/G1_HYPERVOLUME.md",
+      "mode": "100644",
+      "git_blob": "d94a088d09b28ce66fa84610d854ec5b3d2e97e6",
+      "bytes": 6262,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/d9/d94a088d09b28ce66fa84610d854ec5b3d2e97e6.md"
+    },
+    {
+      "path": "docs/NOVELTY_LITERATURE_AUDIT.md",
+      "mode": "100644",
+      "git_blob": "a02495bdac4e15fed1597763cf80cec91d5de917",
+      "bytes": 9318,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/a0/a02495bdac4e15fed1597763cf80cec91d5de917.md"
+    },
+    {
+      "path": "pyproject.toml",
+      "mode": "100644",
+      "git_blob": "c2d800b3d4420cab32ed74ff6de4240507215da1",
+      "bytes": 439,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/c2/c2d800b3d4420cab32ed74ff6de4240507215da1.toml"
+    },
+    {
+      "path": "results/20261108_g1_hypervolume/README.md",
+      "mode": "100644",
+      "git_blob": "e4fb4388235454606fddcd2b2602cdbb9a6c26af",
+      "bytes": 7462,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e4/e4fb4388235454606fddcd2b2602cdbb9a6c26af.md"
+    },
+    {
+      "path": "results/20261108_geological_origin/README.md",
+      "mode": "100644",
+      "git_blob": "98631c6b04982b666e7e506bd0ba3154758aa41f",
+      "bytes": 11059,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/98/98631c6b04982b666e7e506bd0ba3154758aa41f.md"
+    },
+    {
+      "path": "scripts/fetch_island_aggregates.py",
+      "mode": "100644",
+      "git_blob": "6ab27bedbb6e6300d4e410d7be24cc2bbf026922",
+      "bytes": 3434,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6a/6ab27bedbb6e6300d4e410d7be24cc2bbf026922.py"
+    },
+    {
+      "path": "scripts/fetch_public_origin_refs.py",
+      "mode": "100644",
+      "git_blob": "94fa2c2f3a4425f50c190032d17494c898b9feb2",
+      "bytes": 2206,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/94/94fa2c2f3a4425f50c190032d17494c898b9feb2.py"
+    },
+    {
+      "path": "scripts/probe_island_origin_sources.py",
+      "mode": "100644",
+      "git_blob": "e5ae8a26599ee68a5578bd0b1c2de5bb71228b7f",
+      "bytes": 5368,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/e5/e5ae8a26599ee68a5578bd0b1c2de5bb71228b7f.py"
+    },
+    {
+      "path": "scripts/probe_roeble_origin.py",
+      "mode": "100644",
+      "git_blob": "637f9ced1c4ad5e3a64989ea1820850520893f3a",
+      "bytes": 4517,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/63/637f9ced1c4ad5e3a64989ea1820850520893f3a.py"
+    },
+    {
+      "path": "src/fd/__init__.py",
+      "mode": "100644",
+      "git_blob": "a0907de48c396e3989cc683e9b59fa4e8652a1da",
+      "bytes": 116,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/a0/a0907de48c396e3989cc683e9b59fa4e8652a1da.py"
+    },
+    {
+      "path": "src/fd/core.py",
+      "mode": "100644",
+      "git_blob": "179a14597b860297a41e5b0cbd79932ad7d9168f",
+      "bytes": 6515,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/17/179a14597b860297a41e5b0cbd79932ad7d9168f.py"
+    },
+    {
+      "path": "src/fd/g1_fixed_margins.py",
+      "mode": "100644",
+      "git_blob": "fcd518c4fb15cd52a345b3cf892e3ce575c73ea1",
+      "bytes": 17192,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/fc/fcd518c4fb15cd52a345b3cf892e3ce575c73ea1.py"
+    },
+    {
+      "path": "src/fd/hypervolume.py",
+      "mode": "100644",
+      "git_blob": "6589e001bfbad8210f8158d3e178b3ab17839dd3",
+      "bytes": 11107,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/65/6589e001bfbad8210f8158d3e178b3ab17839dd3.py"
+    },
+    {
+      "path": "src/fd/origin.py",
+      "mode": "100644",
+      "git_blob": "8cbd6e0e11923f393b8191e18a38a2eb7901ef07",
+      "bytes": 17846,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/8c/8cbd6e0e11923f393b8191e18a38a2eb7901ef07.py"
+    },
+    {
+      "path": "src/fd/origin_analysis.py",
+      "mode": "100644",
+      "git_blob": "ae255d01e61e94c5d690b3d51c8a90655d8ffe57",
+      "bytes": 12315,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ae/ae255d01e61e94c5d690b3d51c8a90655d8ffe57.py"
+    },
+    {
+      "path": "src/fd/origin_null.py",
+      "mode": "100644",
+      "git_blob": "6869b7833751fc459db6c730cf08a0ebac7b8527",
+      "bytes": 10881,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/68/6869b7833751fc459db6c730cf08a0ebac7b8527.py"
+    },
+    {
+      "path": "src/fd/pipeline.py",
+      "mode": "100644",
+      "git_blob": "ed0443d5dbfdaa67ca854045999b4f4685882185",
+      "bytes": 7881,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ed/ed0443d5dbfdaa67ca854045999b4f4685882185.py"
+    },
+    {
+      "path": "tests/test_fd.py",
+      "mode": "100644",
+      "git_blob": "abebedf29999fd6d4db4fac11e7c7197821ee129",
+      "bytes": 5956,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ab/abebedf29999fd6d4db4fac11e7c7197821ee129.py"
+    },
+    {
+      "path": "tests/test_g1_hypervolume.py",
+      "mode": "100644",
+      "git_blob": "6624031a2c04a91f04acd65d68be5856999cd265",
+      "bytes": 4604,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/66/6624031a2c04a91f04acd65d68be5856999cd265.py"
+    },
+    {
+      "path": "tests/test_origin_strata.py",
+      "mode": "100644",
+      "git_blob": "6bc0f6dc5777cb929402ca177c93c8baa76c9b47",
+      "bytes": 4029,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6b/6bc0f6dc5777cb929402ca177c93c8baa76c9b47.py"
+    }
+  ]
+}

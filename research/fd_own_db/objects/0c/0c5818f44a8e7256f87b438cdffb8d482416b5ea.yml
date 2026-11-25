@@ -1,0 +1,54 @@
+name: fd DoPI v2 independently published European flower-visitor source audit
+on:
+  push:
+    branches: [analysis/discrete-functional-hypervolume-20261113]
+    paths:
+      - scripts/audit_dopi_v2_positive_visitors.py
+      - tests/test_dopi_v2_positive_visitors.py
+      - .github/workflows/fd-dopi-v2-visitor-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  positive-visitor-evidence-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate immutable DoPI 2026 input and no false inferred visitor absences
+        run: |
+          set -euo pipefail
+          python -m pip install -q pytest
+          PYTHONPATH=scripts python -m pytest -q tests/test_dopi_v2_positive_visitors.py
+          python -m compileall -q scripts/audit_dopi_v2_positive_visitors.py
+      - name: Fetch immutable DoPI Version 2.0 release DOI 10.5281/zenodo.22876365
+        run: |
+          set -euo pipefail
+          python scripts/audit_dopi_v2_positive_visitors.py \
+            --output /tmp/fd-dopi-v2/anonymous_positive_guild_audit.json \
+            --workdir /tmp/fd-dopi-v2/data
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path("/tmp/fd-dopi-v2/anonymous_positive_guild_audit.json")
+          z=json.loads(p.read_text())
+          assert z["status"]=="PUBLIC_DOPI_V2_POSITIVE_VISITOR_PRECALIBRATION_AUDIT"
+          assert z["original_metadata"]["doi"]=="10.5281/zenodo.22876365"
+          assert z["flags"]["no_zero_absence_derived"]
+          assert z["flags"]["distinct_studies_not_proven_independent_of_GloBI"]
+          assert z["n_positive_taxon_study_rows"]>0
+          print("DoPI Version 2.0 source receipt / taxonomy / publication support verified")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fd-dopi-v2-public-study-guild-precalibration-${{ github.run_id }}
+          path: /tmp/fd-dopi-v2/anonymous_positive_guild_audit.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,53 @@
+name: fd source-original EuPPollNet public study-site metadata audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/full4505-local-visitor-guild-20261118]
+    paths:
+      - .github/workflows/fd-euppollnet-public-preflight.yml
+      - src/fd/euppollnet_public_preflight.py
+      - tests/test_euppollnet_public_preflight.py
+      - scripts/run_fd_public_euppollnet_preflight.py
+permissions:
+  contents: read
+jobs:
+  source-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install source analytical and regression dependencies
+        run: python -m pip install -q -e ".[test]"
+      - name: Validate public original study/network/coordinates and Git blob pin
+        run: |
+          set -euo pipefail
+          python -m pytest -q tests/test_euppollnet_public_preflight.py
+          python -m compileall -q src/fd/euppollnet_public_preflight.py scripts/run_fd_public_euppollnet_preflight.py
+      - name: Retrieve original Git SHA pinned 2025 field survey source and print site metadata opportunity only
+        run: |
+          set -euo pipefail
+          python scripts/run_fd_public_euppollnet_preflight.py --output /tmp/anonymous_euppollnet_source_site_preflight.json
+          python - <<'PY'
+          import json
+          p="/tmp/anonymous_euppollnet_source_site_preflight.json"
+          r=json.load(open(p))
+          assert r["status"]=="PUBLIC_EUPPOLLNET_ORIGINAL_SITE_EVIDENCE_PREFLIGHT"
+          assert len(r["original_public_source_receipts"])==2
+          assert r["limits"]["original_european_study_not_global_tropical_data"]
+          assert r["limits"]["source_original_study_overlap_with_GloBI_DoPI_WOL_unknown"]
+          print("Original European original visitor study/site data available for GIFT island feasibility screening")
+          PY
+      - name: Preserve data-access and study/site opportunity receipt (no primary source taxa)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-public-euppollnet-source-preflight-${{ github.run_id }}
+          path: /tmp/anonymous_euppollnet_source_site_preflight.json
+          if-no-files-found: error
+          retention-days: 30

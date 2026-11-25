@@ -1,0 +1,9 @@
+model,source_reference_controls,holdout_group,n_genera,n_botanical_families,n_family_fold_assignments,ridge_alpha,mean_MSE_gain_vs_reference
+reference_only,3,whole_family,486,88,5,100,0
+colour_only,3,whole_family,486,88,5,100,-0.000006
+actinomorphy_only,3,whole_family,486,88,5,100,0.000610
+open_radial_form_only,3,whole_family,486,88,5,100,0.001021
+actinomorphy_plus_open_radial,3,whole_family,486,88,5,100,0.001364
+actinomorphy_plus_colour,3,whole_family,486,88,5,100,0.000582
+open_radial_plus_colour,3,whole_family,486,88,5,100,0.001026
+actinomorphy_plus_open_radial_plus_colour,3,whole_family,486,88,5,100,0.001357

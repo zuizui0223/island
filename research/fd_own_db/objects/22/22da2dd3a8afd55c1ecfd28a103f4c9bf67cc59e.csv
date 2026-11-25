@@ -1,0 +1,5 @@
+scope,endpoint,n_islands,n_archipelagos,mean_region_outside_error,mean_within_group_error,mean_geography_only_error,mean_distance_matched_other_error,n_distance_matched
+all,exact_profile_L2,606,44,0.006861,0.005077,0.005078,0.005614,51
+all,categorical_similarity_kernel,606,44,0.010609,0.006203,0.006209,0.006635,51
+direct,exact_profile_L2,606,44,0.007351,0.005473,0.005473,0.006174,51
+direct,categorical_similarity_kernel,606,44,0.011137,0.006574,0.006573,0.006915,51

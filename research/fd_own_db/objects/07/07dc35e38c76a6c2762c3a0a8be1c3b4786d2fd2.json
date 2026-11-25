@@ -1,0 +1,594 @@
+{
+  "version": "20261124-v1",
+  "source_notes": "Source-verified anonymous aggregate values; no new statistical fit. Rounded values where source evidence ledger only provides rounded numbers.",
+  "recurrence": {
+    "parent": 4505,
+    "eligible": 2324,
+    "rows": [
+      [
+        "All eligible pairs",
+        2699326,
+        0.386900734
+      ],
+      [
+        "No shared accepted species",
+        842058,
+        0.247183275
+      ],
+      [
+        "No shared accepted genus",
+        155569,
+        0.214879
+      ]
+    ],
+    "genus_disjoint_observed_distance": 0.280641,
+    "genus_disjoint_null_distance": 0.256538,
+    "source": "results/20261118_positive_evidence/README.md"
+  },
+  "region": {
+    "rows": [
+      [
+        "Northern high latitudes",
+        135,
+        -2.704,
+        -3.562,
+        -1.895
+      ],
+      [
+        "Northern midlatitudes",
+        1443,
+        2.58,
+        1.064,
+        4.131
+      ],
+      [
+        "Tropics",
+        666,
+        10.989,
+        8.958,
+        13.313
+      ],
+      [
+        "Southern extratropical",
+        118,
+        4.103,
+        0.697,
+        7.533
+      ]
+    ],
+    "covariance": {
+      "total": 4.0179,
+      "between": 4.05652,
+      "within": -0.03862
+    },
+    "matched": [
+      [
+        "Geographic sources",
+        9.52
+      ],
+      [
+        "Climate-matched sources",
+        9.41
+      ]
+    ],
+    "matched_n": 123,
+    "source": "Original 4505 figure spine and exact tropical genus covariance report (source run 44235884651); matched sensitivity 45365112213; joint non-focal contrasts reported to three decimals; covariance components reported to four decimals except radial/deep full precision. No new model fit. Native and alternate source contrasts, and previously omitted non-focal joint intervals: original run 43857181963, archived results/20261116_true_joint_pollination_syndrome_source/README.md. Native cohort n96; nonrandom nested roster. Non-focal intervals rounded to two decimals as archived.",
+    "tropical_pairs": [
+      {
+        "label": "Actinomorphic × deep",
+        "n": 666,
+        "joint": 10.98858,
+        "joint_interval": [
+          8.958,
+          13.313
+        ],
+        "covariance": 4.0179,
+        "cov_interval": [
+          3.1737,
+          4.9234
+        ],
+        "between": 4.05652,
+        "within": -0.03862,
+        "between_interval": [
+          3.2058,
+          4.9624
+        ],
+        "within_interval": [
+          -0.0577,
+          -0.0186
+        ]
+      },
+      {
+        "label": "Zygomorphic × deep",
+        "n": 666,
+        "joint": -1.368,
+        "joint_interval": [
+          -2.68,
+          -0.05
+        ],
+        "covariance": -3.4253,
+        "cov_interval": [
+          -4.3149,
+          -2.5685
+        ],
+        "between": -3.639,
+        "within": 0.2137,
+        "between_interval": [
+          -4.5034,
+          -2.7838
+        ],
+        "within_interval": [
+          0.1611,
+          0.2656
+        ]
+      },
+      {
+        "label": "Tubular/bell × deep",
+        "n": 598,
+        "joint": 5.172,
+        "joint_interval": [
+          3.82,
+          6.61
+        ],
+        "covariance": -1.0973,
+        "cov_interval": [
+          -1.9404,
+          -0.2753
+        ],
+        "between": -1.6341,
+        "within": 0.5367,
+        "between_interval": [
+          -2.4513,
+          -0.8491
+        ],
+        "within_interval": [
+          0.4439,
+          0.6457
+        ]
+      }
+    ],
+    "marginal_product_delta": 6.97068,
+    "native": {
+      "n": 96,
+      "first_source_groups": 26,
+      "rows": [
+        {
+          "label": "Actinomorphic × deep",
+          "joint": 12.63,
+          "joint_interval": [
+            8.64,
+            17.11
+          ],
+          "covariance": 7.08,
+          "cov_interval": [
+            5.41,
+            8.68
+          ],
+          "joint_first_source": 9.92,
+          "joint_first_source_interval": [
+            5.46,
+            14.45
+          ],
+          "cov_first_source": 6.89,
+          "cov_first_source_interval": [
+            5.16,
+            8.72
+          ]
+        },
+        {
+          "label": "Zygomorphic × deep",
+          "joint": -6.58,
+          "joint_interval": [
+            -8.82,
+            -4.17
+          ],
+          "covariance": -6.6,
+          "cov_interval": [
+            -8.2,
+            -4.94
+          ],
+          "cov_first_source": -6.47,
+          "cov_first_source_interval": [
+            -8.42,
+            -4.71
+          ]
+        }
+      ]
+    },
+    "radial_sensitivity": [
+      {
+        "label": "All-recorded, geo5",
+        "n": 666,
+        "joint": 10.99,
+        "joint_interval": [
+          8.96,
+          13.31
+        ],
+        "covariance": 4.02,
+        "cov_interval": [
+          3.17,
+          4.92
+        ]
+      },
+      {
+        "label": "All-recorded, climate10",
+        "n": 666,
+        "joint": 11.07,
+        "joint_interval": [
+          9.1,
+          13.33
+        ],
+        "covariance": 4.47,
+        "cov_interval": [
+          3.67,
+          5.33
+        ]
+      },
+      {
+        "label": "All-recorded, geo5, source groups",
+        "n": 666,
+        "joint": 7.32,
+        "joint_interval": [
+          5.07,
+          9.52
+        ],
+        "covariance": 2.76,
+        "cov_interval": [
+          1.58,
+          3.97
+        ]
+      },
+      {
+        "label": "Annotation-balanced, geo5",
+        "n": 435,
+        "joint": 9.66,
+        "joint_interval": [
+          7.85,
+          11.35
+        ],
+        "covariance": 3.46,
+        "cov_interval": [
+          2.48,
+          4.42
+        ]
+      }
+    ]
+  },
+  "geography": {
+    "n": 38,
+    "groups": 7,
+    "informative": 6,
+    "source_counts": [
+      [
+        "Native bee source islands",
+        305
+      ],
+      [
+        "Unique bee–GSHHG matches",
+        234
+      ],
+      [
+        "Historical floral aggregate joins",
+        231
+      ],
+      [
+        "Tropical floral joins",
+        130
+      ]
+    ],
+    "bird_candidates": 38,
+    "three_guild_tropical": 9,
+    "distances": [
+      [
+        "Mainland",
+        0.256463,
+        0.206643
+      ],
+      [
+        "Nearest land >1 km²",
+        -0.093419,
+        -0.055615
+      ],
+      [
+        "Nearest land >1,000 km²",
+        -0.014311,
+        -0.025832
+      ]
+    ],
+    "mainland_range": [
+      [
+        -0.005065,
+        2.126972
+      ],
+      [
+        -0.129387,
+        1.594799
+      ]
+    ],
+    "strict_nectar": -0.001484,
+    "source": "results/20261124_tropical_pollinator_source_intake/THREE_GUILD_AND_LEPTRAITS_VERIFIED.md; PUBLIC_FLORA_GEOGRAPHY_BRIDGE_VERIFIED.md"
+  },
+  "diet": {
+    "coefs": [
+      [
+        "≥50% dietary fraction",
+        0.123372
+      ],
+      [
+        "Partial dietary fraction",
+        -0.06326
+      ],
+      [
+        "Zero dietary fraction",
+        0.046922
+      ]
+    ],
+    "n": 32,
+    "contrasts": [
+      {
+        "id": "direct_n5_all",
+        "n": 32,
+        "g": 6,
+        "estimate": 0.18663155446099053,
+        "range": [
+          0.005410366589431545,
+          0.8434660419229167
+        ],
+        "draws": 459,
+        "leave_group": [
+          0.0718933320568321,
+          0.38486360178621554
+        ]
+      },
+      {
+        "id": "direct_n5_tight",
+        "n": 26,
+        "g": 6,
+        "estimate": 0.28485491536838425,
+        "range": [
+          0.07221410877687517,
+          0.7978711887926317
+        ],
+        "draws": 375,
+        "leave_group": [
+          0.13238345550430058,
+          0.6060495312908813
+        ]
+      },
+      {
+        "id": "direct_n5_exclude_shared_boundary",
+        "n": 30,
+        "g": 6,
+        "estimate": 0.1954886420671611,
+        "range": [
+          0.046651801615459655,
+          0.79568771280555
+        ],
+        "draws": 447,
+        "leave_group": [
+          0.09267870397023224,
+          0.38790407256506665
+        ]
+      },
+      {
+        "id": "direct_n50_all",
+        "n": 24,
+        "g": 5,
+        "estimate": 0.25851010113511824,
+        "range": [
+          -0.13438668011315663,
+          0.32065552457534807
+        ],
+        "draws": 355,
+        "leave_group": [
+          0.2018910132959752,
+          0.2928796309981753
+        ]
+      },
+      {
+        "id": "direct_n50_tight",
+        "n": 18,
+        "g": 4,
+        "estimate": 0.2733452946379609,
+        "range": [
+          0.27300974395952954,
+          0.2828666332073609
+        ],
+        "draws": 125,
+        "leave_group": [
+          0.2785539334720883,
+          0.2785539334720883
+        ]
+      },
+      {
+        "id": "direct_n50_exclude_shared_boundary",
+        "n": 22,
+        "g": 5,
+        "estimate": 0.26350392306502385,
+        "range": [
+          0.0771842873168927,
+          0.32065552457534807
+        ],
+        "draws": 304,
+        "leave_group": [
+          0.20292661038544518,
+          0.2928796309981753
+        ]
+      },
+      {
+        "id": "direct_single_state_n5_all",
+        "n": 29,
+        "g": 5,
+        "estimate": 0.2315981332541973,
+        "range": [
+          0.05923822948717114,
+          0.4895829331162874
+        ],
+        "draws": 443,
+        "leave_group": [
+          0.11664857783326023,
+          0.30747417155017287
+        ]
+      },
+      {
+        "id": "direct_single_state_n5_tight",
+        "n": 23,
+        "g": 5,
+        "estimate": 0.44423678697491564,
+        "range": [
+          0.08111520289025267,
+          0.8242693838094582
+        ],
+        "draws": 254,
+        "leave_group": [
+          0.1155452888154921,
+          0.8015455205311796
+        ]
+      },
+      {
+        "id": "direct_single_state_n5_exclude_shared_boundary",
+        "n": 27,
+        "g": 5,
+        "estimate": 0.21178224096563675,
+        "range": [
+          0.004244972980798794,
+          0.45369624476404824
+        ],
+        "draws": 434,
+        "leave_group": [
+          0.08862056579610891,
+          0.3017759235668932
+        ]
+      },
+      {
+        "id": "direct_single_state_n50_all",
+        "n": 18,
+        "g": 4,
+        "estimate": 0.30091148817080776,
+        "range": [
+          0.1375230050928947,
+          0.3203174470478284
+        ],
+        "draws": 200,
+        "leave_group": [
+          0.17418433501873065,
+          0.2989284162714276
+        ]
+      },
+      {
+        "id": "direct_single_state_n50_tight",
+        "n": 13,
+        "g": null,
+        "estimate": null,
+        "range": null,
+        "draws": null,
+        "leave_group": null
+      },
+      {
+        "id": "direct_single_state_n50_exclude_shared_boundary",
+        "n": 16,
+        "g": 4,
+        "estimate": 0.29178455164739353,
+        "range": null,
+        "draws": 49,
+        "leave_group": null
+      }
+    ],
+    "tests": [
+      [
+        "Direct ≥5",
+        32,
+        0.171692,
+        0.298588,
+        0.00628669,
+        0.00999024,
+        6,
+        2
+      ],
+      [
+        "Direct ≥50",
+        24,
+        0.006,
+        0.171692,
+        0.00753353,
+        0.00225411,
+        5,
+        5
+      ],
+      [
+        "Single-state ≥5",
+        29,
+        0.048,
+        0.171692,
+        0.00722284,
+        0.00710178,
+        5,
+        3
+      ],
+      [
+        "Single-state ≥50",
+        18,
+        0.02,
+        0.171692,
+        0.000989157,
+        0.000393099,
+        2,
+        2
+      ]
+    ],
+    "family_pass": 6,
+    "total_tests": 24,
+    "genus_pass": 0,
+    "source": "run 45364977926 job 138344245876 SPECIALIST_PANEL contrast records; BIRD_DIET_LABEL_NULL_VERIFIED.md"
+  },
+  "dual": {
+    "n": 30,
+    "groups": 5,
+    "rows": [
+      [
+        "Tubular",
+        0.019803,
+        0.113496,
+        -0.093692,
+        -0.074534
+      ],
+      [
+        "Deep",
+        0.310323,
+        0.114743,
+        0.19558,
+        0.18768
+      ],
+      [
+        "Tubular and deep",
+        0.169,
+        0.204551,
+        -0.035551,
+        -0.030217
+      ]
+    ],
+    "tests": 160,
+    "raw_pass": 4,
+    "holm_pass": 0,
+    "native": [
+      [
+        "Full all-recorded (30)",
+        0.19558,
+        0.18768
+      ],
+      [
+        "Same native-supported islands (20)",
+        -0.009395,
+        -0.014964
+      ],
+      [
+        "Literal native (20), native controls",
+        -0.095353,
+        -0.160997
+      ]
+    ],
+    "bounds_count": 460,
+    "bounds_sign": 0,
+    "source": "results/20261124_tropical_pollinator_dual_null/TAXONOMY_DECOMPOSITION_VERIFIED.md; DUAL_NULL_VERIFIED.md; ORIGIN_DECOMPOSITION_VERIFIED.md; POSITIVE_EVIDENCE_SYNTHESIS.md"
+  }
+}

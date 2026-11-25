@@ -1,0 +1,17 @@
+scope,ledger,evaluation_mode,trait,n_source_components,n_components_positive_name_gain,n_components_positive_genus_equal,mean_name_equal_brier_gain,mean_fraction_test_species_with_donor
+All,snapshot,all,floral_symmetry,9,9,9,0.068209,0.337143
+All,snapshot,all,self_incompatibility,9,9,9,0.036222,0.337143
+All,snapshot,native,floral_symmetry,7,7,7,0.074580,0.359823
+All,snapshot,native,self_incompatibility,7,7,7,0.037828,0.359823
+All,source,all,floral_symmetry,9,9,9,0.056850,0.289768
+All,source,all,self_incompatibility,9,9,9,0.030194,0.289768
+All,source,native,floral_symmetry,7,7,7,0.069266,0.331432
+All,source,native,self_incompatibility,7,7,7,0.038033,0.331432
+Direct,snapshot,all,floral_symmetry,9,9,9,0.008710,0.066408
+Direct,snapshot,all,self_incompatibility,9,7,9,0.002905,0.066408
+Direct,snapshot,native,floral_symmetry,7,7,7,0.010970,0.072314
+Direct,snapshot,native,self_incompatibility,7,5,6,0.002965,0.072314
+Direct,source,all,floral_symmetry,9,9,9,0.007706,0.058102
+Direct,source,all,self_incompatibility,9,5,7,0.001136,0.058102
+Direct,source,native,floral_symmetry,7,7,7,0.010831,0.071313
+Direct,source,native,self_incompatibility,7,5,6,0.002970,0.071313

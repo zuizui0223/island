@@ -1,0 +1,31 @@
+name: audit_gift_original_category_vs_raoq
+on:
+  push:
+    branches: [analysis/gift-category-vs-raoq-crossgate-20261120]
+    paths:
+      - ".github/workflows/audit-gift-original-category-raoq.yml"
+      - "scripts/verify_gift_category_vs_raoq_crossgate.py"
+      - "tests/test_verify_gift_category_vs_raoq_crossgate.py"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-gift-original-category-raoq.yml"
+      - "scripts/verify_gift_category_vs_raoq_crossgate.py"
+      - "tests/test_verify_gift_category_vs_raoq_crossgate.py"
+permissions:
+  contents: read
+jobs:
+  audit-anonymous:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install source verification test dependencies
+        run: python -m pip install -q pytest
+      - name: Audit full 78 paired original phenotype and categorical Simpson test
+        run: |
+          python -m pytest -q tests/test_verify_gift_category_vs_raoq_crossgate.py
+          python -m compileall -q scripts/verify_gift_category_vs_raoq_crossgate.py

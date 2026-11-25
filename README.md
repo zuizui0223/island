@@ -117,3 +117,8 @@ It must not claim:
 - tropical Direct-only H2 accessibility as FDR-supported after correction;
 - within-lineage evolution rather than assemblage composition;
 - corrected geography as prospective confirmation.
+
+
+## Research ownership (2026-11-25)
+
+Analyses using the project's own GBIF occurrence flora, integrated trait ledger or derived aggregates (including mixed-source models) are owned by this repository. Standalone external-database-only studies belong to [fd](https://github.com/zuizui0223/fd). See [source ownership](docs/fd_data_ownership_20261125.md), [verified archive of former fd research](research/fd_own_db/README.md) and [current syndrome research workspace](research/fd_own_db/current/plant_syndrome/README.md). These historical research files do not modify the active GEB submission selector or constitute new scientific claims.

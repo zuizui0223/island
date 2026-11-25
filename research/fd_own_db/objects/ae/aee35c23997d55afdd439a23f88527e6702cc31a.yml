@@ -1,0 +1,45 @@
+name: Verify integrated manuscript supplement
+on:
+  push:
+    branches: [analysis/tropical-pollinator-dual-null-20261124]
+    paths:
+      - 'docs/manuscript_20261124/**'
+      - scripts/render_integrated_supplement_figures.mjs
+      - .github/workflows/integrated_manuscript_supplement.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/render_integrated_supplement_figures.mjs --check
+      - name: Audit source-derived table counts and supported statuses
+        run: |
+          python - <<'PY'
+          import csv, pathlib, collections, xml.etree.ElementTree as ET
+          d=pathlib.Path("docs/manuscript_20261124/supplement")
+          def read(p):return list(csv.DictReader((d/p).open()))
+          q=read("table_S02_all13_crossgate.csv")
+          assert len(q)==78
+          n=read("table_S04_original_null_tests.csv")
+          assert collections.Counter(x["analysis"] for x in n)=={"source_relative":336,"form_depth":500,"dual":160}
+          assert all(float(x["adjusted_p"])>=.05 for x in n)
+          b=[x for x in read("table_S05_origin_bounds.csv") if x["status"]=="bounded"]
+          assert len(b)==460 and all(float(x["lower"])<=0<=float(x["upper"]) for x in b)
+          assert all(x["sign_identified"]=="false" for x in b)
+          figs=sorted(d.glob("figS*.svg"));assert len(figs)==5
+          for f in figs: assert ET.parse(f).getroot().tag.endswith("svg") and "NaN" not in f.read_text()
+          print("78 trait cells, 996 null comparisons, 460 feasible bounds; 5 figures")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: integrated-manuscript-supplement
+          path: |
+            docs/manuscript_20261124/supplement/
+            docs/manuscript_20261124/supplement_data.json
+            docs/manuscript_20261124/SUPPLEMENTARY_MATERIAL.md

@@ -1,0 +1,6 @@
+documented_guild,n_native_source_matched_candidate_species,n_exact_species_with_cited_guild_before,n_with_3plus_bibliography_before,n_exact_species_with_cited_guild_after_dominant_archive_omission,n_with_3plus_bibliography_after,actual_island_to_mainland_pollinator_shift_certified
+bombus,54,4,3,0,0,false
+non_bombus_bees,54,14,7,7,2,false
+lepidoptera_undivided,54,20,11,4,0,false
+flower_visiting_birds,54,5,2,1,0,false
+diptera,54,5,1,2,0,false

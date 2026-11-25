@@ -1,0 +1,26 @@
+name: Matched specialist versus partial nectar bird floral contrast
+on:
+  push:
+    branches: [analysis/tropical-pollinator-guild-dispersal-20261124]
+    paths: [scripts/tropical_specialist_partial_flora.py, .github/workflows/tropical_specialist_partial_flora.yml]
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas pyshp pyproj
+      - run: python -u scripts/tropical_specialist_partial_flora.py --out work/specialist_partial
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: matched-specialist-partial-flora
+          path: work/specialist_partial

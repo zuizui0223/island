@@ -1,0 +1,6 @@
+model,n_genera,n_families,ridge_alpha,genus_equal_five_channel_MSE,family_equal_five_channel_MSE,genus_equal_MSE_gain_over_reference,family_equal_MSE_gain_over_reference,n_families_positive
+evidence_only,484,88,100,0.041950819,0.045745728,0,0,0
+open_form_only,484,88,100,0.040803928,0.044656134,0.001146891,0.001089594,54
+symmetry_only,484,88,100,0.041536594,0.045390907,0.000414226,0.000354822,47
+architecture_form_symmetry,484,88,100,0.040644356,0.044579121,0.001306463,0.001166608,48
+three_coarse,484,88,100,0.040685223,0.044540479,0.001265596,0.001205250,47

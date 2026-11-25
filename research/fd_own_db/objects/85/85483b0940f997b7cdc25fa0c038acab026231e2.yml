@@ -1,0 +1,42 @@
+name: Export pinned public bird candidate and bee model covariates
+on:
+  push:
+    branches: [analysis/tropical-pollinator-guild-dispersal-20261124]
+    paths: [.github/workflows/tropical_bird_model_export.yml]
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas
+      - name: Export only public animal covariates from verified candidate artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PYTHONPATH=scripts python - <<'PY'
+          import hashlib,json,pathlib
+          import pandas as pd
+          from tropical_three_guild_candidate_audit import fetch
+          b=fetch("bee_bird")
+          assert len(b)==52 and b.bee_id.is_unique
+          cols=["bee_id","group","native_bees","bee_area_km2","dist_km","dist_gt1","dist_gt1k","cov","geo_origin","nectar_gt0","nectar_ge20","nectar_ge50","all_birds","area_ratio","match_type"]
+          # Candidate artifact is already SHA-pinned in fetch(); no original private data.
+          d=b[cols].astype(object).where(pd.notna(b[cols]),None)
+          s=json.dumps({"source_artifact":14901918629,"columns":cols,"rows":d.values.tolist()},separators=(",",":"),allow_nan=False)
+          pathlib.Path("work").mkdir(exist_ok=True)
+          pathlib.Path("work/public_bird_model_covariates.json").write_text(s)
+          print("PUBLIC_BIRD_MODEL_SHA256",hashlib.sha256(s.encode()).hexdigest(),flush=True)
+          print("PUBLIC_BIRD_MODEL_JSON",s,flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-bird-model-covariates
+          path: work/public_bird_model_covariates.json

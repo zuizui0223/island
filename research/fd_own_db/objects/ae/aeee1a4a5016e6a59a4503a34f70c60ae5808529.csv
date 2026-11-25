@@ -1,0 +1,6 @@
+GloBI_documented_guild,n_original_13_source_matched_islands_with_any_same_native_species_locality_cited_record,n_distinct_accepted_native_plant_species_with_that_guild_locality_cited_record,original_source_archive_independence_verified,effective_pollen_deposition_verified
+bombus,0,0,false,false
+non_bombus_bees,1,1,false,false
+lepidoptera_undivided,2,2,false,false
+flower_visiting_birds,3,3,false,false
+diptera,0,0,false,false

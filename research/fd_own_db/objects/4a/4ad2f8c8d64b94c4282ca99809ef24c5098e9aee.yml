@@ -1,0 +1,39 @@
+name: Nectar bat range public floral pilot
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/export_mdd_bat_ranges.R
+      - scripts/nectar_bat_public_flora.py
+      - scripts/multiguild_shared_support.py
+      - scripts/bat_mdd_synonym_audit.py
+      - scripts/bat_unknown_diet_sensitivity.py
+      - .github/workflows/nectar_bat_public_flora.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -e . geopandas shapely pyshp pyproj pyogrio
+      - run: python scripts/nectar_bat_public_flora.py --self-test
+      - run: python scripts/multiguild_shared_support.py
+      - run: python scripts/bat_mdd_synonym_audit.py
+      - run: python scripts/bat_unknown_diet_sensitivity.py
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends r-base r-cran-terra
+      - run: python scripts/nectar_bat_public_flora.py --out work/nectar_bat_public --shared-support --synonym-sensitivity --unknown-diet-sensitivity
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nectar-bat-public-floral-pilot
+          path: work/nectar_bat_public
+          if-no-files-found: warn

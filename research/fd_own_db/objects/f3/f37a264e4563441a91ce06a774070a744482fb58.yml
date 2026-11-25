@@ -1,0 +1,30 @@
+name: Public tubular flower bird species diet label null
+on:
+  push:
+    branches: [analysis/tropical-pollinator-guild-dispersal-20261124]
+    paths: [scripts/tropical_bird_diet_label_null.py, .github/workflows/tropical_bird_diet_label_null.yml]
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy pyshp pyproj
+      - run: python -u scripts/tropical_bird_diet_label_null.py --out work/diet_label_null
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tropical-bird-diet-label-null
+          path: work/diet_label_null

@@ -1,0 +1,6 @@
+channel,n_confirmatory_pollinator_taxa,n_documented_interaction_rows,n_explicit_pollination_rows,n_flower_visit_rows,fraction_explicit_pollination_rows,n_taxa_with_any_pollination_record,original_plant_genus_join_available
+bombus,146,176961,41495,135466,0.234487,111,false
+non_bombus_bees,2206,259029,143049,115980,0.552251,1635,false
+lepidoptera,2360,176227,8515,167712,0.048318,831,false
+flower_visiting_birds,370,11321,2670,8651,0.235845,173,false
+diptera,1846,81553,34753,46800,0.426140,1299,false

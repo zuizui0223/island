@@ -1,0 +1,31 @@
+name: Bombus specific floral-form contrast
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/bombus_public_flora.py
+      - .github/workflows/bombus_public_flora.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas numpy pyshp pyproj
+      - run: python scripts/bombus_public_flora.py --self-test
+      - run: python scripts/bombus_public_flora.py --out work/bombus_public
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bombus-public-floral-contrast
+          path: work/bombus_public
+          if-no-files-found: warn

@@ -1,0 +1,99 @@
+{
+  "snapshot": "pr001",
+  "source_commit": "604ee404796d2faa34a7241257446b5ebe543f80",
+  "source_pr": 1,
+  "state": "closed",
+  "title": "Establish fd as standalone floral functional-diversity analysis",
+  "files": [
+    {
+      "path": ".github/workflows/analysis.yml",
+      "mode": "100644",
+      "git_blob": "2fdb442a516ada8b21c68077885074637f51a4ea",
+      "bytes": 1197,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/2f/2fdb442a516ada8b21c68077885074637f51a4ea.yml"
+    },
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "git_blob": "fbbd6ff9aa94d1ef0012a9d118e99a30580835c2",
+      "bytes": 91,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/fb/fbbd6ff9aa94d1ef0012a9d118e99a30580835c2.txt"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "git_blob": "49426d01f2821d07e97e3ce79120b9b82aa5484e",
+      "bytes": 5521,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/49/49426d01f2821d07e97e3ce79120b9b82aa5484e.md"
+    },
+    {
+      "path": "docs/ANALYSIS_CONTRACT.md",
+      "mode": "100644",
+      "git_blob": "7fb22352a0830f933307fccac4330380c933f915",
+      "bytes": 8608,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/7f/7fb22352a0830f933307fccac4330380c933f915.md"
+    },
+    {
+      "path": "pyproject.toml",
+      "mode": "100644",
+      "git_blob": "c2d800b3d4420cab32ed74ff6de4240507215da1",
+      "bytes": 439,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/c2/c2d800b3d4420cab32ed74ff6de4240507215da1.toml"
+    },
+    {
+      "path": "scripts/fetch_island_aggregates.py",
+      "mode": "100644",
+      "git_blob": "6ab27bedbb6e6300d4e410d7be24cc2bbf026922",
+      "bytes": 3434,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/6a/6ab27bedbb6e6300d4e410d7be24cc2bbf026922.py"
+    },
+    {
+      "path": "src/fd/__init__.py",
+      "mode": "100644",
+      "git_blob": "a0907de48c396e3989cc683e9b59fa4e8652a1da",
+      "bytes": 116,
+      "ownership": "shared_scaffold",
+      "archived": true,
+      "object": "objects/a0/a0907de48c396e3989cc683e9b59fa4e8652a1da.py"
+    },
+    {
+      "path": "src/fd/core.py",
+      "mode": "100644",
+      "git_blob": "179a14597b860297a41e5b0cbd79932ad7d9168f",
+      "bytes": 6515,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/17/179a14597b860297a41e5b0cbd79932ad7d9168f.py"
+    },
+    {
+      "path": "src/fd/pipeline.py",
+      "mode": "100644",
+      "git_blob": "ed0443d5dbfdaa67ca854045999b4f4685882185",
+      "bytes": 7881,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ed/ed0443d5dbfdaa67ca854045999b4f4685882185.py"
+    },
+    {
+      "path": "tests/test_fd.py",
+      "mode": "100644",
+      "git_blob": "abebedf29999fd6d4db4fac11e7c7197821ee129",
+      "bytes": 5956,
+      "ownership": "island_legacy_own_mixed_or_review",
+      "archived": true,
+      "object": "objects/ab/abebedf29999fd6d4db4fac11e7c7197821ee129.py"
+    }
+  ]
+}

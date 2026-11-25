@@ -1,0 +1,5 @@
+model,heldout_genera,morphology_species,seed,ridge_alpha,n_features,outofgenus_MSE,MSE_gain_vs_reference_only,relative_MSE_gain_percent
+evidence_only,486,1597,20261111,100,3,0.04139557,0,0
+simple_morphology,486,1597,20261111,100,6,0.03978460,0.00161096,3.89
+all_marginals,486,1597,20261111,100,25,0.03827159,0.00312397,7.55
+marginals_plus_joints,486,1597,20261111,100,115,0.04370654,-0.00231098,-5.58

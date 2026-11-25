@@ -1,0 +1,29 @@
+name: Tropical pollinator guild public floral association
+on:
+  push:
+    branches: [analysis/tropical-pollinator-guild-dispersal-20261124]
+    paths:
+      - scripts/tropical_public_flora_guild_association.py
+      - .github/workflows/tropical_public_flora_guild_association.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas numpy pyshp pyproj
+      - run: python scripts/tropical_public_flora_guild_association.py --out work/public_flora_guild
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tropical-public-flora-guild-association
+          path: work/public_flora_guild

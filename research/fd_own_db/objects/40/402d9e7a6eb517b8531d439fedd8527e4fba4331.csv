@@ -1,0 +1,2 @@
+evidence_scope,template_family,min_direct_traits_per_template,threshold_soft_membership,n_species_with_all_3_templates,n_high_2_or_more,n_high_all_3,fraction_high_2_or_more,fraction_high_all_3,realized_pollinator_identity_observed
+Direct,large_bee_like|butterfly_like|bird_like,3,0.75,205,195,168,0.951220,0.819512,false

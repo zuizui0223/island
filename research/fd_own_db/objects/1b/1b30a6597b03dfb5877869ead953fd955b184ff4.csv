@@ -1,0 +1,9 @@
+holdout_unit,model,n_genera,n_families,n_features,five_channel_MSE,MSE_gain_vs_reference,family_equal_gain,n_family_means_positive,excluding_largest_family_gain
+genus,evidence_only,486,88,3,0.041395567,0,0,0,0
+genus,simple_morphology,486,88,6,0.039784602,0.001610965,0.001453749,50,0.001948721
+genus,all_marginals,486,88,25,0.038271594,0.003123973,0.004050215,59,0.003902923
+genus,marginals_plus_joints,486,88,115,0.043706542,-0.002310976,-0.003632347,40,-0.001242655
+family,evidence_only,486,88,3,0.041970188,0,0,0,0
+family,simple_morphology,486,88,6,0.040450960,0.001519228,0.001462076,48,0.001976847
+family,all_marginals,486,88,25,0.041064797,0.000905390,0.003479366,52,0.002539478
+family,marginals_plus_joints,486,88,115,0.049705251,-0.007735064,-0.004330186,36,-0.005596943
