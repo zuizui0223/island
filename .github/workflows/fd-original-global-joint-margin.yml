@@ -1,0 +1,54 @@
+name: Protected original GIFT4505 joint margin partition
+on:
+  push:
+    branches: [analysis/fd-global-joint-margin-20261125]
+    paths:
+      - "scripts/fd_original_global_joint_margin.py"
+      - ".github/workflows/fd-original-global-joint-margin.yml"
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-global-joint-margin
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - name: Restore original pinned protected botanical source
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          curl --fail --location --silent --show-error 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o "$STAGE/geography.csv"
+      - name: Run exact null self-test and original geographic partition
+        run: |
+          set -euo pipefail
+          python scripts/fd_original_global_joint_margin.py --self-test
+          python -u scripts/fd_original_global_joint_margin.py --original-root "$ORIGINAL_ROOT" --geography "$STAGE/geography.csv" --out "$STAGE/anonymous_joint_margin.json"
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["STAGE"])/"anonymous_joint_margin.json"
+          s=p.read_text();a=json.loads(s)
+          assert a["botanical_parent"]==4505 and a["geographic_parent"]==8264
+          assert len(a["panels"])==96
+          for k in ("island_id","accepted_species","genus_name","latitude","longitude"):
+              assert '"'+k+'":' not in s
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anonymous-original-GIFT4505-joint-margin
+          path: /tmp/fd-original-global-joint-margin/anonymous_joint_margin.json
