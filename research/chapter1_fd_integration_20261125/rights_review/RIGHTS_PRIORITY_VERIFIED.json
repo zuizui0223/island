@@ -1,0 +1,492 @@
+{
+  "run": 45718126892,
+  "job": 139569317400,
+  "head": "8016cfa756e85625c6949b415884f0a828a88ccc",
+  "artifact": 15069529925,
+  "reported_zip_digest": "sha256:a5b330d50c54078c4929109eccc7c4b833763e05f4ecae0f4e352c2ad7993f94",
+  "retrieval": "Successful CI stdout anonymous aggregate and artifact digest metadata; ZIP bytes not independently retrieved.",
+  "result": {
+    "all_axes_greedy_steps": [
+      {
+        "family": "domain:efloras.org",
+        "marginal_cells": 6976
+      },
+      {
+        "family": "domain:gobotany.nativeplanttrust.org",
+        "marginal_cells": 4903
+      },
+      {
+        "family": "provider_treatment:flora_malesiana",
+        "marginal_cells": 4566
+      },
+      {
+        "family": "database:pladias",
+        "marginal_cells": 4155
+      },
+      {
+        "family": "database:floraweb_biolflor",
+        "marginal_cells": 4532
+      },
+      {
+        "family": "provider:efloras",
+        "marginal_cells": 3963
+      },
+      {
+        "family": "provider_treatment:flora_of_china",
+        "marginal_cells": 4070
+      },
+      {
+        "family": "database:baseflor",
+        "marginal_cells": 3458
+      },
+      {
+        "family": "domain:gbif.org",
+        "marginal_cells": 3391
+      },
+      {
+        "family": "ken-fern-useful-plants:species",
+        "marginal_cells": 2842
+      },
+      {
+        "family": "unresolved:citation_hash",
+        "marginal_cells": 2798
+      },
+      {
+        "family": "database:ecoflora",
+        "marginal_cells": 3116
+      },
+      {
+        "family": "provider_treatment:flora_of_panama",
+        "marginal_cells": 2750
+      },
+      {
+        "family": "domain:plants.ces.ncsu.edu",
+        "marginal_cells": 2625
+      },
+      {
+        "family": "domain:nzpcn.org.nz",
+        "marginal_cells": 2706
+      },
+      {
+        "family": "provider_treatment:nybg_memoirs",
+        "marginal_cells": 2470
+      },
+      {
+        "family": "unresolved:other_doi",
+        "marginal_cells": 2218
+      },
+      {
+        "family": "domain:europepmc.org",
+        "marginal_cells": 2608
+      },
+      {
+        "family": "domain:plantnet.rbgsyd.nsw.gov.au",
+        "marginal_cells": 2151
+      },
+      {
+        "family": "provider_treatment:nybg_floraneotropica",
+        "marginal_cells": 2138
+      }
+    ],
+    "axis_baseline": {
+      "floral_structural_complexity": {
+        "authorized": 26825,
+        "resolved": 91635
+      },
+      "flower_colour": {
+        "authorized": 18067,
+        "resolved": 82556
+      },
+      "reproductive_assurance": {
+        "authorized": 1382,
+        "resolved": 48497
+      }
+    },
+    "blocker_family_count": 5032,
+    "cells_with_one_blocker": 63174,
+    "decision": "Counterfactual priorities only. All blockers must be legally resolved; unknown citation families are not license-granting providers. No promotion, policy change, cell release, new analysis, or editor contact.",
+    "reproductive_cells_with_one_blocker": 12755,
+    "reproductive_greedy_steps": [
+      {
+        "family": "domain:gobotany.nativeplanttrust.org",
+        "marginal_reproductive_cells": 3799
+      },
+      {
+        "family": "ken-fern-useful-plants:species",
+        "marginal_reproductive_cells": 2795
+      },
+      {
+        "family": "database:floraweb_biolflor",
+        "marginal_reproductive_cells": 1850
+      },
+      {
+        "family": "database:pladias",
+        "marginal_reproductive_cells": 1587
+      },
+      {
+        "family": "unresolved:citation_hash",
+        "marginal_reproductive_cells": 1344
+      },
+      {
+        "family": "unresolved:other_doi",
+        "marginal_reproductive_cells": 1527
+      },
+      {
+        "family": "domain:europepmc.org",
+        "marginal_reproductive_cells": 2336
+      },
+      {
+        "family": "database:ecoflora",
+        "marginal_reproductive_cells": 986
+      }
+    ],
+    "scenarios": {
+      "all_axes_greedy10": {
+        "additional_by_axis": {
+          "floral_structural_complexity": 18943,
+          "flower_colour": 13831,
+          "reproductive_assurance": 10082
+        },
+        "additional_by_quality": {
+          "high": 20096,
+          "low": 14578,
+          "medium": 8182
+        },
+        "additional_cells": 42856,
+        "families": 10,
+        "potential_total": 89130,
+        "touched_cells": 120813
+      },
+      "all_axes_greedy20": {
+        "additional_by_axis": {
+          "floral_structural_complexity": 30264,
+          "flower_colour": 21873,
+          "reproductive_assurance": 16299
+        },
+        "additional_by_quality": {
+          "high": 28341,
+          "low": 28377,
+          "medium": 11718
+        },
+        "additional_cells": 68436,
+        "families": 20,
+        "potential_total": 114710,
+        "touched_cells": 149926
+      },
+      "efloras_three_labels": {
+        "additional_by_axis": {
+          "floral_structural_complexity": 8304,
+          "flower_colour": 5659,
+          "reproductive_assurance": 38
+        },
+        "additional_by_quality": {
+          "high": 5750,
+          "low": 3127,
+          "medium": 5124
+        },
+        "additional_cells": 14001,
+        "families": 3,
+        "potential_total": 60275,
+        "touched_cells": 62147
+      },
+      "european_four_databases": {
+        "additional_by_axis": {
+          "floral_structural_complexity": 4565,
+          "flower_colour": 4175,
+          "reproductive_assurance": 3132
+        },
+        "additional_by_quality": {
+          "high": 7495,
+          "low": 2752,
+          "medium": 1625
+        },
+        "additional_cells": 11872,
+        "families": 4,
+        "potential_total": 58146,
+        "touched_cells": 54709
+      },
+      "four_item_license_candidates": {
+        "additional_by_axis": {
+          "floral_structural_complexity": 6553,
+          "flower_colour": 4580,
+          "reproductive_assurance": 3
+        },
+        "additional_by_quality": {
+          "high": 8620,
+          "low": 1613,
+          "medium": 903
+        },
+        "additional_cells": 11136,
+        "families": 4,
+        "potential_total": 57410,
+        "touched_cells": 46937
+      },
+      "reproductive_greedy4": {
+        "additional_by_axis": {
+          "floral_structural_complexity": 3665,
+          "flower_colour": 2356,
+          "reproductive_assurance": 10031
+        },
+        "additional_by_quality": {
+          "high": 6193,
+          "low": 7952,
+          "medium": 1907
+        },
+        "additional_cells": 16052,
+        "families": 4,
+        "potential_total": 62326,
+        "touched_cells": 63118
+      },
+      "reproductive_greedy8": {
+        "additional_by_axis": {
+          "floral_structural_complexity": 5004,
+          "flower_colour": 3170,
+          "reproductive_assurance": 16224
+        },
+        "additional_by_quality": {
+          "high": 7922,
+          "low": 12877,
+          "medium": 3599
+        },
+        "additional_cells": 24398,
+        "families": 8,
+        "potential_total": 70672,
+        "touched_cells": 92173
+      },
+      "top10_incidence": {
+        "additional_by_axis": {
+          "floral_structural_complexity": 16413,
+          "flower_colour": 15023,
+          "reproductive_assurance": 7890
+        },
+        "additional_by_quality": {
+          "high": 16281,
+          "low": 13830,
+          "medium": 9215
+        },
+        "additional_cells": 39326,
+        "families": 10,
+        "potential_total": 85600,
+        "touched_cells": 118616
+      },
+      "top10_singleton": {
+        "additional_by_axis": {
+          "floral_structural_complexity": 18523,
+          "flower_colour": 14962,
+          "reproductive_assurance": 6872
+        },
+        "additional_by_quality": {
+          "high": 18689,
+          "low": 13443,
+          "medium": 8225
+        },
+        "additional_cells": 40357,
+        "families": 10,
+        "potential_total": 86631,
+        "touched_cells": 118922
+      }
+    },
+    "selected_family_stats": [
+      {
+        "affected": 45003,
+        "family": "domain:efloras.org",
+        "sole_blocker": 6976,
+        "sole_blocker_high_medium": 5234,
+        "sole_blocker_reproductive": 38
+      },
+      {
+        "affected": 21562,
+        "family": "domain:gobotany.nativeplanttrust.org",
+        "sole_blocker": 4740,
+        "sole_blocker_high_medium": 1090,
+        "sole_blocker_reproductive": 3799
+      },
+      {
+        "affected": 14141,
+        "family": "provider_treatment:flora_malesiana",
+        "sole_blocker": 4442,
+        "sole_blocker_high_medium": 3848,
+        "sole_blocker_reproductive": 0
+      },
+      {
+        "affected": 37930,
+        "family": "database:pladias",
+        "sole_blocker": 3585,
+        "sole_blocker_high_medium": 3353,
+        "sole_blocker_reproductive": 188
+      },
+      {
+        "affected": 9098,
+        "family": "ken-fern-useful-plants:species",
+        "sole_blocker": 2788,
+        "sole_blocker_high_medium": 887,
+        "sole_blocker_reproductive": 2788
+      },
+      {
+        "affected": 21690,
+        "family": "domain:gbif.org",
+        "sole_blocker": 2643,
+        "sole_blocker_high_medium": 1957,
+        "sole_blocker_reproductive": 3
+      },
+      {
+        "affected": 20073,
+        "family": "provider_treatment:flora_of_china",
+        "sole_blocker": 2611,
+        "sole_blocker_high_medium": 2255,
+        "sole_blocker_reproductive": 0
+      },
+      {
+        "affected": 19943,
+        "family": "database:baseflor",
+        "sole_blocker": 2498,
+        "sole_blocker_high_medium": 2309,
+        "sole_blocker_reproductive": 0
+      },
+      {
+        "affected": 22533,
+        "family": "provider:efloras",
+        "sole_blocker": 2463,
+        "sole_blocker_high_medium": 1923,
+        "sole_blocker_reproductive": 0
+      },
+      {
+        "affected": 17695,
+        "family": "provider_treatment:flora_of_panama",
+        "sole_blocker": 1924,
+        "sole_blocker_high_medium": 1658,
+        "sole_blocker_reproductive": 1
+      },
+      {
+        "affected": 20378,
+        "family": "database:floraweb_biolflor",
+        "sole_blocker": 1842,
+        "sole_blocker_high_medium": 878,
+        "sole_blocker_reproductive": 1433
+      },
+      {
+        "affected": 15985,
+        "family": "domain:nzpcn.org.nz",
+        "sole_blocker": 1685,
+        "sole_blocker_high_medium": 1379,
+        "sole_blocker_reproductive": 13
+      },
+      {
+        "affected": 1628,
+        "family": "grassbase:url",
+        "sole_blocker": 1427,
+        "sole_blocker_high_medium": 1360,
+        "sole_blocker_reproductive": 0
+      },
+      {
+        "affected": 3860,
+        "family": "provider_treatment:nybg_floraneotropica",
+        "sole_blocker": 1329,
+        "sole_blocker_high_medium": 1275,
+        "sole_blocker_reproductive": 0
+      },
+      {
+        "affected": 12573,
+        "family": "provider_treatment:nybg_memoirs",
+        "sole_blocker": 1279,
+        "sole_blocker_high_medium": 1062,
+        "sole_blocker_reproductive": 0
+      },
+      {
+        "affected": 15589,
+        "family": "unresolved:other_doi",
+        "sole_blocker": 1013,
+        "sole_blocker_high_medium": 502,
+        "sole_blocker_reproductive": 582
+      },
+      {
+        "affected": 38354,
+        "family": "unresolved:citation_hash",
+        "sole_blocker": 915,
+        "sole_blocker_high_medium": 681,
+        "sole_blocker_reproductive": 323
+      },
+      {
+        "affected": 18826,
+        "family": "domain:europepmc.org",
+        "sole_blocker": 883,
+        "sole_blocker_high_medium": 724,
+        "sole_blocker_reproductive": 781
+      },
+      {
+        "affected": 7575,
+        "family": "domain:plantnet.rbgsyd.nsw.gov.au",
+        "sole_blocker": 861,
+        "sole_blocker_high_medium": 806,
+        "sole_blocker_reproductive": 0
+      },
+      {
+        "affected": 9230,
+        "family": "domain:nparks.gov.sg",
+        "sole_blocker": 835,
+        "sole_blocker_high_medium": 385,
+        "sole_blocker_reproductive": 0
+      },
+      {
+        "affected": 19959,
+        "family": "domain:plants.ces.ncsu.edu",
+        "sole_blocker": 826,
+        "sole_blocker_high_medium": 768,
+        "sole_blocker_reproductive": 1
+      },
+      {
+        "affected": 18524,
+        "family": "database:ecoflora",
+        "sole_blocker": 672,
+        "sole_blocker_high_medium": 650,
+        "sole_blocker_reproductive": 64
+      },
+      {
+        "affected": 2605,
+        "family": "wave42-secondary-reproductive-databases:shared-redistribution-guard",
+        "sole_blocker": 322,
+        "sole_blocker_high_medium": 0,
+        "sole_blocker_reproductive": 322
+      }
+    ],
+    "source_provenance_zip_sha256": "5d3e5ea80e1cf9757cc7b3bbb64db2ca67f0b8ecce7f7f52668472511f07ad36",
+    "source_rights_zip_sha256": "6c5f2577e85e95e841b8659427e27c72ce631f59a3da5a335f54f505de5ea32a",
+    "source_scope": {
+      "Flora_Malesiana_distinct_WFO_packages": 1,
+      "Flora_Malesiana_mapped_lineages": 3393,
+      "GBIF_historical_lineage_rows": {
+        "species_page": 1867
+      },
+      "historical_source_detail_counts": {
+        "database:baseflor": 2489,
+        "database:ecoflora": 1018,
+        "database:floraweb_biolflor": 8258,
+        "database:pladias": 6,
+        "domain:efloras.org": 6091,
+        "domain:europepmc.org": 2024,
+        "domain:gbif.org": 1867,
+        "domain:gobotany.nativeplanttrust.org": 1769,
+        "domain:nparks.gov.sg": 387,
+        "domain:nzpcn.org.nz": 1277,
+        "domain:plantnet.rbgsyd.nsw.gov.au": 982,
+        "domain:plants.ces.ncsu.edu": 1179,
+        "grassbase:url": 1398,
+        "ken-fern-useful-plants:species": 986,
+        "provider:efloras": 4303,
+        "provider_treatment:flora_malesiana": 3393,
+        "provider_treatment:flora_of_china": 3007,
+        "provider_treatment:flora_of_panama": 1862,
+        "provider_treatment:nybg_floraneotropica": 1275,
+        "provider_treatment:nybg_memoirs": 1145,
+        "unresolved:citation_hash": 2791,
+        "unresolved:other_doi": 169
+      }
+    },
+    "status_counts": {
+      "redistributable": 46274,
+      "rights_review_required": 176413,
+      "semantic_review_required": 1
+    },
+    "unique_blocker_sets": 7898
+  }
+}
