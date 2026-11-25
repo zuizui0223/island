@@ -26,5 +26,70 @@
       "bytes": 9619
     }
   ],
-  "scope": "Public tracked source and aggregate only. No protected source copied, no numerical rerun. Prior snapshot and historical receipt preserved."
+  "scope": "Public tracked source and aggregate only. No protected source copied, no numerical rerun. Prior snapshot and historical receipt preserved.",
+  "source_run": {
+    "id": 45559578153,
+    "url": "https://github.com/zuizui0223/fd/actions/runs/45559578153",
+    "head_sha": "3097c8553dc96fe17a9e2d60653e89d5bb6b34ff",
+    "status": "success",
+    "artifacts": [
+      {
+        "id": 14997701426,
+        "name": "fd-plant-syndrome-pair-atlas-anonymous",
+        "sha256": "sha256:338894d0dce7f7e91518d80999dff7cf260028b37496eb04039ab4007073fe40",
+        "bytes": 169733,
+        "expires_at": "2027-02-23T06:18:07Z",
+        "expired": false
+      },
+      {
+        "id": 14997655788,
+        "name": "fd-plant-syndrome-public-pilot",
+        "sha256": "sha256:75397b22207d5feaee6abae94e85f5e452064adfaae70fc0e42a6658c0af0c74",
+        "bytes": 1920,
+        "expires_at": "2027-02-23T06:18:07Z",
+        "expired": false
+      },
+      {
+        "id": 14997368122,
+        "name": "fd-plant-syndrome-color-taxon-anonymous",
+        "sha256": "sha256:0e1213eaeac81497422c730c77f311488b65f19e2af8d234131755d30fa80af1",
+        "bytes": 17264,
+        "expires_at": "2027-02-23T06:18:07Z",
+        "expired": false
+      },
+      {
+        "id": 14997073079,
+        "name": "fd-plant-syndrome-q3-anonymous",
+        "sha256": "sha256:b65985278feaf62c5b302652efe1644b888436cba4b727f72c1ce116e507de92",
+        "bytes": 4679,
+        "expires_at": "2027-02-23T06:18:07Z",
+        "expired": false
+      },
+      {
+        "id": 14996933187,
+        "name": "fd-plant-syndrome-original-anonymous",
+        "sha256": "sha256:3f565a25d516ce7437d7a1b370d325950521fca8a7cc4e0dd5cbed5f5235a8e3",
+        "bytes": 57938,
+        "expires_at": "2027-02-23T06:18:07Z",
+        "expired": false
+      },
+      {
+        "id": 14996579025,
+        "name": "fd-plant-syndrome-q4-anonymous",
+        "sha256": "sha256:3844cca9c990b81f2b90ad5d6f03287854103a6b82d7c64a01503ce6ceed82aa",
+        "bytes": 18531,
+        "expires_at": "2027-02-23T06:18:07Z",
+        "expired": false
+      },
+      {
+        "id": 14996449891,
+        "name": "fd-plant-syndrome-origin-size-anonymous",
+        "sha256": "sha256:606967de19d2a8887a83d7162d77a9040b6b65c7d94737b23734fb2bf6389903",
+        "bytes": 54692,
+        "expires_at": "2027-02-23T06:18:07Z",
+        "expired": false
+      }
+    ],
+    "scope": "Metadata and provenance only; artifact ZIP bytes not copied. All outputs using own GBIF inputs are island-owned. Source run success is not a validation of scientific interpretations."
+  }
 }
