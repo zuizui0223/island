@@ -29,3 +29,7 @@ The destination must already exist, be access-controlled and authorized by appli
 ## First verification failure and strict diagnostic
 
 Run 45660302290 reached the repository-pin check after the ZIP and inner-pin verification loop, then failed at the H1 YAML SHA. The file's Git blob `6173ab3432cd7fbf0d51b1fab32e11bab797ac2d` is identical in its introducing commit `a7b19298dc0bf5ff00aff651913037ac1dfaff81`, the frozen main, and this branch. The follow-up tests **only** exact LF-to-CRLF reconstruction against the historical SHA256, with the original Git blob additionally pinned. No new scientific settings or accepted hash substitution. An unresolved mismatch remains a failed gate; diagnostics are retained even on failure. No assertion of CRLF equivalence until the real check runs.
+
+## Verified source identity
+
+[Completed verification](SOURCE_IDENTITY_VERIFIED.md): five exact ZIPs, five required inner pins, and historical H1 YAML restored exactly by CRLF conversion. Missing WCVP/TDWG inputs not recovered. Temporary verification only; authorized persistent destination remains required.

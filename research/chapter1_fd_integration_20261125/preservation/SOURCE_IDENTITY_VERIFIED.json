@@ -1,0 +1,250 @@
+{
+  "run": 45714273230,
+  "job": 139556215164,
+  "head": "2eea14e6e74d54e31c32eba8c5dc3f44abca216c",
+  "artifact": 15068852149,
+  "reported_zip_digest": "sha256:70fcf07d351afa265428169c462bdd2275ac448b0173446c4837de4d563851c9",
+  "retrieval": "Exact archive and nested hashes verified in temporary runner; JSON parsed from successful job stdout. Receipt artifact digest metadata verified, receipt ZIP not downloaded.",
+  "result": {
+    "owner": "zuizui0223/island",
+    "archives": [
+      {
+        "id": 10042377593,
+        "run": 34191508045,
+        "bytes": 8997627,
+        "archive_sha256": "sha256:5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd",
+        "crc_verified": true,
+        "pins": [
+          {
+            "label": "scientific_species_axis_ledger",
+            "archive_id": 10042377593,
+            "basename_matches": 1,
+            "exact_hash_matches": 1
+          },
+          {
+            "label": "final_H1_WCVP_range_summary",
+            "archive_id": 10042377593,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          },
+          {
+            "label": "final_H1_TDWG_mapping",
+            "archive_id": 10042377593,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          }
+        ]
+      },
+      {
+        "id": 10058653212,
+        "run": 34232450884,
+        "bytes": 105740636,
+        "archive_sha256": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999",
+        "crc_verified": true,
+        "pins": [
+          {
+            "label": "observed_flora_status",
+            "archive_id": 10058653212,
+            "basename_matches": 1,
+            "exact_hash_matches": 1
+          },
+          {
+            "label": "all_state_audit",
+            "archive_id": 10058653212,
+            "basename_matches": 1,
+            "exact_hash_matches": 1
+          },
+          {
+            "label": "direct_state_audit",
+            "archive_id": 10058653212,
+            "basename_matches": 1,
+            "exact_hash_matches": 1
+          },
+          {
+            "label": "direct_trait_ledger",
+            "archive_id": 10058653212,
+            "basename_matches": 3,
+            "exact_hash_matches": 1
+          },
+          {
+            "label": "final_H1_WCVP_range_summary",
+            "archive_id": 10058653212,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          },
+          {
+            "label": "final_H1_TDWG_mapping",
+            "archive_id": 10058653212,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          }
+        ]
+      },
+      {
+        "id": 10154261753,
+        "run": 34482428564,
+        "bytes": 15601812,
+        "archive_sha256": "sha256:5d3e5ea80e1cf9757cc7b3bbb64db2ca67f0b8ecce7f7f52668472511f07ad36",
+        "crc_verified": true,
+        "pins": [
+          {
+            "label": "final_H1_WCVP_range_summary",
+            "archive_id": 10154261753,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          },
+          {
+            "label": "final_H1_TDWG_mapping",
+            "archive_id": 10154261753,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          }
+        ]
+      },
+      {
+        "id": 10186293306,
+        "run": 34566271397,
+        "bytes": 3295256,
+        "archive_sha256": "sha256:6c5f2577e85e95e841b8659427e27c72ce631f59a3da5a335f54f505de5ea32a",
+        "crc_verified": true,
+        "pins": [
+          {
+            "label": "final_H1_WCVP_range_summary",
+            "archive_id": 10186293306,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          },
+          {
+            "label": "final_H1_TDWG_mapping",
+            "archive_id": 10186293306,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          }
+        ]
+      },
+      {
+        "id": 10288721725,
+        "run": 34665438815,
+        "bytes": 83300729,
+        "archive_sha256": "sha256:3a5af33e60f9eb4156b94f4d5e0f91cf36fc417ee55074af2c042a1378b28a40",
+        "crc_verified": true,
+        "pins": [
+          {
+            "label": "final_H1_WCVP_range_summary",
+            "archive_id": 10288721725,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          },
+          {
+            "label": "final_H1_TDWG_mapping",
+            "archive_id": 10288721725,
+            "basename_matches": 0,
+            "exact_hash_matches": 0
+          }
+        ]
+      }
+    ],
+    "inner_pins": [
+      {
+        "label": "scientific_species_axis_ledger",
+        "exact_hash_matches": 1,
+        "status": "verified"
+      },
+      {
+        "label": "observed_flora_status",
+        "exact_hash_matches": 1,
+        "status": "verified"
+      },
+      {
+        "label": "all_state_audit",
+        "exact_hash_matches": 1,
+        "status": "verified"
+      },
+      {
+        "label": "direct_state_audit",
+        "exact_hash_matches": 1,
+        "status": "verified"
+      },
+      {
+        "label": "direct_trait_ledger",
+        "exact_hash_matches": 1,
+        "status": "verified"
+      },
+      {
+        "label": "final_H1_WCVP_range_summary",
+        "exact_hash_matches": 0,
+        "status": "not_recovered"
+      },
+      {
+        "label": "final_H1_TDWG_mapping",
+        "exact_hash_matches": 0,
+        "status": "not_recovered"
+      }
+    ],
+    "repo_pins": [
+      {
+        "path": "results/geography_20260924/corrected_geography_covariates.csv",
+        "sha256": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7",
+        "expected_sha256": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7",
+        "status": "exact_bytes"
+      },
+      {
+        "path": "results/geography_20260924/h3_corrected_effect_rows.csv.gz",
+        "sha256": "f375b0c394cb2de8df991a6ef6107fde33a8cef909a379520f1c820ecb465d1c",
+        "expected_sha256": "f375b0c394cb2de8df991a6ef6107fde33a8cef909a379520f1c820ecb465d1c",
+        "status": "exact_bytes"
+      },
+      {
+        "path": "config/chapter1_h1_final_traitwise_t_20261004.yml",
+        "sha256": "f8a19583f1cd34cb8bf484e385691134ecb30539ac4515a749be67e67ceae676",
+        "expected_sha256": "b20a672f9a23463f21d1be6d713c5550ced69cc303d620f49fb1f54871d1e9a7",
+        "status": "exact_historical_bytes_reconstructed_by_crlf",
+        "git_blob": "6173ab3432cd7fbf0d51b1fab32e11bab797ac2d",
+        "crlf_sha256": "b20a672f9a23463f21d1be6d713c5550ced69cc303d620f49fb1f54871d1e9a7",
+        "transformation": "LF to CRLF only; original checkout unchanged"
+      }
+    ],
+    "no_upload": true,
+    "unavailable_originals_not_restored": [
+      {
+        "run": 32710232989,
+        "id": 9514635137,
+        "role": "original reviewed public-web evidence, needed for exact citation-provenance reconstruction",
+        "returned_artifacts": 0,
+        "status": "not_listed_at_checkpoint"
+      },
+      {
+        "run": 32559322028,
+        "id": null,
+        "role": "island TDWG mapping for final H1 WCVP sensitivity",
+        "returned_artifacts": 0,
+        "status": "not_listed_at_checkpoint"
+      },
+      {
+        "run": 37093097826,
+        "id": null,
+        "role": "WCVP native range summary for final H1 sensitivity",
+        "returned_artifacts": 0,
+        "status": "not_listed_at_checkpoint"
+      },
+      {
+        "run": 35093274622,
+        "id": 10444749163,
+        "role": "parent H4 reproductive-assurance matched rows",
+        "returned_artifacts": 0,
+        "status": "not_listed_at_checkpoint"
+      },
+      {
+        "run": 35094588521,
+        "id": 10445189257,
+        "role": "parent H4 architecture matched rows",
+        "returned_artifacts": 0,
+        "status": "not_listed_at_checkpoint"
+      }
+    ],
+    "unresolved_repo_pins": [],
+    "all_required_repository_pins_verified": true,
+    "durable_custodian_backup_created": false,
+    "mode": "temporary_verify_only"
+  }
+}
