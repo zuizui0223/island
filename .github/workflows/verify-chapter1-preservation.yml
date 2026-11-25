@@ -27,6 +27,7 @@ jobs:
       - name: Verify exact archived bytes and nested source identities temporarily
         run: python research/chapter1_fd_integration_20261125/preservation/preserve_sources.py --verify-only --include-alpha1 --receipt "$RUNNER_TEMP/island-preservation-receipt.json"
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: island-source-preservation-hash-receipt-only
           path: ${{ runner.temp }}/island-preservation-receipt.json

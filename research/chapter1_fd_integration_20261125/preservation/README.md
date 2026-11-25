@@ -25,3 +25,7 @@ python research/chapter1_fd_integration_20261125/preservation/preserve_sources.p
 The destination must already exist, be access-controlled and authorized by applicable licences. Optional `--include-alpha1` retains the separate developmental database. The script verifies outer bytes, archive CRCs and exact nested pins, refuses mismatching existing files and does not upload or modify GitHub. No destination is inferred. A verify-only runner uses temporary storage and deletes the source bytes; its receipt cannot be represented as a backup.
 
 [Metadata and exact pins](SOURCE_PRESERVATION_MANIFEST.json). The user/custodian still needs to run the backup command or specify an approved storage location accessible for that operation. No external account, publication or permanent archive has been authorized by this commit.
+
+## First verification failure and strict diagnostic
+
+Run 45660302290 reached the repository-pin check after the ZIP and inner-pin verification loop, then failed at the H1 YAML SHA. The file's Git blob `6173ab3432cd7fbf0d51b1fab32e11bab797ac2d` is identical in its introducing commit `a7b19298dc0bf5ff00aff651913037ac1dfaff81`, the frozen main, and this branch. The follow-up tests **only** exact LF-to-CRLF reconstruction against the historical SHA256, with the original Git blob additionally pinned. No new scientific settings or accepted hash substitution. An unresolved mismatch remains a failed gate; diagnostics are retained even on failure. No assertion of CRLF equivalence until the real check runs.

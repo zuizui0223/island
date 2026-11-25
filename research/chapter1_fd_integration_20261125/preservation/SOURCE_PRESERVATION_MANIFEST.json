@@ -158,7 +158,10 @@
     },
     {
       "path": "config/chapter1_h1_final_traitwise_t_20261004.yml",
-      "sha256": "b20a672f9a23463f21d1be6d713c5550ced69cc303d620f49fb1f54871d1e9a7"
+      "sha256": "b20a672f9a23463f21d1be6d713c5550ced69cc303d620f49fb1f54871d1e9a7",
+      "allow_exact_crlf_reconstruction": true,
+      "git_blob": "6173ab3432cd7fbf0d51b1fab32e11bab797ac2d",
+      "introduced_commit": "a7b19298dc0bf5ff00aff651913037ac1dfaff81"
     }
   ],
   "rights_audit": {

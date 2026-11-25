@@ -68,11 +68,25 @@ def run(manifest,dest,all_snapshots):
         pins.append({"label":p["label"],"exact_hash_matches":n,"status":"verified" if n else "not_recovered"})
     repo=[]
     for p in manifest["repo_pins"]:
-        v=file_hash(REPO/p["path"])
-        if v!=p["sha256"]:raise ValueError("repository source hash drift: "+p["path"])
-        repo.append({"path":p["path"],"sha256":v})
+        path=REPO/p["path"]
+        v=file_hash(path)
+        item={"path":p["path"],"sha256":v,"expected_sha256":p["sha256"],"status":"exact_bytes" if v==p["sha256"] else "unresolved_mismatch"}
+        # Only the historically Windows-generated YAML may have a checkout
+        # line-ending discrepancy. Test exact CRLF reconstruction, not arbitrary
+        # YAML reserialization or semantic equivalence. Keep both hashes.
+        if v!=p["sha256"] and p.get("allow_exact_crlf_reconstruction"):
+            raw=path.read_bytes()
+            crlf=raw.replace(b"\r\n",b"\n").replace(b"\n",b"\r\n")
+            reconstructed=hashlib.sha256(crlf).hexdigest()
+            git_blob=subprocess.check_output(["git","hash-object",str(path)],text=True).strip()
+            item.update({"git_blob":git_blob,"crlf_sha256":reconstructed})
+            if reconstructed==p["sha256"] and git_blob==p["git_blob"]:
+                item["status"]="exact_historical_bytes_reconstructed_by_crlf"
+                item["transformation"]="LF to CRLF only; original checkout unchanged"
+        repo.append(item)
+    unresolved=[x for x in repo if x["status"]=="unresolved_mismatch"]
     return {"owner":manifest["owner"],"archives":rows,"inner_pins":pins,"repo_pins":repo,
-        "no_upload":True,"unavailable_originals_not_restored":manifest["unavailable"]}
+        "no_upload":True,"unavailable_originals_not_restored":manifest["unavailable"],"unresolved_repo_pins":unresolved,"all_required_repository_pins_verified":not unresolved}
 def self_test():
     with tempfile.TemporaryDirectory() as d:
         p=Path(d)/"x.zip";b=b"synthetic only"
@@ -112,4 +126,5 @@ def main():
         p.receipt.parent.mkdir(parents=True,exist_ok=True)
         p.receipt.write_text(json.dumps(result,indent=2)+"\n")
     print("PRESERVATION_VERIFIED "+json.dumps(result,allow_nan=False),flush=True)
+    if not result["all_required_repository_pins_verified"]:raise SystemExit("Unresolved repository pin mismatch; receipt retained")
 if __name__=="__main__":main()
