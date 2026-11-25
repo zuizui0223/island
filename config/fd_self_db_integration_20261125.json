@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-25",
+  "mode": "exploratory_integration_not_submission_selector",
+  "island_main": "c662411bd1f18541cbe8531e4b1b7b14ff62f028",
+  "fd_main": "43b80ab0b3b5fe580f4ad74ffe6af6809af718e2",
+  "canonical": {
+    "occurrence_path": "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz",
+    "context_run": 32845980788,
+    "context_commit": "660036d934045a885fc129fb8209385de080e4b5",
+    "progressive_run": 34232450884,
+    "progressive_commit": "37e60faed68b29be59946aeab30303e3c1b29bd3",
+    "artifact_id": 10058653212,
+    "path": "fixed/canonical/input/chapter1_status_flora.csv.gz",
+    "sha256": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a",
+    "data_kind": "GBIF observed island-species roster, left-joined external floristic status",
+    "trait_path": "fixed/source/current/evidence/direct_only_trait_ledger.csv.gz",
+    "external_mainland_path": "fixed/source/source/gift_native_mainland_flora.csv.gz",
+    "external_source_run": 32954909953,
+    "legacy_label_warning": "GIFT4505 is an archival label not independent GIFT island incidence for this file"
+  },
+  "pr_count": 68,
+  "classification_legend": {
+    "A": "own only",
+    "B": "own plus external reference",
+    "C": "same canonical parent source family (includes audits)",
+    "M": "mixed",
+    "P": "protocol/eligibility",
+    "T": "math",
+    "U": "unclassified"
+  },
+  "hypothesis_evidence": "results/fd_self_db_20261125/evidence_ledger.csv",
+  "pr_inventory": "results/fd_self_db_20261125/pr_inventory.csv",
+  "protected_replay_prs": [
+    321,
+    323,
+    325,
+    326,
+    331,
+    332,
+    333,
+    334,
+    335,
+    336,
+    337,
+    338,
+    339,
+    340,
+    341,
+    342,
+    343,
+    344,
+    345,
+    346
+  ],
+  "nonclaims": [
+    "no independent replication from shared DB",
+    "no actual pollinator decline or historical mediation",
+    "no promoted GEB lock",
+    "no licensed raw plant/island rows"
+  ],
+  "status": "source-family and PR-level integration; file inventory separate; no numerical rerun"
+}
