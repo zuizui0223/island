@@ -1,0 +1,11 @@
+# H1 floral-axis decoupling: completed own-DB result
+
+[Run 45579499069](https://github.com/zuizui0223/island/actions/runs/45579499069) SUCCESS, self-test and protected SHA/schema gates passed. [All 60 panels and support](FLORAL_AXIS_DECOUPLING_RESULTS.json). Original design frozen before this run, but outcome-motivated by prior source-relative discovery; not prospective independent confirmation.
+
+The tropical conditional symmetry/depth slope is positive on genuine paired same-species carriers (257 islands; beta +0.027620, cluster-t 95% interval +0.015395 to +0.039846, Holm over 8 primary slots p=0.0002206; 499 coherent genus + spatial weights range +0.005095 to +0.049427). Unit is one unit of the original H1 log-distance transform, absolute proportion response. Higher-carrier n>=30 subset (122 islands) is positive (+0.023452; separate Holm p=0.00000423). These are nested not independent.
+
+On the same tropical primary conditional cohort, radial×deep slope +0.015919 [0.006092,0.025746], bilateral×deep −0.010531 [−0.016923,−0.004139], radial×shallow −0.007248 [−0.016086,0.001590], bilateral×shallow +0.001861 [−0.001443,0.005164]. Pointwise component intervals only. The marginal axis-difference primary tropical test does not pass Holm (314 islands, +0.015706, p_adj=0.09423) and coherent genus/geography weights cross zero.
+
+The direct tropical-minus-northern-midlatitude conditional contrast on shared isolation support has beta +0.036034 (570 islands, Holm=0.017983) but the joint genus/geography sensitivity crosses zero [−0.008465,+0.081876]. Do not assert a robust region interaction. Northern-high and southern conditional panels fail support.
+
+Critical sensitivity: tropical literal-native conditional n=44 is below the 50-island gate. High-only tropical conditional n=62 beta −0.000722, Holm=1, joint weight range [−0.038351,+0.040523]. Therefore this is a substantial exploratory H1 extension on broad species-Direct evidence, not an unconditional result across evidence grades. The two grades are different documented species/rosters and not replicate observations of the same species. Compare the exact same high-only eligible islands, same distance/covariates, and both carrier definitions before promoting. No causal pollinator claim, no new H2/H3/H4 model, no changes to frozen submission.
