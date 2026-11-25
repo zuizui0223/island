@@ -1,0 +1,164 @@
+{
+  "owner_policy": "Any own GBIF flora, own integrated traits, derived aggregates, mixed comparisons or planned studies of those inputs belong to island; independent external-only sources remain fd.",
+  "archive_merge": "5ede967ea3cebf5244bd1b4fb93b4736c20a70b6",
+  "legacy_prs": [
+    {
+      "legacy_pr": 70,
+      "head": "addf129fd9523aa2ae1a9ccd645c43feaf732c36",
+      "title": "Freeze Caribbean bird–bat floral specificity case-study contract",
+      "owner": "island",
+      "scope": "design-only Caribbean bird–bat × own floral carriers",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr070.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 69,
+      "head": "3097c8553dc96fe17a9e2d60653e89d5bb6b34ff",
+      "title": "[MOVED TO ISLAND — DO NOT MERGE] Plant-defined floral syndrome Q1–Q4",
+      "owner": "island",
+      "scope": "plant-defined syndrome Q1–Q4 and sensitivity",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr069_3097c855.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 68,
+      "head": "4fe3baa2ee46549817ffa556cef2432332e410f5",
+      "title": "Pilot global nectar-feeding bat range × floral category association",
+      "owner": "island",
+      "scope": "bat ranges × own floral aggregate",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr068.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 67,
+      "head": "c09a6a4a67e88bad0ba0cc02a33951d280650cb3",
+      "title": "Separate native Bombus from other bees in geometry-matched island floral forms",
+      "owner": "island",
+      "scope": "native Bombus and other bees × own floral aggregate",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr067.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 66,
+      "head": "5e0a65784d222673121628c55c2ba63c006c52a6",
+      "title": "Freeze range-map nectarivore × floral form test (synthetic design check, no real data)",
+      "owner": "island",
+      "scope": "design-only nectarivore vs own floral form; synthetic tests, no empirical effect",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr066.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 65,
+      "head": "dbea01d985a4ad6c4e72a8d4bc4225e07baaed07",
+      "title": "Same-cohort plant and bird taxonomic dual-null test",
+      "owner": "island",
+      "scope": "plant and bird dual null",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr065.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 43,
+      "head": "f8f217a5d9c4f828bca455b871c98feac1923d09",
+      "title": "Draft: fixed tropical floral-sector association with independently mapped bird and hawkmoth guilds",
+      "owner": "island",
+      "scope": "tropical floral-sector / mapped guilds",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr043.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 38,
+      "head": "bbd9c9ee6e1ad3d97ac90f22581448629bc2e79e",
+      "title": "Pre-register leakage-audited geography→genus→floral functional forecast",
+      "owner": "island",
+      "scope": "geography→genus→floral forecast (own target)",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr038.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 22,
+      "head": "1f6623753e668af381ca6daaa040721b158453c1",
+      "title": "Original 4,505 GIFT global floral functional reassembly: genus transfer and source-validated guild/ancestry limits",
+      "owner": "island",
+      "scope": "global plant functional reassembly",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr022.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 18,
+      "head": "5c15eb539641c363d04096ebd8a99b71e35e2bae",
+      "title": "Test species-vs-genus-disjoint floral repertoire overlap in all 4,505 island floras",
+      "owner": "island",
+      "scope": "genus-disjoint repertoire",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr018.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 16,
+      "head": "819b8138a8c577754c81ee40a618d058b23aabd2",
+      "title": "Global 4,505-island floral assemblage sorting: mainland source, endemicity and introductions",
+      "owner": "island",
+      "scope": "categorical floral sorting by status",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr016.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 15,
+      "head": "4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf",
+      "title": "Test source-qualified pollinator-channel loss opportunity against island floral functional diversity",
+      "owner": "island",
+      "scope": "GBIF pollinator channel opportunity × own plant traits",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr015.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 14,
+      "head": "4309409d0285bd963589dcacbfb5ecc60cd0333a",
+      "title": "Distinguish floral marginal diversity from syndrome-like trait pairing across islands",
+      "owner": "island",
+      "scope": "marginal diversity vs trait pairing",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr014.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 13,
+      "head": "afa6190d15c808265dbb50bd06fd220183a84b39",
+      "title": "Test lineage-linked island functional-trait turnover beyond taxon sharing",
+      "owner": "island",
+      "scope": "functional turnover",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr013.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    },
+    {
+      "legacy_pr": 11,
+      "head": "2469689932f09ba66bcfa515f52e971a7ff53c05",
+      "title": "Replace floral KDE volume with discrete distance and lineage/source-linked joint phenotype prediction",
+      "owner": "island",
+      "scope": "distance/SES and phenotype transfer",
+      "archival_snapshot": "research/fd_own_db/snapshots/pr011.json",
+      "disposition": "legacy PR may be closed without branch deletion; no merging into fd; standalone external source modules can be separately reviewed",
+      "evidence_boundary": "Archive preservation and ownership routing; not independent run-level validation."
+    }
+  ],
+  "external_only_open_candidate": [
+    {
+      "pr": 72,
+      "head": "829a9b75fff83f5df942b3ead076ae5bef20a064",
+      "title": "External-only floral syndrome source provenance and coverage audit",
+      "decision": "Keep in fd; separate external source review, not evidence of independent observations."
+    }
+  ]
+}

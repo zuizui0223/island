@@ -17,3 +17,9 @@
 - Runner is preserved in `docs/legacy_workflows/`, not activated. Historical names and source bytes are kept, not silently re-labelled as new results. Future execution and development belong to island. No protected raw data copied, no new numerical result claimed.
 
 The frozen GEB submission selector is unchanged.
+
+## Island continuation
+
+- [Island replay workflow](../../../../.github/workflows/replay-own-gbif-plant-syndrome.yml): pull requests run synthetic checks only; manual dispatch runs the protected same-repository archive with unchanged checksum and anonymous-output gates. Original public pilot remains archived because its external helper is not part of this minimal migrated runner.
+- [Legacy PR routing](../../legacy_open_pr_routing_20261125.json): preserve exact historical commits and route all mixed designs to island; no legacy branch deletion.
+- [Verified colour-size sensitivity panels](results/20261125_plant_syndrome_q2/color_taxon_verified_job_log_summary.json): 8/8 panels recovered from the successful original job log, not rerun and not independent replication. Under the joint genus-weight and group sensitivity, 0/72 panel–endpoint contrasts exclude zero in the same direction under both spatial and first-source groupings; no calibrated hypothesis test is claimed. All unsupported panels retained.
