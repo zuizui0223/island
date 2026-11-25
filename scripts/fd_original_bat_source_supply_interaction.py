@@ -134,11 +134,12 @@ def prepare(flora,t,geo,animal,assign,mainland):
     trop=geo[geo.analysis_regime.eq("tropical")].copy()
     f=flora[flora.island_id.isin(trop.island_id)].copy()
     assert f.island_id.nunique()==1558
-    all_regional=set(f.accepted_species)
     # All candidate source regions linked to the tropical botanical parent,
     # independently of animal eligibility and trait outcomes.
     tropical_regions=set(assign.loc[assign.island_id.isin(full.keys()&set(trop.island_id)),"entity_ID"])
-    donor_names=set().union(*(region[k] for k in tropical_regions))
+    donor_names=set().union(*(region[k] for k in tropical_regions if k in region))
+    source_census={'tropical_candidate_regions':len(tropical_regions),'candidate_regions_without_native_flora':len(tropical_regions-set(region))}
+    print('ORIGINAL_BAT_SUPPLY_DONOR_CENSUS',json.dumps(source_census),flush=True)
     d=animal.merge(trop,on="island_id",validate="one_to_one")
     d=d[d.total.gt(0)&d.range_area.ge(20)&d.distance_to_continent_km.ge(0)&d.match_share.ge(.5)].copy()
     d=d.dropna(subset=["island_latitude","island_longitude"])
@@ -155,11 +156,14 @@ def prepare(flora,t,geo,animal,assign,mainland):
             rosters=fs[fs.accepted_species.isin(scored)].groupby("island_id").accepted_species.agg(set).to_dict()
             total=fs.groupby("island_id").accepted_species.nunique()
             for mode,nr in MODES:
-                incl={};excl={};ni={};ne={}
+                incl={};excl={};ni={};ne={};missing_assign=missing_donors=0
                 for i in set(d.island_id)&set(rosters):
                     ids=keys.get((i,mode),())
-                    if not ids:continue
+                    if not ids:
+                        missing_assign+=1;continue
                     assert len(ids)==nr
+                    if any(k not in region for k in ids):
+                        missing_donors+=1;continue
                     source=pool(ids)
                     separate=source-full[i]
                     incl[i]=source&scored;excl[i]=separate&scored
@@ -177,11 +181,13 @@ def prepare(flora,t,geo,animal,assign,mainland):
                     z["source_coverage"]=z.island_id.map(lambda i:len(src[i]))/z.island_id.map(denom)
                     k=f"{end}_{scope}_{mode}_{tag}"
                     panels[k]=estimate(z,rosters,src,tab)
+                    panels[k]['animal_and_trait_islands_without_source_assignment']=missing_assign
+                    panels[k]['animal_and_trait_islands_with_missing_candidate_flora']=missing_donors
                 x=panels[f"{end}_{scope}_{mode}_inclusive"];y=panels[f"{end}_{scope}_{mode}_disjoint"]
                 assert x["eligible_islands"]==y["eligible_islands"] and x["informative_islands_diet"]==y["informative_islands_diet"]
     assert len(panels)==36
     holm(panels)
-    return panels
+    return panels,source_census
 
 def self_test():
     # Verify scale, interaction recovery and source-relative identity exactly.
@@ -226,10 +232,10 @@ def main():
     assert ass.source_mode.value_counts().to_dict()=={"geo50_climate10":82190,"geo_k5":41325}
     with tempfile.TemporaryDirectory() as td:
         exact,_,source=animal_overlay(a.fd_root,geo,pathlib.Path(td))
-    panels=prepare(f,t,geo,exact,ass,mainland)
+    panels,source_census=prepare(f,t,geo,exact,ass,mainland)
     out={"original_botanical_parent":4505,"original_geography_parent":8264,"original_tropical_parent":1558,
          "mainland_candidate_regions":748,"mainland_sha256":mainland_sha,"pinned_sources":PIN,
-         "animal_source":source,"primary_post_pilot":PRIMARY,"panels":panels,
+         "animal_source":source,"source_census":source_census,"primary_post_pilot":PRIMARY,"panels":panels,
          "warning":"All analyses post-pilot exploratory. Source trait availability is from contemporary geographic/climatic candidate mainland species, not ancestors or verified colonists. Disjoint pool depends on focal flora membership; inclusive variant retains shared names on identical cohort. Model is conditional association, not selective loss, historical adaptation or causal pollination. Interaction compares log-count slopes per ten percentage points of source trait supply, not a constant-total guild replacement. Joint null recomputes source and target states coherently across species; no plant individual or geography identifiers exported."}
     a.out.parent.mkdir(parents=True,exist_ok=True)
     a.out.write_text(json.dumps(out,indent=2,allow_nan=False))
