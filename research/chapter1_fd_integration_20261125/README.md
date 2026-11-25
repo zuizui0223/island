@@ -1,0 +1,39 @@
+# Selective own-database FD integration into existing H1–H4
+
+User direction: one island paper and one external-only fd paper. Keep the existing hypothesis numbers and inferential targets. Use the project's own GBIF flora and integrated categorical traits more fully, rather than relabeling them as official GIFT or creating a second own-database manuscript.
+
+[Complete review candidate](MANUSCRIPT_REVIEW.md) derived from frozen `fcded4b29a7784c2fe9b07466ec4055004498568`:
+`submission/chapter1_current/MANUSCRIPT.md` (original blob `967932837c447b825223b843a9bdd80400385cfd`). The active GEB submission and all locked results are untouched. This candidate is not a publication freeze or a new numerical analysis.
+
+## Adopt selectively
+
+| Existing hypothesis | Main candidate additions | Supplementary / negative boundary | Existing estimate retained |
+|---|---|---|---|
+| H1 traitwise island responses | Direct same-species symmetry × depth, tropical target–mainland contrast and strict recorded-native subset; small panel contrasting observed and margin-null joint Q | All 96 joint-margin slots; historical PCoA/KDE and genus-disjoint overlap only descriptive, not proof of convergence; no general isolation-associated Q decline | Seven traitwise slopes in four strata; SC recurrence |
+| H2 measured-assurance-adjusted floral response | Genus × grade partition, coherent whole-profile genus null and held-out species-name predictive skill. State null failures in main text. Keep source-relative covariance separate from isolation. | Joint architecture × assurance forecast (0/17 supported extra joint gain over genus-conditioned marginals); strict source/genus/Baker rivals (no identified independent mechanism); plant-defined Q1–Q4 do not pass directional gate | Existing conditional accessibility slopes, complete-component and Direct sensitivities |
+| H3 experimental pollen limitation | Keep original GloPL support; short explicit statement that guild contrast was not identified | 0/20 region × channel support gate; bird/bat/Bombus source diagnostics, network removal simulations not measured loss | Full and offshore GloPL estimates |
+| H4 functional compatibility | Keep exact-species GloPL bridge and autonomous selfing contrast | Same-carrier SC vs mating system source-relative differences; negative 30-island FD–GloPL test, strict 19-island gate fail, zero exact same-island species overlap | Original H4 score and atomic results |
+
+## Source evidence and exact claim bounds
+
+- H1 joint Q: [PR 352 source-backed panels](https://github.com/zuizui0223/island/blob/cfbaf7687010d04815cfa77a87688182ff2174c9/research/own_db_joint_margin_20261125/README.md) and [run 45566580429](https://github.com/zuizui0223/island/actions/runs/45566580429). Original own GBIF status-attached roster and own Direct ledger, no GIFT mainland source in this particular analysis. 96 total panels / 43 support-qualified, one pointwise joint-Q slope interval excludes zero. Mean departure is descriptive, not a causal partition.
+- H1 source-relative pair: [archive-pinned architecture report](https://github.com/zuizui0223/fd/blob/dbea01d985a4ad6c4e72a8d4bc4225e07baaed07/docs/manuscript_20261124/ARCHITECTURE_DEPENDENT_REASSEMBLY.md); [source-verified synthesis](https://github.com/zuizui0223/fd/blob/dbea01d985a4ad6c4e72a8d4bc4225e07baaed07/results/20261124_tropical_pollinator_dual_null/POSITIVE_EVIDENCE_SYNTHESIS.md). Uses own botanical and trait database, official GIFT mainland donor reference. Exact regional comparison on matched isolation support is not yet established. Differences across pair estimates do not establish a formal interaction. Native 96-island subset is nested, not independent.
+- H2: [coherent genus null](https://github.com/zuizui0223/island/blob/63a44a5898e76649b71ada84e57fadb3c5ac47ac/results/fd_self_db_20261125/GENUS_NULL_RESULT.md), [name-held-out prediction](https://github.com/zuizui0223/island/blob/63a44a5898e76649b71ada84e57fadb3c5ac47ac/results/fd_self_db_20261125/GENUS_CROSSFIT_RESULT.md), [six-pair joint/conditional prediction run 44544366942](https://github.com/zuizui0223/island/actions/runs/44544366942). The 36 panel JSON rows were read in the successful job log; 17 meet support, 7 improve local-blind scores, zero improve the specified genus-conditioned joint reference under both scores and groupings. No universal morphological/selfing independence claim.
+- H3: [qualified visitor-channel support](https://github.com/zuizui0223/fd/blob/4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf/results/20261113_pollinator_impact_functional_diversity/README.md). [Bat residual source-supply run](https://github.com/zuizui0223/island/actions/runs/45549272816) 36 panels / 18 qualified / zero supported positive residual; no claim of measured historical pollinator decline.
+- H4: [same-carrier reproductive comparison](https://github.com/zuizui0223/fd/blob/4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf/results/20261113_pollinator_impact_functional_diversity/REPRODUCTIVE_ASSURANCE_COMMON_CARRIER.md) and [FD–GloPL null result](https://github.com/zuizui0223/fd/blob/4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf/results/20261113_pollinator_impact_functional_diversity/GLOPL_EXPERIMENTAL_ISLAND_FD_ASSOCIATION.md). Do not conflate these community-level and source-relative diagnostics with original exact-species H4. H3/H4 reuse GloPL; do not count as independent replications.
+
+## Figures: retain the existing six-figure architecture
+
+- Figures 1–3: unchanged database/exposure/concept. Add the pair-specific Direct sample support in Table S, not a second universal island denominator.
+- Figure 4: retain primary H1. Candidate added compact two-row tropical symmetry × depth source-relative contrast (all-recorded vs literal native) with clearly labelled conditional intervals; use SI if main figure becomes crowded. This is a source comparison, not a seventh/eighth isolation slope.
+- Figure 5: retain primary H2. Candidate companion panel or SI: observed versus genus-null slopes and crossfit predictive error reductions; show Holm=0.10, no claim that lineage explains a causal fraction. Joint Q is context; all four pair means and 96 fits available separately.
+- Figure 6: unchanged original H3/H4. Add FD/GloPL null and common-carrier SC/mating diagnostic to supplementary tables only. No extra network or named-guild causal arrows.
+
+## Review gate before adopting a new submission version
+
+1. Verify exact source-run receipts of source-relative contrasts and rights; retain original frozen source/version and corrected geography labels. Do not silently combine different distance definitions.
+2. Run same-roster paired comparisons with corrected exposure and four H1 geographic strata, and directly test region × isolation on common support; use coherent species-level weighting or permutations and genus/grade controls. Keep literal native and High-only sensitivity. Do not replace unsupported panels with hand-selected successes. The current source-relative comparisons remain descriptive until that gate.
+3. Audit ontology coupling (especially form × symmetry) and carrier/evidence-grade dependence, with matched source pool sensitivities; retain flower pairs not sharing a definitional axis.
+4. Review figure/SI integration, internal citations, word count, and claim ceiling before promoting this candidate. This is an editorial and evidence integration candidate, not a completed revised submission. No new empirical fit has been performed here.
+
+The registry of result-level source ownership remains [on main](https://github.com/zuizui0223/island/blob/fcded4b29a7784c2fe9b07466ec4055004498568/research/result_input_provenance_20261125.json). Old fd research references here are immutable historical source links, not a claim of independent GIFT island data. All additions use source-backed aggregates, not newly copied restricted raw records.
