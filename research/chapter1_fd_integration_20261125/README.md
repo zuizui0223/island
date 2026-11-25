@@ -20,3 +20,9 @@
 Retain existing six primary figures. Use the new companion figure in SI or incorporate a compact panel into Fig 4/5 during final layout. Retain exact scope and units; do not imply causal mechanisms with arrows. Joint-Q, PCoA, KDE, genus forecasts, animal channels and FD–GloPL nulls stay supplementary/archival. The [result input registry](https://github.com/zuizui0223/island/blob/fcded4b29a7784c2fe9b07466ec4055004498568/research/result_input_provenance_20261125.json) retains their provenance.
 
 The additional biological finding is suitable as a **qualified exploratory addition**, not an unconditional primary discovery. It has not been confirmed in High-only or literal-native cohorts; exact original WCVP sensitivity artifacts were unavailable. H4 support failed and no further model search is justified by that dataset. A final publication decision requires source/rights and author review, native/grade coverage assessment, integration of final figure/SI citations and a new versioned freeze if adopted. The original submission selector, locked coefficients, manuscript, and figures remain unchanged. Stop expanding secondary endpoints merely to obtain significance.
+
+## Integrated editorial package
+
+- [Review manuscript](MANUSCRIPT_REVIEW.md) and [complete SI review](SUPPLEMENTARY_INFORMATION_REVIEW.md), with original S1–S7 and a new S8 appendix.
+- [Targeted prior-art positioning](PRIOR_ART_FLORAL_AXIS.md): no claim that symmetry/depth interaction, island floral geography or pollinator mechanics are newly discovered.
+- [Manifest](REVIEW_PACKAGE_MANIFEST.json) and `verify_review_package.py`: six source receipts and five aggregate supplementary CSVs. Existing main figures 1–6 retained; Figure S8 is the new companion. No frozen files modified.
