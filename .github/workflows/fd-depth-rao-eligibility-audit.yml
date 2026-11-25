@@ -1,0 +1,77 @@
+name: FD protected Rao eligibility audit
+on:
+  push:
+    branches: [analysis/fd-depth-conditional-protected-20261125]
+    paths:
+      - scripts/fd_depth_rao_eligibility_audit.py
+      - .github/workflows/fd-depth-rao-eligibility-audit.yml
+  pull_request:
+    branches: [analysis/fd-global-source-architecture-20261125]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - scripts/fd_depth_rao_eligibility_audit.py
+      - .github/workflows/fd-depth-rao-eligibility-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: fd-depth-rao-eligibility-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  protected:
+    if: github.repository == 'zuizui0223/island' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'analysis/fd-depth-conditional-protected-20261125'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-rao-eligibility
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - name: Verify FD frozen kernel and synthetic identities
+        run: |
+          set -euo pipefail
+          test "$(git hash-object scripts/fd_depth_conditional_architecture.py)" = "e919803fd148f43424d1390de2233021662d15a0"
+          python scripts/fd_depth_conditional_architecture.py
+          python scripts/fd_depth_conditional_protected.py --self-test
+          python scripts/fd_depth_factor_region_comparison.py --self-test
+          python scripts/fd_depth_rao_diversity.py --self-test
+          python scripts/fd_depth_rao_eligibility_audit.py --self-test
+      - name: Restore exact authorized original source inside data custodian
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$STAGE/original"
+          curl --fail --silent --show-error --location --max-time 300 --max-filesize 120000000 -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' 'https://api.github.com/repos/zuizui0223/island/actions/artifacts/10058653212/zip' -o "$STAGE/source.zip"
+          printf '%s  %s\n' 'b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999' "$STAGE/source.zip" | sha256sum -c -
+          unzip -q "$STAGE/source.zip" -d "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          curl --fail --silent --show-error --location 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o "$STAGE/geography.csv"
+      - name: Audit nested fixed cohort effects without changing trait rosters
+        run: |
+          set -euo pipefail
+          python -u scripts/fd_depth_rao_eligibility_audit.py --original-root "$ORIGINAL_ROOT" --geography "$STAGE/geography.csv" --out "$STAGE/anonymous_fd_rao_eligibility.json"
+          python - <<'PY'
+          import json,os,pathlib
+          s=(pathlib.Path(os.environ["STAGE"])/"anonymous_fd_rao_eligibility.json").read_text()
+          a=json.loads(s)
+          assert a["botanical_parent"]==4505 and a["geographic_parent"]==8264 and a["mainland_candidate_regions"]==748 and len(a["panels"])==12
+          for k in ("island_id","accepted_species","genus_name","work_species","entity_ID","latitude","longitude","species_name","first_source_id","target_idx","source_idx","rosters"):
+              assert '"'+k+'":' not in s
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anonymous-fd-rao-eligibility
+          path: /tmp/fd-rao-eligibility/anonymous_fd_rao_eligibility.json
+      - name: Remove protected temporary source
+        if: always()
+        run: rm -rf "$STAGE"
