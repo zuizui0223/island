@@ -33,3 +33,7 @@ Run 45660302290 reached the repository-pin check after the ZIP and inner-pin ver
 ## Verified source identity
 
 [Completed verification](SOURCE_IDENTITY_VERIFIED.md): five exact ZIPs, five required inner pins, and historical H1 YAML restored exactly by CRLF conversion. Missing WCVP/TDWG inputs not recovered. Temporary verification only; authorized persistent destination remains required.
+
+## Custodian preservation completed
+
+[Verified private backup](DRIVE_BACKUP_VERIFIED.md): all four current-lineage original archives are preserved and independently checked by Drive readback. The earlier temporary verification remains historical. Alpha1 and missing historical inputs are separate; rights and submission gates remain open.
