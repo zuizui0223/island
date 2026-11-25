@@ -1,0 +1,26 @@
+name: Public bird incidence for protected dual null
+on:
+  push:
+    branches: [analysis/tropical-pollinator-dual-null-20261124]
+    paths: [scripts/tropical_bird_incidence_export.py, .github/workflows/tropical_bird_incidence_export.yml]
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy pyshp pyproj
+      - run: python -u scripts/tropical_bird_incidence_export.py --out work/public_bird_incidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-bird-incidence-dual-null
+          path: work/public_bird_incidence/public_bird_incidence.json

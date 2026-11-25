@@ -1,0 +1,77 @@
+name: fd original 4505 GIFT genus-oracle-free outcome audit regression
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/discrete-functional-hypervolume-20261113]
+    paths:
+      - src/fd/oracle_free_assembly_evidence.py
+      - tests/test_oracle_free_assembly_evidence.py
+      - scripts/run_fd_oracle_free_assembly_evidence.py
+      - .github/workflows/fd-oracle-free-assembly-support-preflight.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original_no_oracle_full_source_contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install source-audit unit test runtime
+        run: python -m pip install -q pytest
+      - name: Enforce 4505 GIFT source denominator, 13 endpoints, both proper scores and both spatial groups
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python -m pytest -q tests/test_oracle_free_assembly_evidence.py
+          python -m compileall -q src/fd/oracle_free_assembly_evidence.py scripts/run_fd_oracle_free_assembly_evidence.py
+      - name: Reconcile SHA-signed original GIFT 4505 no-genus oracle full source calculation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/fd-original-oraclefree-4505
+          gh run download 44474261310 --repo zuizui0223/island \
+            --name fd-original-4505-oraclefree-genus-pool-44474261310 \
+            --dir /tmp/fd-original-oraclefree-4505
+          original_digest="$(gh api repos/zuizui0223/island/actions/artifacts/14506615467 --jq '.digest')"
+          test "$original_digest" = "sha256:caf0f77e2b64029111c674854cd4c38d24d1ee66c93fb2f7be220fafcd771a5f"
+          test -s /tmp/fd-original-oraclefree-4505/anonymous_original_4505_oraclefree_genus_mixture.json
+          PYTHONPATH=src python scripts/run_fd_oracle_free_assembly_evidence.py \
+            --original-anonymous /tmp/fd-original-oraclefree-4505/anonymous_original_4505_oraclefree_genus_mixture.json \
+            --output /tmp/fd-original-oraclefree-4505/anonymous_original_4505_oraclefree_three_model_source_audit.json
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          path=Path("/tmp/fd-original-oraclefree-4505/anonymous_original_4505_oraclefree_three_model_source_audit.json")
+          raw=path.read_text()
+          d=json.loads(raw)
+          assert d["status"]=="ORIGINAL_GIFT_4505_ORACLE_FREE_REGIONAL_GENUS_MIXTURE_VS_TWO_BLIND_BASELINES"
+          assert d["n_original_source_botanical_floras"]==4505
+          assert d["n_original_Direct_endpoints"]==13
+          assert len(d["source_original_13_endpoint_region_scope_training_mode_results"])==312
+          inter=d["all_three_geography_holdout_intersection"]
+          assert inter["all_recorded__external_blind"]==["floral_form"]
+          assert inter["all_recorded__local_blind"]==[]
+          assert set(inter["all_recorded__oracle_gap"])=={
+            "floral_form","floral_form__floral_symmetry","floral_symmetry",
+            "flower_primary_color","flower_primary_color__floral_symmetry",
+            "flower_size_class","inflorescence_display"}
+          assert inter["original_native__external_blind"]==[]
+          assert d["scientific_ceilings"]["original_target_genus_roster_never_available_to_no_oracle_predictor"]
+          assert d["scientific_ceilings"]["source_no_oracle_plant_name_exclusion_depends_on_observed_focal_flora_for_holdout_validation_only"]
+          for name in ("island_id","accepted_species","entity_ID","source_genus",
+                       "longitude","latitude","source_cluster","source_taxon"):
+              assert '"'+name+'"' not in raw
+          print("Full original GIFT 4505 no-oracle source-pool study: 7 oracle-linked -> 1 external-blind -> 0 regional-blind, with both proper losses/cluster methods PASS")
+          PY
+      - name: Preserve anonymous documented source-only 13-trait oracle-free geographic generality evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-4505-source-oraclefree-three-model-evidence-${{ github.run_id }}
+          path: /tmp/fd-original-oraclefree-4505/anonymous_original_4505_oraclefree_three_model_source_audit.json
+          if-no-files-found: error
+          retention-days: 90

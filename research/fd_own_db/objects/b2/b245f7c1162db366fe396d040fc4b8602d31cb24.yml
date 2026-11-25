@@ -1,0 +1,51 @@
+name: fd signed GIFT 4505 genus geographic source-paired result audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/discrete-functional-hypervolume-20261113]
+    paths:
+      - .github/workflows/fd-gift-env-genus-source-paired-verify.yml
+      - src/fd/environment_genus_source_audit.py
+      - tests/test_environment_genus_source_audit.py
+      - scripts/run_fd_gift_environment_genus_source_audit.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify_original_paired_environment_and_source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate original source paired Brier and logloss no-target-genus model
+        run: |
+          set -euo pipefail
+          python -m pip install -q pytest
+          PYTHONPATH=src python -m pytest -q tests/test_environment_genus_source_audit.py
+          python -m compileall -q src/fd/environment_genus_source_audit.py scripts/run_fd_gift_environment_genus_source_audit.py
+      - name: Download signed original GIFT genus environmental model paired source artifact
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/fd-gift-envgenus-verified
+          gh run download 44482429856 --repo zuizui0223/island --name fd-original-4505-geographic-genus-assembly-44482429856 --dir /tmp/fd-gift-envgenus-verified
+          ACTUAL="$(gh api repos/zuizui0223/island/actions/artifacts/14508379624 --jq '.digest')"
+          test "$ACTUAL" = "sha256:e6e2e319516a562116143b124a5c01e129ba3cb9cc9f0e5a556a6b9e5cf5e4a5"
+          test -s /tmp/fd-gift-envgenus-verified/anonymous_original_4505_geographic_genus_source_composition.json
+      - name: Reaudit original source direct paired environmental source opportunity effect
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python scripts/run_fd_gift_environment_genus_source_audit.py --source /tmp/fd-gift-envgenus-verified/anonymous_original_4505_geographic_genus_source_composition.json --output /tmp/fd-gift-envgenus-verified/anonymous_original_4505_genus_environment_direct_paired_audit.json
+          PYTHONPATH=src python -c 'import json; p="/tmp/fd-gift-envgenus-verified/anonymous_original_4505_genus_environment_direct_paired_audit.json"; x=json.load(open(p)); assert x["n_original_global_botanical_floras"]==4505; q=[v for v in x["original_full_geographic_composition_cells"] if v["scope"]=="all_recorded" and v["region"] in ("northern_midlatitude","tropical","southern_extratropical")]; assert len(q)==3; assert all(v["original_source_paired_predictor_increments"]["source_similarity_increment_over_environment"]["status"]=="paired_predictor_better" for v in q); print("Three-region paired candidate-source source gain independently verified")'
+      - name: Archive protected-only anonymous source composition ecological forecasting evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-GIFT4505-geo-genus-source-paired-audit-${{ github.run_id }}
+          path: /tmp/fd-gift-envgenus-verified/anonymous_original_4505_genus_environment_direct_paired_audit.json
+          if-no-files-found: error
+          retention-days: 90

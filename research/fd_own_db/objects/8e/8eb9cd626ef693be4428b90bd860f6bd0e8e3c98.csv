@@ -1,0 +1,11 @@
+globally_documented_guild_A,globally_documented_guild_B,n_same_exact_plant_species_with_both_before_source_omission,n_same_exact_plant_species_with_both_after_source_omission,n_confirmed_same_plant_same_island_both_effective_pollinators
+bombus,non_bombus_bees,4,0,0
+bombus,lepidoptera,4,0,0
+bombus,flower_visiting_birds,2,0,0
+bombus,diptera,0,0,0
+non_bombus_bees,lepidoptera,10,4,0
+non_bombus_bees,flower_visiting_birds,3,1,0
+non_bombus_bees,diptera,3,2,0
+lepidoptera,flower_visiting_birds,3,1,0
+lepidoptera,diptera,4,2,0
+flower_visiting_birds,diptera,0,0,0

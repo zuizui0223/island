@@ -1,0 +1,7 @@
+documented_GloBI_channel,n_matched_genera,n_matched_families,pre_archive_removed_family_equal_MSE_gain,post_archive_removed_family_equal_MSE_gain,paired_post_minus_pre_MSE_gain,paired_family_bootstrap_95lo,paired_family_bootstrap_95hi,post_family_equal_CI_lo,post_family_equal_CI_hi,effective_local_pollination_measured
+bombus,344,77,-0.000629163,-0.000974149,-0.000344986,-0.002077857,0.001148421,-0.002902468,0.000843910,false
+non_bombus_bees,344,77,0.004348484,0.001086633,-0.003261851,-0.006629746,-0.000128846,-0.001280259,0.003367111,false
+lepidoptera,344,77,0.001609367,-0.000069496,-0.001678863,-0.003375350,-0.000039139,-0.000386613,0.000243193,false
+diptera,344,77,0.001274388,0.000771289,-0.000503098,-0.002169028,0.001177101,-0.000377675,0.001912836,false
+flower_visiting_birds,344,77,0.002243180,0.002621157,0.000377977,-0.000508419,0.001350072,0.000879295,0.004586265,false
+five_channel_average,344,77,0.001769251,0.000687087,-0.001082164,-0.002177057,-0.000106983,-0.000195609,0.001535474,false

@@ -1,0 +1,9 @@
+scope,better_model,worse_model,endpoint,n_matched_pairs,mean_improvement,paired_pair_bootstrap_CI_025,paired_pair_bootstrap_CI_975,bootstrap_draws
+all,global_genus,global_mainland,log_loss,37,0.7089173268201695,0.6441243825834860,0.7744006550092302,4999
+all,global_genus,global_mainland,original_trait_distance,37,0.1442316693752935,0.1377350063259800,0.1505507797156149,4999
+all,local_genus,global_genus,log_loss,37,-0.0144644421900494,-0.0212466017367665,-0.0077168482128372,4999
+all,local_genus,global_genus,original_trait_distance,37,0.0140417662426563,0.0122740748086240,0.0157664090324025,4999
+direct,global_genus,global_mainland,log_loss,37,0.3382618460069664,0.3092240546898269,0.3690959761564897,4999
+direct,global_genus,global_mainland,original_trait_distance,37,0.0842313817777797,0.0795752055495990,0.0890918441966954,4999
+direct,local_genus,global_genus,log_loss,37,-0.0193669092452486,-0.0229885561141855,-0.0156489570563281,4999
+direct,local_genus,global_genus,original_trait_distance,37,0.0106643614144164,0.0089312917062418,0.0124916856504653,4999

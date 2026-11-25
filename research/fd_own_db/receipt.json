@@ -1,0 +1,509 @@
+{
+  "source": "zuizui0223/fd",
+  "source_main_sha": "43b80ab0b3b5fe580f4ad74ffe6af6809af718e2",
+  "snapshots": 71,
+  "path_occurrences": 9200,
+  "unique_archived_blobs": 888,
+  "archived_bytes": 11892044,
+  "excluded": [],
+  "snapshot_support": [
+    {
+      "snapshot": "main",
+      "commit": "43b80ab0b3b5fe580f4ad74ffe6af6809af718e2",
+      "paths": 201,
+      "archived": 171,
+      "fd_external_candidates": 30
+    },
+    {
+      "snapshot": "pr001",
+      "commit": "604ee404796d2faa34a7241257446b5ebe543f80",
+      "paths": 10,
+      "archived": 10,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr002",
+      "commit": "c93b4a794b5fbe6fbbc0dcf2c77a8c1c1fd092d7",
+      "paths": 15,
+      "archived": 15,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr003",
+      "commit": "49f5f3f7009af3694e320e2afab9d54fc35cafdd",
+      "paths": 27,
+      "archived": 27,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr004",
+      "commit": "eb423985eadf427003f4223a7481b9858512569e",
+      "paths": 32,
+      "archived": 32,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr005",
+      "commit": "209cf70a36e2d7985dc95b50bf5e438eca7c3b32",
+      "paths": 41,
+      "archived": 41,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr006",
+      "commit": "161493cb9ec8b3dfb857bd701fe08dc2013f2bf6",
+      "paths": 50,
+      "archived": 50,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr007",
+      "commit": "e11fbb9173599d54ea5e2f01a842404e092206bc",
+      "paths": 60,
+      "archived": 60,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr008",
+      "commit": "d8c14fde3b0b298e319ed47794ec259a6c34e5fb",
+      "paths": 67,
+      "archived": 67,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr009",
+      "commit": "c80b12b16ab7e38ee0dbb1a781fead1c6c0a077e",
+      "paths": 75,
+      "archived": 75,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr010",
+      "commit": "8f6a732052289952e18418212c0f680269c4e90a",
+      "paths": 82,
+      "archived": 82,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr011",
+      "commit": "2469689932f09ba66bcfa515f52e971a7ff53c05",
+      "paths": 140,
+      "archived": 140,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr012",
+      "commit": "22b18b226c7a0b67528b521845be8b8d5f86842e",
+      "paths": 89,
+      "archived": 89,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr013",
+      "commit": "afa6190d15c808265dbb50bd06fd220183a84b39",
+      "paths": 131,
+      "archived": 131,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr014",
+      "commit": "4309409d0285bd963589dcacbfb5ecc60cd0333a",
+      "paths": 167,
+      "archived": 167,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr015",
+      "commit": "4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf",
+      "paths": 200,
+      "archived": 192,
+      "fd_external_candidates": 8
+    },
+    {
+      "snapshot": "pr016",
+      "commit": "819b8138a8c577754c81ee40a618d058b23aabd2",
+      "paths": 446,
+      "archived": 446,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr017",
+      "commit": "17cf8160d1f95f343e404505c5f5414c804532c5",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr018",
+      "commit": "5c15eb539641c363d04096ebd8a99b71e35e2bae",
+      "paths": 432,
+      "archived": 432,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr019",
+      "commit": "a360b0506527da21bae2da0a1d014d9c9f7a8ff6",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr020",
+      "commit": "c07b5439187bfc442a88486c757f7982b6a85249",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr021",
+      "commit": "d538e7c0060af176ffdcb187a0bc082cbea12978",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr022",
+      "commit": "1f6623753e668af381ca6daaa040721b158453c1",
+      "paths": 466,
+      "archived": 466,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr023",
+      "commit": "1d1502a3c5b106bf0dd25b3e59c08da7dbcfd5e9",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr024",
+      "commit": "8d6158a9e88d0d1949cc677f406f7408ddf0abd1",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr025",
+      "commit": "d19aa010063be2edf0cf8b3b4f49cb3a9a665848",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr026",
+      "commit": "3052e08d24c069ab9ab8f79a3b1c2859380ebcf5",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr027",
+      "commit": "142e7ead2342a533ed741c31b3c5aea55f3cbaf0",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr028",
+      "commit": "1932c70c267726e32e6cc95f0c24095aed212640",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr029",
+      "commit": "87ede4d0651cb337c5ac9a48f39821fe520cfcd7",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr030",
+      "commit": "6e598b6b19fc40e0dda7d058fc7322a29851c186",
+      "paths": 91,
+      "archived": 91,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr031",
+      "commit": "5232afe301045906885dca71dee217dd55414a38",
+      "paths": 92,
+      "archived": 92,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr032",
+      "commit": "3de969d9c25c0328c8062c90d912af2715edfad2",
+      "paths": 93,
+      "archived": 93,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr033",
+      "commit": "0df4b4dee1cb4c61f25978ab6c23ee2a6aa5f45b",
+      "paths": 93,
+      "archived": 93,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr034",
+      "commit": "de400935bb495ecf55d6457ec31ab699e6783e55",
+      "paths": 94,
+      "archived": 94,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr035",
+      "commit": "5312df4e507b880a2debcef5cc0121539ed35274",
+      "paths": 95,
+      "archived": 95,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr036",
+      "commit": "25d3fc10c0dc7283d2cfe7c37ea8de704d5de9bd",
+      "paths": 96,
+      "archived": 96,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr037",
+      "commit": "76dc00eac257148257d4fcf781e9933750fd6531",
+      "paths": 97,
+      "archived": 97,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr038",
+      "commit": "bbd9c9ee6e1ad3d97ac90f22581448629bc2e79e",
+      "paths": 102,
+      "archived": 102,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr039",
+      "commit": "e842e04e03f9a6515605a6560b399fc0c21920bf",
+      "paths": 98,
+      "archived": 98,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr040",
+      "commit": "2140299f000f71f8e575755233f4ec89975472aa",
+      "paths": 99,
+      "archived": 99,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr041",
+      "commit": "3d20438f85b4d98099e3170067c2773fde4b8797",
+      "paths": 100,
+      "archived": 100,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr042",
+      "commit": "293966b95bee062e89f2200bd06ba14df6c340fc",
+      "paths": 101,
+      "archived": 101,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr043",
+      "commit": "f8f217a5d9c4f828bca455b871c98feac1923d09",
+      "paths": 114,
+      "archived": 104,
+      "fd_external_candidates": 10
+    },
+    {
+      "snapshot": "pr044",
+      "commit": "956ad276c22545fbd16d2af1e226978904657614",
+      "paths": 104,
+      "archived": 104,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr045",
+      "commit": "6446b03250d1c287fbf4eab41acefe8438622fdb",
+      "paths": 104,
+      "archived": 104,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr046",
+      "commit": "304c751bbd4ec2bf4526ad83e9c72ff2cd65ce84",
+      "paths": 107,
+      "archived": 107,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr047",
+      "commit": "26d691f2b78e0e31d29a17a411eb3990939a2cb9",
+      "paths": 110,
+      "archived": 110,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr048",
+      "commit": "c29c967ee05345264cb3e939bbb7e999635559e9",
+      "paths": 115,
+      "archived": 115,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr049",
+      "commit": "19ae44fa8afba0ccd718eca81f536dae91bebcf2",
+      "paths": 118,
+      "archived": 118,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr050",
+      "commit": "ff1b7d43e125ec883add76ab61a2a23eac13ae3c",
+      "paths": 122,
+      "archived": 122,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr051",
+      "commit": "c27658754307b434c1c0f583c1e6c35723976155",
+      "paths": 126,
+      "archived": 126,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr052",
+      "commit": "e4a5684106663b5d072ad492a2463587aafc8a02",
+      "paths": 129,
+      "archived": 129,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr053",
+      "commit": "b871cf2feb9e8c02c3ca2921aa60fb757c33dd01",
+      "paths": 132,
+      "archived": 132,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr054",
+      "commit": "b871cf2feb9e8c02c3ca2921aa60fb757c33dd01",
+      "paths": 132,
+      "archived": 132,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr055",
+      "commit": "280df7c483f534dcddc2b11f1d628489f2337aae",
+      "paths": 136,
+      "archived": 136,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr056",
+      "commit": "95d7a8a70533357e1b6421143c6c05e2478a6786",
+      "paths": 139,
+      "archived": 139,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr057",
+      "commit": "6a6b1291caea4fc83edb2fb09874824296951cbf",
+      "paths": 141,
+      "archived": 141,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr058",
+      "commit": "f03a0941acb262e0c1414f5ea402338768aa0749",
+      "paths": 139,
+      "archived": 139,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr059",
+      "commit": "50325120cac5ba35674f815e1bab87d53717b47a",
+      "paths": 143,
+      "archived": 143,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr060",
+      "commit": "c37208df05382422fc11d181e9e75dc89cbe7bc1",
+      "paths": 144,
+      "archived": 144,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr061",
+      "commit": "4193288f24774d1b9a8ce113cb2d7a287d1731f4",
+      "paths": 145,
+      "archived": 145,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr062",
+      "commit": "01015c26c86331f62e1aaf5e093575b0035be0da",
+      "paths": 148,
+      "archived": 148,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr063",
+      "commit": "192a3ab888eb7d7a9de27907712f0cc1dcac6903",
+      "paths": 150,
+      "archived": 150,
+      "fd_external_candidates": 0
+    },
+    {
+      "snapshot": "pr064",
+      "commit": "e9130528095535433098fdf6c88eef97d9750bff",
+      "paths": 201,
+      "archived": 171,
+      "fd_external_candidates": 30
+    },
+    {
+      "snapshot": "pr065",
+      "commit": "dbea01d985a4ad6c4e72a8d4bc4225e07baaed07",
+      "paths": 236,
+      "archived": 206,
+      "fd_external_candidates": 30
+    },
+    {
+      "snapshot": "pr066",
+      "commit": "5e0a65784d222673121628c55c2ba63c006c52a6",
+      "paths": 227,
+      "archived": 195,
+      "fd_external_candidates": 32
+    },
+    {
+      "snapshot": "pr067",
+      "commit": "c09a6a4a67e88bad0ba0cc02a33951d280650cb3",
+      "paths": 204,
+      "archived": 174,
+      "fd_external_candidates": 30
+    },
+    {
+      "snapshot": "pr068",
+      "commit": "4fe3baa2ee46549817ffa556cef2432332e410f5",
+      "paths": 218,
+      "archived": 186,
+      "fd_external_candidates": 32
+    },
+    {
+      "snapshot": "pr069",
+      "commit": "85769a811d151b05940b554b27dc1a662c28b1df",
+      "paths": 214,
+      "archived": 184,
+      "fd_external_candidates": 30
+    },
+    {
+      "snapshot": "pr070",
+      "commit": "addf129fd9523aa2ae1a9ccd645c43feaf732c36",
+      "paths": 219,
+      "archived": 187,
+      "fd_external_candidates": 32
+    }
+  ],
+  "limitations": "Conservative archival routing, not per-file scientific provenance certification. Verified external candidates excluded by path; unreviewed historical variants remain source-pinned. Old workflows are archival, not activated. No private source artifacts."
+}

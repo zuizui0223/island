@@ -1,0 +1,6 @@
+documented_global_GloBI_visitor_guild,n_direct_native_source_matched_plant_species,n_exact_species_cited_before_source_omission,n_exact_species_cited_after_omission,n_species_direct_open_radial_form_and_cited_guild_before,n_species_direct_open_radial_form_and_cited_guild_after,n_exact_species_with_3plus_reference_keys_after,actual_island_pollination_function_tested
+bombus,54,4,0,0,0,0,false
+non_bombus_bees,54,14,7,3,3,2,false
+lepidoptera_undivided,54,20,4,4,2,0,false
+flower_visiting_birds,54,5,1,0,0,0,false
+diptera,54,5,2,2,2,0,false

@@ -1,0 +1,30 @@
+name: fd exact EuPPollNet GIFT same-island source gate tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/full4505-local-visitor-guild-20261118]
+    paths:
+      - .github/workflows/fd-euppollnet-gift-source-tests.yml
+      - src/fd/euppollnet_gift_exact_site_bridge.py
+      - tests/test_euppollnet_gift_exact_site_bridge.py
+permissions:
+  contents: read
+jobs:
+  synthetic-original-geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install GIFT exact source geometry, statistical and regression dependencies
+        run: python -m pip install -q -e ".[test]" "geopandas>=1.0" "shapely>=2" "pyogrio>=0.9"
+      - name: Strict 4505 accepted plant/site/visitor binomial pairing nonleakage regressions
+        run: |
+          set -euo pipefail
+          python -m pytest -q tests/test_euppollnet_gift_exact_site_bridge.py
+          python -m compileall -q src/fd/euppollnet_gift_exact_site_bridge.py

@@ -1,0 +1,26 @@
+name: Inspect independent 510-island geological-origin supplement
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Audit 2024 Roeble et al 510-island open supplementary table
+        run: python scripts/probe_roeble_origin.py --output results/roeble_schema
+      - name: Archive schema only
+        uses: actions/upload-artifact@v4
+        with:
+          name: roeble-origin-schema
+          path: results/roeble_schema/roeble_supplement_schema.json
+          retention-days: 10

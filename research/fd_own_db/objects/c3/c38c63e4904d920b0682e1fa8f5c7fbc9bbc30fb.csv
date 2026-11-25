@@ -1,0 +1,5 @@
+scope,source_mode,endpoint,n_matched_pairs,source_subtracted_residual_statistic,paired_swap_null_median,p_upper_approx,q_bh_primary4,q_by_primary4,interpretation
+all,geo_k5,exact_profile_L2,37,0.0007324932800103097,0.00034160456687812795,0.0002,0.0004,0.0008333333333333334,exploratory_source_repertoire_subtraction
+all,geo_k5,categorical_similarity_kernel,37,0.0006782847186989434,0.00034697707357850553,0.0429,0.0572,0.11916666666666667,exploratory_source_repertoire_subtraction
+direct,geo_k5,exact_profile_L2,37,0.0008077178468994999,0.0003800543681388668,0.0002,0.0004,0.0008333333333333334,exploratory_source_repertoire_subtraction
+direct,geo_k5,categorical_similarity_kernel,37,0.0004459352687503137,0.0003628883109326714,0.3039,0.3039,0.633125,exploratory_source_repertoire_subtraction

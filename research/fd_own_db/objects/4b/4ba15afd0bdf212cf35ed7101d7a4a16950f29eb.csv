@@ -1,0 +1,5 @@
+source_evidence_mode,status,geological_origin,n_islands,mean_AP_global,mean_AP_local_count,mean_AP_local_distance,mean_AP_local_density,mean_AUC_global,mean_AUC_local_count,mean_AUC_local_distance,mean_AUC_local_density,median_source_genus_coverage,median_mainland_candidate_genera,median_recorded_genera
+strict_all_geological_island_name_holdout,all_recorded,continental,174,0.448224,0.363708,0.372050,0.425144,0.692866,0.624938,0.629276,0.655796,0.418768,624.0,290.5
+strict_all_geological_island_name_holdout,all_recorded,oceanic,225,0.316523,0.186082,0.193580,0.237499,0.750134,0.618212,0.620951,0.637237,0.368421,668.0,184.0
+strict_all_geological_island_name_holdout,explicit_native,continental,141,0.372717,0.306797,0.315210,0.378969,0.681633,0.639627,0.643524,0.675487,0.492063,624.0,192.0
+strict_all_geological_island_name_holdout,explicit_native,oceanic,160,0.255931,0.139545,0.146043,0.192936,0.753186,0.639259,0.641383,0.661842,0.531655,662.0,91.5

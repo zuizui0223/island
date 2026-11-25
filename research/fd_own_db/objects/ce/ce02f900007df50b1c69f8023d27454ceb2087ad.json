@@ -1,0 +1,162 @@
+[
+  {
+    "scenario": "none",
+    "strength": 1.0,
+    "groups": 6,
+    "reps": 100,
+    "E1_mean": -0.0029845398340305907,
+    "E2_mean": -0.0011497030128220012,
+    "E1_positive_rate": 0.06,
+    "E2_positive_rate": 0.05
+  },
+  {
+    "scenario": "none",
+    "strength": 1.0,
+    "groups": 15,
+    "reps": 100,
+    "E1_mean": 0.00025147213912862093,
+    "E2_mean": 0.00010526187772563522,
+    "E1_positive_rate": 0.06,
+    "E2_positive_rate": 0.02
+  },
+  {
+    "scenario": "none",
+    "strength": 1.0,
+    "groups": 30,
+    "reps": 100,
+    "E1_mean": 0.0016671455199733537,
+    "E2_mean": 0.0017465369746508998,
+    "E1_positive_rate": 0.02,
+    "E2_positive_rate": 0.05
+  },
+  {
+    "scenario": "none",
+    "strength": 1.0,
+    "groups": 60,
+    "reps": 100,
+    "E1_mean": -0.00037218016572728064,
+    "E2_mean": -0.0006472611535306535,
+    "E1_positive_rate": 0.05,
+    "E2_positive_rate": 0.03
+  },
+  {
+    "scenario": "cooccurrence",
+    "strength": 1.0,
+    "groups": 6,
+    "reps": 100,
+    "E1_mean": 0.11917022498898897,
+    "E2_mean": -0.0008033387075384049,
+    "E1_positive_rate": 0.75,
+    "E2_positive_rate": 0.05
+  },
+  {
+    "scenario": "cooccurrence",
+    "strength": 1.0,
+    "groups": 15,
+    "reps": 100,
+    "E1_mean": 0.12769502218617843,
+    "E2_mean": -0.0005962568704483765,
+    "E1_positive_rate": 1.0,
+    "E2_positive_rate": 0.05
+  },
+  {
+    "scenario": "cooccurrence",
+    "strength": 1.0,
+    "groups": 30,
+    "reps": 100,
+    "E1_mean": 0.12628776170401493,
+    "E2_mean": -5.506021062268987e-06,
+    "E1_positive_rate": 1.0,
+    "E2_positive_rate": 0.03
+  },
+  {
+    "scenario": "cooccurrence",
+    "strength": 1.0,
+    "groups": 60,
+    "reps": 100,
+    "E1_mean": 0.12635201210488714,
+    "E2_mean": 0.0005132374895493081,
+    "E1_positive_rate": 1.0,
+    "E2_positive_rate": 0.02
+  },
+  {
+    "scenario": "matching",
+    "strength": 0.5,
+    "groups": 6,
+    "reps": 100,
+    "E1_mean": 0.06102175660122779,
+    "E2_mean": 0.0623737663743487,
+    "E1_positive_rate": 0.43,
+    "E2_positive_rate": 0.64
+  },
+  {
+    "scenario": "matching",
+    "strength": 0.5,
+    "groups": 15,
+    "reps": 100,
+    "E1_mean": 0.06506650048546464,
+    "E2_mean": 0.06492227762519315,
+    "E1_positive_rate": 0.83,
+    "E2_positive_rate": 0.98
+  },
+  {
+    "scenario": "matching",
+    "strength": 0.5,
+    "groups": 30,
+    "reps": 100,
+    "E1_mean": 0.0643204701395263,
+    "E2_mean": 0.06440098476994874,
+    "E1_positive_rate": 0.95,
+    "E2_positive_rate": 0.99
+  },
+  {
+    "scenario": "matching",
+    "strength": 0.5,
+    "groups": 60,
+    "reps": 100,
+    "E1_mean": 0.06468549429886021,
+    "E2_mean": 0.06441041331105685,
+    "E1_positive_rate": 1.0,
+    "E2_positive_rate": 1.0
+  },
+  {
+    "scenario": "matching",
+    "strength": 1.0,
+    "groups": 6,
+    "reps": 100,
+    "E1_mean": 0.10794052552519685,
+    "E2_mean": 0.10828373579391477,
+    "E1_positive_rate": 0.72,
+    "E2_positive_rate": 0.94
+  },
+  {
+    "scenario": "matching",
+    "strength": 1.0,
+    "groups": 15,
+    "reps": 100,
+    "E1_mean": 0.10986085634944992,
+    "E2_mean": 0.10957424941964802,
+    "E1_positive_rate": 0.99,
+    "E2_positive_rate": 1.0
+  },
+  {
+    "scenario": "matching",
+    "strength": 1.0,
+    "groups": 30,
+    "reps": 100,
+    "E1_mean": 0.1101627240958432,
+    "E2_mean": 0.11024771006709555,
+    "E1_positive_rate": 0.99,
+    "E2_positive_rate": 1.0
+  },
+  {
+    "scenario": "matching",
+    "strength": 1.0,
+    "groups": 60,
+    "reps": 100,
+    "E1_mean": 0.11119742259789099,
+    "E2_mean": 0.1109223416100876,
+    "E1_positive_rate": 1.0,
+    "E2_positive_rate": 1.0
+  }
+]

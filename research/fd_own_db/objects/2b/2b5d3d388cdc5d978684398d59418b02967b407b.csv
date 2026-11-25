@@ -1,0 +1,5 @@
+scope,source_mode,island_geological_origin,n_islands,median_nearby_mainland_entities,median_source_names_with_complete_floral_profile,median_source_unique_profiles,median_observed_complete_names,median_observed_name_overlap_fraction,median_observed_genus_overlap_fraction,median_observed_profile_overlap_fraction
+all,geo_k5,continental,37,5,827,205,126,0.622642,0.816092,0.917647
+all,geo_k5,oceanic,37,5,821,197,129,0.605263,0.721649,0.918367
+direct,geo_k5,continental,37,5,664,196,116,0.671053,0.792593,0.923077
+direct,geo_k5,oceanic,37,5,657,186,117,0.629032,0.719577,0.911111

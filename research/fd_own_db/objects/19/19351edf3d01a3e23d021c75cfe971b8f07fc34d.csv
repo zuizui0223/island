@@ -1,0 +1,17 @@
+grouping,scope,endpoint,n_pairs,n_geographic_sign_configurations,p_exact_upper,q_bh_posthoc16,q_by_posthoc16
+spatial_block,all,exact_profile_L2,13,8192,0.16845703125,0.284375,0.961394807449495
+spatial_block,all,categorical_similarity_kernel,13,8192,0.10107421875,0.284375,0.961394807449495
+spatial_block,direct,exact_profile_L2,13,8192,0.040771484375,0.2734375,0.924418084086053
+spatial_block,direct,categorical_similarity_kernel,13,8192,0.119140625,0.284375,0.961394807449495
+weigelt_archipelago,all,exact_profile_L2,11,2048,0.056640625,0.2734375,0.924418084086053
+weigelt_archipelago,all,categorical_similarity_kernel,11,2048,0.0634765625,0.2734375,0.924418084086053
+weigelt_archipelago,direct,exact_profile_L2,11,2048,0.068359375,0.2734375,0.924418084086053
+weigelt_archipelago,direct,categorical_similarity_kernel,11,2048,0.1591796875,0.284375,0.961394807449495
+both,all,exact_profile_L2,11,2048,0.2548828125,0.29129464285714285,0.9847882446794278
+both,all,categorical_similarity_kernel,11,2048,0.240234375,0.29129464285714285,0.9847882446794278
+both,direct,exact_profile_L2,11,2048,0.177734375,0.284375,0.961394807449495
+both,direct,categorical_similarity_kernel,11,2048,0.32421875,0.33203125,1
+both_verified,all,exact_profile_L2,10,1024,0.16796875,0.284375,0.961394807449495
+both_verified,all,categorical_similarity_kernel,10,1024,0.20703125,0.29129464285714285,0.9847882446794278
+both_verified,direct,exact_profile_L2,10,1024,0.21875,0.29129464285714285,0.9847882446794278
+both_verified,direct,categorical_similarity_kernel,10,1024,0.33203125,0.33203125,1

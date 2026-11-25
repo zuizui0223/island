@@ -1,0 +1,29 @@
+name: fd source-verified oceanic/continental vs LGM genus floral pairing tests
+on:
+  push:
+    branches: [analysis/discrete-functional-hypervolume-20261113]
+    paths:
+      - src/fd/geology_genus_flower_pair.py
+      - tests/test_geology_genus_flower_pair.py
+      - .github/workflows/fd-geology-genus-flower-pair.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  island-origin-pair-morphology-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test exact source genus pair geological vs LGM independence
+        run: |
+          set -euo pipefail
+          python -m pip install -q -e '.[test]'
+          python -m pytest -q tests/test_geology_genus_flower_pair.py tests/test_genus_flower_pair_covariance.py
+          python -m compileall -q src/fd/geology_genus_flower_pair.py

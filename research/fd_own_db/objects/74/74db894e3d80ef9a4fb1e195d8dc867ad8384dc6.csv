@@ -1,0 +1,5 @@
+scope,geological_origin,n_islands,median_n_test_name_units,mean_global_GIFT_genus_coverage,mean_geo_k5_GIFT_genus_coverage
+all,continental,37,126,0.7373646469120413,0.3859912964852103
+all,oceanic,37,129,0.7273392727784355,0.3659164284900263
+direct,continental,37,116,0.6626898565020536,0.2920455227231057
+direct,oceanic,37,117,0.6498275169319888,0.2735141086497015

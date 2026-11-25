@@ -1,0 +1,5 @@
+adequately_undetected_guild,co_recorded_candidate_guild,n_islands_candidate_co_record,n_spatial_blocks,n_regions,n_with_at_least_one_other_retained_guild,n_with_all_other_guilds_retained,n_islands_both_guilds_retained,n_islands_candidate_guild_adequately_undetected,actual_species_level_pollinator_shift_certified
+bombus,non_bombus_bees,22,15,3,22,21,397,7,false
+bombus,lepidoptera,22,15,3,22,21,513,0,false
+bombus,diptera,22,15,3,22,21,483,0,false
+bombus,flower_visiting_birds,21,14,3,21,21,507,0,false

@@ -1,0 +1,6 @@
+visitor_channel,source_matched_native_plant_species_universe,n_species_with_at_least_1_exact_GloBI_species_level_cited_flower_relation,n_species_with_at_least_3_distinct_citation_keys,observed_actual_same_species_island_mainland_pollinator_shift
+bombus,54,4,3,false
+non_bombus_bees,54,14,7,false
+lepidoptera_undivided,54,20,11,false
+flower_visiting_birds,54,5,2,false
+diptera,54,5,1,false

@@ -1,0 +1,332 @@
+{
+  "source_run": 45530336990,
+  "source_commit": "3f124d1d5d9dbfbb1a618bf2ef24284ec0a7f7db",
+  "artifacts": [
+    {
+      "name": "anonymous-gift-fruit-dryness-audit",
+      "id": 14984756192,
+      "digest": "sha256:6ac397fd1a4e0a87e85f7147b38799316ad5654db9d78145aae30af5473e10d7"
+    },
+    {
+      "name": "anonymous-gift-growth-form-audit",
+      "id": 14983889922,
+      "digest": "sha256:23ccae1305558bf851ba48f0c5f800b843fa6914940d8f36a83ad3115ad50b8b"
+    }
+  ],
+  "audits": {
+    "fruit": {
+      "status": "candidate_coverage_complete",
+      "trait_id": "3.18.1",
+      "gift_version": "3.2",
+      "botanical_parent": 4505,
+      "geography_parent": 8264,
+      "scope": "public raw non-derived records; direct candidates not adjudicated to high/medium evidence",
+      "source_pins": {
+        "versions": "a2c4fb90ab248fc546505be7bc02927c3b322f6dcd9c5cf4c88baae23b6a540e",
+        "traits_meta": "ee20bafd237be38b4cb97d65219f65d1f02ecc5fca09867c9cdfc1640fb30af4",
+        "references": "98da2d6cdc5af8e2ea193bc56b01eec90d9acf707138bca6ba090cb14c4f9894",
+        "reference_traits": "e09622191683a5cb51f90684e0d6b29db88e093cf6e93e7fd4862dadb844967c",
+        "species_0": "482b979ee66bbe0f9ae3d2a115dc09d54219ca364951d771ca2b0bdf25adc3fb",
+        "species_100000": "e2c437f4c9af81f7a6078a464e6cbb5ad985ffeb392837612ca7beb346348191",
+        "species_200000": "95cb3c407b18e32d972cd3be3d7771df3c5b33207c8477e54b2e16a99e64d57c",
+        "species_300000": "7ab61c4dd24d73533b0aebad29e962f7a67fb081c60f43ff9c9712f6156df51d"
+      },
+      "coverage": {
+        "all_recorded": {
+          "all": {
+            "islands_with_roster": 4504,
+            "islands_ge1": 3550,
+            "islands_ge5": 2582,
+            "islands_ge30": 1533,
+            "islands_ge5_and_ge50pct": 43,
+            "islands_ge5_multistate": 2455,
+            "median_scored_among_ge5": 44
+          },
+          "northern_high_latitude": {
+            "islands_with_roster": 424,
+            "islands_ge1": 309,
+            "islands_ge5": 173,
+            "islands_ge30": 81,
+            "islands_ge5_and_ge50pct": 2,
+            "islands_ge5_multistate": 141,
+            "median_scored_among_ge5": 25
+          },
+          "northern_midlatitude": {
+            "islands_with_roster": 2205,
+            "islands_ge1": 1890,
+            "islands_ge5": 1552,
+            "islands_ge30": 1105,
+            "islands_ge5_and_ge50pct": 39,
+            "islands_ge5_multistate": 1501,
+            "median_scored_among_ge5": 71
+          },
+          "southern_extratropical": {
+            "islands_with_roster": 317,
+            "islands_ge1": 223,
+            "islands_ge5": 147,
+            "islands_ge30": 77,
+            "islands_ge5_and_ge50pct": 1,
+            "islands_ge5_multistate": 135,
+            "median_scored_among_ge5": 30
+          },
+          "tropical": {
+            "islands_with_roster": 1558,
+            "islands_ge1": 1128,
+            "islands_ge5": 710,
+            "islands_ge30": 270,
+            "islands_ge5_and_ge50pct": 1,
+            "islands_ge5_multistate": 678,
+            "median_scored_among_ge5": 21
+          }
+        },
+        "known_native": {
+          "all": {
+            "islands_with_roster": 425,
+            "islands_ge1": 407,
+            "islands_ge5": 347,
+            "islands_ge30": 184,
+            "islands_ge5_and_ge50pct": 6,
+            "islands_ge5_multistate": 330,
+            "median_scored_among_ge5": 32
+          },
+          "northern_high_latitude": {
+            "islands_with_roster": 12,
+            "islands_ge1": 12,
+            "islands_ge5": 7,
+            "islands_ge30": 0,
+            "islands_ge5_and_ge50pct": 0,
+            "islands_ge5_multistate": 0,
+            "median_scored_among_ge5": 6
+          },
+          "northern_midlatitude": {
+            "islands_with_roster": 241,
+            "islands_ge1": 235,
+            "islands_ge5": 221,
+            "islands_ge30": 136,
+            "islands_ge5_and_ge50pct": 6,
+            "islands_ge5_multistate": 215,
+            "median_scored_among_ge5": 45
+          },
+          "southern_extratropical": {
+            "islands_with_roster": 34,
+            "islands_ge1": 29,
+            "islands_ge5": 17,
+            "islands_ge30": 5,
+            "islands_ge5_and_ge50pct": 0,
+            "islands_ge5_multistate": 17,
+            "median_scored_among_ge5": 19
+          },
+          "tropical": {
+            "islands_with_roster": 138,
+            "islands_ge1": 131,
+            "islands_ge5": 102,
+            "islands_ge30": 43,
+            "islands_ge5_and_ge50pct": 0,
+            "islands_ge5_multistate": 98,
+            "median_scored_among_ge5": 23
+          }
+        }
+      },
+      "trait_metadata": {
+        "Lvl3": "3.18.1",
+        "Trait2": "Fruit_dryness_1",
+        "Units": "dry, fleshy",
+        "count": 2578
+      },
+      "reference_pairs": {
+        "unrestricted_with_citation": 3,
+        "restricted_or_missing": 3
+      },
+      "species_dictionary": {
+        "distinct_work_ids": 372098,
+        "conflicting_ids": 0
+      },
+      "acquisition": {
+        "references_succeeded": 3,
+        "references_failed": 0,
+        "failure_types": {},
+        "raw_rows": 2751,
+        "direct_candidate_rows": 2689,
+        "exclusion_reasons": {
+          "uncertain_or_infraspecific": 30,
+          "non_single_state": 9,
+          "unresolved": 10,
+          "missing_work_name": 2,
+          "scope_mismatch": 11
+        },
+        "sorted_reference_response_hash_digest": "bb55f76c47172fd52a74bb2a44dd78aef7b712d102ccd3f56523488a6b7093f0"
+      },
+      "reconciliation": {
+        "candidate_names": 2536,
+        "conflicting_state_names": 6,
+        "ambiguous_work_names": 0,
+        "unique_unambiguous_names": 2530,
+        "names_with_multiple_references": 47,
+        "exact_matched_original_names": 2183,
+        "accepted_candidate_state_counts": {
+          "fleshy": 1190,
+          "dry": 993
+        }
+      },
+      "primary_e2_status": "not_run_unreviewed_evidence_and_animal_input"
+    },
+    "growth": {
+      "status": "candidate_coverage_complete",
+      "trait_id": "1.2.1",
+      "gift_version": "3.2",
+      "botanical_parent": 4505,
+      "geography_parent": 8264,
+      "scope": "public raw non-derived records; direct candidates not adjudicated to high/medium evidence",
+      "source_pins": {
+        "versions": "a2c4fb90ab248fc546505be7bc02927c3b322f6dcd9c5cf4c88baae23b6a540e",
+        "traits_meta": "ee20bafd237be38b4cb97d65219f65d1f02ecc5fca09867c9cdfc1640fb30af4",
+        "references": "b6b75a3e23551686c1b7b535fb069b9c95ced2e1d717b8230a6cb124a08376e0",
+        "reference_traits": "e09622191683a5cb51f90684e0d6b29db88e093cf6e93e7fd4862dadb844967c",
+        "species_0": "482b979ee66bbe0f9ae3d2a115dc09d54219ca364951d771ca2b0bdf25adc3fb",
+        "species_100000": "e2c437f4c9af81f7a6078a464e6cbb5ad985ffeb392837612ca7beb346348191",
+        "species_200000": "95cb3c407b18e32d972cd3be3d7771df3c5b33207c8477e54b2e16a99e64d57c",
+        "species_300000": "7ab61c4dd24d73533b0aebad29e962f7a67fb081c60f43ff9c9712f6156df51d"
+      },
+      "coverage": {
+        "all_recorded": {
+          "all": {
+            "islands_with_roster": 4504,
+            "islands_ge1": 4317,
+            "islands_ge5": 3407,
+            "islands_ge30": 2418,
+            "islands_ge5_and_ge50pct": 3097,
+            "islands_ge5_multistate": 3191,
+            "median_scored_among_ge5": 96
+          },
+          "northern_high_latitude": {
+            "islands_with_roster": 424,
+            "islands_ge1": 416,
+            "islands_ge5": 298,
+            "islands_ge30": 177,
+            "islands_ge5_and_ge50pct": 297,
+            "islands_ge5_multistate": 230,
+            "median_scored_among_ge5": 56
+          },
+          "northern_midlatitude": {
+            "islands_with_roster": 2205,
+            "islands_ge1": 2161,
+            "islands_ge5": 1857,
+            "islands_ge30": 1476,
+            "islands_ge5_and_ge50pct": 1812,
+            "islands_ge5_multistate": 1746,
+            "median_scored_among_ge5": 156
+          },
+          "southern_extratropical": {
+            "islands_with_roster": 317,
+            "islands_ge1": 305,
+            "islands_ge5": 217,
+            "islands_ge30": 148,
+            "islands_ge5_and_ge50pct": 203,
+            "islands_ge5_multistate": 207,
+            "median_scored_among_ge5": 71
+          },
+          "tropical": {
+            "islands_with_roster": 1558,
+            "islands_ge1": 1435,
+            "islands_ge5": 1035,
+            "islands_ge30": 617,
+            "islands_ge5_and_ge50pct": 785,
+            "islands_ge5_multistate": 1008,
+            "median_scored_among_ge5": 48
+          }
+        },
+        "known_native": {
+          "all": {
+            "islands_with_roster": 425,
+            "islands_ge1": 424,
+            "islands_ge5": 407,
+            "islands_ge30": 340,
+            "islands_ge5_and_ge50pct": 353,
+            "islands_ge5_multistate": 396,
+            "median_scored_among_ge5": 109
+          },
+          "northern_high_latitude": {
+            "islands_with_roster": 12,
+            "islands_ge1": 12,
+            "islands_ge5": 12,
+            "islands_ge30": 7,
+            "islands_ge5_and_ge50pct": 12,
+            "islands_ge5_multistate": 11,
+            "median_scored_among_ge5": 38
+          },
+          "northern_midlatitude": {
+            "islands_with_roster": 241,
+            "islands_ge1": 240,
+            "islands_ge5": 232,
+            "islands_ge30": 216,
+            "islands_ge5_and_ge50pct": 225,
+            "islands_ge5_multistate": 227,
+            "median_scored_among_ge5": 130
+          },
+          "southern_extratropical": {
+            "islands_with_roster": 34,
+            "islands_ge1": 34,
+            "islands_ge5": 31,
+            "islands_ge30": 19,
+            "islands_ge5_and_ge50pct": 30,
+            "islands_ge5_multistate": 28,
+            "median_scored_among_ge5": 67
+          },
+          "tropical": {
+            "islands_with_roster": 138,
+            "islands_ge1": 138,
+            "islands_ge5": 132,
+            "islands_ge30": 98,
+            "islands_ge5_and_ge50pct": 86,
+            "islands_ge5_multistate": 130,
+            "median_scored_among_ge5": 71.5
+          }
+        }
+      },
+      "trait_metadata": {
+        "Lvl3": "1.2.1",
+        "Trait2": "Growth_form_1",
+        "Units": "herb, shrub, tree, other",
+        "count": 222338
+      },
+      "reference_pairs": {
+        "unrestricted_with_citation": 167,
+        "restricted_or_missing": 181
+      },
+      "species_dictionary": {
+        "distinct_work_ids": 372098,
+        "conflicting_ids": 0
+      },
+      "acquisition": {
+        "references_succeeded": 167,
+        "references_failed": 0,
+        "failure_types": {},
+        "raw_rows": 240714,
+        "direct_candidate_rows": 216251,
+        "exclusion_reasons": {
+          "uncertain_or_infraspecific": 12703,
+          "non_single_state": 9599,
+          "missing_work_name": 631,
+          "scope_mismatch": 59,
+          "unresolved": 1471
+        },
+        "sorted_reference_response_hash_digest": "8fd4969ccef8d7893f48c6a5d063064d5f2a133680dad75ead5a80d423026726"
+      },
+      "reconciliation": {
+        "candidate_names": 128841,
+        "conflicting_state_names": 5016,
+        "ambiguous_work_names": 0,
+        "unique_unambiguous_names": 123825,
+        "names_with_multiple_references": 34977,
+        "exact_matched_original_names": 48686,
+        "accepted_candidate_state_counts": {
+          "herb": 26688,
+          "tree": 13005,
+          "shrub": 8911,
+          "other": 82
+        }
+      },
+      "primary_e2_status": "not_run_unreviewed_evidence_and_animal_input"
+    }
+  }
+}

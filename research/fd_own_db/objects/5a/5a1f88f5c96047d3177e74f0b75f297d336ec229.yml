@@ -1,0 +1,125 @@
+name: fd independent original GIFT 4505 environmental genus composition source rerun
+on:
+  workflow_dispatch:
+  push:
+    branches: [analysis/discrete-functional-hypervolume-20261113]
+    paths:
+      - .github/workflows/fd-original-gift-genus-env-rerun.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  cross_repository_original_genus_geo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-4505-gift-environ-genus
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: zuizui0223/island
+          ref: analysis/fd-discrete-functional-volume-20261113
+          path: work/island
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install complete GIFT source geospatial numerical and test dependencies
+        run: python -m pip install -q numpy pandas scipy pytest
+      - name: Test source no-oracle region genus community model and strict source group provenance
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/island/scripts python -m pytest -q \
+             work/island/tests/test_fd_original_environmental_genus_composition.py \
+             work/island/tests/test_fd_global_geo_source_training_holdout.py
+          python -m compileall -q work/island/scripts/fd_original_environmental_genus_composition.py
+          git -C work/island rev-parse HEAD
+      - name: Restore exact source GIFT accepted flora/first ranked candidate mainland entity
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original" "$STAGE/geography"
+          gh run download 34232450884 --repo zuizui0223/island \
+            --name chapter1-progressive-analysis-34232450884 \
+            --dir "$STAGE/original"
+          FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$FLORA"
+          echo "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a  $FLORA" | sha256sum --check --strict
+          ROOT="${FLORA%/fixed/canonical/input/chapter1_status_flora.csv.gz}"
+          echo "8a9d79c698afa20e611663adb884c8caf648e1a3836853fad94e6a0cd6facb44  $ROOT/fixed/source/result/island_source_assignments.csv.gz" | sha256sum --check --strict
+          echo "ORIGINAL_ROOT=$ROOT" >> "$GITHUB_ENV"
+      - name: Reconstruct independently published full GSHHG climate latitude area isolation and provenance features
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python -c 'import os;from pathlib import Path;from fd.origin import run_crosswalk;run_crosswalk(Path(os.environ["STAGE"])/"geography")'
+          test -s "$STAGE/geography/island_origin_crosswalk.csv"
+      - name: Independently compute actual GIFT 4505 accepted-flora genus composition from geography WITHOUT target genus oracle
+        run: |
+          set -euo pipefail
+          PYTHONPATH=work/island/scripts python -u work/island/scripts/fd_original_environmental_genus_composition.py \
+            --original-root "$ORIGINAL_ROOT" \
+            --geography "$STAGE/geography/island_origin_crosswalk.csv" \
+            --nboot 399 \
+            --output "$STAGE/anonymous_original_4505_geographic_genus_source_composition.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["STAGE"])/"anonymous_original_4505_geographic_genus_source_composition.json"
+          raw=p.read_text()
+          q=json.loads(raw)
+          assert q["status"]=="ORIGINAL_GIFT_4505_NO_FOCAL_GENUS_SOURCE_ISLAND_ENVIRONMENTAL_GENUS_ASSEMBLY"
+          assert q["original_GIFT_parent_island_floras"]==4505
+          assert len(q["original_no_oracle_original_island_genus_composition_source_predictions"])==8
+          assert q["controls"]["original_focal_true_genus_community_not_used_to_predict"]
+          assert q["controls"]["original_training_GIFT_islands_in_focal_10degree_block_EXCLUDED"]
+          assert q["controls"]["original_training_GIFT_islands_with_same_first_GIFT_candidate_mainland_source_EXCLUDED"]
+          assert q["controls"]["source_taxon_genus_nonlisting_is_NOT_confirmed_ecological_absence"]
+          for k in ("island_id","accepted_species","entity_ID","genus","spatial_block",
+                    "latitude","longitude","source_cluster","source_genus"):
+             assert '"'+k+'"' not in raw
+          print("Independent full GIFT source 4505, environment, climate, area, isolation, ranked mainland provenance genus composition provenance PASS")
+          PY
+      - name: Evaluate properly scored original genus environment source prediction without exposing taxon/genus IDs
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from fd.environment_genus_source_audit import audit_geo_source_genus_prediction
+          root=Path(os.environ["STAGE"])
+          source=json.loads((root/"anonymous_original_4505_geographic_genus_source_composition.json").read_text())
+          result=audit_geo_source_genus_prediction(source)
+          out=root/"anonymous_original_4505_environment_genus_source_audit.json"
+          raw=json.dumps(result,indent=2,sort_keys=True,allow_nan=False)
+          out.write_text(raw+"\n")
+          assert result["status"]=="ORIGINAL_GIFT_4505_GEOGRAPHIC_AND_ENVIRONMENTAL_GENUS_ASSEMBLY_SOURCE_AUDIT"
+          assert result["n_original_global_botanical_floras"]==4505
+          assert len(result["original_full_geographic_composition_cells"])==8
+          for key in ("island_id","accepted_species","entity_ID","genus","spatial_block",
+                      "latitude","longitude","source_cluster"):
+              assert '"'+key+'"' not in raw
+          for x in result["original_full_geographic_composition_cells"]:
+              print("ENV_GENUS_ORIGINAL_REGION="+json.dumps({
+                "scope":x["scope"],"region":x["region"],
+                "n_source_floras":x["n_original_islands_scored_without_local_genus_oracle"],
+                "comparisons":{k:{
+                  "direction":v["status"],
+                  "physical_block":v["source_grouped_proper_loss_evidence"]["Brier__physical_10degree_block"],
+                  "first_candidate_source":v["source_grouped_proper_loss_evidence"]["Brier__first_candidate_source_entity_group"],
+                } for k,v in x["original_source_models"].items()},
+              },sort_keys=True))
+          print("GLOBAL_ENV_GENUS_ORIGINAL_SOURCE_AUDIT_PASS")
+          PY
+      - name: Keep only anonymous original whole-flora genus composition and environmental source evaluation artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-original-4505-GIFT-genus-environmental-${{ github.run_id }}
+          path: |
+            /tmp/fd-original-4505-gift-environ-genus/anonymous_original_4505_geographic_genus_source_composition.json
+            /tmp/fd-original-4505-gift-environ-genus/anonymous_original_4505_environment_genus_source_audit.json
+          retention-days: 90
+          if-no-files-found: error

@@ -1,0 +1,9 @@
+metric_scope,trait_or_global_GloBI_documentation_guild,n_candidate_islands,n_spatial_blocks,median_island_minus_GIFT_source,share_positive_island_differences,equal_block_mean_difference,conditional_block_bootstrap_025,conditional_block_bootstrap_975,actual_pollinator_shift_tested
+floral_morphology,open_radial_form,21,14,0.043137,0.761905,0.010652,-0.050728,0.072197,false
+floral_morphology,actinomorphic_symmetry,21,14,0.090793,0.714286,0.026405,-0.014892,0.067072,false
+floral_morphology,inconspicuous_colour,21,14,0.004121,0.523810,0.018225,-0.007466,0.049264,false
+GloBI_GLOBAL_documentation,bombus,21,14,-0.029372,0.142857,-0.057900,-0.090795,-0.026505,false
+GloBI_GLOBAL_documentation,non_bombus_bees,21,14,0.039794,0.809524,0.030197,0.006523,0.052729,false
+GloBI_GLOBAL_documentation,lepidoptera_undivided,21,14,0.015680,0.571429,0.029196,-0.005458,0.059381,false
+GloBI_GLOBAL_documentation,flower_visiting_birds,21,14,0.001718,0.523810,0.003698,-0.014630,0.020787,false
+GloBI_GLOBAL_documentation,diptera,21,14,-0.000485,0.476190,-0.005191,-0.022059,0.011564,false

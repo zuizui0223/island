@@ -1,0 +1,54 @@
+{
+  "analysis_date": "2026-11-11",
+  "design": "Direct-only colour-form-symmetry complete floras; independent GBIF channel evidence and global GloBI documented source-genus visit breadth",
+  "n_morphology_complete_islands": 928,
+  "n_direct_complete_species": 2234,
+  "exact_island_GBIF": {
+    "n_pollinator_channel_rows": 4640,
+    "n_channels": 5,
+    "n_islands_with_zero_evaluable_channels": 147,
+    "n_islands_with_at_least_two_evaluable_channels": 759,
+    "n_islands_with_all_five_evaluable": 409,
+    "n_islands_with_all_five_detected": 381,
+    "n_islands_with_both_a_retained_and_confirmed_disrupted_channel": 33,
+    "n_regions_or_channels_meeting_both_state_spatial_support_gate": 0,
+    "n_lepidoptera_confirmed_disrupted": 0,
+    "spearman_recorded_channels_vs_evaluable_channels": 0.977904,
+    "spearman_recorded_channels_vs_sum_background_records": 0.795224,
+    "n1_original_channel_by_isolation_wald_p": 0.65516
+  },
+  "GloBI_global_genus_documented_interaction_breadth": {
+    "minimum_independent_references": 3,
+    "n_source_genus_records": 1534,
+    "n_islands_with_complete_covariates": 927,
+    "n_spatial_blocks": 104,
+    "median_species_carrier_GloBI_coverage": 0.944444,
+    "raw_spearman_island_MIx_guild_breadth": 0.5328,
+    "partial_regression_slope": 0.258341,
+    "spatial_cluster_SE": 0.053829,
+    "conditional_cluster_normal_95_interval": [0.152839, 0.363843],
+    "effort_stratified_genus_label_shuffle_draws": 1999,
+    "genus_label_shuffle_two_sided_posthoc_tail_fraction": 0.0045,
+    "genus_label_shuffle_null_95_interval": [-0.1775, 0.20581],
+    "leave_one_spatial_block_beta_range": [0.19591, 0.27829],
+    "spatial_block_fivefold_predictive_MSE_covariates_only": 0.00609451,
+    "spatial_block_fivefold_predictive_MSE_plus_GloBI": 0.00539590,
+    "spatial_block_predictive_MSE_gain": 0.00069862,
+    "conditional_block_95_interval_for_MSE_gain": [-0.00004099, 0.00141597]
+  },
+  "fully_heldout_genus_guild_prediction": {
+    "n_genus_test_units": 486,
+    "n_species_with_direct_morphology_in_genus_frame": 1597,
+    "source_reference_effort_only_RMSE": 0.705049,
+    "plus_morphological_marginals_RMSE": 0.729457,
+    "plus_morphological_marginals_and_joint_profiles_RMSE": 0.783576,
+    "morphology_improves_vs_reference_only": false
+  },
+  "claim_boundary": "GloBI documents global interactions associated with plant genera, not local pollinator assemblage; GBIF observations support detection/adequate nondetection not abundance or effective pollen transfer; no genus-independent pollination syndrome identified.",
+  "data_source_artifact_ids": {
+    "island_plant_original": 10058653212,
+    "GloBI_source_genus_breadth_v2": 10328696801,
+    "exact_island_GBIF_channel_qualification": 10314984302,
+    "original_N1_fit": 10315671249
+  }
+}
