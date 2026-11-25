@@ -1,0 +1,41 @@
+name: Chapter 1 overlap-aware rights priorities
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'research/chapter1_fd_integration_20261125/rights_review/rights_priority.py'
+      - '.github/workflows/chapter1-rights-priority.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  rights:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python research/chapter1_fd_integration_20261125/rights_review/rights_priority.py --self-test
+      - name: Restore only original pinned audit archives
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/rights-private" "$RUNNER_TEMP/rights-anonymous"
+          gh api repos/zuizui0223/island/actions/artifacts/10186293306/zip > "$RUNNER_TEMP/rights-private/rights.zip"
+          gh api repos/zuizui0223/island/actions/artifacts/10154261753/zip > "$RUNNER_TEMP/rights-private/provenance.zip"
+          python research/chapter1_fd_integration_20261125/rights_review/rights_priority.py --rights "$RUNNER_TEMP/rights-private/rights.zip" --provenance "$RUNNER_TEMP/rights-private/provenance.zip" --out "$RUNNER_TEMP/rights-anonymous/aggregate.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-overlap-rights-aggregate-only
+          path: ${{ runner.temp }}/rights-anonymous/aggregate.json
+          if-no-files-found: error
+      - name: Remove temporary inputs
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/rights-private"
