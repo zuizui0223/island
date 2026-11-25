@@ -1,0 +1,34 @@
+name: Verify original Chapter 1 preservation dependencies
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'research/chapter1_fd_integration_20261125/preservation/preserve_sources.py'
+      - 'research/chapter1_fd_integration_20261125/preservation/SOURCE_PRESERVATION_MANIFEST.json'
+      - '.github/workflows/verify-chapter1-preservation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python research/chapter1_fd_integration_20261125/preservation/preserve_sources.py --self-test
+      - name: Verify exact archived bytes and nested source identities temporarily
+        run: python research/chapter1_fd_integration_20261125/preservation/preserve_sources.py --verify-only --include-alpha1 --receipt "$RUNNER_TEMP/island-preservation-receipt.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: island-source-preservation-hash-receipt-only
+          path: ${{ runner.temp }}/island-preservation-receipt.json
+          if-no-files-found: error
+          retention-days: 90

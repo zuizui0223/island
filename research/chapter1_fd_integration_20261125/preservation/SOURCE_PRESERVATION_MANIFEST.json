@@ -1,0 +1,179 @@
+{
+  "schema": 1,
+  "owner": "zuizui0223/island",
+  "checkpoint": "2026-11-26 JST",
+  "frozen_science_commit": "a450afe16bf7a01a1a33bdddef0368c6e0fb799b",
+  "review_commit": "a11dd6ce5de5fdb7c045761af6f7703299218548",
+  "archive_metadata": [
+    {
+      "run": 34191508045,
+      "id": 10042377593,
+      "name": "source-scale-batch-integration-34191508045",
+      "role": "Database 1.0 exact species-axis ledger and source evidence",
+      "required_for_current_lineage": true,
+      "bytes": 8997627,
+      "digest": "sha256:5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd",
+      "expires_at": "2026-12-07T05:40:13Z",
+      "metadata_status": "available",
+      "custody": "existing authorized source owner storage only; no public redistribution"
+    },
+    {
+      "run": 34232450884,
+      "id": 10058653212,
+      "name": "chapter1-progressive-analysis-34232450884",
+      "role": "Original progressive analysis input including H1–H2 and new paired traits",
+      "required_for_current_lineage": true,
+      "bytes": 105740636,
+      "digest": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999",
+      "expires_at": "2026-12-07T13:31:06Z",
+      "metadata_status": "available",
+      "custody": "existing authorized source owner storage only; no public redistribution"
+    },
+    {
+      "run": 34482428564,
+      "id": 10154261753,
+      "name": "chapter1-database-v1-rights-audit-34482428564",
+      "role": "Validated-Low upstream source-provenance recovery",
+      "required_for_current_lineage": true,
+      "bytes": 15601812,
+      "digest": "sha256:5d3e5ea80e1cf9757cc7b3bbb64db2ca67f0b8ecce7f7f52668472511f07ad36",
+      "expires_at": "2026-12-09T13:24:19Z",
+      "metadata_status": "available",
+      "custody": "existing authorized source owner storage only; no public redistribution"
+    },
+    {
+      "run": 34566271397,
+      "id": 10186293306,
+      "name": "chapter1-database-v1-cell-rights-34566271397",
+      "role": "Canonical cell rights gate and citation maps",
+      "required_for_current_lineage": true,
+      "bytes": 3295256,
+      "digest": "sha256:6c5f2577e85e95e841b8659427e27c72ce631f59a3da5a335f54f505de5ea32a",
+      "expires_at": "2026-12-10T05:31:10Z",
+      "metadata_status": "available",
+      "custody": "existing authorized source owner storage only; no public redistribution"
+    },
+    {
+      "run": 34665438815,
+      "id": 10288721725,
+      "name": "island-plant-database-2.0.0-alpha1-34665438815",
+      "role": "Database 2.0 alpha1 developmental snapshot (not current H1–H4)",
+      "required_for_current_lineage": false,
+      "bytes": 83300729,
+      "digest": "sha256:3a5af33e60f9eb4156b94f4d5e0f91cf36fc417ee55074af2c042a1378b28a40",
+      "expires_at": "2026-12-11T01:41:36Z",
+      "metadata_status": "available",
+      "custody": "existing authorized source owner storage only; no public redistribution"
+    }
+  ],
+  "unavailable": [
+    {
+      "run": 32710232989,
+      "id": 9514635137,
+      "role": "original reviewed public-web evidence, needed for exact citation-provenance reconstruction",
+      "returned_artifacts": 0,
+      "status": "not_listed_at_checkpoint"
+    },
+    {
+      "run": 32559322028,
+      "id": null,
+      "role": "island TDWG mapping for final H1 WCVP sensitivity",
+      "returned_artifacts": 0,
+      "status": "not_listed_at_checkpoint"
+    },
+    {
+      "run": 37093097826,
+      "id": null,
+      "role": "WCVP native range summary for final H1 sensitivity",
+      "returned_artifacts": 0,
+      "status": "not_listed_at_checkpoint"
+    },
+    {
+      "run": 35093274622,
+      "id": 10444749163,
+      "role": "parent H4 reproductive-assurance matched rows",
+      "returned_artifacts": 0,
+      "status": "not_listed_at_checkpoint"
+    },
+    {
+      "run": 35094588521,
+      "id": 10445189257,
+      "role": "parent H4 architecture matched rows",
+      "returned_artifacts": 0,
+      "status": "not_listed_at_checkpoint"
+    }
+  ],
+  "inner_pins": [
+    {
+      "label": "scientific_species_axis_ledger",
+      "archive_id": 10042377593,
+      "basename": "species_axis_coverage.csv.gz",
+      "sha256": "a6eef8d731b2730a99e388ddd0683d7ac9b2af30d43f1f9569c857f89f664b2a"
+    },
+    {
+      "label": "observed_flora_status",
+      "archive_id": 10058653212,
+      "basename": "chapter1_status_flora.csv.gz",
+      "sha256": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a"
+    },
+    {
+      "label": "all_state_audit",
+      "archive_id": 10058653212,
+      "basename": "chapter1_trait_state_audit_all.csv.gz",
+      "sha256": "c0e5e4b14911caeaeb36ba9243b55ebb7f1b288445ba571c7ddced016ea4f510"
+    },
+    {
+      "label": "direct_state_audit",
+      "archive_id": 10058653212,
+      "basename": "chapter1_trait_state_audit_direct.csv.gz",
+      "sha256": "4890da7df53b2e240c4b1493ef93c0814a68435a5e1670e3c0e7c3e6717b90e7"
+    },
+    {
+      "label": "direct_trait_ledger",
+      "archive_id": 10058653212,
+      "basename": "direct_only_trait_ledger.csv.gz",
+      "sha256": "9ddac1cedf2bf6235f3b426f37688550391ee8d96586e8d6a095ea3150bbe745"
+    },
+    {
+      "label": "final_H1_WCVP_range_summary",
+      "archive_id": null,
+      "basename": "wcvp_native_range_summary.csv.gz",
+      "sha256": "271441009365279780e5c2e3e220a9bc176e98fcfeceaa2a474a6ae55b706f3f"
+    },
+    {
+      "label": "final_H1_TDWG_mapping",
+      "archive_id": null,
+      "basename": "island_tdwg_l3_mapping.csv",
+      "sha256": "e28351c297ab1ca7416b50b55a99fafd2c5d4ab6c8b984761fe987e0a57953b3"
+    }
+  ],
+  "repo_pins": [
+    {
+      "path": "results/geography_20260924/corrected_geography_covariates.csv",
+      "sha256": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7"
+    },
+    {
+      "path": "results/geography_20260924/h3_corrected_effect_rows.csv.gz",
+      "sha256": "f375b0c394cb2de8df991a6ef6107fde33a8cef909a379520f1c820ecb465d1c"
+    },
+    {
+      "path": "config/chapter1_h1_final_traitwise_t_20261004.yml",
+      "sha256": "b20a672f9a23463f21d1be6d713c5550ced69cc303d620f49fb1f54871d1e9a7"
+    }
+  ],
+  "rights_audit": {
+    "run": 34566271397,
+    "job": 103158924311,
+    "artifact": 10186293306,
+    "resolved": 222688,
+    "redistributable": 46274,
+    "rights_review_required": 176413,
+    "semantic_review_required": 1,
+    "blocker_source_families": 5032,
+    "citation_lineages_unresolved": 505,
+    "validated_low_source_provenance_complete": 65015,
+    "public_full_release_ready": false,
+    "public_subset_doi": "10.5281/zenodo.22704973"
+  },
+  "durable_preservation_completed": false
+}
