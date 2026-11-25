@@ -1,0 +1,59 @@
+name: Protected GIFT fruit dryness and growth-form source audit
+on:
+  push:
+    branches: [analysis/fd-original-tropical-pollinator-bridge-20261124]
+    paths:
+      - scripts/fd_gift_control_trait_acquisition.py
+      - .github/workflows/fd-gift-control-traits.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  trait:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - trait: '3.18.1'
+            label: fruit-dryness
+          - trait: '1.2.1'
+            label: growth-form
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-gift-control
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - name: Restore pinned original botanical frame
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          curl --fail --location --silent --show-error 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o "$STAGE/geography.csv"
+      - name: Source and coverage audit (no animal model)
+        run: |
+          python -u scripts/fd_gift_control_trait_acquisition.py --original-root "$ORIGINAL_ROOT" --geography "$STAGE/geography.csv" --trait "${{ matrix.trait }}" --out "$STAGE/anonymous_control_trait_audit.json"
+          python - <<'PY'
+          import json,os,pathlib
+          x=json.loads((pathlib.Path(os.environ["STAGE"])/"anonymous_control_trait_audit.json").read_text())
+          assert x["botanical_parent"]==4505 and x["geography_parent"]==8264
+          assert x["trait_id"] in ("3.18.1","1.2.1")
+          assert x["status"] in ("candidate_coverage_complete","candidate_coverage_partial_sources","acquisition_failed")
+          print("Source result status:",x["status"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: anonymous-gift-${{ matrix.label }}-audit
+          path: /tmp/fd-gift-control/anonymous_control_trait_audit.json
+          if-no-files-found: warn

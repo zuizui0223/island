@@ -1,0 +1,53 @@
+name: Protected GIFT4505 Direct tubular depth and bird diet split
+on:
+  push:
+    branches: [analysis/fd-original-tropical-pollinator-bridge-20261124]
+    paths:
+      - scripts/fd_original_tubular_depth_diet_split.py
+      - config/fd_public_bird_model_covariates_20261124.json
+      - .github/workflows/fd-original-tubular-depth-diet-split.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  protected:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-tubular-depth-diet-split
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - name: Restore pinned protected botanical inputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          curl --fail --location --silent --show-error 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o "$STAGE/geography.csv"
+      - name: Evaluate Direct form and depth with disjoint bird diets and held-out group contrasts
+        run: |
+          set -euo pipefail
+          python -u scripts/fd_original_tubular_depth_diet_split.py --original-root "$ORIGINAL_ROOT" --geography "$STAGE/geography.csv" --bridge config/fd_public_animal_bridge_20261124.json --out "$STAGE/anonymous_tubular_depth_diet_split.json"
+          python - <<'PY'
+          import json,os,pathlib
+          s=(pathlib.Path(os.environ["STAGE"])/"anonymous_tubular_depth_diet_split.json").read_text()
+          a=json.loads(s)
+          assert a["original_botanical_parent"]==4505 and a["original_tropical_parent"]==1558 and a["original_geography_parent"]==8264 and len(a["panels"])==30
+          for k in ("island_id","accepted_species","bee_id","entity_ID","work_species","genus_name","latitude","longitude"):
+              assert '"'+k+'":' not in s
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anonymous-original-tubular-depth-diet-split
+          path: /tmp/fd-original-tubular-depth-diet-split/anonymous_tubular_depth_diet_split.json

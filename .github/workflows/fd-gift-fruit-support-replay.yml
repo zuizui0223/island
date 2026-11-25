@@ -1,0 +1,41 @@
+name: Protected fruit E2 matched support and provenance
+on:
+  push:
+    branches: [analysis/fd-original-tropical-pollinator-bridge-20261124]
+    paths:
+      - scripts/fd_gift_fruit_support_replay.py
+      - .github/workflows/fd-gift-fruit-support-replay.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-gift-fruit-support
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - name: Restore frozen botanical frame
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          curl --fail --location --silent --show-error 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o "$STAGE/geography.csv"
+      - name: Exact fruit source replay and genus/coverage diagnostics
+        run: |
+          python -u scripts/fd_gift_fruit_support_replay.py --original-root "$ORIGINAL_ROOT" --geography "$STAGE/geography.csv" --bridge config/fd_public_animal_bridge_20261124.json --out "$STAGE/anonymous_fruit_support.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anonymous-fruit-support-replay
+          path: /tmp/fd-gift-fruit-support/anonymous_fruit_support.json

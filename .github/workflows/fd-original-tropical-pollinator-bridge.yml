@@ -1,0 +1,55 @@
+name: Protected original GIFT4505 tropical pollinator pair bridge
+on:
+  push:
+    branches: [analysis/fd-original-tropical-pollinator-bridge-20261124]
+    paths:
+      - "scripts/fd_original_tropical_pollinator_bridge.py"
+      - "config/fd_public_animal_bridge_20261124.json"
+      - ".github/workflows/fd-original-tropical-pollinator-bridge.yml"
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: /tmp/fd-original-tropical-pollinator-bridge
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - name: Restore original pinned protected botanical source
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGE/original"
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir "$STAGE/original"
+          ORIGINAL_FLORA="$(find "$STAGE/original" -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$ORIGINAL_FLORA"
+          ORIGINAL_ROOT="$(printf '%s' "$ORIGINAL_FLORA" | sed 's@/fixed/canonical/input/chapter1_status_flora.csv.gz$@@')"
+          echo "ORIGINAL_ROOT=$ORIGINAL_ROOT" >> "$GITHUB_ENV"
+          curl --fail --location --silent --show-error 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o "$STAGE/geography.csv"
+      - name: Run original genuine joint symmetry and tube-depth analysis
+        run: |
+          set -euo pipefail
+          python -u scripts/fd_original_tropical_pollinator_bridge.py --original-root "$ORIGINAL_ROOT" --geography "$STAGE/geography.csv" --bridge config/fd_public_animal_bridge_20261124.json --out "$STAGE/anonymous_original_pair_bridge.json"
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["STAGE"])/"anonymous_original_pair_bridge.json"
+          s=p.read_text();a=json.loads(s)
+          assert a["original_parent_botanical_islands"]==4505 and a["original_tropical_botanical_islands"]==1558
+          assert a["original_geography_islands"]==8264 and a["public_geometry_bridge"]==234
+          for k in ("island_id","accepted_species","bee_id","genus_name","latitude","longitude"):
+              assert '"'+k+'":' not in s
+          assert len(a["panels"])==35
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anonymous-original-GIFT4505-pollinator-pair-bridge
+          path: /tmp/fd-original-tropical-pollinator-bridge/anonymous_original_pair_bridge.json
