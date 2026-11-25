@@ -1,0 +1,1158 @@
+{
+  "source": "zuizui0223/fd",
+  "scope": "PR changed paths; immutable head SHAs in pr_inventory.csv; path listing does not establish data provenance",
+  "prs": [
+    {
+      "pr": 51,
+      "files": [
+        {
+          "path": ".github/workflows/fd-joint-gower-invariance.yml",
+          "status": "added",
+          "blob_sha": "683348ab2cfc9f6ffde7296729f7a367b57d3cc8",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "97f99ae0afaabf7ae084d74a6091442c89fdb780",
+          "previous_path": null
+        },
+        {
+          "path": "docs/ADDITIVE_GOWER_CANNOT_DETECT_JOINT_FLORAL_TRAIT_ASSOCIATION_20261120.md",
+          "status": "added",
+          "blob_sha": "6f38049d424abb4d03be88088cdb4abff98430e4",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/paired_nominal_trait_diversity.py",
+          "status": "added",
+          "blob_sha": "8bbe3060eb49441c17adae6b1099738cc8de33ef",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_paired_nominal_trait_diversity.py",
+          "status": "added",
+          "blob_sha": "4551f740f4c442b6f0c477712944f39ffc61ccda",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 52,
+      "files": [
+        {
+          "path": ".github/workflows/audit-gift-original-equalN.yml",
+          "status": "added",
+          "blob_sha": "b25df8c25a411135a3858e67174a041cfe5b49f9",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/verify_gift_equalN_source_reference.py",
+          "status": "added",
+          "blob_sha": "31674afd2b110db057ad5b6533a11a01cfa71026",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_verify_gift_equalN_source_reference.py",
+          "status": "added",
+          "blob_sha": "a5017813bd749052169d84e2272cbde8f0eb5cad",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 53,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "799fbbf4592896308404a42ecec6e2351b6d3112",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "939ab71a13156641b93449c35753a7897d393466",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/ALL13_GIFT_EQUALN_SOURCE_REFERENCE_78.csv",
+          "status": "added",
+          "blob_sha": "dd88ee6864a15fa28b4e1d42e6f2907cc78f7a9a",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/ALL13_GIFT_NOMINAL_RAOQ_CROSSGATE_78.csv",
+          "status": "added",
+          "blob_sha": "3eb99a6850cfa819a1e18b4345de52d7237b5a02",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/README.md",
+          "status": "added",
+          "blob_sha": "d531bd4f9a05f904500790115b88d84f28781576",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 54,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "799fbbf4592896308404a42ecec6e2351b6d3112",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "939ab71a13156641b93449c35753a7897d393466",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/ALL13_GIFT_EQUALN_SOURCE_REFERENCE_78.csv",
+          "status": "added",
+          "blob_sha": "dd88ee6864a15fa28b4e1d42e6f2907cc78f7a9a",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/ALL13_GIFT_NOMINAL_RAOQ_CROSSGATE_78.csv",
+          "status": "added",
+          "blob_sha": "3eb99a6850cfa819a1e18b4345de52d7237b5a02",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/README.md",
+          "status": "added",
+          "blob_sha": "d531bd4f9a05f904500790115b88d84f28781576",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 55,
+      "files": [
+        {
+          "path": ".github/workflows/audit-gift-target-taxon-cluster.yml",
+          "status": "added",
+          "blob_sha": "1ecd05fe9b554e2d0a8a347eeaf48760a90114c8",
+          "previous_path": null
+        },
+        {
+          "path": "docs/GIFT_TARGET_SPECIES_GENUS_PSEUDOREPLICATION_SENSITIVITY_20261120.md",
+          "status": "added",
+          "blob_sha": "3c2e8ce4f517f1fc2b126731636b5f2ca5d9d4c0",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/verify_gift_target_taxon_source.py",
+          "status": "added",
+          "blob_sha": "fe10dab83f70dd59850844b1c83c4e847653764a",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_verify_gift_target_taxon_source.py",
+          "status": "added",
+          "blob_sha": "c6244fe239b7eff105aeaafd2c3620e387fb9728",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 56,
+      "files": [
+        {
+          "path": ".github/workflows/audit-gift-original-residual-split.yml",
+          "status": "added",
+          "blob_sha": "a5c02772bc470284a11b1714832c61152bb9ed63",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/verify_gift_flower_residual_split.py",
+          "status": "added",
+          "blob_sha": "0621a8dd68d450c33d2dfa466dc837f92cb6854d",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_verify_gift_flower_residual_split.py",
+          "status": "added",
+          "blob_sha": "d88a25c46bee08a3d9db55c2075ba745d5337520",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 57,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "522ed161c8045691d72cc59ecdb0574aebe821c4",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "2bb70c3726643947199a073951e8a24f35892cd1",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/GIFT4505_THREE_COMPONENT_DIRECT_TRAIT_RESIDUAL_78.csv",
+          "status": "added",
+          "blob_sha": "f8d823bb1745c681c2a8b4afe6d9e07aa8b8dafe",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/GIFT4505_THREE_STAGE_RESIDUAL_ORIGINAL_20261120.md",
+          "status": "added",
+          "blob_sha": "e56749712d96787207873010c4a623e4f713eac9",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 58,
+      "files": [
+        {
+          "path": "scripts/verify_gift_target_taxon_source.py",
+          "status": "modified",
+          "blob_sha": "64c8511b6f63c65299009f67befb987f8b4fff9d",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_verify_gift_target_taxon_source.py",
+          "status": "modified",
+          "blob_sha": "8b5fd13c4f94a608f35418e01a70d513a9c1587a",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 59,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "dbbc6ce9e3fab434377b59edee224284437408f0",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "1cbd9fdfb890d9ca6f7ef4392855a5eb683335fe",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/GIFT4505_SOURCE_TARGET_SPECIES_AND_GENUS_EQUAL_78.csv",
+          "status": "added",
+          "blob_sha": "3d304d835783adf4c735d80503af6befb5330be5",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/GIFT4505_TARGET_SPECIES_GENUS_EQUAL_ORIGINAL_20261120.md",
+          "status": "added",
+          "blob_sha": "f067d02df89f7d7c75442f1ad6091db2e55ee44c",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 60,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "c8cce09a39b26db3914305b2ad94a755e801c212",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/GIFT4505_SIGNED_RESIDUAL_PROJECTION_78.csv",
+          "status": "added",
+          "blob_sha": "70bd3e7e51395f904fa6fda615a8eb13fed8f7d1",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/GIFT4505_THREE_STAGE_RESIDUAL_ORIGINAL_20261120.md",
+          "status": "modified",
+          "blob_sha": "1ef563ffea9a846d4594b7cf8f9860ceaace584f",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 61,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "cccb67afff107cf2289dc3e859bb863d012edec9",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/GIFT4505_TARGET_SPECIES_GENUS_EQUAL_ORIGINAL_20261120.md",
+          "status": "modified",
+          "blob_sha": "09512c7d5891d47dfa80f35cac2617c845faede6",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261120_verified_all13_raoq_equalN/GIFT4505_TARGET_TAXON_ORIGINAL_GREEN_REPRODUCED_20261121.md",
+          "status": "added",
+          "blob_sha": "1e83973ca4dd9d0adf421ccd83012f10a3944da1",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 62,
+      "files": [
+        {
+          "path": ".github/workflows/audit-gift-direct-evidence-quality.yml",
+          "status": "added",
+          "blob_sha": "46cc66c6f732654ae872e6638083cb7d89f08b6b",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/verify_gift_original_direct_quality_source.py",
+          "status": "added",
+          "blob_sha": "c29b45782609e43f5e61178d3d26fd7412f3737b",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_verify_gift_original_direct_quality_source.py",
+          "status": "added",
+          "blob_sha": "2efdabc0bf9d9755e1ab9649b141cc1dd13949b5",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 63,
+      "files": [
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "741bd20b192dd938fffc34951a661be747ed6570",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261118_positive_evidence/README.md",
+          "status": "modified",
+          "blob_sha": "76baac03a1e6fdfc248b880e7f81f5acf9e808d4",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261121_original_direct_quality/GIFT4505_DIRECT_HIGH_MEDIUM_GENUS_NULL_78.csv",
+          "status": "added",
+          "blob_sha": "c5f277e322d681b84d937b69be64e491d5780a25",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261121_original_direct_quality/README.md",
+          "status": "added",
+          "blob_sha": "d4eb47f5a49aae32f6cb142951d16c6d097f1d97",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 64,
+      "files": [
+        {
+          "path": ".github/workflows/global_bird_source_audit.yml",
+          "status": "added",
+          "blob_sha": "57c02138ccdb85a1c9c6676ace251b887290e497",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/pollinator_guild_source_sensitivity.yml",
+          "status": "added",
+          "blob_sha": "31ea7a0ed581a6d64901764c758750cff0f79fba",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_asian_butterfly_intake.yml",
+          "status": "added",
+          "blob_sha": "c659be5d6e130f782b2a47706301fbca896c3402",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_bee_bird_crosswalk.yml",
+          "status": "added",
+          "blob_sha": "20993b0f4bee26fa4c8efa5dfdc62c551d659c98",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_bird_diet_label_null.yml",
+          "status": "added",
+          "blob_sha": "f37a264e4563441a91ce06a774070a744482fb58",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_bird_hwi_occupancy.yml",
+          "status": "added",
+          "blob_sha": "78c9597202f91ad8a9433ae93cf63254146d9257",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_bird_model_export.yml",
+          "status": "added",
+          "blob_sha": "85483b0940f997b7cdc25fa0c038acab026231e2",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_butterfly_bee_overlap.yml",
+          "status": "added",
+          "blob_sha": "a141cbf0711017b343cf2c7b7c7d61be9dbe9c16",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_butterfly_trait_filtering.yml",
+          "status": "added",
+          "blob_sha": "f32925be5fe683b11789e1ab03877aa60a4c5b28",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_butterfly_trait_incidence.yml",
+          "status": "added",
+          "blob_sha": "af533de5861c704b6fe5c0c12196fc72da4a824a",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_pollinator_public_flora_bridge.yml",
+          "status": "added",
+          "blob_sha": "2f5fc4f9ae1cebb03b874d9334769655f33065a8",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_pollinator_source_intake.yml",
+          "status": "added",
+          "blob_sha": "7d8552c4f23294a76e2d8178a46cdaf5559e4691",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_pollinator_source_preflight.yml",
+          "status": "added",
+          "blob_sha": "06ccaccc03d8047676414dd9679abc37a4982b51",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_public_animal_bridge_export.yml",
+          "status": "added",
+          "blob_sha": "c8ddc8b017f312fc40a28479d9c678068f335be0",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_public_flora_guild_association.yml",
+          "status": "added",
+          "blob_sha": "331905964b1c6a020785f349088cb9da458e95fc",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_public_flora_guild_pair_only.yml",
+          "status": "added",
+          "blob_sha": "2fade4c51c5ebd61971f8cae0848444c5ab4df91",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_specialist_partial_flora.yml",
+          "status": "added",
+          "blob_sha": "132efd771f441f7e7fc68fa464e3c55638f17b2c",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_three_guild_candidate_audit.yml",
+          "status": "added",
+          "blob_sha": "f36d5a9401fe0275c9f0fd450147a2fa0a8628bb",
+          "previous_path": null
+        },
+        {
+          "path": "docs/TROPICAL_POLLINATOR_GUILD_DISPERSAL_20261124.md",
+          "status": "added",
+          "blob_sha": "5ed312fb812c0167131bac829bb602be83bb1cbb",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/BEE_BIRD_CANDIDATE_CROSSWALK.md",
+          "status": "added",
+          "blob_sha": "3f09d50102eba084bae58ed7109cd78511c2f8f9",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/BIRD_DIET_LABEL_NULL_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "305891cf7093a8f7acfa762245d38a4bed8e3798",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/BIRD_HWI_OCCUPANCY_AND_GLOBAL_ARCHIVE.md",
+          "status": "added",
+          "blob_sha": "74d06aab8c3e4fc2ba3abd12c5581b3a1d243350",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/BUTTERFLY_TRAIT_FILTERING_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "97696619a7cd5dab465f311fab0c0b9b795d6442",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/GUILD_SENSITIVITY_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "d9be6d24c0d2828d8ff3c27a09dfb71b36c55cd7",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/ORIGINAL_BEE_REVISED_BUTTERFLY.md",
+          "status": "added",
+          "blob_sha": "e83fb8f4ad1872f6fe42466b5d69bd53fd2bb1e0",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/ORIGINAL_JOINT_PAIR_BRIDGE_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "537f6c93ba05066a0828bde2f1b7b6a44b262a7d",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/ORIGINAL_SOURCE_RELATIVE_GUILD_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "ea8ac31493f8a90ef36b57fc9e95f16b159c9298",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/ORIGINAL_TUBULAR_DEPTH_DIET_SPLIT_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "091dfd40a70437ac3cd69bb3b10996e377da462d",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/PUBLIC_FLORAL_GUILD_ASSOCIATION_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "7b18d29b70f71d2497feacf3cf8d85f20fab7584",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/PUBLIC_FLORA_GEOGRAPHY_BRIDGE_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "38c33021b785ddf5f2ccf3993fa30b31a5d74750",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/README.md",
+          "status": "added",
+          "blob_sha": "2a897ef27eb87d7349a051318d9a38d0c5ee10d0",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/SPECIALIST_PARTIAL_FLORA_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "00ec1d80137154fd69187bedf5ece85f948db538",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/THREE_GUILD_AND_LEPTRAITS_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "f9536dfe481b8befb3d40fec0fa3c9511508a20f",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_source_intake/VERIFIED_BUTTERFLY_BEE_OVERLAP_AND_SENSITIVITY.md",
+          "status": "added",
+          "blob_sha": "e54070a0de900354b342c8c531487b1fcb87e1b0",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/global_bird_source_audit.py",
+          "status": "added",
+          "blob_sha": "fbc4d679f1ff864794613724e2d8fdd4bd1b3c83",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/pollinator_guild_source_sensitivity.py",
+          "status": "added",
+          "blob_sha": "c06cd04f04534d0981c548423be83f34fbd8f1cb",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_asian_butterfly_intake.py",
+          "status": "added",
+          "blob_sha": "a3b5242e3698a7280dfbe0b376fad15473d3e21b",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_bee_bird_crosswalk.py",
+          "status": "added",
+          "blob_sha": "27ec6bb0ee991d837a594ccf40be8b7f7bdf6fd4",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_bird_diet_label_null.py",
+          "status": "added",
+          "blob_sha": "03ce2834937b19f602867bba4ef0c291b93bdf5b",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_bird_hwi_occupancy.py",
+          "status": "added",
+          "blob_sha": "d294a48247825ac801ee9a2f55c89ad368482130",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_butterfly_bee_overlap.py",
+          "status": "added",
+          "blob_sha": "122437ef29979bef1459f72cc723749ff471d34b",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_butterfly_trait_filtering.py",
+          "status": "added",
+          "blob_sha": "ce6be0c1a57a4aa4f8de9bc613abfa052044e82b",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_butterfly_trait_incidence.py",
+          "status": "added",
+          "blob_sha": "0f5d49fa8e47f6fbb6e54a439e9ee310834a6239",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_leptraits_intake.py",
+          "status": "added",
+          "blob_sha": "05f32e3d44dd29a15067670b9125e214f947aa65",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_pollinator_public_flora_bridge.py",
+          "status": "added",
+          "blob_sha": "c25fead22165439f992d917b1fd9f129e62fbce1",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_pollinator_source_intake.py",
+          "status": "added",
+          "blob_sha": "941e57752c087c296fc3cb88c5bad23812b54745",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_pollinator_source_preflight.py",
+          "status": "added",
+          "blob_sha": "a13920efd2fd77cbcce7a165494b8f2e71b5bf9f",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_public_flora_guild_association.py",
+          "status": "added",
+          "blob_sha": "b70eed5bc119537b787294454abc093edefa65a2",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_public_flora_guild_pair_only.py",
+          "status": "added",
+          "blob_sha": "6da9cdaff2f3fb9e5300075b94e2d5f0559defc2",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_specialist_partial_flora.py",
+          "status": "added",
+          "blob_sha": "0e2c870ffe0716acfc0cf63ead8140e27be2e667",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_three_guild_candidate_audit.py",
+          "status": "added",
+          "blob_sha": "0fff83717bd94241dfcfaac1c7842b8d045b75bd",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 65,
+      "files": [
+        {
+          "path": ".github/workflows/integrated_manuscript_figures.yml",
+          "status": "added",
+          "blob_sha": "adf1bbba7cbdee7292fd5f46c577a9180881490d",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/integrated_manuscript_supplement.yml",
+          "status": "added",
+          "blob_sha": "aee35c23997d55afdd439a23f88527e6702cc31a",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/tropical_bird_incidence_export.yml",
+          "status": "added",
+          "blob_sha": "0567a70c9fa9eabf7ca9a31f331f82f6fea80284",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/ARCHITECTURE_DEPENDENT_REASSEMBLY.md",
+          "status": "added",
+          "blob_sha": "5624f28668eadccf5950bcdbd189bfa9729b3848",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/DATA_SOURCES_AND_REPRODUCIBILITY.md",
+          "status": "added",
+          "blob_sha": "b49ceb791a0aab1448c30103c63eead72175673a",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/FIGURES_AND_CLAIM_LEDGER.md",
+          "status": "added",
+          "blob_sha": "16c053e23423e242a723f40ce81df931b0540696",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/FIGURE_CAPTIONS.md",
+          "status": "added",
+          "blob_sha": "ef6ddfdf0273029ff361c164ed619165131d916e",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/INTEGRATED_MANUSCRIPT_DRAFT.md",
+          "status": "added",
+          "blob_sha": "7dbc53dfb0035ad04f2b328d67b1c2e848c877de",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/NOVELTY_AND_PRECEDENTS.md",
+          "status": "added",
+          "blob_sha": "6c911caa9f63035b5927f202c84b4fe54d6fa1d0",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/SUPPLEMENTARY_MATERIAL.md",
+          "status": "added",
+          "blob_sha": "6c807ff3094272612a1b8c0c4fc4d6cb31c8d791",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/figure_data.json",
+          "status": "added",
+          "blob_sha": "07dc35e38c76a6c2762c3a0a8be1c3b4786d2fd2",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/figures/fig01_recurrence.svg",
+          "status": "added",
+          "blob_sha": "97566104350ef3dce6f4e3d4d3b845d2924e9e74",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/figures/fig02_geographical_reassembly.svg",
+          "status": "added",
+          "blob_sha": "1591a1416d32a589daa616d35a18897572244390",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/figures/fig03_partner_geography.svg",
+          "status": "added",
+          "blob_sha": "ffe455fe189c7348295a41d0774f676d5d2cfbcd",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/figures/fig04_dietary_differentiation.svg",
+          "status": "added",
+          "blob_sha": "dd48afd828b6f0286ecd9ddb292c29b6d06bce60",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/figures/fig05_two_sided_specificity.svg",
+          "status": "added",
+          "blob_sha": "ea756d86e71dd2626e29261539e5848d8191e28b",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/figS01_geology_connectivity.svg",
+          "status": "added",
+          "blob_sha": "0f59a2f114e70ecb102cf0838eb6d80ab52da2f1",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/figS02_all13_nominal_Q.svg",
+          "status": "added",
+          "blob_sha": "78a08ce2d9f59d7a3c8c269c49cb6f4d33a0cd91",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/figS03_animal_trait_sensitivity.svg",
+          "status": "added",
+          "blob_sha": "725267886c0c4c4ea660a7899936ac14bb6d45f2",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/figS04_original_null_families.svg",
+          "status": "added",
+          "blob_sha": "67dc04163be0fc06815a2bc4a3273d7a55f9f58b",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/figS05_origin_uncertainty.svg",
+          "status": "added",
+          "blob_sha": "c5aad3bd2460b3a3a0fcbfac0ae13ab59ed9f45d",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/table_S02_all13_crossgate.csv",
+          "status": "added",
+          "blob_sha": "3eb99a6850cfa819a1e18b4345de52d7237b5a02",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/table_S03_butterfly_traits.csv",
+          "status": "added",
+          "blob_sha": "10ee4f0399f486096dbba50ad947acb9f7bded34",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/table_S04_original_null_tests.csv",
+          "status": "added",
+          "blob_sha": "2e819486bb48e345fcb4aa302b5f62b27b08ebe2",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/table_S04_panel_support.csv",
+          "status": "added",
+          "blob_sha": "f781f5792f0ad0bd7a4464b4b1e0c248388a141b",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement/table_S05_origin_bounds.csv",
+          "status": "added",
+          "blob_sha": "97051cdacac26f80401496c663028332980cfcc0",
+          "previous_path": null
+        },
+        {
+          "path": "docs/manuscript_20261124/supplement_data.json",
+          "status": "added",
+          "blob_sha": "22ffd0dd9e78eb00b3a5cdb6e946ff6b5acdb224",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_dual_null/DUAL_NULL_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "0b09ccecc303bbf9b26a2cf70982d6141ad78edf",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_dual_null/ORIGIN_DECOMPOSITION_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "5d1ab86835a883ca061af0e2122549424dfe6cd5",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_dual_null/POSITIVE_EVIDENCE_SYNTHESIS.md",
+          "status": "added",
+          "blob_sha": "09f4f02906e5739406bb07a9d7330830522a109e",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_dual_null/README.md",
+          "status": "added",
+          "blob_sha": "4a39ba1269d1fa74d46f5739b85501f39951eca5",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261124_tropical_pollinator_dual_null/TAXONOMY_DECOMPOSITION_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "459d9eff7a140d6960f5a4f4e51618cb8508ea7c",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/render_integrated_manuscript_figures.mjs",
+          "status": "added",
+          "blob_sha": "ad894759b0c635d3f2615f4438471de508b038c8",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/render_integrated_supplement_figures.mjs",
+          "status": "added",
+          "blob_sha": "6dbf7409152ac6e35af58426f49a0041941dac99",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/tropical_bird_incidence_export.py",
+          "status": "added",
+          "blob_sha": "81b3995f16cc14a1351114ecf672b83891991aa9",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 66,
+      "files": [
+        {
+          "path": ".github/workflows/mdd-bat-diet-metadata.yml",
+          "status": "added",
+          "blob_sha": "a800bd8fcb970a72261db907ef7e251247ca33e1",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/partner-e2-synthetic.yml",
+          "status": "added",
+          "blob_sha": "18fb58849b70ed6ac86aa17a4dc8e70708a73ad3",
+          "previous_path": null
+        },
+        {
+          "path": ".github/workflows/range-map-nectarivore.yml",
+          "status": "added",
+          "blob_sha": "3dd5897ec287fc60a65230203dfd41688e92064a",
+          "previous_path": null
+        },
+        {
+          "path": ".gitignore",
+          "status": "modified",
+          "blob_sha": "b3fa477040ac6fa708445e8a9833d32d0189d990",
+          "previous_path": null
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "blob_sha": "974aafebce9daa84c4ec1fa1c25ec63280458757",
+          "previous_path": null
+        },
+        {
+          "path": "docs/PARTNER_E2_EXTENSION_CONTRACT_20261125.md",
+          "status": "added",
+          "blob_sha": "4b856c247127db58a096b40f4d7f2aa307a99675",
+          "previous_path": null
+        },
+        {
+          "path": "docs/RANGE_MAP_NECTARIVORE_CONTRACT_20261125.md",
+          "status": "added",
+          "blob_sha": "a4f9decbc3b2347954eab8a37a05a879419c1428",
+          "previous_path": null
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "modified",
+          "blob_sha": "a8805d6297eedcec080199279459967a584a8af0",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261125_partner_e2_source_eligibility/CONTROL_TRAITS_VERIFIED.md",
+          "status": "added",
+          "blob_sha": "923feea8bb0720021548e597e75ec985ce92c7b8",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261125_partner_e2_source_eligibility/FRUIT_ACQUISITION_AND_RANGE_READINESS.md",
+          "status": "added",
+          "blob_sha": "8fb78a45d1a378085ccd62d0b954f41e29bc8159",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261125_partner_e2_source_eligibility/README.md",
+          "status": "added",
+          "blob_sha": "4514cec4d9cd4bdbd6855bde45a2f5ca630cdc18",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261125_partner_e2_source_eligibility/control_trait_coverage.json",
+          "status": "added",
+          "blob_sha": "1e74821f888c9b767cc7448f308ec8d341d1dbf7",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261125_partner_e2_source_eligibility/source_eligibility.json",
+          "status": "added",
+          "blob_sha": "7cd3ae525472e233cf90a87d1b8929d6df6de687",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261125_range_map_nectarivore_design/README.md",
+          "status": "added",
+          "blob_sha": "f26737ff3c87bc014ff368b93ff965a279401547",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261125_range_map_nectarivore_design/sim.json",
+          "status": "added",
+          "blob_sha": "ce02f900007df50b1c69f8023d27454ceb2087ad",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/audit_mdd_bat_diet_metadata.py",
+          "status": "added",
+          "blob_sha": "797ba450fff7859ee45cbffcd11787a716acbb86",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/nectarivore_identifiability_sim.py",
+          "status": "added",
+          "blob_sha": "96751560ba23ee9025c1a1b4acfee65c0fec687f",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/range_map_nectarivore_flora_run.py",
+          "status": "added",
+          "blob_sha": "2a7c119a5fc2ca5f1e32fdbd62b23a1fda6c8fb4",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/range_map_nectarivore_incidence.py",
+          "status": "added",
+          "blob_sha": "949c2cc1062c9a25c28f1bafeaf24e629573dea5",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/range_map_partner_incidence.py",
+          "status": "added",
+          "blob_sha": "fbcb1e3bfd1f20a590ae23488fa3a8393ae060e6",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/nectarivore_flora_test.py",
+          "status": "added",
+          "blob_sha": "99da5b5ade1246677d11025789c8d57452240ebb",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/nectarivore_sim.py",
+          "status": "added",
+          "blob_sha": "60ff969817db141a3422ffdce6db548af218dde7",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/partner_flora_e2.py",
+          "status": "added",
+          "blob_sha": "39f7cfa86a393f63fceb8d54584fb801632d1824",
+          "previous_path": null
+        },
+        {
+          "path": "src/fd/range_map_nectarivore.py",
+          "status": "added",
+          "blob_sha": "d2142b1b2b5b57cc1dcbae2dbd9cf0c85bf425ab",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_nectarivore_flora_test.py",
+          "status": "added",
+          "blob_sha": "2d7eb2159f09076ee4b4989e8cd4c90314506f34",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_partner_flora_e2.py",
+          "status": "added",
+          "blob_sha": "8f43b41f3c32f3f7ff04918b07c71d37a26154fe",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_range_map_nectarivore.py",
+          "status": "added",
+          "blob_sha": "0ef4822f1d7e8de12b08bf93b9eabb9b89ba9eb1",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_range_map_nectarivore_scripts.py",
+          "status": "added",
+          "blob_sha": "6e3f30076cc7498a17edb999de081737b59a59e5",
+          "previous_path": null
+        },
+        {
+          "path": "tests/test_range_map_partner_incidence.py",
+          "status": "added",
+          "blob_sha": "e6cc7fe95cfe5820452b01d20f88a6a86a6b0b4e",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 67,
+      "files": [
+        {
+          "path": ".github/workflows/bombus_public_flora.yml",
+          "status": "added",
+          "blob_sha": "5ee76b5b02441219e2a4989dc62768f7b1d6424b",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261125_bombus_public_flora/summary_from_verified_job_log.json",
+          "status": "added",
+          "blob_sha": "1fafa188515ede76d2fe72eccac559de6da3e9be",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/bombus_public_flora.py",
+          "status": "added",
+          "blob_sha": "433c1464fe9de6e13bf031335f94415cc4a0b9e1",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    },
+    {
+      "pr": 68,
+      "files": [
+        {
+          "path": ".github/workflows/nectar_bat_public_flora.yml",
+          "status": "added",
+          "blob_sha": "4ad2f8c8d64b94c4282ca99809ef24c5098e9aee",
+          "previous_path": null
+        },
+        {
+          "path": "docs/MULTIGUILD_SHARED_COHORT_20261125.md",
+          "status": "added",
+          "blob_sha": "98bd1101aea20bf0377eef98c6a075eda0b18798",
+          "previous_path": null
+        },
+        {
+          "path": "results/20261125_nectar_bat_public/summary_from_verified_job_log.json",
+          "status": "added",
+          "blob_sha": "48b3ab438f430480421270b79ba38b5384fb6ec9",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/bat_mdd_synonym_audit.py",
+          "status": "added",
+          "blob_sha": "c9fd411f30c945765f2a3ebff68181b94b4c6e30",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/bat_unknown_diet_sensitivity.py",
+          "status": "added",
+          "blob_sha": "f3848a583f1a78482526e383049daae781f6939b",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/export_mdd_bat_ranges.R",
+          "status": "added",
+          "blob_sha": "2e5eaa1aa15a149f4fc5a71fda0791229fcc864d",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/multiguild_shared_support.py",
+          "status": "added",
+          "blob_sha": "cb0fea56d281eea1e2be0ca916d880298bb00f4b",
+          "previous_path": null
+        },
+        {
+          "path": "scripts/nectar_bat_public_flora.py",
+          "status": "added",
+          "blob_sha": "e3e1dc54ab0977a89740e6bafac51e20fb3ec559",
+          "previous_path": null
+        }
+      ],
+      "complete": true
+    }
+  ]
+}
