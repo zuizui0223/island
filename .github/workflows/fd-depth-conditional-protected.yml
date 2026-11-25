@@ -6,6 +6,13 @@ on:
       - scripts/fd_depth_conditional_architecture.py
       - scripts/fd_depth_conditional_protected.py
       - .github/workflows/fd-depth-conditional-protected.yml
+  pull_request:
+    branches: [analysis/fd-global-source-architecture-20261125]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - scripts/fd_depth_conditional_architecture.py
+      - scripts/fd_depth_conditional_protected.py
+      - .github/workflows/fd-depth-conditional-protected.yml
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,6 +22,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   protected:
+    if: github.repository == 'zuizui0223/island' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'analysis/fd-depth-conditional-protected-20261125'))
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
