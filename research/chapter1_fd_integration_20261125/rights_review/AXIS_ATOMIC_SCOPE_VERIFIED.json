@@ -1,0 +1,174 @@
+{
+  "run": 45757550985,
+  "job": 139699629768,
+  "head": "22e70800444dd4491ee80244f05aaf0a2aa4f08d",
+  "artifact": 15088905668,
+  "digest": "sha256:a62df2cd5ec7315e1cc48b76c1747f688ae182ccf070a66c84eedc463b352536",
+  "retrieval": "Exact anonymous aggregate from successful runner stdout, artifact digest metadata; ZIP not independently downloaded.",
+  "result": {
+    "all_axis_columns_identical": true,
+    "all_species_axis_rows_identical": 318885,
+    "axis_metadata_inherited_for_every_informative_H1_row": true,
+    "complete_three_binary_roster": {
+      "axis_direct": 564,
+      "exact_atomic": 504
+    },
+    "core": {
+      "absent_atomic": 1747,
+      "atomic_lineage_sets_equal_axis": 4527,
+      "atomic_lineage_sets_subset_of_axis": 10654,
+      "atomic_state_or_quality_mismatches": 0,
+      "axis_blocker_families": {
+        "database:floraweb_biolflor": {
+          "matched_core_axis_rows_affected": 4128,
+          "sole_family_axis_rows": 923,
+          "sole_family_rows_by_trait": {
+            "autonomous_selfing_capacity": 77,
+            "mating_system": 369,
+            "self_incompatibility": 477
+          }
+        },
+        "database:pladias": {
+          "matched_core_axis_rows_affected": 2565,
+          "sole_family_axis_rows": 173,
+          "sole_family_rows_by_trait": {
+            "mating_system": 143,
+            "self_incompatibility": 30
+          }
+        },
+        "domain:europepmc.org": {
+          "matched_core_axis_rows_affected": 1619,
+          "sole_family_axis_rows": 731,
+          "sole_family_rows_by_trait": {
+            "autonomous_selfing_capacity": 239,
+            "mating_system": 67,
+            "self_incompatibility": 425
+          }
+        },
+        "domain:gobotany.nativeplanttrust.org": {
+          "matched_core_axis_rows_affected": 1322,
+          "sole_family_axis_rows": 37,
+          "sole_family_rows_by_trait": {
+            "autonomous_selfing_capacity": 4,
+            "self_incompatibility": 33
+          }
+        },
+        "ken-fern-useful-plants:species": {
+          "matched_core_axis_rows_affected": 1055,
+          "sole_family_axis_rows": 906,
+          "sole_family_rows_by_trait": {
+            "autonomous_selfing_capacity": 618,
+            "self_incompatibility": 288
+          }
+        }
+      },
+      "axis_rights_status": {
+        "redistributable": 1294,
+        "rights_review_required": 11107
+      },
+      "exact_atomic": 10654,
+      "records": 12401,
+      "unique_axis_rights_status": {
+        "redistributable": 1278,
+        "rights_review_required": 7908
+      },
+      "unique_species_axis_cells": 9186
+    },
+    "informative_single_state_binary_symmetry_depth_roster": {
+      "axis_direct": 1040,
+      "exact_atomic": 1039
+    },
+    "inner_pins": {
+      "snapshot_axis": "a443cda3025f0cadd2ccb58a0529bfbe30459f445cf8909093b6b88124d51aea",
+      "snapshot_state": "4890da7df53b2e240c4b1493ef93c0814a68435a5e1670e3c0e7c3e6717b90e7",
+      "snapshot_trait": "d7d6a0372ce7f3ebe958047a222ae0504f01564e364f93bab360273235c6661b",
+      "v1_atomic": "7e86170218814abe2845da9a0282aecfdc930819b9d0c439bae8df4a0679c577",
+      "v1_axis": "a6eef8d731b2730a99e388ddd0683d7ac9b2af30d43f1f9569c857f89f664b2a"
+    },
+    "interpretation": "Axis snapshot identity supports exact axis-cell rights crosswalk for all historical H1 informative rows. Axis source_lineages are inherited by component traits, not trait-specific provenance. Exact atomic matches are a stricter data-source roster, not a license grant. Absent atomic rows are not proven erroneous. Binary symmetry-depth roster here uses final H1 binary states, not the full paired-trait analysis cohort. No new model fit, rights promotion, frozen manuscript or selector changes.",
+    "source_archive_sha256": {
+      "analysis": "b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999",
+      "ledger": "5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd",
+      "rights": "6c5f2577e85e95e841b8659427e27c72ce631f59a3da5a335f54f505de5ea32a"
+    },
+    "trait_tables": {
+      "autonomous_selfing_capacity": {
+        "atomic_categories": {
+          "absent_atomic_row": 1625,
+          "exact_high_medium_state": 2051
+        },
+        "axis_direct_rows": 3676,
+        "axis_rights_status": {
+          "redistributable": 103,
+          "rights_review_required": 3573
+        }
+      },
+      "floral_form": {
+        "atomic_categories": {
+          "absent_atomic_row": 8,
+          "exact_high_medium_state": 6926
+        },
+        "axis_direct_rows": 6934,
+        "axis_rights_status": {
+          "redistributable": 1341,
+          "rights_review_required": 5593
+        }
+      },
+      "floral_symmetry": {
+        "atomic_categories": {
+          "absent_atomic_row": 3,
+          "exact_high_medium_state": 32036
+        },
+        "axis_direct_rows": 32039,
+        "axis_rights_status": {
+          "redistributable": 21496,
+          "rights_review_required": 10543
+        }
+      },
+      "flower_primary_color": {
+        "atomic_categories": {
+          "absent_atomic_row": 603,
+          "exact_high_medium_state": 25524
+        },
+        "axis_direct_rows": 26127,
+        "axis_rights_status": {
+          "redistributable": 12275,
+          "rights_review_required": 13852
+        }
+      },
+      "mating_system": {
+        "atomic_categories": {
+          "absent_atomic_row": 7,
+          "exact_high_medium_state": 2047
+        },
+        "axis_direct_rows": 2054,
+        "axis_rights_status": {
+          "redistributable": 56,
+          "rights_review_required": 1998
+        }
+      },
+      "self_incompatibility": {
+        "atomic_categories": {
+          "absent_atomic_row": 115,
+          "exact_high_medium_state": 6556
+        },
+        "axis_direct_rows": 6671,
+        "axis_rights_status": {
+          "redistributable": 1135,
+          "rights_review_required": 5536
+        }
+      },
+      "tube_depth_class": {
+        "atomic_categories": {
+          "absent_atomic_row": 1,
+          "exact_high_medium_state": 2565
+        },
+        "axis_direct_rows": 2566,
+        "axis_rights_status": {
+          "redistributable": 586,
+          "rights_review_required": 1980
+        }
+      }
+    }
+  }
+}
