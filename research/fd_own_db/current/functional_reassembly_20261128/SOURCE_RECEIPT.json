@@ -2,7 +2,7 @@
   "source_repo": "zuizui0223/fd",
   "source_commit": "6c682098b52937f6cbfbfcdb4aa55e64640dae94",
   "source_tree": "2310acdc58236de1cf9bc2d9ca2c02c3005c06a0",
-  "scope": "Pinned tracked shared-source research files; no raw source transfer. Only four summary documents copied in this commit; remaining paths immutable reference, not physically migrated.",
+  "scope": "Pinned tracked shared-source research files; no raw source transfer. Local copies listed by path, remaining paths immutable reference, not physically migrated.",
   "files": [
     {
       "source_path": "shared_db_research/FD_EVIDENCE_SPINE.md",
@@ -332,7 +332,7 @@
       "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/baseline_partition_from_verified_job_log.json",
       "blob": "54c22654366f3406aae4dc21807a107ab388316b",
       "bytes": 602208,
-      "local_path": null
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/baseline_partition_from_verified_job_log.json"
     },
     {
       "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/cell_partition_from_verified_job_log.json",
@@ -344,13 +344,13 @@
       "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/directional_heterogeneity_partition.json",
       "blob": "5b16c954ca7a9ecd093eede58c42bd51b5c38499",
       "bytes": 168697,
-      "local_path": null
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/directional_heterogeneity_partition.json"
     },
     {
       "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/panels_from_verified_job_log.json",
       "blob": "88dbbb149f34e55ad5831b0faabd956648bd4418",
       "bytes": 521716,
-      "local_path": null
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/panels_from_verified_job_log.json"
     },
     {
       "source_path": "shared_db_research/scripts/fd_color_documentation_audit.py",
@@ -442,5 +442,6 @@
       "bytes": 12337,
       "local_path": null
     }
-  ]
+  ],
+  "copy_attempt_errors": []
 }

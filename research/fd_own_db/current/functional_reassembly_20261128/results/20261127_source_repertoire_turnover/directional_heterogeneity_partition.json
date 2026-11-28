@@ -1,0 +1,4545 @@
+{
+  "source_run": 45970178262,
+  "source_head": "bc6a9c9d3ea7f437a0ed485dbb88ac32070e6595",
+  "formula": "Weighted mean squared occupancy difference divided by k = squared weighted mean occupancy difference / k + weighted variance / k, per cell; same regional weights as verified source output. No new uncertainty estimates, null decomposition, or inference.",
+  "panels": {
+    "floral_symmetry__tube_depth_class__all_recorded__geo_k5__disjoint__n5": {
+      "block": {
+        "north": {
+          "total": 0.07798799954629117,
+          "coherent": 0.0011836834500130416,
+          "heterogeneity": 0.07680431609627818,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.004288957619836332,
+              "dist": 0.00034446048326600506,
+              "coherent": 0.0000036790314929504266,
+              "heterogeneity": 0.00034078145177305464
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.015356129287888168,
+              "dist": 0.012580984258433466,
+              "coherent": 0.00004716214134126735,
+              "heterogeneity": 0.012533822117092199
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.005659605384706523,
+              "dist": 0.015434138246726254,
+              "coherent": 0.0000064062266221198145,
+              "heterogeneity": 0.015427732020104135
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.012339256485427023,
+              "dist": 0.011433656073158658,
+              "coherent": 0.000030451450122630572,
+              "heterogeneity": 0.011403204623036027
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0007664658531086419,
+              "dist": 0.000006876980772628834,
+              "coherent": 1.1749398079631165e-7,
+              "heterogeneity": 0.000006759486791832523
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.004829525189540211,
+              "dist": 0.0003247805726981704,
+              "coherent": 0.000004664862711280682,
+              "heterogeneity": 0.0003201157099868897
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.007602463063689071,
+              "dist": 0.00035493565731252805,
+              "coherent": 0.000011559488926951323,
+              "heterogeneity": 0.0003433761683855767
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.025920235544992305,
+              "dist": 0.0006418748627216486,
+              "coherent": 0.0001343717221415765,
+              "heterogeneity": 0.0005075031405800722
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": 0.010243146577227899,
+              "dist": 0.017012563584657484,
+              "coherent": 0.000020984410360515124,
+              "heterogeneity": 0.01699157917429697
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.006504579473926097,
+              "dist": 0.006293375844306795,
+              "coherent": 0.00000846191082652414,
+              "heterogeneity": 0.006284913933480271
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.06766922164050763,
+              "dist": 0.013560352982237577,
+              "coherent": 0.0009158247114864293,
+              "heterogeneity": 0.012644528270751148
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.1168281710276122,
+          "coherent": 0.017253145080929608,
+          "heterogeneity": 0.09957502594668258,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.016953438072555345,
+              "dist": 0.004592799843609092,
+              "coherent": 0.000057483812495993816,
+              "heterogeneity": 0.004535316031113098
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.24462377685708467,
+              "dist": 0.025589082482775274,
+              "coherent": 0.01196815844076495,
+              "heterogeneity": 0.013620924042010324
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.016885297628263282,
+              "dist": 0.012572723979922927,
+              "coherent": 0.00005702265519900672,
+              "heterogeneity": 0.01251570132472392
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.11357955509747646,
+              "dist": 0.02166211876538886,
+              "coherent": 0.002580063067228138,
+              "heterogeneity": 0.019082055698160724
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0178289335122208,
+              "dist": 0.0006161411348166685,
+              "coherent": 0.00006357417403663798,
+              "heterogeneity": 0.0005525669607800305
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.010531573836678887,
+              "dist": 0.002004328299884755,
+              "coherent": 0.000022182809495483847,
+              "heterogeneity": 0.001982145490389271
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.03381481680406123,
+              "dist": 0.006069912153245921,
+              "coherent": 0.00022868836709844437,
+              "heterogeneity": 0.005841223786147477
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0019938092308571585,
+              "dist": 0.000021757096083440227,
+              "coherent": 7.950550498102428e-7,
+              "heterogeneity": 0.000020962041033629985
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.054009504008451205,
+              "dist": 0.018546125516016018,
+              "coherent": 0.0005834053046477813,
+              "heterogeneity": 0.017962720211368237
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.01380424452399647,
+              "dist": 0.01413359853420397,
+              "coherent": 0.0000381114333756573,
+              "heterogeneity": 0.014095487100828313
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.0909301919479362,
+              "dist": 0.011019583221665253,
+              "coherent": 0.001653659961537704,
+              "heterogeneity": 0.00936592326012755
+            }
+          ]
+        },
+        "south": {
+          "total": 0.11660590483985876,
+          "coherent": 0.01646361550850241,
+          "heterogeneity": 0.10014228933135637,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.03550336674070802,
+              "dist": 0.004026316436351553,
+              "coherent": 0.0002520978099850424,
+              "heterogeneity": 0.003774218626366511
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.09262260719670973,
+              "dist": 0.0196718448159472,
+              "coherent": 0.0017157894727831968,
+              "heterogeneity": 0.017956055343164003
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.1099309366526631,
+              "dist": 0.019468552217933296,
+              "coherent": 0.0024169621666663655,
+              "heterogeneity": 0.01705159005126693
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.07057032685772081,
+              "dist": 0.008763887489320553,
+              "coherent": 0.0009960342065611105,
+              "heterogeneity": 0.0077678532827594425
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.014239776840208027,
+              "dist": 0.00047313467824533777,
+              "coherent": 0.00004055424889178498,
+              "heterogeneity": 0.0004325804293535528
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.0013078110729773107,
+              "dist": 0.0012394519173431887,
+              "coherent": 3.42073960520413e-7,
+              "heterogeneity": 0.0012391098433826683
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.03685341407103682,
+              "dist": 0.0012571596834648287,
+              "coherent": 0.000271634825738259,
+              "heterogeneity": 0.0009855248577265697
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0031487161668391577,
+              "dist": 0.00002671439248082931,
+              "coherent": 0.0000019828826998628557,
+              "heterogeneity": 0.000024731509780966454
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.13126846332257866,
+              "dist": 0.026777488772262693,
+              "coherent": 0.003446281892614236,
+              "heterogeneity": 0.02333120687964846
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.14959863656982095,
+              "dist": 0.0155075875390008,
+              "coherent": 0.004475950412709874,
+              "heterogeneity": 0.011031637126290926
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.11928926011783628,
+              "dist": 0.019393766897508477,
+              "coherent": 0.0028459855158921607,
+              "heterogeneity": 0.016547781381616316
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.03884017148132103,
+          "coherent": 0.016069461630916566,
+          "heterogeneity": 0.0227707098504044,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": 0.00005380478100304339,
+              "heterogeneity": 0.004194534579340044,
+              "total": 0.004248339360343087
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.011920996299423683,
+              "heterogeneity": 0.0010871019249181248,
+              "total": 0.013008098224341808
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": 0.00005061642857688691,
+              "heterogeneity": -0.0029120306953802147,
+              "total": -0.0028614142668033273
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.0025496116171055076,
+              "heterogeneity": 0.007678851075124697,
+              "total": 0.010228462692230203
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.00006345668005584166,
+              "heterogeneity": 0.000545807473988198,
+              "total": 0.0006092641540440397
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.000017517946784203163,
+              "heterogeneity": 0.0016620297804023814,
+              "total": 0.0016795477271865848
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00021712887817149304,
+              "heterogeneity": 0.005497847617761901,
+              "total": 0.005714976495933393
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00013357666709176626,
+              "heterogeneity": -0.0004865410995464422,
+              "total": -0.0006201177666382084
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.0005624208942872662,
+              "heterogeneity": 0.000971141037071268,
+              "total": 0.0015335619313585347
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": 0.000029649522549133162,
+              "heterogeneity": 0.007810573167348042,
+              "total": 0.007840222689897175
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.0007378352500512748,
+              "heterogeneity": -0.003278605010623598,
+              "total": -0.002540769760572324
+            }
+          ]
+        }
+      },
+      "source_group": {
+        "north": {
+          "total": 0.06825546736383635,
+          "coherent": 0.004052542662020617,
+          "heterogeneity": 0.06420292470181574,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.007103719254960464,
+              "dist": 0.0005085915090436572,
+              "coherent": 0.00001009256545065921,
+              "heterogeneity": 0.000498498943592998
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.1295108928227221,
+              "dist": 0.016644712816768503,
+              "coherent": 0.0033546142719477223,
+              "heterogeneity": 0.01329009854482078
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.01647948047959523,
+              "dist": 0.009096228292072276,
+              "coherent": 0.00005431465537547205,
+              "heterogeneity": 0.009041913636696803
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.034987578483393025,
+              "dist": 0.008852853045074377,
+              "coherent": 0.0002448261296263173,
+              "heterogeneity": 0.00860802691544806
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0005444644408838305,
+              "dist": 0.000004500289382105471,
+              "coherent": 5.928830547738843e-8,
+              "heterogeneity": 0.000004441001076628082
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.011025347421464838,
+              "dist": 0.0005085883207980395,
+              "coherent": 0.000024311657152800273,
+              "heterogeneity": 0.00048427666364523925
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.0007034142807111847,
+              "dist": 0.0006074475168988316,
+              "coherent": 9.895833006168668e-8,
+              "heterogeneity": 0.0006073485585687699
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.019281857937140108,
+              "dist": 0.0005496641438095426,
+              "coherent": 0.0000743580091016106,
+              "heterogeneity": 0.000475306134707932
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.02706170732247539,
+              "dist": 0.01235778840202456,
+              "coherent": 0.00014646720064146363,
+              "heterogeneity": 0.012211321201383095
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.025175114424214464,
+              "dist": 0.007178177900667443,
+              "coherent": 0.00012675727725445824,
+              "heterogeneity": 0.007051420623412985
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.009122129366155494,
+              "dist": 0.011946915127297017,
+              "coherent": 0.000016642648834575288,
+              "heterogeneity": 0.011930272478462442
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.11466584149228999,
+          "coherent": 0.01023614730576138,
+          "heterogeneity": 0.10442969418652856,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.004323185728356844,
+              "dist": 0.004686180674778678,
+              "coherent": 0.000003737986968373659,
+              "heterogeneity": 0.004682442687810305
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.17463200557631242,
+              "dist": 0.02532899111318681,
+              "coherent": 0.006099267474321043,
+              "heterogeneity": 0.019229723638865766
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.005501582854823938,
+              "dist": 0.012135356394514603,
+              "coherent": 0.000006053482781698542,
+              "heterogeneity": 0.012129302911732904
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.05768364741316877,
+              "dist": 0.018272866410228596,
+              "coherent": 0.0006654806357773544,
+              "heterogeneity": 0.017607385774451242
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.00870360088416754,
+              "dist": 0.0015694504126438089,
+              "coherent": 0.000015150533670176398,
+              "heterogeneity": 0.0015542998789736325
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.014747293497003334,
+              "dist": 0.0022213641304205697,
+              "coherent": 0.00004349653309735137,
+              "heterogeneity": 0.0021778675973232182
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.025575810524527023,
+              "dist": 0.005256186662241211,
+              "coherent": 0.00013082441679730146,
+              "heterogeneity": 0.00512536224544391
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0017736199984926969,
+              "dist": 0.000017950691904973012,
+              "coherent": 6.291455798106468e-7,
+              "heterogeneity": 0.000017321546325162365
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.06259459763435583,
+              "dist": 0.018992175126321963,
+              "coherent": 0.0007836167306013809,
+              "heterogeneity": 0.01820855839572058
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.008050905019254012,
+              "dist": 0.01523828585713378,
+              "coherent": 0.000012963414325809888,
+              "heterogeneity": 0.01522532244280797
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.11124133565903192,
+              "dist": 0.010947034018914944,
+              "coherent": 0.0024749269518410813,
+              "heterogeneity": 0.008472107067073863
+            }
+          ]
+        },
+        "south": {
+          "total": 0.1231846541499314,
+          "coherent": 0.015560883686659123,
+          "heterogeneity": 0.10762377046327232,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.0022946447149360377,
+              "dist": 0.010122023620072671,
+              "coherent": 0.0000010530788735567779,
+              "heterogeneity": 0.010120970541199115
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.04455003420248874,
+              "dist": 0.018697299944243257,
+              "coherent": 0.00039694110948858334,
+              "heterogeneity": 0.018300358834754674
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.05598623202084033,
+              "dist": 0.01616662835366852,
+              "coherent": 0.0006268916351782736,
+              "heterogeneity": 0.015539736718490247
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.05008996397099557,
+              "dist": 0.007987410403822814,
+              "coherent": 0.0005018008981231269,
+              "heterogeneity": 0.007485609505699687
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.008557510619920272,
+              "dist": 0.0004341732790718369,
+              "coherent": 0.000014646197602009647,
+              "heterogeneity": 0.00041952708146982725
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.016388962129982247,
+              "dist": 0.0016301845832314946,
+              "coherent": 0.00005371961593959844,
+              "heterogeneity": 0.0015764649672918962
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.02442951312919261,
+              "dist": 0.0008340528751174469,
+              "coherent": 0.00011936022234587883,
+              "heterogeneity": 0.0007146926527715681
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0023374595088872705,
+              "dist": 0.00002038320100038324,
+              "coherent": 0.0000010927433911375038,
+              "heterogeneity": 0.000019290457609245737
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.18077417712608318,
+              "dist": 0.031220386695504084,
+              "coherent": 0.0065358606231225,
+              "heterogeneity": 0.024684526072381585
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.1318350821474465,
+              "dist": 0.012705260720840253,
+              "coherent": 0.003476097776964793,
+              "heterogeneity": 0.00922916294387546
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.13844529218484944,
+              "dist": 0.02336685047335867,
+              "coherent": 0.0038334197856296666,
+              "heterogeneity": 0.019533430687729003
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.04641037412845364,
+          "coherent": 0.0061836046437407635,
+          "heterogeneity": 0.04022676948471282,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": -0.0000063545784822855515,
+              "heterogeneity": 0.004183943744217307,
+              "total": 0.004177589165735021
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.0027446532023733205,
+              "heterogeneity": 0.005939625094044986,
+              "total": 0.008684278296418307
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": -0.000048261172593773506,
+              "heterogeneity": 0.003087389275036101,
+              "total": 0.0030391281024423275
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.00042065450615103706,
+              "heterogeneity": 0.008999358859003182,
+              "total": 0.009420013365154219
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.00001509124536469901,
+              "heterogeneity": 0.0015498588778970043,
+              "total": 0.0015649501232617034
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.000019184875944551096,
+              "heterogeneity": 0.001693590933677979,
+              "total": 0.0017127758096225302
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00013072545846723978,
+              "heterogeneity": 0.00451801368687514,
+              "total": 0.0046487391453423794
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00007372886352179996,
+              "heterogeneity": -0.00045798458838276963,
+              "total": -0.0005317134519045696
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.0006371495299599174,
+              "heterogeneity": 0.005997237194337486,
+              "total": 0.006634386724297404
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": -0.00011379386292864835,
+              "heterogeneity": 0.008173901819394985,
+              "total": 0.008060107956466337
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.002458284303006506,
+              "heterogeneity": -0.0034581654113885786,
+              "total": -0.0009998811083820735
+            }
+          ]
+        }
+      }
+    },
+    "floral_symmetry__tube_depth_class__all_recorded__geo_k5__inclusive__n5": {
+      "block": {
+        "north": {
+          "total": 0.0680319955877637,
+          "coherent": 0.0012140775365315083,
+          "heterogeneity": 0.06681791805123219,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.004153030746836421,
+              "dist": 0.00033278477837269153,
+              "coherent": 0.0000034495328768337362,
+              "heterogeneity": 0.0003293352454958578
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.019663425370287733,
+              "dist": 0.011302335137136639,
+              "coherent": 0.00007733005945857505,
+              "heterogeneity": 0.011225005077678063
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.007776739556905713,
+              "dist": 0.013726605296808254,
+              "coherent": 0.000012095535627188413,
+              "heterogeneity": 0.013714509761181066
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.016132196628460733,
+              "dist": 0.010255078841382948,
+              "coherent": 0.00005204955361186397,
+              "heterogeneity": 0.010203029287771085
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0007385927350447195,
+              "dist": 0.000005743817042220922,
+              "coherent": 1.0910384565216785e-7,
+              "heterogeneity": 0.000005634713196568754
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.004914926336291515,
+              "dist": 0.00031258313491471217,
+              "coherent": 0.000004831300178234386,
+              "heterogeneity": 0.0003077518347364778
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.007419145064852771,
+              "dist": 0.0002694606272132161,
+              "coherent": 0.000011008742698665845,
+              "heterogeneity": 0.0002584518845145503
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.022566973809742336,
+              "dist": 0.00045881003869042893,
+              "coherent": 0.00010185366138591931,
+              "heterogeneity": 0.00035695637730450965
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": 0.008904833291048101,
+              "dist": 0.014415056715954652,
+              "coherent": 0.00001585921118827171,
+              "heterogeneity": 0.01439919750476638
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.007401881694868021,
+              "dist": 0.005664467182547966,
+              "coherent": 0.000010957570524964457,
+              "heterogeneity": 0.005653509612023001
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.0679901928639469,
+              "dist": 0.01128907001769997,
+              "coherent": 0.0009245332651353393,
+              "heterogeneity": 0.010364536752564631
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.10759155737280679,
+          "coherent": 0.01547254144968583,
+          "heterogeneity": 0.09211901592312098,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.017911476968939403,
+              "dist": 0.004090930524584852,
+              "coherent": 0.00006416420144176934,
+              "heterogeneity": 0.004026766323143082
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.23200967064967298,
+              "dist": 0.023162465999483444,
+              "coherent": 0.010765697454993946,
+              "heterogeneity": 0.012396768544489498
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.01694925417682853,
+              "dist": 0.011973253670016788,
+              "coherent": 0.00005745544343014788,
+              "heterogeneity": 0.01191579822658664
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.10969922159356854,
+              "dist": 0.020151373726780865,
+              "coherent": 0.002406783843646971,
+              "heterogeneity": 0.017744589883133894
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.016617926396997752,
+              "dist": 0.0005323450245383576,
+              "coherent": 0.00005523109554720694,
+              "heterogeneity": 0.00047711392899115065
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.009143716269270522,
+              "dist": 0.0017753989708164865,
+              "coherent": 0.000016721509442584487,
+              "heterogeneity": 0.0017586774613739021
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.027824853532045623,
+              "dist": 0.005695254231875544,
+              "coherent": 0.00015484449481595835,
+              "heterogeneity": 0.005540409737059586
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0019126961751948922,
+              "dist": 0.000020202219407608707,
+              "coherent": 7.316813317210339e-7,
+              "heterogeneity": 0.000019470538075887674
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.045756362206184384,
+              "dist": 0.017295085278685444,
+              "coherent": 0.00041872893646870775,
+              "heterogeneity": 0.016876356342216736
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.008713551668126035,
+              "dist": 0.012901263578244442,
+              "coherent": 0.000015185196534620404,
+              "heterogeneity": 0.01288607838170982
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.0870918363577263,
+              "dist": 0.009993984148372985,
+              "coherent": 0.0015169975920321954,
+              "heterogeneity": 0.00847698655634079
+            }
+          ]
+        },
+        "south": {
+          "total": 0.10809307570489088,
+          "coherent": 0.01705588499179356,
+          "heterogeneity": 0.09103719071309734,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.03422338947427003,
+              "dist": 0.0029858274264116203,
+              "coherent": 0.00023424807742151538,
+              "heterogeneity": 0.002751579348990105
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.08410546777365767,
+              "dist": 0.0171517956314127,
+              "coherent": 0.0014147459418851539,
+              "heterogeneity": 0.015737049689527546
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.11526931866469153,
+              "dist": 0.017544130062064216,
+              "coherent": 0.002657403165084441,
+              "heterogeneity": 0.014886726896979775
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.07621416964738012,
+              "dist": 0.008518752869091862,
+              "coherent": 0.0011617199310079275,
+              "heterogeneity": 0.007357032938083935
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.01424942643000956,
+              "dist": 0.0003514780805924691,
+              "coherent": 0.000040609230716850996,
+              "heterogeneity": 0.00031086884987561813
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.0006628669416935392,
+              "dist": 0.0010341841295057196,
+              "coherent": 8.787851647802919e-8,
+              "heterogeneity": 0.0010340962509892415
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.03510010053265686,
+              "dist": 0.0010296052094410661,
+              "coherent": 0.00024640341148052366,
+              "heterogeneity": 0.0007832017979605424
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.003027392176482806,
+              "dist": 0.00002480711775647738,
+              "coherent": 0.0000018330206780458604,
+              "heterogeneity": 0.00002297409707843152
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.11635817801604632,
+              "dist": 0.024856526080791266,
+              "coherent": 0.002707845118242785,
+              "heterogeneity": 0.022148680962548482
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.1638960371100177,
+              "dist": 0.01570958389230028,
+              "coherent": 0.005372382196073661,
+              "heterogeneity": 0.01033720169622662
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.12685832689828014,
+              "dist": 0.018886385205523226,
+              "coherent": 0.003218607020686181,
+              "heterogeneity": 0.015667778184837045
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.03955956178504309,
+          "coherent": 0.014258463913154322,
+          "heterogeneity": 0.025301097871888792,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": 0.000060714668564935606,
+              "heterogeneity": 0.0036974310776472243,
+              "total": 0.0037581457462121603
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.01068836739553537,
+              "heterogeneity": 0.0011717634668114343,
+              "total": 0.011860130862346805
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": 0.00004535990780295946,
+              "heterogeneity": -0.0017987115345944257,
+              "total": -0.0017533516267914662
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.002354734290035107,
+              "heterogeneity": 0.007541560595362809,
+              "total": 0.009896294885397916
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.000055121991701554775,
+              "heterogeneity": 0.0004714792157945819,
+              "total": 0.0005266012074961367
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.0000118902092643501,
+              "heterogeneity": 0.0014509256266374243,
+              "total": 0.0014628158359017744
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.0001438357521172925,
+              "heterogeneity": 0.005281957852545036,
+              "total": 0.005425793604662328
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00010112198005419827,
+              "heterogeneity": -0.000337485839228622,
+              "total": -0.0004386078192828202
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.00040286972528043606,
+              "heterogeneity": 0.0024771588374503557,
+              "total": 0.0028800285627307923
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": 0.000004227626009655946,
+              "heterogeneity": 0.0072325687696868195,
+              "total": 0.007236796395696476
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.0005924643268968561,
+              "heterogeneity": -0.001887550196223841,
+              "total": -0.001295085869326985
+            }
+          ]
+        }
+      },
+      "source_group": {
+        "north": {
+          "total": 0.05934843657874013,
+          "coherent": 0.003690847227505382,
+          "heterogeneity": 0.05565758935123473,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.00671180050538548,
+              "dist": 0.0004911310430063941,
+              "coherent": 0.000009009653204818558,
+              "heterogeneity": 0.0004821213898015756
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.12358752128726778,
+              "dist": 0.014705945199311862,
+              "coherent": 0.0030547750835861736,
+              "heterogeneity": 0.011651170115725688
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.019264998711130955,
+              "dist": 0.008049572160358542,
+              "coherent": 0.00007422803506797547,
+              "heterogeneity": 0.007975344125290567
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.0354217451923536,
+              "dist": 0.00776950217104844,
+              "coherent": 0.0002509400064944051,
+              "heterogeneity": 0.007518562164554035
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0005250602793287995,
+              "dist": 0.0000037295090909280573,
+              "coherent": 5.513765938576739e-8,
+              "heterogeneity": 0.00000367437143154229
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.011204967593515478,
+              "dist": 0.0004994084809997454,
+              "coherent": 0.00002511025975434641,
+              "heterogeneity": 0.00047429822124539896
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.00023811486044260797,
+              "dist": 0.0004912136548177974,
+              "coherent": 1.1339737352720533e-8,
+              "heterogeneity": 0.0004912023150804447
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.01663349874648133,
+              "dist": 0.000370388860122637,
+              "coherent": 0.000055334656109839204,
+              "heterogeneity": 0.0003150542040127978
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.022950939107009714,
+              "dist": 0.010294496936263815,
+              "coherent": 0.00010534912117873356,
+              "heterogeneity": 0.010189147815085082
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.024081045010520594,
+              "dist": 0.006610262771817853,
+              "coherent": 0.00011597934575974375,
+              "heterogeneity": 0.006494283426058109
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.0005224411574878398,
+              "dist": 0.010062785791902095,
+              "coherent": 5.458895260744677e-8,
+              "heterogeneity": 0.010062731202949487
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.10386868744761006,
+          "coherent": 0.009397703807893835,
+          "heterogeneity": 0.09447098363971619,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.0026288150116728338,
+              "dist": 0.004087529727710283,
+              "coherent": 0.0000013821336731192882,
+              "heterogeneity": 0.004086147594037164
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.1680905448281881,
+              "dist": 0.02292898215595682,
+              "coherent": 0.005650886252127423,
+              "heterogeneity": 0.017278095903829397
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.006056937508227477,
+              "dist": 0.011266745208198443,
+              "coherent": 0.000007337298395714574,
+              "heterogeneity": 0.011259407909802729
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.05834090992537977,
+              "dist": 0.016675047305315674,
+              "coherent": 0.0006807323541842551,
+              "heterogeneity": 0.01599431495113142
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.00781530350189598,
+              "dist": 0.0014522992083049126,
+              "coherent": 0.000012215793765349515,
+              "heterogeneity": 0.001440083414539563
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.01261947711290538,
+              "dist": 0.001842196257008188,
+              "coherent": 0.00003185024052062854,
+              "heterogeneity": 0.0018103460164875596
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.020489733196846834,
+              "dist": 0.00492871560600567,
+              "coherent": 0.00008396583329559343,
+              "heterogeneity": 0.004844749772710077
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0017206770359116893,
+              "dist": 0.000016965407896441054,
+              "coherent": 5.921458923827675e-7,
+              "heterogeneity": 0.000016373262004058288
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.054946228932264314,
+              "dist": 0.017373431059787604,
+              "coherent": 0.00060381761477536,
+              "heterogeneity": 0.016769613445012245
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.01031299462243916,
+              "dist": 0.013634244707001475,
+              "coherent": 0.000021271571616491808,
+              "heterogeneity": 0.013612973135384983
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.10732317013691679,
+              "dist": 0.009662530804424516,
+              "coherent": 0.0023036525696475177,
+              "heterogeneity": 0.0073588782347769974
+            }
+          ]
+        },
+        "south": {
+          "total": 0.1108321742321053,
+          "coherent": 0.01532654954828013,
+          "heterogeneity": 0.0955056246838252,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.002441873227404656,
+              "dist": 0.007221508610345024,
+              "coherent": 0.0000011925489717431262,
+              "heterogeneity": 0.0072203160613732815
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.04402518518612551,
+              "dist": 0.0164808308754615,
+              "coherent": 0.00038764338613452904,
+              "heterogeneity": 0.01609318748932697
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.06128860743977798,
+              "dist": 0.013941052350955286,
+              "coherent": 0.0007512586803814418,
+              "heterogeneity": 0.013189793670573845
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.054523857788003866,
+              "dist": 0.0074754803272183545,
+              "coherent": 0.000594570213617294,
+              "heterogeneity": 0.0068809101136010605
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.008477881305479313,
+              "dist": 0.00030099469547660606,
+              "coherent": 0.000014374894285959126,
+              "heterogeneity": 0.0002866198011906469
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.013744161400871835,
+              "dist": 0.0013155524936145453,
+              "coherent": 0.00003778039452264305,
+              "heterogeneity": 0.0012777720990919022
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.02364176033504976,
+              "dist": 0.0006225867380792707,
+              "coherent": 0.00011178656634798644,
+              "heterogeneity": 0.0005108001717312843
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0022601902212007444,
+              "dist": 0.00001917955142675936,
+              "coherent": 0.000001021691967202294,
+              "heterogeneity": 0.000018157859459557067
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.16297093270870663,
+              "dist": 0.028519705853710522,
+              "coherent": 0.005311904981589157,
+              "heterogeneity": 0.023207800872121365
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.14604398338320942,
+              "dist": 0.012757196734607457,
+              "coherent": 0.0042657690164870305,
+              "heterogeneity": 0.008491427718120427
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.1387308036085559,
+              "dist": 0.02217808600120999,
+              "coherent": 0.003849247173975142,
+              "heterogeneity": 0.018328838827234847
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.04452025086886993,
+          "coherent": 0.005706856580388454,
+          "heterogeneity": 0.03881339428848146,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": -0.00000762751953169927,
+              "heterogeneity": 0.0036040262042355887,
+              "total": 0.003596398684703889
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.0025961111685412494,
+              "heterogeneity": 0.005626925788103709,
+              "total": 0.008223036956644959
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": -0.00006689073667226089,
+              "heterogeneity": 0.003284063784512162,
+              "total": 0.0032171730478399007
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.00042979234768985,
+              "heterogeneity": 0.008475752786577384,
+              "total": 0.008905545134267234
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.000012160656105963747,
+              "heterogeneity": 0.0014364090431080207,
+              "total": 0.0014485696992139845
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.00000673998076628213,
+              "heterogeneity": 0.0013360477952421607,
+              "total": 0.0013427877760084426
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00008395449355824071,
+              "heterogeneity": 0.004353547457629632,
+              "total": 0.004437501951187873
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00005474251021745644,
+              "heterogeneity": -0.0002986809420087395,
+              "total": -0.00035342345222619595
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.0004984684935966265,
+              "heterogeneity": 0.006580465629927163,
+              "total": 0.007078934123523789
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": -0.00009470777414325194,
+              "heterogeneity": 0.007118689709326874,
+              "total": 0.007023981935183622
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.0023035979806949104,
+              "heterogeneity": -0.0027038529681724897,
+              "total": -0.0004002549874775798
+            }
+          ]
+        }
+      }
+    },
+    "floral_symmetry__tube_depth_class__all_recorded__geo50_climate10__disjoint__n5": {
+      "block": {
+        "north": {
+          "total": 0.07580710487586276,
+          "coherent": 0.0021332153191498046,
+          "heterogeneity": 0.07367388955671297,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.0016017589804144712,
+              "dist": 0.00033435795288697334,
+              "coherent": 5.131263662676812e-7,
+              "heterogeneity": 0.0003338448265207057
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": -0.07953014370411224,
+              "dist": 0.015226228051889614,
+              "coherent": 0.0012650087515193487,
+              "heterogeneity": 0.013961219300370266
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.005318827949435234,
+              "dist": 0.014278109542776682,
+              "coherent": 0.000005657986151138684,
+              "heterogeneity": 0.014272451556625543
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": 0.012922449763202483,
+              "dist": 0.010910903876022497,
+              "coherent": 0.00003339794157649838,
+              "heterogeneity": 0.010877505934445999
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.002406372883182029,
+              "dist": 0.000010594353136068968,
+              "coherent": 0.0000011581260905827584,
+              "heterogeneity": 0.00000943622704548621
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.0033201031655633044,
+              "dist": 0.0003273027490845489,
+              "coherent": 0.000002204617005996695,
+              "heterogeneity": 0.0003250981320785522
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.010944694907641753,
+              "dist": 0.0003466435740380431,
+              "coherent": 0.000023957269324271863,
+              "heterogeneity": 0.00032268630471377123
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.01083411430152125,
+              "dist": 0.00030105341602628647,
+              "coherent": 0.000023475606539685456,
+              "heterogeneity": 0.000277577809486601
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.039162036127746734,
+              "dist": 0.015564423859225468,
+              "coherent": 0.0003067330147341881,
+              "heterogeneity": 0.01525769084449128
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.010171621142173948,
+              "dist": 0.006166999641277957,
+              "coherent": 0.000020692375331984013,
+              "heterogeneity": 0.006146307265945973
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.04745611154055095,
+              "dist": 0.012340487859498645,
+              "coherent": 0.0004504165045098427,
+              "heterogeneity": 0.011890071354988803
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.11640600359052436,
+          "coherent": 0.018008542426490488,
+          "heterogeneity": 0.09839746116403386,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.01560760873672114,
+              "dist": 0.00441931855602768,
+              "coherent": 0.000048719490095714804,
+              "heterogeneity": 0.004370599065931965
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.24530391687302777,
+              "dist": 0.0243555766137711,
+              "coherent": 0.012034802326649864,
+              "heterogeneity": 0.012320774287121236
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.016917185947661877,
+              "dist": 0.013016026743250204,
+              "coherent": 0.0000572382360775537,
+              "heterogeneity": 0.01295878850717265
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.13208076538159208,
+              "dist": 0.021933775668536517,
+              "coherent": 0.003489065716757435,
+              "heterogeneity": 0.018444709951779083
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.010845231480958206,
+              "dist": 0.0005155086334442711,
+              "coherent": 0.000023523809175113384,
+              "heterogeneity": 0.0004919848242691577
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.0140790637488621,
+              "dist": 0.001993906653449192,
+              "coherent": 0.000039644007208904584,
+              "heterogeneity": 0.0019542626462402874
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.04061350483019446,
+              "dist": 0.00609189621210788,
+              "coherent": 0.0003298913549184458,
+              "heterogeneity": 0.005762004857189434
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0015362023879852478,
+              "dist": 0.000007615502830736212,
+              "coherent": 4.7198355537031555e-7,
+              "heterogeneity": 0.000007143519275365896
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.06529961492427087,
+              "dist": 0.01950751323745931,
+              "coherent": 0.0008528079418516118,
+              "heterogeneity": 0.0186547052956077
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.02797240085468076,
+              "dist": 0.014700304435996403,
+              "coherent": 0.000156491041914989,
+              "heterogeneity": 0.014543813394081414
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.06985293545318914,
+              "dist": 0.00986456133365106,
+              "coherent": 0.0009758865182854818,
+              "heterogeneity": 0.00888867481536558
+            }
+          ]
+        },
+        "south": {
+          "total": 0.10737768043920733,
+          "coherent": 0.01835348442507717,
+          "heterogeneity": 0.08902419601413018,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.03596592249957849,
+              "dist": 0.003914680714746648,
+              "coherent": 0.0002587095162491372,
+              "heterogeneity": 0.003655971198497511
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.04005938246738749,
+              "dist": 0.01907179232715115,
+              "coherent": 0.00032095082473368637,
+              "heterogeneity": 0.018750841502417463
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.1331379359142522,
+              "dist": 0.01825438100974843,
+              "coherent": 0.0035451419959015044,
+              "heterogeneity": 0.014709239013846926
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.02802630976289698,
+              "dist": 0.008433051920749038,
+              "coherent": 0.00015709480778517093,
+              "heterogeneity": 0.008275957112963868
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.010687778894246405,
+              "dist": 0.0003816751984688149,
+              "coherent": 0.00002284572353845978,
+              "heterogeneity": 0.0003588294749303551
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.010264278565192787,
+              "dist": 0.0010544198980394898,
+              "coherent": 0.000021071082892775216,
+              "heterogeneity": 0.0010333488151467146
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.020960099388378447,
+              "dist": 0.0007328425829265301,
+              "coherent": 0.0000878651532741405,
+              "heterogeneity": 0.0006449774296523896
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0010915476916307982,
+              "dist": 0.000007667817440938077,
+              "coherent": 2.3829527262090483e-7,
+              "heterogeneity": 0.000007429522168317173
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.17281370182544095,
+              "dist": 0.02175762517378421,
+              "coherent": 0.0059729151077224825,
+              "heterogeneity": 0.015784710066061726
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.13095101821879865,
+              "dist": 0.013667858167161286,
+              "coherent": 0.0034296338345080274,
+              "heterogeneity": 0.01023822433265326
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.1506157044135698,
+              "dist": 0.020101685628990822,
+              "coherent": 0.004537018083199166,
+              "heterogeneity": 0.015564667545791656
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.0405988987146616,
+          "coherent": 0.015875327107340683,
+          "heterogeneity": 0.024723571607320888,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": 0.00004820636372944712,
+              "heterogeneity": 0.004036754239411259,
+              "total": 0.004084960603140706
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.010769793575130516,
+              "heterogeneity": -0.0016404450132490294,
+              "total": 0.009129348561881486
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": 0.00005158024992641502,
+              "heterogeneity": -0.0013136630494528928,
+              "total": -0.0012620827995264775
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.0034556677751809367,
+              "heterogeneity": 0.007567204017333084,
+              "total": 0.01102287179251402
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.000022365683084530624,
+              "heterogeneity": 0.00048254859722367147,
+              "total": 0.0005049142803082022
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.000037439390202907886,
+              "heterogeneity": 0.0016291645141617351,
+              "total": 0.001666603904364643
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.0003059340855941739,
+              "heterogeneity": 0.005439318552475663,
+              "total": 0.005745252638069837
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00002300362298431514,
+              "heterogeneity": -0.0002704342902112351,
+              "total": -0.00029343791319555023
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.0005460749271174238,
+              "heterogeneity": 0.003397014451116419,
+              "total": 0.003943089378233842
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": 0.00013579866658300498,
+              "heterogeneity": 0.008397506128135442,
+              "total": 0.008533304794718446
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.0005254700137756392,
+              "heterogeneity": -0.0030013965396232228,
+              "total": -0.002475926525847584
+            }
+          ]
+        }
+      },
+      "source_group": {
+        "north": {
+          "total": 0.07007656195386407,
+          "coherent": 0.0013063963519347895,
+          "heterogeneity": 0.06877016560192928,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.002640509506107224,
+              "dist": 0.0002428775021241955,
+              "coherent": 0.0000013944580903685232,
+              "heterogeneity": 0.00024148304403382698
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.00597252961629482,
+              "dist": 0.017090882409980687,
+              "coherent": 0.00000713422200350375,
+              "heterogeneity": 0.01708374818797718
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.03025766554747337,
+              "dist": 0.008323879544489462,
+              "coherent": 0.00018310526487655136,
+              "heterogeneity": 0.008140774279612911
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.002021662667312333,
+              "dist": 0.010905104044831289,
+              "coherent": 8.174239880808834e-7,
+              "heterogeneity": 0.010904286620843208
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0015651192559044008,
+              "dist": 0.000013450318867101111,
+              "coherent": 4.899196570405491e-7,
+              "heterogeneity": 0.000012960399210060562
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.010732004169713979,
+              "dist": 0.0004177754611022709,
+              "coherent": 0.000023035182699751644,
+              "heterogeneity": 0.0003947402784025193
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.00571618801331403,
+              "dist": 0.000402935458681901,
+              "coherent": 0.000006534961080711,
+              "heterogeneity": 0.00039640049760119
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.008201664845046563,
+              "dist": 0.0003002227426364945,
+              "coherent": 0.000013453461246094533,
+              "heterogeneity": 0.0002867692813904
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.06456907355059081,
+              "dist": 0.012784057419664967,
+              "coherent": 0.0008338330518363213,
+              "heterogeneity": 0.011950224367828647
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.022495651801787267,
+              "dist": 0.00696660560458017,
+              "coherent": 0.00010121086999745094,
+              "heterogeneity": 0.006865394734582719
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.026018026102965133,
+              "dist": 0.012628771446905532,
+              "coherent": 0.000135387536458915,
+              "heterogeneity": 0.012493383910446618
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.09644673238186817,
+          "coherent": 0.011341155817314829,
+          "heterogeneity": 0.08510557656455336,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.01769613252003271,
+              "dist": 0.0033632603985667537,
+              "coherent": 0.00006263062123331185,
+              "heterogeneity": 0.0033006297773334418
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.1906006746803971,
+              "dist": 0.01873691535580755,
+              "coherent": 0.007265723437724514,
+              "heterogeneity": 0.011471191918083035
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.001964834105191366,
+              "dist": 0.008503276929240444,
+              "coherent": 7.721146121846312e-7,
+              "heterogeneity": 0.00850250481462826
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.11117769918523782,
+              "dist": 0.017437687750582288,
+              "coherent": 0.002472096159224646,
+              "heterogeneity": 0.014965591591357642
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.010762452725944551,
+              "dist": 0.00039844480007552956,
+              "coherent": 0.00002316607773563826,
+              "heterogeneity": 0.0003752787223398913
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.0045873332600942385,
+              "dist": 0.0009390523792685858,
+              "coherent": 0.000004208725287833367,
+              "heterogeneity": 0.0009348436539807525
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.019760294285644776,
+              "dist": 0.003149349558455273,
+              "coherent": 0.00007809384605105712,
+              "heterogeneity": 0.0030712557124042156
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0017528821306317592,
+              "dist": 0.000007970982287977817,
+              "coherent": 6.145191527776271e-7,
+              "heterogeneity": 0.00000735646313520019
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.06081426305999017,
+              "dist": 0.020685187351032277,
+              "coherent": 0.0007396749183059371,
+              "heterogeneity": 0.01994551243272634
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.0404583847913866,
+              "dist": 0.015333772603100523,
+              "coherent": 0.0003273761799855805,
+              "heterogeneity": 0.015006396423114942
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.04282518056011832,
+              "dist": 0.007891814273451016,
+              "coherent": 0.0003667992180013472,
+              "heterogeneity": 0.007525015055449669
+            }
+          ]
+        },
+        "south": {
+          "total": 0.10188906293008497,
+          "coherent": 0.021618547350847984,
+          "heterogeneity": 0.080270515579237,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.040173671114334106,
+              "dist": 0.003114211431184516,
+              "coherent": 0.00032278477016053653,
+              "heterogeneity": 0.0027914266610239795
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.03249581144317367,
+              "dist": 0.016918426256743373,
+              "coherent": 0.00021119555227005937,
+              "heterogeneity": 0.016707230704473313
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.12960001124726947,
+              "dist": 0.013273851223932664,
+              "coherent": 0.0033592325830584745,
+              "heterogeneity": 0.009914618640874189
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.052695772114573936,
+              "dist": 0.008447204203502671,
+              "coherent": 0.0005553688797502217,
+              "heterogeneity": 0.00789183532375245
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.008477934650998513,
+              "dist": 0.0003478342544503974,
+              "coherent": 0.000014375075189320257,
+              "heterogeneity": 0.0003334591792610771
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.005309146520671941,
+              "dist": 0.0006444732926087427,
+              "coherent": 0.000005637407355592595,
+              "heterogeneity": 0.0006388358852531501
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.023474129022446066,
+              "dist": 0.0006873539525542637,
+              "coherent": 0.00011020694667248894,
+              "heterogeneity": 0.0005771470058817747
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": 0.0003126466991320656,
+              "dist": 0.000013387988331615752,
+              "coherent": 1.9549591695635266e-8,
+              "heterogeneity": 0.000013368438739920116
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.13075543413544122,
+              "dist": 0.019907312874617503,
+              "coherent": 0.0034193967111895416,
+              "heterogeneity": 0.01648791616342796
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.1502417058455975,
+              "dist": 0.013419530245156967,
+              "coherent": 0.00451451403507901,
+              "heterogeneity": 0.008905016210077957
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.21337544189211471,
+              "dist": 0.02511547720700228,
+              "coherent": 0.009105815840531046,
+              "heterogeneity": 0.016009661366471237
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.026370170428004103,
+          "coherent": 0.010034759465380039,
+          "heterogeneity": 0.016335410962624086,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": 0.00006123616314294332,
+              "heterogeneity": 0.0030591467332996146,
+              "total": 0.0031203828964425583
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.00725858921572101,
+              "heterogeneity": -0.005612556269894146,
+              "total": 0.0016460329458268634
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": -0.00018233315026436672,
+              "heterogeneity": 0.0003617305350153491,
+              "total": 0.00017939738475098235
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.002471278735236565,
+              "heterogeneity": 0.004061304970514434,
+              "total": 0.006532583705750999
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.000022676158078597712,
+              "heterogeneity": 0.0003623183231298307,
+              "total": 0.00038499448120842846
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": -0.000018826457411918278,
+              "heterogeneity": 0.0005401033755782331,
+              "total": 0.0005212769181663149
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00007155888497034612,
+              "heterogeneity": 0.0026748552148030255,
+              "total": 0.002746414099773372
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.000012838942093316905,
+              "heterogeneity": -0.0002794128182551998,
+              "total": -0.00029225176034851667
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": -0.00009415813353038423,
+              "heterogeneity": 0.007995288064897693,
+              "total": 0.00790112993136731
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": 0.00022616530998812958,
+              "heterogeneity": 0.008141001688532223,
+              "total": 0.008367166998520354
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.0002314116815424322,
+              "heterogeneity": -0.004968368854996949,
+              "total": -0.004736957173454516
+            }
+          ]
+        }
+      }
+    },
+    "floral_symmetry__tube_depth_class__original_native__geo_k5__disjoint__n5": {
+      "block": {
+        "north": {
+          "total": 0.08103048033417035,
+          "coherent": 0.0037608014303005433,
+          "heterogeneity": 0.07726967890386979,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.003733813845826612,
+              "dist": 0.000026057192634909145,
+              "coherent": 0.0000027882731670573033,
+              "heterogeneity": 0.00002326891946785184
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": -0.00840585304065874,
+              "dist": 0.012244584562786551,
+              "coherent": 0.000014131673068230356,
+              "heterogeneity": 0.012230452889718321
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.05077729259806854,
+              "dist": 0.005581816119132603,
+              "coherent": 0.0005156666887179732,
+              "heterogeneity": 0.00506614943041463
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": 0.05750939474534836,
+              "dist": 0.006641415738574268,
+              "coherent": 0.0006614660967952603,
+              "heterogeneity": 0.005979949641779008
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0019218475228545237,
+              "dist": 0.000009510332878522681,
+              "coherent": 7.386995802204138e-7,
+              "heterogeneity": 0.000008771633298302267
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": -0.004256715886544083,
+              "dist": 0.000024611673384514214,
+              "coherent": 0.000003623926027751356,
+              "heterogeneity": 0.000020987747356762858
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.011447678060792641,
+              "dist": 0.0004847618897737856,
+              "coherent": 0.000026209866596710633,
+              "heterogeneity": 0.00045855202317707493
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0035128875101486387,
+              "dist": 0.0006060968560725752,
+              "coherent": 0.00000246807573179166,
+              "heterogeneity": 0.0006036287803407836
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": 0.021484986939436956,
+              "dist": 0.02177554572348681,
+              "coherent": 0.00009232093275755531,
+              "heterogeneity": 0.021683224790729254
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.10905899504552495,
+              "dist": 0.01574779860461952,
+              "coherent": 0.002378772880067967,
+              "heterogeneity": 0.013369025724551554
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.017693829120632058,
+              "dist": 0.01788828164082628,
+              "coherent": 0.0000626143177900254,
+              "heterogeneity": 0.017825667323036254
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.11438238305810042,
+          "coherent": 0.034459049727786635,
+          "heterogeneity": 0.07992333333031379,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.0025498267203530526,
+              "dist": 0.004368819114544051,
+              "coherent": 0.0000013003232607652809,
+              "heterogeneity": 0.004367518791283285
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.288766021013677,
+              "dist": 0.032011719930280985,
+              "coherent": 0.01667716297841427,
+              "heterogeneity": 0.015334556951866717
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.03215863661988543,
+              "dist": 0.0061059939254714864,
+              "coherent": 0.00020683558184996726,
+              "heterogeneity": 0.005899158343621519
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.11716861731607547,
+              "dist": 0.020078950942258453,
+              "coherent": 0.0027456969767521884,
+              "heterogeneity": 0.017333253965506265
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.023569281404822548,
+              "dist": 0.00035432066896451636,
+              "coherent": 0.0001111022051879428,
+              "heterogeneity": 0.00024321846377657356
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.0038574639763996168,
+              "dist": 0.0007827635500869515,
+              "coherent": 0.0000029760056658441485,
+              "heterogeneity": 0.0007797875444211074
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.028893289001470836,
+              "dist": 0.002032606058765311,
+              "coherent": 0.00016696442986450312,
+              "heterogeneity": 0.0018656416289008079
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.00389296755380361,
+              "dist": 0.00003750275113530538,
+              "coherent": 0.0000030310392749935326,
+              "heterogeneity": 0.00003447171186031184
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.23996798786796122,
+              "dist": 0.027525141648646875,
+              "coherent": 0.011516927040279597,
+              "heterogeneity": 0.01600821460836728
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.10150982864454616,
+              "dist": 0.011837932117488232,
+              "coherent": 0.002060849062289025,
+              "heterogeneity": 0.009777083055199207
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.06950554240301766,
+              "dist": 0.009246632350458245,
+              "coherent": 0.0009662040849475374,
+              "heterogeneity": 0.008280428265510708
+            }
+          ]
+        },
+        "south": {
+          "total": 0.18017583722867356,
+          "coherent": 0.07425870313133419,
+          "heterogeneity": 0.10591713409733937,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.03266294463534383,
+              "dist": 0.0022011459417227252,
+              "coherent": 0.0002133735904503073,
+              "heterogeneity": 0.001987772351272418
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.29726926735791337,
+              "dist": 0.041471820095092295,
+              "coherent": 0.017673803463102118,
+              "heterogeneity": 0.023798016631990177
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.3319510675016316,
+              "dist": 0.05515249458960283,
+              "coherent": 0.022038302243094558,
+              "heterogeneity": 0.03311419234650827
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": 0.09283321600002127,
+              "dist": 0.0029573955168917523,
+              "coherent": 0.001723601198581321,
+              "heterogeneity": 0.0012337943183104313
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.037685830445561744,
+              "dist": 0.0005087660674523338,
+              "coherent": 0.00028404436327432567,
+              "heterogeneity": 0.0002247217041780081
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.011586657801971188,
+              "dist": 0.0043480205361236994,
+              "coherent": 0.000026850127803995958,
+              "heterogeneity": 0.004321170408319704
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.015188315330266208,
+              "dist": 0.0013997679401585768,
+              "coherent": 0.0000461369845143199,
+              "heterogeneity": 0.0013536309556442569
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": 0,
+              "dist": 0,
+              "coherent": 0,
+              "heterogeneity": 0
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.19413251818956703,
+              "dist": 0.015056704473843262,
+              "coherent": 0.007537486923724515,
+              "heterogeneity": 0.007519217550118747
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.29685298611074146,
+              "dist": 0.039459495957690695,
+              "coherent": 0.01762433907257281,
+              "heterogeneity": 0.021835156885117883
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.18829186339584492,
+              "dist": 0.017620226110095394,
+              "coherent": 0.007090765164215905,
+              "heterogeneity": 0.010529460945879488
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.03335190272393007,
+          "coherent": 0.030698248297486092,
+          "heterogeneity": 0.0026536544264439965,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": -0.0000014879499062920224,
+              "heterogeneity": 0.004344249871815434,
+              "total": 0.004342761921909142
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.01666303130534604,
+              "heterogeneity": 0.0031041040621483957,
+              "total": 0.019767135367494436
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": -0.00030883110686800595,
+              "heterogeneity": 0.0008330089132068891,
+              "total": 0.0005241778063388835
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.002084230879956928,
+              "heterogeneity": 0.011353304323727258,
+              "total": 0.013437535203684185
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.00011036350560772238,
+              "heterogeneity": 0.0002344468304782713,
+              "total": 0.0003448103360859937
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": -6.479203619072077e-7,
+              "heterogeneity": 0.0007587997970643445,
+              "total": 0.0007581518767024373
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00014075456326779248,
+              "heterogeneity": 0.001407089605723733,
+              "total": 0.0015478441689915252
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": 5.629635432018725e-7,
+              "heterogeneity": -0.0005691570684804718,
+              "total": -0.0005685941049372699
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.011424606107522042,
+              "heterogeneity": -0.005675010182361974,
+              "total": 0.005749595925160066
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": -0.0003179238177789421,
+              "heterogeneity": -0.003591942669352347,
+              "total": -0.00390986648713129
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.000903589767157512,
+              "heterogeneity": -0.009545239057525546,
+              "total": -0.008641649290368035
+            }
+          ]
+        }
+      },
+      "source_group": {
+        "north": {
+          "total": 0.07124160577256106,
+          "coherent": 0.0031473832140311055,
+          "heterogeneity": 0.06809422255852993,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.003537541992729246,
+              "dist": 0.000022969253146763768,
+              "coherent": 0.0000025028406700645608,
+              "heterogeneity": 0.000020466412476699206
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.021772984644716848,
+              "dist": 0.011094048710512238,
+              "coherent": 0.00009481257206781513,
+              "heterogeneity": 0.010999236138444423
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.05745306826766719,
+              "dist": 0.0060463707706660385,
+              "coherent": 0.0006601710106738454,
+              "heterogeneity": 0.005386199759992193
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": 0.03199945563806888,
+              "dist": 0.005856755658778084,
+              "coherent": 0.00020479303222654765,
+              "heterogeneity": 0.005651962626551536
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.001230399362656672,
+              "dist": 0.000009297942871582538,
+              "coherent": 3.027765183251889e-7,
+              "heterogeneity": 0.000008995166353257349
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": -0.0037454466686096784,
+              "dist": 0.000021768785590536615,
+              "coherent": 0.0000028056741494798677,
+              "heterogeneity": 0.00001896311144105675
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.011705426361117816,
+              "dist": 0.00040447195781351497,
+              "coherent": 0.000027403401259110376,
+              "heterogeneity": 0.0003770685565544046
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.007054814148001214,
+              "dist": 0.0005193150859584561,
+              "coherent": 0.000009954080532567619,
+              "heterogeneity": 0.0005093610054258884
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.04950772311093681,
+              "dist": 0.01891505785192387,
+              "coherent": 0.0004902029295258374,
+              "heterogeneity": 0.018424854922398034
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.06900452186554977,
+              "dist": 0.010850152146034922,
+              "coherent": 0.0009523248075786273,
+              "heterogeneity": 0.009897827338456296
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.0592498982627348,
+              "dist": 0.017501397609265026,
+              "coherent": 0.0007021100888288848,
+              "heterogeneity": 0.01679928752043614
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.11035819438563997,
+          "coherent": 0.029010387764231708,
+          "heterogeneity": 0.08134780662140828,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.011712053371926968,
+              "dist": 0.005336464580268447,
+              "coherent": 0.000027434438837373177,
+              "heterogeneity": 0.005309030141431074
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.24377008216628365,
+              "dist": 0.029288319169171597,
+              "coherent": 0.011884770591871336,
+              "heterogeneity": 0.01740354857730026
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.009957870893978187,
+              "dist": 0.006964973423466184,
+              "coherent": 0.000019831838548227587,
+              "heterogeneity": 0.006945141584917956
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.0810599662481429,
+              "dist": 0.016800600687161583,
+              "coherent": 0.0013141436256300135,
+              "heterogeneity": 0.01548645706153157
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.021433055968913865,
+              "dist": 0.0004129849702685024,
+              "coherent": 0.00009187517763331886,
+              "heterogeneity": 0.00032110979263518354
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.007909932648837274,
+              "dist": 0.0007747585299156018,
+              "coherent": 0.000012513406901828368,
+              "heterogeneity": 0.0007622451230137735
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.024815697864397284,
+              "dist": 0.0017714304059752938,
+              "coherent": 0.0001231637720994104,
+              "heterogeneity": 0.0016482666338758834
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0036190040365455447,
+              "dist": 0.000034110813483297,
+              "coherent": 0.0000026194380433065894,
+              "heterogeneity": 0.00003149137543999041
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.2553050311962716,
+              "dist": 0.027327464386562857,
+              "coherent": 0.013036131790825845,
+              "heterogeneity": 0.014291332595737012
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.09657071121446516,
+              "dist": 0.012088914061420302,
+              "coherent": 0.0018651804528935253,
+              "heterogeneity": 0.010223733608526776
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.05624603234662514,
+              "dist": 0.009558173357946308,
+              "coherent": 0.0006327232309475203,
+              "heterogeneity": 0.008925450126998788
+            }
+          ]
+        },
+        "south": {
+          "total": 0.13971745559129156,
+          "coherent": 0.021335172747802885,
+          "heterogeneity": 0.11838228284348867,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.030621896867279334,
+              "dist": 0.0017399928041506398,
+              "coherent": 0.0001875401135500584,
+              "heterogeneity": 0.0015524526906005815
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.05709171124571255,
+              "dist": 0.031719272551613886,
+              "coherent": 0.0006518926985927642,
+              "heterogeneity": 0.03106737985302112
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.1759685765187298,
+              "dist": 0.032536530688997374,
+              "coherent": 0.006192987984405612,
+              "heterogeneity": 0.02634354270459176
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": 0.10087359320302872,
+              "dist": 0.005004395651644201,
+              "coherent": 0.002035096361138024,
+              "heterogeneity": 0.002969299290506177
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.024393249338230654,
+              "dist": 0.0002682425502995058,
+              "coherent": 0.00011900612265541804,
+              "heterogeneity": 0.00014923642764408775
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.04972146259970117,
+              "dist": 0.004134664458127667,
+              "coherent": 0.0004944447686106965,
+              "heterogeneity": 0.00364021968951697
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.016988394981235774,
+              "dist": 0.0020091473558802053,
+              "coherent": 0.000057721112807695367,
+              "heterogeneity": 0.0019514262430725098
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": 0,
+              "dist": 0,
+              "coherent": 0,
+              "heterogeneity": 0
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.13181394371962368,
+              "dist": 0.012909722588495843,
+              "coherent": 0.0034749831517840238,
+              "heterogeneity": 0.009434739436711819
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.19543828209895478,
+              "dist": 0.030230659809732545,
+              "coherent": 0.007639224421958126,
+              "heterogeneity": 0.02259143538777442
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.049105804763819184,
+              "dist": 0.01916482713234969,
+              "coherent": 0.0004822760123004654,
+              "heterogeneity": 0.018682551120049223
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.039116588613078915,
+          "coherent": 0.025863004550200602,
+          "heterogeneity": 0.013253584062878354,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": 0.000024931598167308616,
+              "heterogeneity": 0.005288563728954375,
+              "total": 0.005313495327121684
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.011789958019803521,
+              "heterogeneity": 0.006404312438855838,
+              "total": 0.01819427045865936
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": -0.0006403391721256178,
+              "heterogeneity": 0.0015589418249257634,
+              "total": 0.0009186026528001457
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.001109350593403466,
+              "heterogeneity": 0.009834494434980034,
+              "total": 0.0109438450283835
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.00009157240111499367,
+              "heterogeneity": 0.00031211462628192617,
+              "total": 0.00040368702739691987
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.0000097077327523485,
+              "heterogeneity": 0.0007432820115727167,
+              "total": 0.0007529897443250651
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00009576037084030001,
+              "heterogeneity": 0.001271198077321479,
+              "total": 0.0013669584481617789
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00000733464248926103,
+              "heterogeneity": -0.000477869629985898,
+              "total": -0.00048520427247515907
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.012545928861300008,
+              "heterogeneity": -0.004133522326661022,
+              "total": 0.008412406534638987
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": 0.000912855645314898,
+              "heterogeneity": 0.0003259062700704807,
+              "total": 0.00123876191538538
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": -0.00006938685788136453,
+              "heterogeneity": -0.007873837393437354,
+              "total": -0.007943224251318718
+            }
+          ]
+        }
+      }
+    },
+    "floral_symmetry__tube_depth_class__high_quality_only__geo_k5__disjoint__n5": {
+      "block": {
+        "north": {
+          "total": 0.09233119136825496,
+          "coherent": 0.0022302195764308235,
+          "heterogeneity": 0.09010097179182411,
+          "cells": [
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.029974742852318,
+              "dist": 0.015279278883075361,
+              "coherent": 0.00017969704181251781,
+              "heterogeneity": 0.015099581841262843
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.03674270181146158,
+              "dist": 0.013679191728250904,
+              "coherent": 0.00027000522728119644,
+              "heterogeneity": 0.013409186500969708
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.010645074106563727,
+              "dist": 0.012518927302425613,
+              "coherent": 0.000022663520546846706,
+              "heterogeneity": 0.012496263781878767
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.002792731650978438,
+              "dist": 0.00007717378314839507,
+              "coherent": 0.0000015598700148753505,
+              "heterogeneity": 0.00007561391313351972
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": -0.0022192010336564362,
+              "dist": 0.00011327980864940466,
+              "coherent": 9.84970645556359e-7,
+              "heterogeneity": 0.0001122948380038483
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.008838667760339189,
+              "dist": 0.00185165986551517,
+              "coherent": 0.000015624409555531875,
+              "heterogeneity": 0.001836035455959638
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.043116251872144094,
+              "dist": 0.0025688116012211803,
+              "coherent": 0.0003718022351004338,
+              "heterogeneity": 0.0021970093661207463
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.0803437502610521,
+              "dist": 0.009468526415357241,
+              "coherent": 0.001291023641202062,
+              "heterogeneity": 0.008177502774155179
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.015976714043739664,
+              "dist": 0.01775493475943993,
+              "coherent": 0.000051051078327085645,
+              "heterogeneity": 0.017703883681112847
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.011359485451532984,
+              "dist": 0.019019407221171743,
+              "coherent": 0.000025807581944717904,
+              "heterogeneity": 0.018993599639227025
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.1788212199373686,
+          "coherent": 0.03690014712884719,
+          "heterogeneity": 0.14192107280852137,
+          "cells": [
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.2916962195851049,
+              "dist": 0.0436565713139665,
+              "coherent": 0.017017336904048348,
+              "heterogeneity": 0.02663923440991815
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.04597506021520175,
+              "dist": 0.015518399979803065,
+              "coherent": 0.0004227412323582854,
+              "heterogeneity": 0.01509565874744478
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.12612015494192777,
+              "dist": 0.029036014302639607,
+              "coherent": 0.0031812586965151734,
+              "heterogeneity": 0.025854755606124432
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.10995081557147753,
+              "dist": 0.009755163565466858,
+              "coherent": 0.002417836368966613,
+              "heterogeneity": 0.007337327196500245
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": -0.00040768511850579814,
+              "dist": 0.000010453464457871909,
+              "coherent": 3.3241431170217334e-8,
+              "heterogeneity": 0.00001042022302670169
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.028163725106474545,
+              "dist": 0.014740132962633887,
+              "coherent": 0.00015863908237461293,
+              "heterogeneity": 0.014581493880259274
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.004796303698537484,
+              "dist": 0.0001169222922597244,
+              "coherent": 0.00000460090583372087,
+              "heterogeneity": 0.00011232138642600353
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.18924141195518723,
+              "dist": 0.03650193447383191,
+              "coherent": 0.007162462399758577,
+              "heterogeneity": 0.029339472074073336
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.13794908116898635,
+              "dist": 0.013621364431549508,
+              "coherent": 0.003805989799073517,
+              "heterogeneity": 0.009815374632475992
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.1168171327007981,
+              "dist": 0.01586426315075963,
+              "coherent": 0.002729248498487175,
+              "heterogeneity": 0.013135014652272455
+            }
+          ]
+        },
+        "south": {
+          "total": 0.23263023657543216,
+          "coherent": 0.04949595275468162,
+          "heterogeneity": 0.1831342838207505,
+          "cells": [
+            {
+              "cell": "actinomorphic__deep",
+              "mean": -0.045123973448827,
+              "dist": 0.03475194796407768,
+              "coherent": 0.00040723459596208884,
+              "heterogeneity": 0.034344713368115586
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.018143935224515125,
+              "dist": 0.03569439264848911,
+              "coherent": 0.00006584047708628014,
+              "heterogeneity": 0.03562855217140283
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.12692729835262098,
+              "dist": 0.020480899183185405,
+              "coherent": 0.003222107813419052,
+              "heterogeneity": 0.017258791369766352
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.07280835890530511,
+              "dist": 0.00985620191765399,
+              "coherent": 0.0010602114252967446,
+              "heterogeneity": 0.008795990492357245
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.00005260942760942776,
+              "dist": 1.826716236438469e-7,
+              "coherent": 5.535503746783241e-10,
+              "heterogeneity": 1.8211807326916856e-7
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.10755854366427796,
+              "dist": 0.012634590314134223,
+              "coherent": 0.0023137680630360776,
+              "heterogeneity": 0.010320822251098146
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": 0.0004102502297303332,
+              "dist": 0.0000030043650662498587,
+              "coherent": 3.3661050198758235e-8,
+              "heterogeneity": 0.0000029707040160511006
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.3113620471345492,
+              "dist": 0.05764825974524733,
+              "coherent": 0.019389264879163447,
+              "heterogeneity": 0.03825899486608388
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.31102069076370925,
+              "dist": 0.028935444936695896,
+              "coherent": 0.01934677401662697,
+              "heterogeneity": 0.009588670920068924
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.1358439779579939,
+              "dist": 0.03262531282925861,
+              "coherent": 0.003690717269490387,
+              "heterogeneity": 0.028934595559768222
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.08649002856911364,
+          "coherent": 0.034669927552416366,
+          "heterogeneity": 0.05182010101669726,
+          "cells": [
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.01683763986223583,
+              "heterogeneity": 0.011539652568655306,
+              "total": 0.028377292430891134
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": 0.00015273600507708897,
+              "heterogeneity": 0.0016864722464750709,
+              "total": 0.0018392082515521612
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.003158595175968327,
+              "heterogeneity": 0.013358491824245665,
+              "total": 0.016517087000213995
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.0024162764989517378,
+              "heterogeneity": 0.007261713283366725,
+              "total": 0.009677989782318463
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": -9.517292143861417e-7,
+              "heterogeneity": -0.00010187461497714661,
+              "total": -0.00010282634419153276
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00014301467281908106,
+              "heterogeneity": 0.012745458424299637,
+              "total": 0.012888473097118717
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00036720132926671296,
+              "heterogeneity": -0.002084687979694743,
+              "total": -0.002451889308961456
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.005871438758556514,
+              "heterogeneity": 0.021161969299918156,
+              "total": 0.02703340805847467
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": 0.0037549387207464315,
+              "heterogeneity": -0.007888509048636855,
+              "total": -0.004133570327890423
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.002703440916542457,
+              "heterogeneity": -0.00585858498695457,
+              "total": -0.0031551440704121123
+            }
+          ]
+        }
+      },
+      "source_group": {
+        "north": {
+          "total": 0.09616213540987907,
+          "coherent": 0.007658382817291232,
+          "heterogeneity": 0.08850375259258786,
+          "cells": [
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.12945637379631272,
+              "dist": 0.018935066982816707,
+              "coherent": 0.003351790543298129,
+              "heterogeneity": 0.015583276439518578
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.02357121827242324,
+              "dist": 0.012957973570171671,
+              "coherent": 0.00011112046616924387,
+              "heterogeneity": 0.012846853104002428
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.0918048290097541,
+              "dist": 0.014728576577975876,
+              "coherent": 0.0016856253259020376,
+              "heterogeneity": 0.013042951252073838
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0018613380631870775,
+              "dist": 0.00003571049866008726,
+              "coherent": 6.929158770938041e-7,
+              "heterogeneity": 0.000035017582782993454
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": -0.0019687722183909877,
+              "dist": 0.0000637713084951137,
+              "coherent": 7.752128095816341e-7,
+              "heterogeneity": 0.00006299609568553207
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.007992374000696984,
+              "dist": 0.002737467548802433,
+              "coherent": 0.000012775608433403422,
+              "heterogeneity": 0.0027246919403690296
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.042609350574159835,
+              "dist": 0.0027730968133875627,
+              "coherent": 0.000363111351270331,
+              "heterogeneity": 0.0024099854621172315
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.053540696174634035,
+              "dist": 0.01024565377463321,
+              "coherent": 0.0005733212293728944,
+              "heterogeneity": 0.009672332545260317
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.05667880172040277,
+              "dist": 0.014959793974527923,
+              "coherent": 0.0006424973128921464,
+              "heterogeneity": 0.014317296661635776
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.06770054841972742,
+              "dist": 0.01872502436040851,
+              "coherent": 0.0009166728512663713,
+              "heterogeneity": 0.017808351509142138
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.1669309289442319,
+          "coherent": 0.02267728541149701,
+          "heterogeneity": 0.14425364353273487,
+          "cells": [
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.22893940639274657,
+              "dist": 0.03942873217798018,
+              "coherent": 0.010482650359892634,
+              "heterogeneity": 0.028946081818087548
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.03797871055624658,
+              "dist": 0.012835962583795988,
+              "coherent": 0.00028847649110303115,
+              "heterogeneity": 0.012547486092692958
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.06011093625051851,
+              "dist": 0.026318198605577065,
+              "coherent": 0.0007226649313827802,
+              "heterogeneity": 0.025595533674194284
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.09266331024981168,
+              "dist": 0.008400057334603434,
+              "coherent": 0.001717297813290571,
+              "heterogeneity": 0.0066827595213128635
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": -0.0009640427686211851,
+              "dist": 0.000024997544765551972,
+              "coherent": 1.8587569194615995e-7,
+              "heterogeneity": 0.00002481166907360581
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.025119156897890398,
+              "dist": 0.013891309984443002,
+              "coherent": 0.00012619440865216695,
+              "heterogeneity": 0.013765115575790835
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0037109016312951936,
+              "dist": 0.00008978850546859481,
+              "coherent": 0.000002754158183429866,
+              "heterogeneity": 0.00008703434728516495
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.1315402701638161,
+              "dist": 0.03457293966296773,
+              "coherent": 0.003460568534953945,
+              "heterogeneity": 0.031112371128013787
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.10650989219417137,
+              "dist": 0.016427731403538457,
+              "coherent": 0.0022688714270428017,
+              "heterogeneity": 0.014158859976495655
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.13430602017973176,
+              "dist": 0.014941211141091872,
+              "coherent": 0.0036076214113037026,
+              "heterogeneity": 0.011333589729788169
+            }
+          ]
+        },
+        "south": {
+          "total": 0.25372391431574937,
+          "coherent": 0.049989142317307424,
+          "heterogeneity": 0.20373477199844195,
+          "cells": [
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.02537977796626164,
+              "dist": 0.040564085170601547,
+              "coherent": 0.00012882662592334797,
+              "heterogeneity": 0.0404352585446782
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.049492277106498214,
+              "dist": 0.04221387084366754,
+              "coherent": 0.0004898970986372815,
+              "heterogeneity": 0.04172397374503026
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.13556236621830905,
+              "dist": 0.022696404604871365,
+              "coherent": 0.0036754310269413878,
+              "heterogeneity": 0.019020973577929978
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.047119097999674064,
+              "dist": 0.00902825740478602,
+              "coherent": 0.0004440418792605777,
+              "heterogeneity": 0.008584215525525442
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.00006070318570318588,
+              "dist": 2.107749503582849e-7,
+              "coherent": 7.369753509030941e-10,
+              "heterogeneity": 2.100379750073818e-7
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.07004846379367476,
+              "dist": 0.008034444072864739,
+              "coherent": 0.0009813574559707527,
+              "heterogeneity": 0.007053086616893986
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": 0.00034902126772868436,
+              "dist": 0.00000248317848610981,
+              "coherent": 2.4363169065387594e-8,
+              "heterogeneity": 0.0000024588153170444227
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.3593011416679272,
+              "dist": 0.06375643163955787,
+              "coherent": 0.02581946208077518,
+              "heterogeneity": 0.03793696955878269
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.2406628736039816,
+              "dist": 0.023615417781572598,
+              "coherent": 0.011583723746265203,
+              "heterogeneity": 0.012031694035307395
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.18528865728086638,
+              "dist": 0.04381230884439122,
+              "coherent": 0.006866377303389272,
+              "heterogeneity": 0.036945931541001946
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.07076879353435282,
+          "coherent": 0.015018902594205776,
+          "heterogeneity": 0.05574989094014701,
+          "cells": [
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.007130859816594505,
+              "heterogeneity": 0.01336280537856897,
+              "total": 0.020493665195163473
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": 0.00017735602493378728,
+              "heterogeneity": -0.00029936701130947076,
+              "total": -0.00012201098637568304
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": -0.0009629603945192574,
+              "heterogeneity": 0.012552582422120446,
+              "total": 0.01158962202760119
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.0017166048974134771,
+              "heterogeneity": 0.00664774193852987,
+              "total": 0.008364346835943347
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": -5.893371176354742e-7,
+              "heterogeneity": -0.00003818442661192626,
+              "total": -0.00003877376372956173
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00011341880021876353,
+              "heterogeneity": 0.011040423635421806,
+              "total": 0.01115384243564057
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00036035719308690113,
+              "heterogeneity": -0.0023229511148320668,
+              "total": -0.002683308307918968
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.002887247305581051,
+              "heterogeneity": 0.021440038582753472,
+              "total": 0.02432728588833452
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": 0.0016263741141506554,
+              "heterogeneity": -0.00015843668514012137,
+              "total": 0.0014679374290105345
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.002690948560037331,
+              "heterogeneity": -0.006474761779353969,
+              "total": -0.0037838132193166365
+            }
+          ]
+        }
+      }
+    },
+    "floral_symmetry__tube_depth_class__all_recorded__geo_k5__disjoint__n10": {
+      "block": {
+        "north": {
+          "total": 0.042065341892439045,
+          "coherent": 0.0005355988405285827,
+          "heterogeneity": 0.04152974305191046,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.00966327932260833,
+              "dist": 0.0004124048234759247,
+              "coherent": 0.00000933789672667497,
+              "heterogeneity": 0.00040306692674924976
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.0039061166125914444,
+              "dist": 0.010672776161595158,
+              "coherent": 0.000001525774699116286,
+              "heterogeneity": 0.010671250386896041
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.022373436173325285,
+              "dist": 0.0018583990461574127,
+              "coherent": 0.00005005706462018603,
+              "heterogeneity": 0.0018083419815372267
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": 0.0019751778311007527,
+              "dist": 0.0010372252759815973,
+              "coherent": 3.9013274644718736e-7,
+              "heterogeneity": 0.0010368351432351501
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0016372487668838427,
+              "dist": 0.000018388413783581256,
+              "coherent": 2.680583524662663e-7,
+              "heterogeneity": 0.00001812035543111499
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.010377544321434175,
+              "dist": 0.0003830353453587726,
+              "coherent": 0.00001076934261433307,
+              "heterogeneity": 0.00037226600274443955
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.010347459735733528,
+              "dist": 0.0009611005234360221,
+              "coherent": 0.000010706992298262656,
+              "heterogeneity": 0.0009503935311377594
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.04878209037214613,
+              "dist": 0.0012366054961114416,
+              "coherent": 0.0002379692341076232,
+              "heterogeneity": 0.0009986362620038184
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": 0.0031221377119301035,
+              "dist": 0.01263797926989153,
+              "coherent": 9.747743892256141e-7,
+              "heterogeneity": 0.012637004495502304
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.007927651868541384,
+              "dist": 0.0007399334257731164,
+              "coherent": 0.00000628476641487877,
+              "heterogeneity": 0.0007336486593582377
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.04553183540769784,
+              "dist": 0.012107494110874488,
+              "coherent": 0.00020731480355936868,
+              "heterogeneity": 0.01190017930731512
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.04986356448434219,
+          "coherent": 0.005137817285785911,
+          "heterogeneity": 0.04472574719855629,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.03481486554989339,
+              "dist": 0.0047062428461711065,
+              "coherent": 0.00012120748632571536,
+              "heterogeneity": 0.004585035359845391
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.16853096717641378,
+              "dist": 0.005991539166455524,
+              "coherent": 0.0028402686897417454,
+              "heterogeneity": 0.003151270476713779
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.004114508825101933,
+              "dist": 0.0015338109874122887,
+              "coherent": 0.000001692918287184169,
+              "heterogeneity": 0.0015321180691251046
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.07435288983161811,
+              "dist": 0.004225230076694301,
+              "coherent": 0.0005528352226312741,
+              "heterogeneity": 0.0036723948540630267
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.03478178081029091,
+              "dist": 0.0007105983279923737,
+              "coherent": 0.00012097722763351209,
+              "heterogeneity": 0.0005896211003588617
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.0333316994583289,
+              "dist": 0.0035959570854456457,
+              "coherent": 0.00011110021887803632,
+              "heterogeneity": 0.0034848568665676095
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.05238379057541693,
+              "dist": 0.0035494542059880487,
+              "coherent": 0.00027440615150491396,
+              "heterogeneity": 0.0032750480544831346
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.003337074097636006,
+              "dist": 0.000040840578177789806,
+              "coherent": 0.0000011136063533113162,
+              "heterogeneity": 0.00003972697182447849
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.02138013358475629,
+              "dist": 0.011528202525169399,
+              "coherent": 0.000045711011210202386,
+              "heterogeneity": 0.011482491513959197
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.018479795326230834,
+              "dist": 0.0032369139160751065,
+              "coherent": 0.0000341502835299383,
+              "heterogeneity": 0.003202763632545168
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.10170321871455584,
+              "dist": 0.010744774768760625,
+              "coherent": 0.0010343544696900782,
+              "heterogeneity": 0.009710420299070547
+            }
+          ]
+        },
+        "south": {
+          "total": 0.07049314265912479,
+          "coherent": 0.00980751667271093,
+          "heterogeneity": 0.060685625986413874,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.08750918943553794,
+              "dist": 0.0034707434990844228,
+              "coherent": 0.0007657858235664865,
+              "heterogeneity": 0.0027049576755179363
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.05530123649595682,
+              "dist": 0.011751783189643733,
+              "coherent": 0.00030582267579817466,
+              "heterogeneity": 0.011445960513845558
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.07528374318823512,
+              "dist": 0.005577545736959001,
+              "coherent": 0.0005667641988432138,
+              "heterogeneity": 0.005010781538115788
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.023649702633492288,
+              "dist": 0.0009435221702638059,
+              "coherent": 0.000055930843465261206,
+              "heterogeneity": 0.0008875913267985447
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.030604232845870834,
+              "dist": 0.0010185193003176773,
+              "coherent": 0.00009366190680842792,
+              "heterogeneity": 0.0009248573935092493
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.003886827757460475,
+              "dist": 0.0018213039924448887,
+              "coherent": 0.0000015107430016165223,
+              "heterogeneity": 0.0018197932494432721
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.05936076267798001,
+              "dist": 0.003376825175741688,
+              "coherent": 0.00035237001457114644,
+              "heterogeneity": 0.003024455161170542
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.006713224635119126,
+              "dist": 0.00005739335958405092,
+              "coherent": 0.000004506738500157032,
+              "heterogeneity": 0.00005288662108389389
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.1715668969911953,
+              "dist": 0.02496593177449129,
+              "coherent": 0.0029435200143187413,
+              "heterogeneity": 0.02202241176017255
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.08074925875721647,
+              "dist": 0.002394135399540298,
+              "coherent": 0.0006520442789839902,
+              "heterogeneity": 0.0017420911205563079
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.2016333165638485,
+              "dist": 0.01511543906105394,
+              "coherent": 0.004065599434853714,
+              "heterogeneity": 0.011049839626200226
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.007798222591903145,
+          "coherent": 0.004602218445257328,
+          "heterogeneity": 0.0031960041466458297,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": 0.00011186958959904039,
+              "heterogeneity": 0.004181968433096141,
+              "total": 0.004293838022695182
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.0028387429150426293,
+              "heterogeneity": -0.0075199799101822624,
+              "total": -0.004681236995139633
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": -0.00004836414633300186,
+              "heterogeneity": -0.0002762239124121221,
+              "total": -0.000324588058745124
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.0005524450898848269,
+              "heterogeneity": 0.0026355597108278766,
+              "total": 0.003188004800712704
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.00012070916928104582,
+              "heterogeneity": 0.0005715007449277466,
+              "total": 0.0006922099142087925
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.00010033087626370325,
+              "heterogeneity": 0.00311259086382317,
+              "total": 0.003212921740086873
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00026369915920665133,
+              "heterogeneity": 0.002324654523345375,
+              "total": 0.002588353682552027
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00023685562775431187,
+              "heterogeneity": -0.00095890929017934,
+              "total": -0.0011957649179336518
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.00004473623682097677,
+              "heterogeneity": -0.0011545129815431071,
+              "total": -0.001109776744722131
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": 0.000027865517115059532,
+              "heterogeneity": 0.0024691149731869305,
+              "total": 0.00249698049030199
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.0008270396661307095,
+              "heterogeneity": -0.002189759008244573,
+              "total": -0.0013627193421138634
+            }
+          ]
+        }
+      },
+      "source_group": {
+        "north": {
+          "total": 0.03800804541801259,
+          "coherent": 0.0023448351531364714,
+          "heterogeneity": 0.03566321026487613,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.014111318039310863,
+              "dist": 0.0005332467833312059,
+              "coherent": 0.00001991292968065802,
+              "heterogeneity": 0.0005133338536505479
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.1312345522456082,
+              "dist": 0.008810737216485122,
+              "coherent": 0.001722250770310527,
+              "heterogeneity": 0.007088486446174595
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.02341623964248685,
+              "dist": 0.0013647128876228703,
+              "coherent": 0.00005483202789943727,
+              "heterogeneity": 0.001309880859723433
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.01918264139118351,
+              "dist": 0.0013389375171428885,
+              "coherent": 0.00003679737307427468,
+              "heterogeneity": 0.0013021401440686138
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0010862049506507876,
+              "dist": 0.0000105868567400701,
+              "coherent": 1.1798411948182798e-7,
+              "heterogeneity": 0.000010468872620588271
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.025007305642560474,
+              "dist": 0.0010108195481073386,
+              "coherent": 0.00006253653355004369,
+              "heterogeneity": 0.0009482830145572949
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.009106213156670956,
+              "dist": 0.0014228362612213371,
+              "coherent": 0.000008292311805472722,
+              "heterogeneity": 0.0014145439494158644
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0389259985080166,
+              "dist": 0.0011101467906041835,
+              "coherent": 0.00015152333598461104,
+              "heterogeneity": 0.0009586234546195725
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.03408959928212256,
+              "dist": 0.010846689242548042,
+              "coherent": 0.0001162100779215691,
+              "heterogeneity": 0.010730479164626473
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.0024576356272485436,
+              "dist": 0.0007062772364397033,
+              "coherent": 6.039972876321342e-7,
+              "heterogeneity": 0.0007056732391520712
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.04144367400493876,
+              "dist": 0.010853055077769841,
+              "coherent": 0.00017175781150276364,
+              "heterogeneity": 0.010681297266267077
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.049365285770221076,
+          "coherent": 0.0039043228682690053,
+          "heterogeneity": 0.04546096290195206,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.013545686368529273,
+              "dist": 0.005859649047958143,
+              "coherent": 0.000018348561919455974,
+              "heterogeneity": 0.005841300486038687
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.1296336623337949,
+              "dist": 0.006654251593642899,
+              "coherent": 0.0016804886410072353,
+              "heterogeneity": 0.0049737629526356636
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": 0.0037362440722504787,
+              "dist": 0.0005807275730891342,
+              "coherent": 0.0000013959519767426841,
+              "heterogeneity": 0.0005793316211123914
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.03788722149223025,
+              "dist": 0.0026913821430452,
+              "coherent": 0.00014354415524013136,
+              "heterogeneity": 0.0025478379878050685
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.030137757900343915,
+              "dist": 0.001025330759766311,
+              "coherent": 0.00009082844512597421,
+              "heterogeneity": 0.0009345023146403367
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.04627372468224584,
+              "dist": 0.004273500851718321,
+              "coherent": 0.00021412575959682878,
+              "heterogeneity": 0.004059375092121492
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.04315959901816737,
+              "dist": 0.0032166185395567687,
+              "coherent": 0.00018627509874089937,
+              "heterogeneity": 0.0030303434408158695
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0027022724906911565,
+              "dist": 0.00003081661448469226,
+              "coherent": 7.302276613946185e-7,
+              "heterogeneity": 0.000030086386823297643
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.017174465878717193,
+              "dist": 0.010234441416397021,
+              "coherent": 0.00002949622782192211,
+              "heterogeneity": 0.0102049451885751
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.0006035032004912211,
+              "dist": 0.003841161176055317,
+              "coherent": 3.6421611300314696e-8,
+              "heterogeneity": 0.003841124754444017
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.12405859009222701,
+              "dist": 0.01095740605450726,
+              "coherent": 0.0015390533775671207,
+              "heterogeneity": 0.009418352676940139
+            }
+          ]
+        },
+        "south": {
+          "total": 0.06749939671313464,
+          "coherent": 0.010600999877816115,
+          "heterogeneity": 0.05689839683531853,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.07341586206051214,
+              "dist": 0.0035744013334753784,
+              "coherent": 0.0005389888802088145,
+              "heterogeneity": 0.003035412453266564
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.04701297276049811,
+              "dist": 0.009511753681656333,
+              "coherent": 0.0002210219607779337,
+              "heterogeneity": 0.0092907317208784
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.019929664948166146,
+              "dist": 0.002455191841069218,
+              "coherent": 0.000039719154494616235,
+              "heterogeneity": 0.0024154726865746015
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.025850276022185467,
+              "dist": 0.0010911696611274296,
+              "coherent": 0.00006682367704231768,
+              "heterogeneity": 0.0010243459840851119
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.018570960482978106,
+              "dist": 0.0009411088061750883,
+              "coherent": 0.000034488057326033446,
+              "heterogeneity": 0.0009066207488490549
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.04814822432192813,
+              "dist": 0.0024638364826073574,
+              "coherent": 0.0002318251505354712,
+              "heterogeneity": 0.0022320113320718864
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.04622037113388612,
+              "dist": 0.0021046717331348395,
+              "coherent": 0.00021363227077541734,
+              "heterogeneity": 0.0018910394623594222
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.005000513493787649,
+              "dist": 0.0000442756385477436,
+              "coherent": 0.0000025005135201552357,
+              "heterogeneity": 0.00004177512502758836
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.19678820003772887,
+              "dist": 0.02579263998774064,
+              "coherent": 0.0038725595674089196,
+              "heterogeneity": 0.02192008042033172
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.05853784123117751,
+              "dist": 0.0020937700924355197,
+              "coherent": 0.00034266788560065455,
+              "heterogeneity": 0.0017511022068348652
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.22442755535196166,
+              "dist": 0.017426577455165092,
+              "coherent": 0.005036772760125782,
+              "heterogeneity": 0.01238980469503931
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.01135724035220849,
+          "coherent": 0.001559487715132534,
+          "heterogeneity": 0.009797752637075934,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": -0.0000015643677612020462,
+              "heterogeneity": 0.005327966632388139,
+              "total": 0.005326402264626938
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": -0.00004176212930329169,
+              "heterogeneity": -0.0021147234935389317,
+              "total": -0.0021564856228422236
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": -0.000053436075922694585,
+              "heterogeneity": -0.0007305492386110417,
+              "total": -0.0007839853145337361
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.00010674678216585667,
+              "heterogeneity": 0.0012456978437364547,
+              "total": 0.0013524446259023113
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.00009071046100649238,
+              "heterogeneity": 0.0009240334420197485,
+              "total": 0.0010147439030262408
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.0001515892260467851,
+              "heterogeneity": 0.0031110920775641975,
+              "total": 0.0032626813036109826
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00017798278693542666,
+              "heterogeneity": 0.0016157994914000051,
+              "total": 0.0017937822783354316
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00015079310832321642,
+              "heterogeneity": -0.0009285370677962749,
+              "total": -0.0010793301761194913
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": -0.00008671385009964699,
+              "heterogeneity": -0.0005255339760513733,
+              "total": -0.0006122478261510206
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": -5.675756763318195e-7,
+              "heterogeneity": 0.0031354515152919454,
+              "total": 0.003134883939615614
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.001367295566064357,
+              "heterogeneity": -0.0012629445893269382,
+              "total": 0.00010435097673741796
+            }
+          ]
+        }
+      }
+    },
+    "floral_symmetry__tube_depth_class__all_recorded__geo_k5__disjoint__n5__replacement": {
+      "block": {
+        "north": {
+          "total": 0.06836648131784796,
+          "coherent": 0.003194199080749564,
+          "heterogeneity": 0.06517228223709838,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.003732626799941461,
+              "dist": 0.0002229875686255518,
+              "coherent": 0.000002786500565528246,
+              "heterogeneity": 0.00022020106806002355
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.0027795265299771043,
+              "dist": 0.010887078064186546,
+              "coherent": 0.0000015451535461693125,
+              "heterogeneity": 0.010885532910640377
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.04382091975070417,
+              "dist": 0.01371239528416983,
+              "coherent": 0.000384054601559531,
+              "heterogeneity": 0.0133283406826103
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.06398726497772564,
+              "dist": 0.011838355581574693,
+              "coherent": 0.0008188740158659348,
+              "heterogeneity": 0.011019481565708759
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0007677906524575051,
+              "dist": 0.000006338239212790589,
+              "coherent": 1.1790049720022429e-7,
+              "heterogeneity": 0.000006220338715590365
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.004283613127236694,
+              "dist": 0.00021695184437688035,
+              "coherent": 0.0000036698682847669053,
+              "heterogeneity": 0.00021328197609211345
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.007910339278821826,
+              "dist": 0.0003149004021077878,
+              "coherent": 0.000012514693501214279,
+              "heterogeneity": 0.0003023857086065735
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.025527289517822967,
+              "dist": 0.0005394379055728615,
+              "coherent": 0.00013032850202535087,
+              "heterogeneity": 0.0004091094035475107
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.022462810607753878,
+              "dist": 0.011661852259601879,
+              "coherent": 0.00010091557207996403,
+              "heterogeneity": 0.011560936687521915
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.04331029350628726,
+              "dist": 0.007289937148127732,
+              "coherent": 0.0003751563047201497,
+              "heterogeneity": 0.006914780843407582
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.0825904343160803,
+              "dist": 0.011676247020291389,
+              "coherent": 0.001364235968103755,
+              "heterogeneity": 0.010312011052187634
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.09778856022195102,
+          "coherent": 0.017967578773130054,
+          "heterogeneity": 0.07982098144882104,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.02325623162908575,
+              "dist": 0.0032740233176777483,
+              "coherent": 0.0001081704619171377,
+              "heterogeneity": 0.0031658528557606106
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.18746518065849485,
+              "dist": 0.019251849366489028,
+              "coherent": 0.007028638791864422,
+              "heterogeneity": 0.012223210574624607
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.06939846806272319,
+              "dist": 0.012444794530632207,
+              "coherent": 0.0009632294738905622,
+              "heterogeneity": 0.011481565056741645
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.17251826608733348,
+              "dist": 0.02070250894354018,
+              "coherent": 0.005952510426755999,
+              "heterogeneity": 0.014749998516784182
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.018217320019329727,
+              "dist": 0.00046314981678151416,
+              "coherent": 0.00006637414973733433,
+              "heterogeneity": 0.0003967756670441798
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.007259532026714846,
+              "dist": 0.0013135409684028139,
+              "coherent": 0.000010540161049379711,
+              "heterogeneity": 0.0013030008073534342
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.02405855754374284,
+              "dist": 0.0032462327199950297,
+              "coherent": 0.0001157628382171171,
+              "heterogeneity": 0.0031304698817779127
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.001959664727794504,
+              "dist": 0.000020756858260159075,
+              "coherent": 7.680571690723816e-7,
+              "heterogeneity": 0.000019988801091086694
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.08192876364002033,
+              "dist": 0.015658609455234628,
+              "coherent": 0.0013424644623164634,
+              "heterogeneity": 0.014316144992918165
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.03801502000068586,
+              "dist": 0.012310741259400659,
+              "coherent": 0.00028902834913050916,
+              "heterogeneity": 0.01202171291027015
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.10222748165444696,
+              "dist": 0.009102352985537111,
+              "coherent": 0.0020900916010820583,
+              "heterogeneity": 0.007012261384455053
+            }
+          ]
+        },
+        "south": {
+          "total": 0.10392103948546258,
+          "coherent": 0.016591753813747258,
+          "heterogeneity": 0.08732928567171533,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.03940312353340296,
+              "dist": 0.0025212364610468956,
+              "coherent": 0.0003105212288377228,
+              "heterogeneity": 0.0022107152322091727
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.059387587571251996,
+              "dist": 0.01680010522791191,
+              "coherent": 0.000705377111506625,
+              "heterogeneity": 0.016094728116405287
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.14329526808096424,
+              "dist": 0.01957239903079495,
+              "coherent": 0.004106706770879082,
+              "heterogeneity": 0.01546569225991587
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.11522470124496519,
+              "dist": 0.010448451391017822,
+              "coherent": 0.002655346355398296,
+              "heterogeneity": 0.007793105035619525
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.014346025009581641,
+              "dist": 0.0004251024200337417,
+              "coherent": 0.00004116168671510838,
+              "heterogeneity": 0.0003839407333186333
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.00003796386547545901,
+              "dist": 0.0009829926129084475,
+              "coherent": 2.882510163677497e-10,
+              "heterogeneity": 0.0009829923246574312
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.03596996618508584,
+              "dist": 0.0010929042231052775,
+              "coherent": 0.0002587676934712438,
+              "heterogeneity": 0.0008341365296340338
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0031006231279114764,
+              "dist": 0.00002594719631563307,
+              "coherent": 0.0000019227727562679092,
+              "heterogeneity": 0.00002402442355936516
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.1458317017780412,
+              "dist": 0.022970835601272308,
+              "coherent": 0.004253377048695909,
+              "heterogeneity": 0.0187174585525764
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.11202293096866094,
+              "dist": 0.013815168858298763,
+              "coherent": 0.002509827412561875,
+              "heterogeneity": 0.011305341445736888
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.0935078992565364,
+              "dist": 0.015265896462756843,
+              "coherent": 0.0017487454446741119,
+              "heterogeneity": 0.013517151018082731
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.02942207890410306,
+          "coherent": 0.01477337969238049,
+          "heterogeneity": 0.014648699211722654,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": 0.00010538396135160945,
+              "heterogeneity": 0.002945651787700587,
+              "total": 0.0030510357490521967
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.007027093638318253,
+              "heterogeneity": 0.0013376776639842294,
+              "total": 0.008364771302302482
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": 0.0005791748723310312,
+              "heterogeneity": -0.001846775625868654,
+              "total": -0.0012676007535376236
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.005133636410890064,
+              "heterogeneity": 0.003730516951075423,
+              "total": 0.008864153361965488
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.0000662562492401341,
+              "heterogeneity": 0.0003905553283285894,
+              "total": 0.0004568115775687236
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.000006870292764612806,
+              "heterogeneity": 0.0010897188312613208,
+              "total": 0.0010965891240259334
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00010324814471590282,
+              "heterogeneity": 0.002828084173171339,
+              "total": 0.0029313323178872417
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.0001295604448562785,
+              "heterogeneity": -0.000389120602456424,
+              "total": -0.0005186810473127025
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.0012415488902364994,
+              "heterogeneity": 0.0027552083053962503,
+              "total": 0.00399675719563275
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": -0.00008612795558964054,
+              "heterogeneity": 0.005106932066862567,
+              "total": 0.005020804111272927
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.0007258556329783033,
+              "heterogeneity": -0.0032997496677325804,
+              "total": -0.0025738940347542778
+            }
+          ]
+        }
+      },
+      "source_group": {
+        "north": {
+          "total": 0.060562741838719576,
+          "coherent": 0.004723852347514553,
+          "heterogeneity": 0.055838889491205045,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": 0.00625600429141074,
+              "dist": 0.00033810005166939877,
+              "coherent": 0.00000782751793882992,
+              "heterogeneity": 0.00033027253373056885
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.10599005981719449,
+              "dist": 0.013826288873539877,
+              "coherent": 0.0022467785560104933,
+              "heterogeneity": 0.011579510317529382
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.02274552177836601,
+              "dist": 0.00819149209785825,
+              "coherent": 0.0001034717521940245,
+              "heterogeneity": 0.008088020345664224
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.0751285879367235,
+              "dist": 0.009182191976472192,
+              "coherent": 0.0011288609450731991,
+              "heterogeneity": 0.008053331031398993
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0005449871624597786,
+              "dist": 0.000004154176866898285,
+              "coherent": 5.940220144919223e-8,
+              "heterogeneity": 0.000004094774665449093
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.010128084537116128,
+              "dist": 0.0003915285867003717,
+              "coherent": 0.000020515619278194164,
+              "heterogeneity": 0.0003710129674221775
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.00017676895542689924,
+              "dist": 0.000522392421302747,
+              "coherent": 6.249452720543418e-9,
+              "heterogeneity": 0.0005223861718500265
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.019196539891831243,
+              "dist": 0.00045541437876852513,
+              "coherent": 0.00007370142876373366,
+              "heterogeneity": 0.0003817129500047915
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.04662144614095667,
+              "dist": 0.009673428135006748,
+              "coherent": 0.00043471184805482467,
+              "heterogeneity": 0.009238716286951923
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.058739883628165936,
+              "dist": 0.008056822163440122,
+              "coherent": 0.0006900747857300953,
+              "heterogeneity": 0.007366747377710027
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.00944569817879768,
+              "dist": 0.009920928977094458,
+              "coherent": 0.000017844242816988366,
+              "heterogeneity": 0.00990308473427747
+            }
+          ]
+        },
+        "tropical": {
+          "total": 0.09614303926093287,
+          "coherent": 0.011572002823871313,
+          "heterogeneity": 0.08457103643706156,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.0030239880899272965,
+              "dist": 0.0032088564093585535,
+              "coherent": 0.0000018289007936044279,
+              "heterogeneity": 0.003207027508564949
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.11625560713893439,
+              "dist": 0.019369352865069592,
+              "coherent": 0.0027030732382484503,
+              "heterogeneity": 0.016666279626821143
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.052844856197571025,
+              "dist": 0.012032331181818495,
+              "coherent": 0.0005585157653083922,
+              "heterogeneity": 0.011473815416510103
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.11891286120305014,
+              "dist": 0.016888483661655893,
+              "coherent": 0.0028280537118991734,
+              "heterogeneity": 0.014060429949756719
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.0107284953448404,
+              "dist": 0.0010592597470566341,
+              "coherent": 0.00002302012247285243,
+              "heterogeneity": 0.0010362396245837816
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.01113488910908953,
+              "dist": 0.0014519410405150763,
+              "coherent": 0.000024797151094344125,
+              "heterogeneity": 0.0014271438894207322
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": 0.01729542380059893,
+              "dist": 0.002885476990166952,
+              "coherent": 0.000059826336888464803,
+              "heterogeneity": 0.002825650653278487
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0017430154142276592,
+              "dist": 0.00001719322115196072,
+              "coherent": 6.076205468470438e-7,
+              "heterogeneity": 0.000016585600605113676
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.09246524644810396,
+              "dist": 0.016471469271426575,
+              "coherent": 0.0017099643601417203,
+              "heterogeneity": 0.014761504911284855
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": -0.06256619302202403,
+              "dist": 0.0134045714111505,
+              "coherent": 0.0007829057018538336,
+              "heterogeneity": 0.012621665709296665
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": -0.1199877059248911,
+              "dist": 0.009354103461562634,
+              "coherent": 0.002879409914623629,
+              "heterogeneity": 0.0064746935469390055
+            }
+          ]
+        },
+        "south": {
+          "total": 0.10402897757731643,
+          "coherent": 0.015055780567222104,
+          "heterogeneity": 0.08897319701009429,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "mean": -0.011862815250499377,
+              "dist": 0.005424692451513891,
+              "coherent": 0.00002814527713349612,
+              "heterogeneity": 0.0053965471743803945
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "mean": 0.012494871270043237,
+              "dist": 0.015755331234416504,
+              "coherent": 0.000031224361610990376,
+              "heterogeneity": 0.015724106872805513
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "mean": -0.09699226536206634,
+              "dist": 0.01577890663482293,
+              "coherent": 0.0018814999080130988,
+              "heterogeneity": 0.01389740672680983
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "mean": -0.09837045580883803,
+              "dist": 0.009557293529095044,
+              "coherent": 0.0019353493152077113,
+              "heterogeneity": 0.007621944213887332
+            },
+            {
+              "cell": "asymmetric__deep",
+              "mean": -0.008857777695840131,
+              "dist": 0.0003853513576470386,
+              "coherent": 0.00001569204514178458,
+              "heterogeneity": 0.00036965931250525403
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "mean": 0.014024292745157289,
+              "dist": 0.0012233406920846266,
+              "coherent": 0.000039336157400374273,
+              "heterogeneity": 0.0011840045346842524
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "mean": -0.02361979150731355,
+              "dist": 0.0007503588921064722,
+              "coherent": 0.00011157891016979224,
+              "heterogeneity": 0.0006387799819366799
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "mean": -0.0023013155941983593,
+              "dist": 0.00001980630166226167,
+              "coherent": 0.0000010592106928201096,
+              "heterogeneity": 0.000018747090969441563
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "mean": -0.19309284755472444,
+              "dist": 0.02699984252663259,
+              "coherent": 0.007456969555358411,
+              "heterogeneity": 0.019542872971274182
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "mean": 0.07359902951262245,
+              "dist": 0.009954146717152937,
+              "coherent": 0.0010833634290399743,
+              "heterogeneity": 0.008870783288112962
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "mean": 0.11116569609042283,
+              "dist": 0.018179907240182123,
+              "coherent": 0.00247156239745365,
+              "heterogeneity": 0.015708344842728473
+            }
+          ]
+        },
+        "tropical_minus_north": {
+          "total": 0.035580297422213296,
+          "coherent": 0.0068481504763567595,
+          "heterogeneity": 0.02873214694585651,
+          "cells": [
+            {
+              "cell": "actinomorphic__absent_or_open",
+              "coherent": -0.000005998617145225492,
+              "heterogeneity": 0.0028767549748343803,
+              "total": 0.0028707563576891547
+            },
+            {
+              "cell": "actinomorphic__deep",
+              "coherent": 0.000456294682237957,
+              "heterogeneity": 0.00508676930929176,
+              "total": 0.005543063991529715
+            },
+            {
+              "cell": "actinomorphic__intermediate",
+              "coherent": 0.00045504401311436765,
+              "heterogeneity": 0.0033857950708458782,
+              "total": 0.0038408390839602454
+            },
+            {
+              "cell": "actinomorphic__shallow",
+              "coherent": 0.0016991927668259742,
+              "heterogeneity": 0.006007098918357726,
+              "total": 0.0077062916851837
+            },
+            {
+              "cell": "asymmetric__deep",
+              "coherent": 0.000022960720271403237,
+              "heterogeneity": 0.0010321448499183326,
+              "total": 0.001055105570189736
+            },
+            {
+              "cell": "asymmetric__intermediate",
+              "coherent": 0.000004281531816149961,
+              "heterogeneity": 0.0010561309219985547,
+              "total": 0.0010604124538147047
+            },
+            {
+              "cell": "asymmetric__shallow",
+              "coherent": 0.00005982008743574426,
+              "heterogeneity": 0.0023032644814284606,
+              "total": 0.002363084568864205
+            },
+            {
+              "cell": "zygomorphic__absent_or_open",
+              "coherent": -0.00007309380821688662,
+              "heterogeneity": -0.00036512734939967784,
+              "total": -0.0004382211576165644
+            },
+            {
+              "cell": "zygomorphic__deep",
+              "coherent": 0.0012752525120868956,
+              "heterogeneity": 0.0055227886243329315,
+              "total": 0.006798041136419826
+            },
+            {
+              "cell": "zygomorphic__intermediate",
+              "coherent": 0.0000928309161237383,
+              "heterogeneity": 0.005254918331586638,
+              "total": 0.005347749247710377
+            },
+            {
+              "cell": "zygomorphic__shallow",
+              "coherent": 0.0028615656718066406,
+              "heterogeneity": -0.0034283911873384644,
+              "total": -0.0005668255155318238
+            }
+          ]
+        }
+      }
+    }
+  }
+}
