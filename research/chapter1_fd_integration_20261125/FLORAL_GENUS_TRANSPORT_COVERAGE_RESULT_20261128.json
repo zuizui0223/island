@@ -1,0 +1,841 @@
+{
+  "owner": "island",
+  "run": 46113724276,
+  "job": 140882736641,
+  "head": "da09942e282bf17ae6630d324550fd315a4f6439",
+  "artifact": 15250753067,
+  "reported_zip_digest": "sha256:5f882a3b64822c63e26ed6480f093e5553eb0a0ab6772a06eb96c77bec5215c5",
+  "retrieval": "Successful job log JSON; artifact metadata verified, ZIP bytes not independently checked",
+  "parent_run": 46106237400,
+  "original_field_replay": "All original fields across eight panels matched to absolute tolerance 1e-10; independent aggregate identity checks passed",
+  "panels": [
+    {
+      "scope": "all_recorded",
+      "nmin": 10,
+      "islands": 257,
+      "blocks": 66,
+      "mode": "external",
+      "scored_islands": 257,
+      "failed_folds": 0,
+      "status": "fit",
+      "donor_species_min_median_max": [
+        519,
+        735.5,
+        781
+      ],
+      "donor_blocks_min": 137,
+      "unknown_genus_weight_mean": {
+        "loading": 0.534762646849446,
+        "entry": 0.618704488695978
+      },
+      "slopes": {
+        "observed": 0.02762020672544178,
+        "blind": -0.002189319090354115,
+        "entry": 0.0009769587064415268,
+        "loading": 0.003974691014597978,
+        "entry_increment": 0.0031662777967956567,
+        "loading_increment": 0.002997732308156445,
+        "residual": 0.0236455157108438
+      },
+      "block_equal_gains": {
+        "category_squared_error": {
+          "mean": [
+            0.050871646635381775,
+            0.019048770890779422,
+            0.03182287574460236
+          ],
+          "range_025_975": [
+            [
+              0.04333271655397934,
+              0.05881884327407955
+            ],
+            [
+              0.015868236469499152,
+              0.022564412600740616
+            ],
+            [
+              0.02674625078062123,
+              0.037523163113902476
+            ]
+          ],
+          "blocks": 66,
+          "not_calibrated_ci": true
+        },
+        "log_loss": {
+          "mean": [
+            0.09218140649980969,
+            0.03775445252709178,
+            0.05442695397271792
+          ],
+          "range_025_975": [
+            [
+              0.07859990792342089,
+              0.1070455913235522
+            ],
+            [
+              0.031004207731123362,
+              0.04463831304665419
+            ],
+            [
+              0.04586217022016306,
+              0.06390344204958529
+            ]
+          ],
+          "blocks": 66,
+          "not_calibrated_ci": true
+        },
+        "conditional_squared_error": {
+          "mean": [
+            0.04206126311573511,
+            0.020436532060033645,
+            0.021624731055701462
+          ],
+          "range_025_975": [
+            [
+              0.031219358069243332,
+              0.05334676079501224
+            ],
+            [
+              0.01447148192001138,
+              0.027231100073897684
+            ],
+            [
+              0.014794873827788832,
+              0.027603068737532023
+            ]
+          ],
+          "blocks": 66,
+          "not_calibrated_ci": true
+        }
+      },
+      "target_taxon_equal_gain": {
+        "species": 718,
+        "genera": 371,
+        "species_equal": [
+          0.015758807125058692,
+          0.007243452234394937,
+          0.008515354890663743,
+          0.03323150569469814,
+          0.014618924609698759,
+          0.018612581084999438
+        ],
+        "genus_equal": [
+          0.007790848967879617,
+          0.005276734804683472,
+          0.0025141141631961524,
+          0.014115096771090041,
+          0.009698694739209077,
+          0.00441640203188099
+        ]
+      },
+      "conditional_rmse_by_model": {
+        "blind": 0.2514453863638052,
+        "entry": 0.2131711771156451,
+        "loading": 0.15992125410518748
+      },
+      "category_mse_by_model": {
+        "blind": 0.09277567911096646,
+        "entry": 0.07580355051430908,
+        "loading": 0.04703817134221512
+      },
+      "coverage_audit": {
+        "conditional_residual_slopes": {
+          "total_residual": 0.0236455157108438,
+          "supported_genus": 0.012982606744742872,
+          "unsupported_genus": 0.010662908966100927,
+          "supported_first": 0.012937145629666158,
+          "supported_last": 0.013028067859819584,
+          "unsupported_first": 0.010617447851024213,
+          "unsupported_last": 0.01070837008117764
+        },
+        "donor_support_mass_mean": {
+          "zero_donor_species": 0.534762646849446,
+          "one_donor_species": 0.1455383270633562,
+          "two_to_four": 0.1325953938308897,
+          "five_or_more": 0.18710363225630777
+        },
+        "donor_support_mass_slopes": {
+          "zero_donor_species": -0.0003400000974450937,
+          "one_donor_species": -0.000009739138992423402,
+          "two_to_four": -0.0005340895146619326,
+          "five_or_more": 0.0008838287510994323
+        },
+        "category_squared_error_signed_projections": {
+          "supported_genus": 0.01327927347773679,
+          "unsupported_genus": 0.03375889786447833
+        },
+        "category_squared_error_total": 0.04703817134221511,
+        "warning": "Evaluation-only oracle replacements with observed target categories, not improved forecasts. Shapley terms sum to the nonlinear contrast error; signed vector projections sum to squared error. Neither is causal, and supported-genus error includes shrinkage, limited congener samples and documentation."
+      }
+    },
+    {
+      "scope": "all_recorded",
+      "nmin": 10,
+      "islands": 257,
+      "blocks": 66,
+      "mode": "other_tropical",
+      "scored_islands": 257,
+      "failed_folds": 0,
+      "status": "fit",
+      "donor_species_min_median_max": [
+        491,
+        669,
+        723
+      ],
+      "donor_blocks_min": 79,
+      "unknown_genus_weight_mean": {
+        "loading": 0.4705154598005462,
+        "entry": 0.5428926312381798
+      },
+      "slopes": {
+        "observed": 0.02762020672544178,
+        "blind": -0.0030993596386042392,
+        "entry": 0.0010991785926870714,
+        "loading": 0.0037072374089122976,
+        "entry_increment": 0.004198538231291315,
+        "loading_increment": 0.002608058816225228,
+        "residual": 0.02391296931652948
+      },
+      "block_equal_gains": {
+        "category_squared_error": {
+          "mean": [
+            0.04232440024640741,
+            0.01682668085897133,
+            0.025497719387436096
+          ],
+          "range_025_975": [
+            [
+              0.03567056034426018,
+              0.04942630072334781
+            ],
+            [
+              0.014103049509871922,
+              0.01994393822689674
+            ],
+            [
+              0.020930944099848525,
+              0.03062733126010877
+            ]
+          ],
+          "blocks": 66,
+          "not_calibrated_ci": true
+        },
+        "log_loss": {
+          "mean": [
+            0.06856175090363023,
+            0.03152723389463399,
+            0.03703451700899625
+          ],
+          "range_025_975": [
+            [
+              0.0571999747314588,
+              0.08080874568172564
+            ],
+            [
+              0.025983694227417215,
+              0.037225291334235244
+            ],
+            [
+              0.030070427930951764,
+              0.04460478278349162
+            ]
+          ],
+          "blocks": 66,
+          "not_calibrated_ci": true
+        },
+        "conditional_squared_error": {
+          "mean": [
+            0.033649317576956224,
+            0.015955215440502747,
+            0.017694102136453473
+          ],
+          "range_025_975": [
+            [
+              0.024754947517301232,
+              0.04334984389223193
+            ],
+            [
+              0.010943427900103171,
+              0.02163488516890088
+            ],
+            [
+              0.011685542288960264,
+              0.02297017820952385
+            ]
+          ],
+          "blocks": 66,
+          "not_calibrated_ci": true
+        }
+      },
+      "target_taxon_equal_gain": {
+        "species": 718,
+        "genera": 371,
+        "species_equal": [
+          0.010368797825135997,
+          0.007091952235245889,
+          0.0032768455898900964,
+          0.019877526764874885,
+          0.01419199201703636,
+          0.005685534747838469
+        ],
+        "genus_equal": [
+          0.0025831663452691106,
+          0.005310259742176107,
+          -0.002727093396907006,
+          0.002907971396131948,
+          0.01025375143757476,
+          -0.007345780041442814
+        ]
+      },
+      "conditional_rmse_by_model": {
+        "blind": 0.2280689928378736,
+        "entry": 0.19722443339440865,
+        "loading": 0.15339530894548625
+      },
+      "category_mse_by_model": {
+        "blind": 0.07608081125348155,
+        "entry": 0.060876863783677126,
+        "loading": 0.03776433744996752
+      },
+      "coverage_audit": {
+        "conditional_residual_slopes": {
+          "total_residual": 0.023912969316529486,
+          "supported_genus": 0.013833891032659612,
+          "unsupported_genus": 0.01007907828386988,
+          "supported_first": 0.013659763901528049,
+          "supported_last": 0.014008018163791165,
+          "unsupported_first": 0.009904951152738322,
+          "unsupported_last": 0.01025320541500144
+        },
+        "donor_support_mass_mean": {
+          "zero_donor_species": 0.4705154598005462,
+          "one_donor_species": 0.13867058929259446,
+          "two_to_four": 0.1976850167192213,
+          "five_or_more": 0.1931289341876381
+        },
+        "donor_support_mass_slopes": {
+          "zero_donor_species": 0.005576184955390941,
+          "one_donor_species": -0.0004300283733047064,
+          "two_to_four": -0.002605101206585616,
+          "five_or_more": -0.0025410553755006397
+        },
+        "category_squared_error_signed_projections": {
+          "supported_genus": 0.011767217419860839,
+          "unsupported_genus": 0.025997120030106666
+        },
+        "category_squared_error_total": 0.03776433744996751,
+        "warning": "Evaluation-only oracle replacements with observed target categories, not improved forecasts. Shapley terms sum to the nonlinear contrast error; signed vector projections sum to squared error. Neither is causal, and supported-genus error includes shrinkage, limited congener samples and documentation."
+      }
+    },
+    {
+      "scope": "all_recorded",
+      "nmin": 30,
+      "islands": 122,
+      "blocks": 49,
+      "mode": "external",
+      "scored_islands": 122,
+      "failed_folds": 0,
+      "status": "fit",
+      "donor_species_min_median_max": [
+        519,
+        722,
+        766
+      ],
+      "donor_blocks_min": 137,
+      "unknown_genus_weight_mean": {
+        "loading": 0.5486243544144718,
+        "entry": 0.6464388820687443
+      },
+      "slopes": {
+        "observed": 0.02345186672874718,
+        "blind": -0.0024302988246148274,
+        "entry": -0.0007615932633189475,
+        "loading": 0.002624725608399981,
+        "entry_increment": 0.0016687055612958778,
+        "loading_increment": 0.0033863188717189272,
+        "residual": 0.02082714112034721
+      },
+      "block_equal_gains": {
+        "category_squared_error": {
+          "mean": [
+            0.0469592296770309,
+            0.011527663997748662,
+            0.03543156567928225
+          ],
+          "range_025_975": [
+            [
+              0.0401607502356531,
+              0.05632829724799782
+            ],
+            [
+              0.009349301433562766,
+              0.014061840530375746
+            ],
+            [
+              0.030271421252753592,
+              0.04234928805017859
+            ]
+          ],
+          "blocks": 49,
+          "not_calibrated_ci": true
+        },
+        "log_loss": {
+          "mean": [
+            0.08142289390251534,
+            0.020599668590997367,
+            0.06082322531151799
+          ],
+          "range_025_975": [
+            [
+              0.0700078994587915,
+              0.09720987139539018
+            ],
+            [
+              0.016704212508200995,
+              0.025063153387854323
+            ],
+            [
+              0.05188612026367277,
+              0.0727346707721838
+            ]
+          ],
+          "blocks": 49,
+          "not_calibrated_ci": true
+        },
+        "conditional_squared_error": {
+          "mean": [
+            0.03002846209558889,
+            0.00923049594869294,
+            0.020797966146895955
+          ],
+          "range_025_975": [
+            [
+              0.02276227901770221,
+              0.038104947092086845
+            ],
+            [
+              0.006557124389048103,
+              0.01265701093736725
+            ],
+            [
+              0.015357665962992187,
+              0.026615490503358267
+            ]
+          ],
+          "blocks": 49,
+          "not_calibrated_ci": true
+        }
+      },
+      "target_taxon_equal_gain": {
+        "species": 684,
+        "genera": 358,
+        "species_equal": [
+          0.016450749149986843,
+          0.00578115819886324,
+          0.010669590951123601,
+          0.03272905092230005,
+          0.0108808575960881,
+          0.021848193326211976
+        ],
+        "genus_equal": [
+          0.008360070563975804,
+          0.004670843133397228,
+          0.003689227430578584,
+          0.013791627670977531,
+          0.007872166749337247,
+          0.005919460921640282
+        ]
+      },
+      "conditional_rmse_by_model": {
+        "blind": 0.20754658426000874,
+        "entry": 0.18360023270863568,
+        "loading": 0.1147159411043647
+      },
+      "category_mse_by_model": {
+        "blind": 0.09590855671131145,
+        "entry": 0.0848105878402634,
+        "loading": 0.05052676292439326
+      },
+      "coverage_audit": {
+        "conditional_residual_slopes": {
+          "total_residual": 0.020827141120347215,
+          "supported_genus": 0.00873587585933009,
+          "unsupported_genus": 0.012091265261017121,
+          "supported_first": 0.008294592220859312,
+          "supported_last": 0.009177159497800872,
+          "unsupported_first": 0.011649981622546338,
+          "unsupported_last": 0.012532548899487902
+        },
+        "donor_support_mass_mean": {
+          "zero_donor_species": 0.5486243544144718,
+          "one_donor_species": 0.13962481700246346,
+          "two_to_four": 0.13593436676896034,
+          "five_or_more": 0.1758164618141041
+        },
+        "donor_support_mass_slopes": {
+          "zero_donor_species": 0.0017281055668829273,
+          "one_donor_species": -0.002426027129631601,
+          "two_to_four": -0.0002382574187949558,
+          "five_or_more": 0.0009361789815436095
+        },
+        "category_squared_error_signed_projections": {
+          "supported_genus": 0.01547690241591819,
+          "unsupported_genus": 0.03504986050847505
+        },
+        "category_squared_error_total": 0.05052676292439325,
+        "warning": "Evaluation-only oracle replacements with observed target categories, not improved forecasts. Shapley terms sum to the nonlinear contrast error; signed vector projections sum to squared error. Neither is causal, and supported-genus error includes shrinkage, limited congener samples and documentation."
+      }
+    },
+    {
+      "scope": "all_recorded",
+      "nmin": 30,
+      "islands": 122,
+      "blocks": 49,
+      "mode": "other_tropical",
+      "scored_islands": 122,
+      "failed_folds": 0,
+      "status": "fit",
+      "donor_species_min_median_max": [
+        491,
+        647,
+        706
+      ],
+      "donor_blocks_min": 79,
+      "unknown_genus_weight_mean": {
+        "loading": 0.4782054602533059,
+        "entry": 0.5629923585135688
+      },
+      "slopes": {
+        "observed": 0.02345186672874718,
+        "blind": -0.004060154028334452,
+        "entry": -0.0018329977829190144,
+        "loading": 0.0010461406384116234,
+        "entry_increment": 0.002227156245415443,
+        "loading_increment": 0.002879138421330639,
+        "residual": 0.022405726090335545
+      },
+      "block_equal_gains": {
+        "category_squared_error": {
+          "mean": [
+            0.03875323472122432,
+            0.010684666853219017,
+            0.028068567868005326
+          ],
+          "range_025_975": [
+            [
+              0.032257891786229044,
+              0.04740084660585591
+            ],
+            [
+              0.008095052251110797,
+              0.013956223908346173
+            ],
+            [
+              0.023584904881043502,
+              0.033902839822154134
+            ]
+          ],
+          "blocks": 49,
+          "not_calibrated_ci": true
+        },
+        "log_loss": {
+          "mean": [
+            0.05702657124959542,
+            0.017325338768332994,
+            0.03970123248126242
+          ],
+          "range_025_975": [
+            [
+              0.04725863066755689,
+              0.07039856663262734
+            ],
+            [
+              0.013334743109548389,
+              0.022391574307563614
+            ],
+            [
+              0.03268020828087809,
+              0.04885966120057063
+            ]
+          ],
+          "blocks": 49,
+          "not_calibrated_ci": true
+        },
+        "conditional_squared_error": {
+          "mean": [
+            0.021476935073025418,
+            0.005607008021742886,
+            0.01586992705128253
+          ],
+          "range_025_975": [
+            [
+              0.015555923555757916,
+              0.02806413972570548
+            ],
+            [
+              0.003154122475514206,
+              0.008527515502262254
+            ],
+            [
+              0.011158991117210647,
+              0.020587367102808788
+            ]
+          ],
+          "blocks": 49,
+          "not_calibrated_ci": true
+        }
+      },
+      "target_taxon_equal_gain": {
+        "species": 684,
+        "genera": 358,
+        "species_equal": [
+          0.01121832749360361,
+          0.005803109205563149,
+          0.005415218288040458,
+          0.01847866350993685,
+          0.010513283246608076,
+          0.007965380263328761
+        ],
+        "genus_equal": [
+          0.0033391924354194214,
+          0.004706707968055541,
+          -0.001367515532636127,
+          0.002084857811823192,
+          0.008223870227236692,
+          -0.0061390124154135075
+        ]
+      },
+      "conditional_rmse_by_model": {
+        "blind": 0.17902598123966756,
+        "entry": 0.1661403014515326,
+        "loading": 0.11307863561843169
+      },
+      "category_mse_by_model": {
+        "blind": 0.0802815421162407,
+        "entry": 0.06962896927526244,
+        "loading": 0.04130912746931549
+      },
+      "coverage_audit": {
+        "conditional_residual_slopes": {
+          "total_residual": 0.022405726090335566,
+          "supported_genus": 0.008580284907622852,
+          "unsupported_genus": 0.013825441182712731,
+          "supported_first": 0.008068403614013335,
+          "supported_last": 0.009092166201232368,
+          "unsupported_first": 0.013313559889103216,
+          "unsupported_last": 0.01433732247632225
+        },
+        "donor_support_mass_mean": {
+          "zero_donor_species": 0.4782054602533059,
+          "one_donor_species": 0.1372766424223313,
+          "two_to_four": 0.20196882254865745,
+          "five_or_more": 0.18254907477570503
+        },
+        "donor_support_mass_slopes": {
+          "zero_donor_species": 0.007154064252102674,
+          "one_donor_species": -0.0011925293982889215,
+          "two_to_four": -0.003396530734869475,
+          "five_or_more": -0.002565004118944303
+        },
+        "category_squared_error_signed_projections": {
+          "supported_genus": 0.012382605278033353,
+          "unsupported_genus": 0.028926522191282115
+        },
+        "category_squared_error_total": 0.04130912746931547,
+        "warning": "Evaluation-only oracle replacements with observed target categories, not improved forecasts. Shapley terms sum to the nonlinear contrast error; signed vector projections sum to squared error. Neither is causal, and supported-genus error includes shrinkage, limited congener samples and documentation."
+      }
+    },
+    {
+      "scope": "high_only",
+      "nmin": 10,
+      "islands": 62,
+      "blocks": 30,
+      "mode": "external",
+      "scored_islands": 62,
+      "failed_folds": 0,
+      "status": "fit",
+      "donor_species_min_median_max": [
+        223,
+        264,
+        279
+      ],
+      "donor_blocks_min": 133,
+      "unknown_genus_weight_mean": {
+        "loading": 0.7011626583041219,
+        "entry": 0.7388089996522905
+      },
+      "slopes": {
+        "observed": -0.0007223441697008542,
+        "blind": 0.00045061247486123326,
+        "entry": -0.0043798117346380075,
+        "loading": -0.002343575981119168,
+        "entry_increment": -0.004830424209499239,
+        "loading_increment": 0.0020362357535188376,
+        "residual": 0.0016212318114183103
+      },
+      "block_equal_gains": {
+        "category_squared_error": {
+          "mean": [
+            0.018279652454126657,
+            0.014237704623353034,
+            0.004041947830773627
+          ],
+          "range_025_975": [
+            [
+              0.01387238160627403,
+              0.02258618952454163
+            ],
+            [
+              0.01058896539249245,
+              0.018228416026233197
+            ],
+            [
+              0.001989884537233872,
+              0.005933058478284602
+            ]
+          ],
+          "blocks": 30,
+          "not_calibrated_ci": true
+        },
+        "log_loss": {
+          "mean": [
+            0.038394189653520684,
+            0.029254366030000235,
+            0.009139823623520447
+          ],
+          "range_025_975": [
+            [
+              0.028334176481610133,
+              0.047731425411595224
+            ],
+            [
+              0.02215660163850384,
+              0.03687509446175506
+            ],
+            [
+              0.005161764217472324,
+              0.013061204709392392
+            ]
+          ],
+          "blocks": 30,
+          "not_calibrated_ci": true
+        },
+        "conditional_squared_error": {
+          "mean": [
+            0.019991151904944285,
+            0.015691747976402336,
+            0.004299403928541937
+          ],
+          "range_025_975": [
+            [
+              0.011673237923205949,
+              0.028701991774175765
+            ],
+            [
+              0.008716699120252285,
+              0.022911459065791385
+            ],
+            [
+              0.0019134275835627943,
+              0.006763052646210305
+            ]
+          ],
+          "blocks": 30,
+          "not_calibrated_ci": true
+        }
+      },
+      "target_taxon_equal_gain": {
+        "species": 134,
+        "genera": 90,
+        "species_equal": [
+          0.017240083071227496,
+          0.0123196377439223,
+          0.004920445327305198,
+          0.038689921907162625,
+          0.025050709776589526,
+          0.0136392121305731
+        ],
+        "genus_equal": [
+          0.009885166494831727,
+          0.00767673090819407,
+          0.0022084355866376563,
+          0.020512731048319854,
+          0.013925833424710852,
+          0.006586897623609013
+        ]
+      },
+      "conditional_rmse_by_model": {
+        "blind": 0.20183162838291382,
+        "entry": 0.16981508070566634,
+        "loading": 0.15921492565219642
+      },
+      "category_mse_by_model": {
+        "blind": 0.096734211468425,
+        "entry": 0.08462264176023963,
+        "loading": 0.0803858811735111
+      },
+      "coverage_audit": {
+        "conditional_residual_slopes": {
+          "total_residual": 0.0016212318114182998,
+          "supported_genus": 0.0018681399358764367,
+          "unsupported_genus": -0.0002469081244581403,
+          "supported_first": 0.0030643819997434427,
+          "supported_last": 0.0006718978720094334,
+          "unsupported_first": 0.0009493339394088666,
+          "unsupported_last": -0.0014431501883251465
+        },
+        "donor_support_mass_mean": {
+          "zero_donor_species": 0.7011626583041219,
+          "one_donor_species": 0.09695135908293721,
+          "two_to_four": 0.15565077754453202,
+          "five_or_more": 0.04623520506840864
+        },
+        "donor_support_mass_slopes": {
+          "zero_donor_species": -0.0030308530534751397,
+          "one_donor_species": 0.006480074243524421,
+          "two_to_four": 0.00537151988330481,
+          "five_or_more": -0.008820741073354154
+        },
+        "category_squared_error_signed_projections": {
+          "supported_genus": 0.03478700768362691,
+          "unsupported_genus": 0.04559887348988417
+        },
+        "category_squared_error_total": 0.08038588117351109,
+        "warning": "Evaluation-only oracle replacements with observed target categories, not improved forecasts. Shapley terms sum to the nonlinear contrast error; signed vector projections sum to squared error. Neither is causal, and supported-genus error includes shrinkage, limited congener samples and documentation."
+      }
+    },
+    {
+      "scope": "high_only",
+      "nmin": 10,
+      "islands": 62,
+      "blocks": 30,
+      "mode": "other_tropical",
+      "scored_islands": 31,
+      "failed_folds": 6,
+      "status": "incomplete_fold_support",
+      "donor_species_min_median_max": [
+        103,
+        123,
+        138
+      ],
+      "donor_blocks_min": 65
+    },
+    {
+      "scope": "literal_native",
+      "nmin": 10,
+      "islands": 44,
+      "blocks": 17,
+      "mode": "external",
+      "status": "insufficient_parent_support"
+    },
+    {
+      "scope": "literal_native",
+      "nmin": 10,
+      "islands": 44,
+      "blocks": 17,
+      "mode": "other_tropical",
+      "status": "insufficient_parent_support"
+    }
+  ],
+  "warning": "Evaluation-only split of a nonlinear conditional contrast using observed target labels. No improved forecast, causal decomposition, independent validation or new significance test."
+}

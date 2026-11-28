@@ -1,0 +1,205 @@
+{
+  "owner": "island",
+  "run": 46105670014,
+  "job": 140857737165,
+  "head": "043f5abf28f5947822cfe511a71a6b12a8579277",
+  "artifact": 15247910813,
+  "reported_zip_digest": "sha256:4a23a7314fe53af08d7c82022fa3cb9a45e4e6b93cfe6f8987909d79da9b98f1",
+  "retrieval": "Successful job log JSON; metadata checked, ZIP bytes not independently downloaded",
+  "failed_initial_run": 46105579457,
+  "parent_run": 45579499069,
+  "panels": [
+    {
+      "scope": "all_recorded",
+      "nmin": 10,
+      "islands": 257,
+      "blocks": 66,
+      "parent_status": "fit",
+      "status": "fit",
+      "species": 718,
+      "genus_strata": 371,
+      "joint_grade_strata": 394,
+      "islands_with_mixed_depth_stratum": 14,
+      "metrics": {
+        "observed": {
+          "beta": 0.027620206725441743,
+          "se": 0.006121448296054722,
+          "interval": [
+            0.01539483027912922,
+            0.03984558317175427
+          ],
+          "p": 0.000027574552916015565,
+          "status": "fit"
+        },
+        "genus_expected": {
+          "beta": 0.027620206725441743,
+          "se": 0.006121448296054722,
+          "interval": [
+            0.01539483027912922,
+            0.03984558317175427
+          ],
+          "p": 0.000027574552916015565,
+          "status": "fit"
+        },
+        "grade_increment": {
+          "beta": 0,
+          "status": "degenerate_se",
+          "p": 1
+        },
+        "genus_grade_expected": {
+          "beta": 0.027620206725441743,
+          "se": 0.006121448296054722,
+          "interval": [
+            0.01539483027912922,
+            0.03984558317175427
+          ],
+          "p": 0.000027574552916015565,
+          "status": "fit"
+        },
+        "within_genus_grade": {
+          "beta": 0,
+          "status": "degenerate_se",
+          "p": 1
+        }
+      },
+      "species_coherent_null": {
+        "status": "no_exchangeable_depth_symmetry_support",
+        "informative_strata": 0,
+        "informative_species": 0,
+        "p": null
+      },
+      "interval_note": "Spatial-cluster t intervals are pointwise; repeated species across islands motivate the separate coherent permutation. Neither is an independent validation of the earlier discovery."
+    },
+    {
+      "scope": "all_recorded",
+      "nmin": 30,
+      "islands": 122,
+      "blocks": 49,
+      "parent_status": "fit",
+      "status": "fit",
+      "species": 684,
+      "genus_strata": 358,
+      "joint_grade_strata": 380,
+      "islands_with_mixed_depth_stratum": 14,
+      "metrics": {
+        "observed": {
+          "beta": 0.023451866728747182,
+          "se": 0.0040521918158013094,
+          "interval": [
+            0.01530438901933662,
+            0.03159934443815775
+          ],
+          "p": 5.286170614950944e-7,
+          "status": "fit"
+        },
+        "genus_expected": {
+          "beta": 0.023451866728747182,
+          "se": 0.0040521918158013094,
+          "interval": [
+            0.01530438901933662,
+            0.03159934443815775
+          ],
+          "p": 5.286170614950944e-7,
+          "status": "fit"
+        },
+        "grade_increment": {
+          "beta": 0,
+          "status": "degenerate_se",
+          "p": 1
+        },
+        "genus_grade_expected": {
+          "beta": 0.023451866728747182,
+          "se": 0.0040521918158013094,
+          "interval": [
+            0.01530438901933662,
+            0.03159934443815775
+          ],
+          "p": 5.286170614950944e-7,
+          "status": "fit"
+        },
+        "within_genus_grade": {
+          "beta": 0,
+          "status": "degenerate_se",
+          "p": 1
+        }
+      },
+      "species_coherent_null": {
+        "status": "no_exchangeable_depth_symmetry_support",
+        "informative_strata": 0,
+        "informative_species": 0,
+        "p": null
+      },
+      "interval_note": "Spatial-cluster t intervals are pointwise; repeated species across islands motivate the separate coherent permutation. Neither is an independent validation of the earlier discovery."
+    },
+    {
+      "scope": "high_only",
+      "nmin": 10,
+      "islands": 62,
+      "blocks": 30,
+      "parent_status": "fit",
+      "status": "fit",
+      "species": 134,
+      "genus_strata": 90,
+      "joint_grade_strata": 90,
+      "islands_with_mixed_depth_stratum": 3,
+      "metrics": {
+        "observed": {
+          "beta": -0.0007223441697008531,
+          "se": 0.008341596137608244,
+          "interval": [
+            -0.0177828238530369,
+            0.016338135513635194
+          ],
+          "p": 0.9315882444848995,
+          "status": "fit"
+        },
+        "genus_expected": {
+          "beta": -0.0007223441697008531,
+          "se": 0.008341596137608244,
+          "interval": [
+            -0.0177828238530369,
+            0.016338135513635194
+          ],
+          "p": 0.9315882444848995,
+          "status": "fit"
+        },
+        "grade_increment": {
+          "beta": 0,
+          "status": "degenerate_se",
+          "p": 1
+        },
+        "genus_grade_expected": {
+          "beta": -0.0007223441697008531,
+          "se": 0.008341596137608244,
+          "interval": [
+            -0.0177828238530369,
+            0.016338135513635194
+          ],
+          "p": 0.9315882444848995,
+          "status": "fit"
+        },
+        "within_genus_grade": {
+          "beta": 0,
+          "status": "degenerate_se",
+          "p": 1
+        }
+      },
+      "species_coherent_null": {
+        "status": "no_exchangeable_depth_symmetry_support",
+        "informative_strata": 0,
+        "informative_species": 0,
+        "p": null
+      },
+      "interval_note": "Spatial-cluster t intervals are pointwise; repeated species across islands motivate the separate coherent permutation. Neither is an independent validation of the earlier discovery."
+    },
+    {
+      "scope": "literal_native",
+      "nmin": 10,
+      "islands": 44,
+      "blocks": 17,
+      "parent_status": "insufficient_support",
+      "status": "insufficient_support"
+    }
+  ],
+  "interpretation": "Observed conditional difference reproduced by local genus margins; zero exchangeable strata, no permutation p value. Unidentifiable within-stratum association; not evidence of causal genus turnover or absence of within-lineage change."
+}

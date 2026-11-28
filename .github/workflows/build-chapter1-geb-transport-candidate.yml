@@ -1,0 +1,49 @@
+name: GEB polished author-review document render
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'scripts/submission/build_chapter1_geb_transport_candidate.py'
+      - '.github/workflows/build-chapter1-geb-transport-candidate.yml'
+      - 'research/chapter1_fd_integration_20261125/geb_review/*TRANSPORT*'
+      - 'research/chapter1_fd_integration_20261125/geb_review/*POLISHED*'
+      - 'research/chapter1_fd_integration_20261125/geb_review/check_transport_candidate.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'analysis/tropical-genus-profile-transport-20261128')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      MPLBACKEND: Agg
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install document renderer
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libreoffice-writer libcairo2 fonts-liberation fonts-crosextra-carlito fonts-crosextra-caladea
+          python -m pip install -e ".[figures]" python-docx pymupdf cairosvg pillow
+      - name: Build separate polished candidate from verified anonymous aggregates
+        run: python scripts/submission/build_chapter1_geb_transport_candidate.py --out "$RUNNER_TEMP/geb-polished" --commit "$(git rev-parse HEAD)" --polished
+      - uses: actions/upload-artifact@v4
+        with:
+          name: geb-polished-author-review-only
+          path: ${{ runner.temp }}/geb-polished/Chapter1_GEB_Polished_AUTHOR_REVIEW_ONLY.zip
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: geb-polished-all-page-qa
+          path: ${{ runner.temp }}/geb-polished/PAGE_QA
+          if-no-files-found: error
+          retention-days: 14
