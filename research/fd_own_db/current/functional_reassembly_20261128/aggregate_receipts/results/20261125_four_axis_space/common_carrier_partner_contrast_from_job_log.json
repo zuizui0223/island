@@ -1,0 +1,2258 @@
+{
+  "source_run": 45714249706,
+  "source_head": "e25cbbbb23e698140165c79bfe51dc0fc4f2911c",
+  "artifact_metadata": [
+    {
+      "id": 15068214289,
+      "digest": "sha256:49a0ab4d710eada6b9c07f67630908a084cb4afad3765f8d23ae1bb1102369f4"
+    }
+  ],
+  "provenance": "complete anonymous job log; ZIP not independently verified",
+  "panels": {
+    "all_recorded__geo_k5__disjoint": {
+      "status": "estimated",
+      "raw": {
+        "north": {
+          "common_islands": 1460,
+          "common_blocks": 95,
+          "geographic_gate": true,
+          "stages": {
+            "pair_specific": {
+              "estimate": 0.01855962321414392,
+              "ci": [
+                0.002307686164688472,
+                0.03744881329533795
+              ]
+            },
+            "matched_islands": {
+              "estimate": 0.007594127290145927,
+              "ci": [
+                -0.0042031552054191896,
+                0.020823078677409373
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.00614737383071149,
+              "ci": [
+                -0.014045555814516053,
+                0.02672419896034082
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.010965495923997991,
+              "ci": [
+                -0.02810755335477139,
+                0.002477085983436792
+              ]
+            },
+            "target_selection": {
+              "estimate": 0.0588213059457657,
+              "ci": [
+                0.04135427402083445,
+                0.07496275794540393
+              ]
+            },
+            "donor_selection": {
+              "estimate": -0.06026805940520013,
+              "ci": [
+                -0.07282271095190301,
+                -0.047518987898009485
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.02328026580853966,
+              "ci": [
+                0.005421806896737269,
+                0.04207913022378213
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.01713289197782816,
+              "ci": [
+                -0.025782917273850816,
+                -0.008645090155687377
+              ]
+            }
+          }
+        },
+        "tropical": {
+          "common_islands": 492,
+          "common_blocks": 82,
+          "geographic_gate": true,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.03840089821414045,
+              "ci": [
+                -0.05717980868611449,
+                -0.019066972300946557
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.044771334281303636,
+              "ci": [
+                -0.06082011439614889,
+                -0.030099792221737212
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.03718029171174136,
+              "ci": [
+                -0.05767903520141509,
+                -0.014807130742324823
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.006370436067163185,
+              "ci": [
+                -0.01908969950152914,
+                0.006402594126470396
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.03374194488872709,
+              "ci": [
+                -0.04669801600579091,
+                -0.020118910857489382
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.04133298745828936,
+              "ci": [
+                0.035451240805658285,
+                0.04645447523288439
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.018539804744914946,
+              "ci": [
+                -0.036361162307630854,
+                -0.0004969652110861768
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.01864048696682641,
+              "ci": [
+                -0.02773784667505005,
+                -0.00829462980963762
+              ]
+            }
+          }
+        },
+        "south": {
+          "common_islands": 125,
+          "common_blocks": 33,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": 0.004174459914156527,
+              "ci": [
+                -0.0401164902212094,
+                0.05524338724618206
+              ]
+            },
+            "matched_islands": {
+              "estimate": 0.0061461577000884865,
+              "ci": [
+                -0.02697736889560602,
+                0.04578212080394166
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.0422025088252542,
+              "ci": [
+                0.011730351518892589,
+                0.07032026522156874
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.00197169778593196,
+              "ci": [
+                -0.03712383106416831,
+                0.028885266294760462
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.027818657850579145,
+              "ci": [
+                -0.06648365057734497,
+                0.008605632513450685
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.06387500897574486,
+              "ci": [
+                0.04871795081190149,
+                0.07813317810353664
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.03392418006018228,
+              "ci": [
+                0.005202669477387011,
+                0.06256058414564562
+              ]
+            },
+            "coupling_component": {
+              "estimate": 0.008278328765071922,
+              "ci": [
+                -0.003961086921763765,
+                0.02094819783512643
+              ]
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "common_islands": 1952,
+          "common_blocks": 172,
+          "geographic_gate": true,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.056960521428284366,
+              "ci": [
+                -0.08217815979413018,
+                -0.03335542719331089
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.05236546157144956,
+              "ci": [
+                -0.07287363934575587,
+                -0.032189047458984966
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.04332766554245285,
+              "ci": [
+                -0.07210874678607396,
+                -0.01364447018802297
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.004595059856834803,
+              "ci": [
+                -0.013538683872141109,
+                0.025329527970797856
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.0925632508344928,
+              "ci": [
+                -0.1129254329106231,
+                -0.06918885444096967
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.10160104686348949,
+              "ci": [
+                0.08795630912139676,
+                0.11540754481472985
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.0418200705534546,
+              "ci": [
+                -0.06825839212383825,
+                -0.01585708783511854
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.0015075949889982489,
+              "ci": [
+                -0.013778847332008534,
+                0.011719527042287304
+              ]
+            }
+          }
+        }
+      },
+      "coherent": {
+        "coverage": {
+          "north": {
+            "islands": 1460,
+            "blocks": 95,
+            "movable_species": 546,
+            "movable_genera": 129
+          },
+          "tropical": {
+            "islands": 492,
+            "blocks": 82,
+            "movable_species": 543,
+            "movable_genera": 135
+          },
+          "south": {
+            "islands": 125,
+            "blocks": 33,
+            "movable_species": 392,
+            "movable_genera": 101
+          }
+        },
+        "permutations": 999,
+        "regions": {
+          "north": {
+            "gate": true,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.0061473738307114565,
+                "null_mean": 0.051434944952461766,
+                "residual": -0.04528757112175031,
+                "p": 0.106
+              },
+              "marginal_component": {
+                "observed": 0.02328026580853966,
+                "null_mean": 0.0643805360568187,
+                "residual": -0.041100270248279044,
+                "p": 0.04
+              },
+              "coupling_component": {
+                "observed": -0.01713289197782817,
+                "null_mean": -0.012945591104356936,
+                "residual": -0.004187300873471234,
+                "p": 0.488
+              }
+            }
+          },
+          "tropical": {
+            "gate": true,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.03718029171174138,
+                "null_mean": -0.02268424785780443,
+                "residual": -0.014496043853936949,
+                "p": 0.122
+              },
+              "marginal_component": {
+                "observed": -0.01853980474491493,
+                "null_mean": -0.007538272480538181,
+                "residual": -0.011001532264376748,
+                "p": 0.094
+              },
+              "coupling_component": {
+                "observed": -0.01864048696682639,
+                "null_mean": -0.015145975377266247,
+                "residual": -0.0034945115895601443,
+                "p": 0.328
+              }
+            }
+          },
+          "south": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.042202508825254184,
+                "null_mean": 0.028898195566450586,
+                "residual": 0.013304313258803598,
+                "p": 0.35
+              },
+              "marginal_component": {
+                "observed": 0.033924180060182295,
+                "null_mean": 0.027177859696643214,
+                "residual": 0.006746320363539081,
+                "p": 0.454
+              },
+              "coupling_component": {
+                "observed": 0.00827832876507192,
+                "null_mean": 0.0017203358698073725,
+                "residual": 0.006557992895264548,
+                "p": 0.322
+              }
+            }
+          },
+          "tropical_minus_north": {
+            "gate": true,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.04332766554245289,
+                "null_mean": -0.07411919281026619,
+                "residual": 0.0307915272678133,
+                "p": 0.364,
+                "primary_supported": false
+              },
+              "marginal_component": {
+                "observed": -0.0418200705534544,
+                "null_mean": -0.07191880853735688,
+                "residual": 0.03009873798390248,
+                "p": 0.266
+              },
+              "coupling_component": {
+                "observed": -0.0015075949889982294,
+                "null_mean": -0.0022003842729093107,
+                "residual": 0.0006927892839110814,
+                "p": 0.87
+              }
+            }
+          }
+        }
+      }
+    },
+    "all_recorded__geo50_climate10__disjoint": {
+      "status": "estimated",
+      "raw": {
+        "north": {
+          "common_islands": 1459,
+          "common_blocks": 95,
+          "geographic_gate": true,
+          "stages": {
+            "pair_specific": {
+              "estimate": 0.034995699486938,
+              "ci": [
+                0.020095820784581435,
+                0.053384148400061185
+              ]
+            },
+            "matched_islands": {
+              "estimate": 0.02212375921094742,
+              "ci": [
+                0.009793104661240545,
+                0.03471022048703751
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.05342658980908279,
+              "ci": [
+                0.033853936330984775,
+                0.07159039848079797
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.012871940275990583,
+              "ci": [
+                -0.028696361327342934,
+                0.000060306615145902723
+              ]
+            },
+            "target_selection": {
+              "estimate": 0.05911563100859299,
+              "ci": [
+                0.040551968132010424,
+                0.07581629686233816
+              ]
+            },
+            "donor_selection": {
+              "estimate": -0.027812800410457618,
+              "ci": [
+                -0.03271883617137565,
+                -0.02216938082325372
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.05420847196213601,
+              "ci": [
+                0.03465473709184656,
+                0.07246616482850757
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.0007818821530532423,
+              "ci": [
+                -0.008549868157267881,
+                0.006257215938710012
+              ]
+            }
+          }
+        },
+        "tropical": {
+          "common_islands": 488,
+          "common_blocks": 80,
+          "geographic_gate": true,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.04127290643969304,
+              "ci": [
+                -0.0575195807292806,
+                -0.02217602821176826
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.048685400751634404,
+              "ci": [
+                -0.06275889968755828,
+                -0.03519773620674747
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.04516203655694631,
+              "ci": [
+                -0.06520367040001618,
+                -0.02403270492486529
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.007412494311941367,
+              "ci": [
+                -0.02121658919230285,
+                0.004930154583010542
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.03598664253397974,
+              "ci": [
+                -0.05024837964594805,
+                -0.021272713007298195
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.039510006728667835,
+              "ci": [
+                0.033285178067096625,
+                0.04528954556712972
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.022273034276793682,
+              "ci": [
+                -0.03871224166796051,
+                -0.005719549514300898
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.022889002280152622,
+              "ci": [
+                -0.03258970163400009,
+                -0.01305627013624699
+              ]
+            }
+          }
+        },
+        "south": {
+          "common_islands": 125,
+          "common_blocks": 33,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": 0.023492633871037102,
+              "ci": [
+                -0.017888331137795997,
+                0.07378996205789945
+              ]
+            },
+            "matched_islands": {
+              "estimate": 0.02359106988285442,
+              "ci": [
+                -0.00631607072938956,
+                0.05905438884938195
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.06611272073081374,
+              "ci": [
+                0.03423239397576975,
+                0.09708828633804802
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.00009843601181731831,
+              "ci": [
+                -0.03877990268457407,
+                0.03263579544635403
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.027818657850579145,
+              "ci": [
+                -0.06772179300548711,
+                0.00837812677205249
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.07034030869853845,
+              "ci": [
+                0.06136550095716936,
+                0.07857362761766552
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.05567716720359905,
+              "ci": [
+                0.027496017041817263,
+                0.08230092340332147
+              ]
+            },
+            "coupling_component": {
+              "estimate": 0.010435553527214703,
+              "ci": [
+                -0.003338826924311958,
+                0.02335426494440871
+              ]
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "common_islands": 1947,
+          "common_blocks": 170,
+          "geographic_gate": true,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.07626860592663104,
+              "ci": [
+                -0.10101804395653075,
+                -0.05049099891678549
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.07080915996258183,
+              "ci": [
+                -0.08954491030137479,
+                -0.0522145542577833
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.09858862636602911,
+              "ci": [
+                -0.12559426786462674,
+                -0.06782950221394976
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.005459445964049209,
+              "ci": [
+                -0.01310676785796675,
+                0.025517715706284902
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.09510227354257272,
+              "ci": [
+                -0.11771254421555705,
+                -0.07045008178808446
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.06732280713912545,
+              "ci": [
+                0.058405504144711365,
+                0.07528270326714345
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.07648150623892969,
+              "ci": [
+                -0.1002987470979346,
+                -0.051196709650315995
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.02210712012709938,
+              "ci": [
+                -0.0343606305397413,
+                -0.009918862008471009
+              ]
+            }
+          }
+        }
+      },
+      "coherent": {
+        "coverage": {
+          "north": {
+            "islands": 1459,
+            "blocks": 95,
+            "movable_species": 593,
+            "movable_genera": 139
+          },
+          "tropical": {
+            "islands": 488,
+            "blocks": 80,
+            "movable_species": 740,
+            "movable_genera": 152
+          },
+          "south": {
+            "islands": 125,
+            "blocks": 33,
+            "movable_species": 427,
+            "movable_genera": 104
+          }
+        },
+        "permutations": 199,
+        "regions": {
+          "north": {
+            "gate": true,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.053426589809082804,
+                "null_mean": 0.0956301867912237,
+                "residual": -0.0422035969821409,
+                "p": 0.15
+              },
+              "marginal_component": {
+                "observed": 0.054208471962136,
+                "null_mean": 0.09408821653074961,
+                "residual": -0.039879744568613616,
+                "p": 0.03
+              },
+              "coupling_component": {
+                "observed": -0.0007818821530532407,
+                "null_mean": 0.0015419702604740823,
+                "residual": -0.002323852413527323,
+                "p": 0.62
+              }
+            }
+          },
+          "tropical": {
+            "gate": true,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.04516203655694632,
+                "null_mean": -0.023851492738091028,
+                "residual": -0.02131054381885529,
+                "p": 0.04
+              },
+              "marginal_component": {
+                "observed": -0.02227303427679369,
+                "null_mean": -0.006840842962286239,
+                "residual": -0.01543219131450745,
+                "p": 0.02
+              },
+              "coupling_component": {
+                "observed": -0.022889002280152643,
+                "null_mean": -0.017010649775804798,
+                "residual": -0.005878352504347845,
+                "p": 0.1
+              }
+            }
+          },
+          "south": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.06611272073081378,
+                "null_mean": 0.05759568841005631,
+                "residual": 0.008517032320757477,
+                "p": 0.58
+              },
+              "marginal_component": {
+                "observed": 0.05567716720359901,
+                "null_mean": 0.05057237850140445,
+                "residual": 0.005104788702194565,
+                "p": 0.62
+              },
+              "coupling_component": {
+                "observed": 0.0104355535272147,
+                "null_mean": 0.007023309908651862,
+                "residual": 0.003412243618562837,
+                "p": 0.65
+              }
+            }
+          },
+          "tropical_minus_north": {
+            "gate": true,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.09858862636602912,
+                "null_mean": -0.11948167952931472,
+                "residual": 0.020893053163285602,
+                "p": 0.46
+              },
+              "marginal_component": {
+                "observed": -0.07648150623892981,
+                "null_mean": -0.10092905949303585,
+                "residual": 0.02444755325410604,
+                "p": 0.33
+              },
+              "coupling_component": {
+                "observed": -0.02210712012709937,
+                "null_mean": -0.018552620036278875,
+                "residual": -0.0035545000908204956,
+                "p": 0.61
+              }
+            }
+          }
+        }
+      }
+    },
+    "original_native__geo_k5__disjoint": {
+      "status": "estimated",
+      "raw": {
+        "north": {
+          "common_islands": 185,
+          "common_blocks": 33,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.010963261464651562,
+              "ci": [
+                -0.03364773226483481,
+                0.010045854746088777
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.004751651949234371,
+              "ci": [
+                -0.029793361400259698,
+                0.01853716025689899
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.03272298220223663,
+              "ci": [
+                -0.0007952816934101478,
+                0.06215886353318222
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.0062116095154171914,
+              "ci": [
+                -0.0049050950550254355,
+                0.01758409155204417
+              ]
+            },
+            "target_selection": {
+              "estimate": 0.06383300092738756,
+              "ci": [
+                0.0280484510319602,
+                0.09544646435249866
+              ]
+            },
+            "donor_selection": {
+              "estimate": -0.02635836677591656,
+              "ci": [
+                -0.04397646025394429,
+                -0.01073144124789569
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.051121087545045116,
+              "ci": [
+                0.023339661549513595,
+                0.07644497747829007
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.018398105342808484,
+              "ci": [
+                -0.03784924567793726,
+                -0.0003598342812988397
+              ]
+            }
+          }
+        },
+        "tropical": {
+          "common_islands": 84,
+          "common_blocks": 34,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.04270405524776738,
+              "ci": [
+                -0.06746587318494907,
+                -0.018314849488896265
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.04917218009472533,
+              "ci": [
+                -0.07450088627240398,
+                -0.02587447174355505
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.03723900626217488,
+              "ci": [
+                -0.0823307272700901,
+                0.017664257284163994
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.006468124846957947,
+              "ci": [
+                -0.017389729091764252,
+                0.003994055403291975
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.025837747281161654,
+              "ci": [
+                -0.06508304938465449,
+                0.020174821121530812
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.03777092111371211,
+              "ci": [
+                0.027960674141625556,
+                0.048081252269932415
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.02272628223471566,
+              "ci": [
+                -0.05258205722854964,
+                0.015143559093393148
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.014512724027459213,
+              "ci": [
+                -0.038245225939730676,
+                0.014351958952806495
+              ]
+            }
+          }
+        },
+        "south": {
+          "common_islands": 14,
+          "common_blocks": 10,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.08197936703670805,
+              "ci": [
+                -0.14279691062472563,
+                -0.03194122101955223
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.0408857450851079,
+              "ci": [
+                -0.07970458972452096,
+                -0.0007940424159567739
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.026011886763381602,
+              "ci": [
+                -0.03923310751669449,
+                0.07664448934012512
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.04109362195160015,
+              "ci": [
+                -0.008462697002089868,
+                0.10721748682233184
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.0378370511273712,
+              "ci": [
+                -0.12344546665943779,
+                0.023060206013235916
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.10473468297586071,
+              "ci": [
+                0.08424004891646403,
+                0.12616963375207468
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.033826157300695554,
+              "ci": [
+                -0.030765985715731324,
+                0.0870330566718514
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.007814270537313952,
+              "ci": [
+                -0.018429556773558058,
+                0.0018202998224931652
+              ]
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "common_islands": 269,
+          "common_blocks": 67,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.03174079378311582,
+              "ci": [
+                -0.06193618690524873,
+                0.0012659236056806237
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.04442052814549095,
+              "ci": [
+                -0.07783122571658414,
+                -0.009813338432877317
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.06996198846441151,
+              "ci": [
+                -0.12187187749916698,
+                -0.00882261670440678
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.012679734362375135,
+              "ci": [
+                -0.027698317955414577,
+                0.0014902995455572524
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.08967074820854921,
+              "ci": [
+                -0.13934888876381826,
+                -0.033290937811584854
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.06412928788962867,
+              "ci": [
+                0.04529202308391446,
+                0.08427547640437572
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.07384736977976078,
+              "ci": [
+                -0.11165000730387008,
+                -0.02611791636358051
+              ]
+            },
+            "coupling_component": {
+              "estimate": 0.0038853813153492713,
+              "ci": [
+                -0.025753141315217144,
+                0.04043452384377538
+              ]
+            }
+          }
+        }
+      },
+      "coherent": {
+        "coverage": {
+          "north": {
+            "islands": 185,
+            "blocks": 33,
+            "movable_species": 405,
+            "movable_genera": 103
+          },
+          "tropical": {
+            "islands": 84,
+            "blocks": 34,
+            "movable_species": 360,
+            "movable_genera": 103
+          },
+          "south": {
+            "islands": 14,
+            "blocks": 10,
+            "movable_species": 112,
+            "movable_genera": 31
+          }
+        },
+        "permutations": 199,
+        "regions": {
+          "north": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.03272298220223665,
+                "null_mean": 0.02085020383115104,
+                "residual": 0.011872778371085607,
+                "p": 0.2
+              },
+              "marginal_component": {
+                "observed": 0.051121087545045074,
+                "null_mean": 0.03371891329259081,
+                "residual": 0.017402174252454265,
+                "p": 0.06
+              },
+              "coupling_component": {
+                "observed": -0.01839810534280849,
+                "null_mean": -0.012868709461439773,
+                "residual": -0.005529395881368719,
+                "p": 0.39
+              }
+            }
+          },
+          "tropical": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.037239006262174905,
+                "null_mean": -0.031060468826504147,
+                "residual": -0.006178537435670758,
+                "p": 0.49
+              },
+              "marginal_component": {
+                "observed": -0.022726282234715664,
+                "null_mean": -0.017929397293163143,
+                "residual": -0.004796884941552521,
+                "p": 0.43
+              },
+              "coupling_component": {
+                "observed": -0.014512724027459217,
+                "null_mean": -0.013131071533341003,
+                "residual": -0.001381652494118214,
+                "p": 0.75
+              }
+            }
+          },
+          "south": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.026011886763381606,
+                "null_mean": 0.027422255650965722,
+                "residual": -0.001410368887584116,
+                "p": 0.95
+              },
+              "marginal_component": {
+                "observed": 0.03382615730069555,
+                "null_mean": 0.03857428916349012,
+                "residual": -0.0047481318627945746,
+                "p": 0.71
+              },
+              "coupling_component": {
+                "observed": -0.007814270537313955,
+                "null_mean": -0.011152033512524407,
+                "residual": 0.0033377629752104516,
+                "p": 0.39
+              }
+            }
+          },
+          "tropical_minus_north": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.06996198846441154,
+                "null_mean": -0.051910672657655185,
+                "residual": -0.018051315806756354,
+                "p": 0.12
+              },
+              "marginal_component": {
+                "observed": -0.07384736977976075,
+                "null_mean": -0.051648310585753955,
+                "residual": -0.022199059194006797,
+                "p": 0.04
+              },
+              "coupling_component": {
+                "observed": 0.0038853813153492786,
+                "null_mean": -0.00026236207190122985,
+                "residual": 0.004147743387250508,
+                "p": 0.54
+              }
+            }
+          }
+        }
+      }
+    },
+    "original_native__geo50_climate10__disjoint": {
+      "status": "estimated",
+      "raw": {
+        "north": {
+          "common_islands": 184,
+          "common_blocks": 32,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": 0.01139907605972252,
+              "ci": [
+                -0.01032745433894117,
+                0.03347602411474091
+              ]
+            },
+            "matched_islands": {
+              "estimate": 0.018702317324267567,
+              "ci": [
+                -0.004637117207129939,
+                0.041940987086462884
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.06919035091856848,
+              "ci": [
+                0.035754494475334346,
+                0.10294489877011717
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.007303241264545048,
+              "ci": [
+                -0.004877259857046743,
+                0.020451118680884606
+              ]
+            },
+            "target_selection": {
+              "estimate": 0.05956347359830981,
+              "ci": [
+                0.02464443847728026,
+                0.09287810575734161
+              ]
+            },
+            "donor_selection": {
+              "estimate": -0.009075440004008903,
+              "ci": [
+                -0.016709966692439796,
+                -0.001530379956932645
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.07582402594627381,
+              "ci": [
+                0.0443125974501104,
+                0.10506303520295893
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.006633675027705333,
+              "ci": [
+                -0.023593438310441663,
+                0.00950459210971485
+              ]
+            }
+          }
+        },
+        "tropical": {
+          "common_islands": 84,
+          "common_blocks": 34,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.04557682310061516,
+              "ci": [
+                -0.06990647819396616,
+                -0.022529963665600793
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.05216488751807495,
+              "ci": [
+                -0.07832898201998498,
+                -0.029003212554742145
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.0392796784774857,
+              "ci": [
+                -0.08258034209088976,
+                0.0066422949935281105
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.0065880644174597935,
+              "ci": [
+                -0.016709421589944994,
+                0.0031428059393744847
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.025837747281161654,
+              "ci": [
+                -0.06633269498632358,
+                0.01749899305700749
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.038722956321750886,
+              "ci": [
+                0.028501053469041623,
+                0.04938888316255373
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.024484454353890628,
+              "ci": [
+                -0.05247123470843726,
+                0.011005393838423597
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.014795224123595074,
+              "ci": [
+                -0.03793046270856202,
+                0.013432985516300166
+              ]
+            }
+          }
+        },
+        "south": {
+          "common_islands": 14,
+          "common_blocks": 10,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.06351062668123726,
+              "ci": [
+                -0.12331418931489647,
+                -0.007093686338365254
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.020948545239145605,
+              "ci": [
+                -0.06233574125605682,
+                0.022805890634921645
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.02205089946597988,
+              "ci": [
+                -0.0382321776446913,
+                0.0742186754556527
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.04256208144209166,
+              "ci": [
+                -0.005449461252025061,
+                0.10246342113074627
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.0378370511273712,
+              "ci": [
+                -0.12773131880151373,
+                0.02339505767812163
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.08083649583249668,
+              "ci": [
+                0.07049499429921788,
+                0.08845459026192029
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.026216865692152765,
+              "ci": [
+                -0.038314715116386566,
+                0.08044030339216837
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.0041659662261728835,
+              "ci": [
+                -0.015891510819923103,
+                0.007810059218114925
+              ]
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "common_islands": 268,
+          "common_blocks": 66,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.05697589916033768,
+              "ci": [
+                -0.08775880662074195,
+                -0.025370292911190858
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.07086720484234252,
+              "ci": [
+                -0.10462081311466671,
+                -0.03857696217701017
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.10847002939605419,
+              "ci": [
+                -0.16230424307131847,
+                -0.05311196503921024
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.013891305682004841,
+              "ci": [
+                -0.031302671427254736,
+                0.0018009289276859541
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.08540122087947147,
+              "ci": [
+                -0.1384800195524499,
+                -0.030996321118384712
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.04779839632575979,
+              "ci": [
+                0.034670415110274876,
+                0.06097897730591898
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.10030848030016444,
+              "ci": [
+                -0.14146115578742344,
+                -0.055988781390809206
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.008161549095889741,
+              "ci": [
+                -0.036166608431973175,
+                0.025182618683777438
+              ]
+            }
+          }
+        }
+      },
+      "coherent": {
+        "coverage": {
+          "north": {
+            "islands": 184,
+            "blocks": 32,
+            "movable_species": 479,
+            "movable_genera": 118
+          },
+          "tropical": {
+            "islands": 84,
+            "blocks": 34,
+            "movable_species": 521,
+            "movable_genera": 126
+          },
+          "south": {
+            "islands": 14,
+            "blocks": 10,
+            "movable_species": 114,
+            "movable_genera": 30
+          }
+        },
+        "permutations": 199,
+        "regions": {
+          "north": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.0691903509185684,
+                "null_mean": 0.05595360274007605,
+                "residual": 0.013236748178492352,
+                "p": 0.17
+              },
+              "marginal_component": {
+                "observed": 0.07582402594627381,
+                "null_mean": 0.05882341501443873,
+                "residual": 0.01700061093183508,
+                "p": 0.05
+              },
+              "coupling_component": {
+                "observed": -0.006633675027705339,
+                "null_mean": -0.002869812274362696,
+                "residual": -0.0037638627533426432,
+                "p": 0.47
+              }
+            }
+          },
+          "tropical": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.03927967847748571,
+                "null_mean": -0.030814453973042413,
+                "residual": -0.008465224504443297,
+                "p": 0.28
+              },
+              "marginal_component": {
+                "observed": -0.02448445435389062,
+                "null_mean": -0.017533132947379942,
+                "residual": -0.006951321406510679,
+                "p": 0.23
+              },
+              "coupling_component": {
+                "observed": -0.014795224123595078,
+                "null_mean": -0.013281321025662473,
+                "residual": -0.0015139030979326052,
+                "p": 0.71
+              }
+            }
+          },
+          "south": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.022050899465979882,
+                "null_mean": 0.03003213584862391,
+                "residual": -0.007981236382644027,
+                "p": 0.44
+              },
+              "marginal_component": {
+                "observed": 0.026216865692152758,
+                "null_mean": 0.03618114913922822,
+                "residual": -0.009964283447075464,
+                "p": 0.37
+              },
+              "coupling_component": {
+                "observed": -0.004165966226172883,
+                "null_mean": -0.006149013290604317,
+                "residual": 0.001983047064431434,
+                "p": 0.64
+              }
+            }
+          },
+          "tropical_minus_north": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.10847002939605413,
+                "null_mean": -0.08676805671311845,
+                "residual": -0.02170197268293568,
+                "p": 0.09
+              },
+              "marginal_component": {
+                "observed": -0.10030848030016434,
+                "null_mean": -0.07635654796181868,
+                "residual": -0.023951932338345666,
+                "p": 0.05
+              },
+              "coupling_component": {
+                "observed": -0.008161549095889741,
+                "null_mean": -0.010411508751299776,
+                "residual": 0.0022499596554100346,
+                "p": 0.73
+              }
+            }
+          }
+        }
+      }
+    },
+    "high_quality_only__geo_k5__disjoint": {
+      "status": "estimated",
+      "raw": {
+        "north": {
+          "common_islands": 1056,
+          "common_blocks": 68,
+          "geographic_gate": true,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.04274766903978887,
+              "ci": [
+                -0.06504861710642626,
+                -0.0229347544592241
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.014845721028601974,
+              "ci": [
+                -0.028272718494183578,
+                -0.002194824371610764
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.005862246224867292,
+              "ci": [
+                -0.012973995459063995,
+                0.022478648392286964
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.027901948011186894,
+              "ci": [
+                0.008833692621510453,
+                0.047546919056692914
+              ]
+            },
+            "target_selection": {
+              "estimate": 0.0498152184354033,
+              "ci": [
+                0.037539218311226634,
+                0.062093904111943814
+              ]
+            },
+            "donor_selection": {
+              "estimate": -0.029107251181934017,
+              "ci": [
+                -0.04998161732332476,
+                -0.010403179015374946
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.003472546499326865,
+              "ci": [
+                -0.014918843839945328,
+                0.01985682477430376
+              ]
+            },
+            "coupling_component": {
+              "estimate": 0.002389699725540428,
+              "ci": [
+                -0.008355394211460566,
+                0.014352310672338438
+              ]
+            }
+          }
+        },
+        "tropical": {
+          "common_islands": 109,
+          "common_blocks": 47,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.04551300946641967,
+              "ci": [
+                -0.06433537638258494,
+                -0.02528112857082642
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.04951565776296134,
+              "ci": [
+                -0.07460399175437879,
+                -0.02512061229939863
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.056878142307226175,
+              "ci": [
+                -0.0846223357449354,
+                -0.028044243757817666
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.004002648296541671,
+              "ci": [
+                -0.022348245348643356,
+                0.013836068665641806
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.03868479748054733,
+              "ci": [
+                -0.059303265389046456,
+                -0.016926045333999485
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.03132231293628251,
+              "ci": [
+                0.00015646074422782564,
+                0.06077474104177679
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.028234369318595885,
+              "ci": [
+                -0.05147104846051585,
+                -0.004680056997121668
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.028643772988630283,
+              "ci": [
+                -0.045884751113877804,
+                -0.009398162617709547
+              ]
+            }
+          }
+        },
+        "south": {
+          "common_islands": 39,
+          "common_blocks": 17,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.0850494678373798,
+              "ci": [
+                -0.13888946703534388,
+                -0.030107322363925614
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.03372995504532941,
+              "ci": [
+                -0.08785320726452711,
+                0.026066347801819725
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.09110591655652384,
+              "ci": [
+                0.026650305240702353,
+                0.1515187000294719
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.05131951279205038,
+              "ci": [
+                0.0035317294674252772,
+                0.10370882313057887
+              ]
+            },
+            "target_selection": {
+              "estimate": 0.03305982203228705,
+              "ci": [
+                0.0006892079144076784,
+                0.06309535947685044
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.0917760495695662,
+              "ci": [
+                0.03142792771152152,
+                0.1506548015539894
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.07377321252978017,
+              "ci": [
+                0.021147617777774654,
+                0.11856106161835904
+              ]
+            },
+            "coupling_component": {
+              "estimate": 0.017332704026743688,
+              "ci": [
+                -0.019407535406530455,
+                0.04959318162553585
+              ]
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "common_islands": 1165,
+          "common_blocks": 111,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.0027653404266308,
+              "ci": [
+                -0.02997403728404772,
+                0.025011712783316414
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.03466993673435936,
+              "ci": [
+                -0.06263219908325059,
+                -0.0072804293810594415
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.06274038853209346,
+              "ci": [
+                -0.09377366561233513,
+                -0.029789816898739642
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.031904596307728565,
+              "ci": [
+                -0.0573797437183333,
+                -0.004794596472531804
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.08850001591595064,
+              "ci": [
+                -0.1110985978090225,
+                -0.06407530786227159
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.060429564118216525,
+              "ci": [
+                0.02491552961998721,
+                0.09585009736886002
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.03170691581792275,
+              "ci": [
+                -0.057825611743875585,
+                -0.00039862699166330666
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.03103347271417071,
+              "ci": [
+                -0.052027483144782456,
+                -0.009594097510250449
+              ]
+            }
+          }
+        }
+      },
+      "coherent": {
+        "coverage": {
+          "north": {
+            "islands": 1056,
+            "blocks": 68,
+            "movable_species": 106,
+            "movable_genera": 22
+          },
+          "tropical": {
+            "islands": 109,
+            "blocks": 47,
+            "movable_species": 53,
+            "movable_genera": 19
+          },
+          "south": {
+            "islands": 39,
+            "blocks": 17,
+            "movable_species": 38,
+            "movable_genera": 12
+          }
+        },
+        "permutations": 199,
+        "regions": {
+          "north": {
+            "gate": true,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.005862246224867302,
+                "null_mean": 0.01254361415339388,
+                "residual": -0.006681367928526579,
+                "p": 0.56
+              },
+              "marginal_component": {
+                "observed": 0.0034725464993268593,
+                "null_mean": 0.015785723594848155,
+                "residual": -0.012313177095521296,
+                "p": 0.16
+              },
+              "coupling_component": {
+                "observed": 0.0023896997255404354,
+                "null_mean": -0.003242109441454278,
+                "residual": 0.005631809166994713,
+                "p": 0.17
+              }
+            }
+          },
+          "tropical": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.056878142307226175,
+                "null_mean": -0.043400609491465486,
+                "residual": -0.013477532815760689,
+                "p": 0.61
+              },
+              "marginal_component": {
+                "observed": -0.028234369318595895,
+                "null_mean": -0.016631065177515215,
+                "residual": -0.01160330414108068,
+                "p": 0.49
+              },
+              "coupling_component": {
+                "observed": -0.028643772988630287,
+                "null_mean": -0.026769544313950275,
+                "residual": -0.0018742286746800119,
+                "p": 0.75
+              }
+            }
+          },
+          "south": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.09110591655652384,
+                "null_mean": 0.05768313423215838,
+                "residual": 0.033422782324365456,
+                "p": 0.11
+              },
+              "marginal_component": {
+                "observed": 0.07377321252978017,
+                "null_mean": 0.061185089251009926,
+                "residual": 0.012588123278770243,
+                "p": 0.38
+              },
+              "coupling_component": {
+                "observed": 0.017332704026743685,
+                "null_mean": -0.003501955018851529,
+                "residual": 0.020834659045595214,
+                "p": 0.05
+              }
+            }
+          },
+          "tropical_minus_north": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.06274038853209363,
+                "null_mean": -0.055944223644859375,
+                "residual": -0.006796164887234252,
+                "p": 0.75
+              },
+              "marginal_component": {
+                "observed": -0.03170691581792286,
+                "null_mean": -0.03241678877236337,
+                "residual": 0.000709872954440513,
+                "p": 0.88
+              },
+              "coupling_component": {
+                "observed": -0.03103347271417074,
+                "null_mean": -0.023527434872495995,
+                "residual": -0.007506037841674744,
+                "p": 0.4
+              }
+            }
+          }
+        }
+      }
+    },
+    "high_quality_only__geo50_climate10__disjoint": {
+      "status": "estimated",
+      "raw": {
+        "north": {
+          "common_islands": 1060,
+          "common_blocks": 68,
+          "geographic_gate": true,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.04813999026786601,
+              "ci": [
+                -0.06946798484762308,
+                -0.02832151112368692
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.02192596608275558,
+              "ci": [
+                -0.03357923309260366,
+                -0.009757755384612947
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.026042955925959246,
+              "ci": [
+                0.014393298994892936,
+                0.0375579640336819
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.02621402418511043,
+              "ci": [
+                0.007586004504688986,
+                0.04716220983443744
+              ]
+            },
+            "target_selection": {
+              "estimate": 0.053849008551760946,
+              "ci": [
+                0.041962581598458386,
+                0.06544605325192983
+              ]
+            },
+            "donor_selection": {
+              "estimate": -0.005880086543046116,
+              "ci": [
+                -0.020020512333321906,
+                0.0069519813781815775
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.020245377813253383,
+              "ci": [
+                0.006360657910093502,
+                0.03358744207346419
+              ]
+            },
+            "coupling_component": {
+              "estimate": 0.005797578112705867,
+              "ci": [
+                -0.004118629311225634,
+                0.01599054633808647
+              ]
+            }
+          }
+        },
+        "tropical": {
+          "common_islands": 123,
+          "common_blocks": 50,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.025106864207372796,
+              "ci": [
+                -0.04015665377866437,
+                -0.00889301908060193
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.02232693182043228,
+              "ci": [
+                -0.03951128300672537,
+                -0.0066005028767418305
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.07196653623650744,
+              "ci": [
+                -0.09990709386007401,
+                -0.046218948031376404
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.0027799323869405167,
+              "ci": [
+                -0.012994264672273567,
+                0.017641870604041713
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.0421405969773413,
+              "ci": [
+                -0.06281978638091228,
+                -0.023730608080813474
+              ]
+            },
+            "donor_selection": {
+              "estimate": -0.007499007438733858,
+              "ci": [
+                -0.027618378322019223,
+                0.014533063294067826
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.04163011035438918,
+              "ci": [
+                -0.0626052584347109,
+                -0.021256092113586682
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.03033642588211825,
+              "ci": [
+                -0.04545861792955972,
+                -0.013964024107689984
+              ]
+            }
+          }
+        },
+        "south": {
+          "common_islands": 52,
+          "common_blocks": 20,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": -0.06867567378937775,
+              "ci": [
+                -0.11270076126790267,
+                -0.02273855988173205
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.03897353057763105,
+              "ci": [
+                -0.07021025790436582,
+                -0.001011504996385963
+              ]
+            },
+            "common_carriers": {
+              "estimate": 0.09451240140501732,
+              "ci": [
+                0.05457493526589791,
+                0.1408475723540545
+              ]
+            },
+            "island_selection": {
+              "estimate": 0.029702143211746697,
+              "ci": [
+                -0.005341954694723582,
+                0.06898459338689261
+              ]
+            },
+            "target_selection": {
+              "estimate": 0.04610673688309249,
+              "ci": [
+                0.015275081001681292,
+                0.07273533648951615
+              ]
+            },
+            "donor_selection": {
+              "estimate": 0.08737919509955587,
+              "ci": [
+                0.057687469246031055,
+                0.11776165447861212
+              ]
+            },
+            "marginal_component": {
+              "estimate": 0.07174143589686746,
+              "ci": [
+                0.029565421448063317,
+                0.11376308632982016
+              ]
+            },
+            "coupling_component": {
+              "estimate": 0.022770965508149842,
+              "ci": [
+                -0.0005451933640291161,
+                0.04701903085536386
+              ]
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "common_islands": 1183,
+          "common_blocks": 114,
+          "geographic_gate": false,
+          "stages": {
+            "pair_specific": {
+              "estimate": 0.023033126060493212,
+              "ci": [
+                -0.0003477760466415728,
+                0.048166240682886115
+              ]
+            },
+            "matched_islands": {
+              "estimate": -0.00040096573767670063,
+              "ci": [
+                -0.021193771028576797,
+                0.01826741784389183
+              ]
+            },
+            "common_carriers": {
+              "estimate": -0.09800949216246668,
+              "ci": [
+                -0.1282487785602328,
+                -0.07106185715828017
+              ]
+            },
+            "island_selection": {
+              "estimate": -0.023434091798169913,
+              "ci": [
+                -0.049285798708132635,
+                -0.0016172045405338303
+              ]
+            },
+            "target_selection": {
+              "estimate": -0.09598960552910224,
+              "ci": [
+                -0.12003772622530748,
+                -0.0738620766801865
+              ]
+            },
+            "donor_selection": {
+              "estimate": -0.0016189208956877412,
+              "ci": [
+                -0.026838815361350528,
+                0.023625044184408056
+              ]
+            },
+            "marginal_component": {
+              "estimate": -0.061875488167642566,
+              "ci": [
+                -0.08633528129802893,
+                -0.03750109594195685
+              ]
+            },
+            "coupling_component": {
+              "estimate": -0.03613400399482412,
+              "ci": [
+                -0.054116996465103706,
+                -0.01842742763122439
+              ]
+            }
+          }
+        }
+      },
+      "coherent": {
+        "coverage": {
+          "north": {
+            "islands": 1060,
+            "blocks": 68,
+            "movable_species": 109,
+            "movable_genera": 24
+          },
+          "tropical": {
+            "islands": 123,
+            "blocks": 50,
+            "movable_species": 107,
+            "movable_genera": 24
+          },
+          "south": {
+            "islands": 52,
+            "blocks": 20,
+            "movable_species": 53,
+            "movable_genera": 17
+          }
+        },
+        "permutations": 199,
+        "regions": {
+          "north": {
+            "gate": true,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.02604295592595927,
+                "null_mean": 0.029188650497924854,
+                "residual": -0.0031456945719655835,
+                "p": 0.69
+              },
+              "marginal_component": {
+                "observed": 0.020245377813253387,
+                "null_mean": 0.030694116873381822,
+                "residual": -0.010448739060128436,
+                "p": 0.18
+              },
+              "coupling_component": {
+                "observed": 0.00579757811270586,
+                "null_mean": -0.001505466375456972,
+                "residual": 0.007303044488162831,
+                "p": 0.09
+              }
+            }
+          },
+          "tropical": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.07196653623650745,
+                "null_mean": -0.04594377375458262,
+                "residual": -0.02602276248192483,
+                "p": 0.03
+              },
+              "marginal_component": {
+                "observed": -0.04163011035438918,
+                "null_mean": -0.02316024763293733,
+                "residual": -0.018469862721451853,
+                "p": 0.02
+              },
+              "coupling_component": {
+                "observed": -0.03033642588211824,
+                "null_mean": -0.022783526121645293,
+                "residual": -0.007552899760472947,
+                "p": 0.42
+              }
+            }
+          },
+          "south": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": 0.0945124014050173,
+                "null_mean": 0.06898988996654028,
+                "residual": 0.025522511438477016,
+                "p": 0.1
+              },
+              "marginal_component": {
+                "observed": 0.07174143589686743,
+                "null_mean": 0.06379734949117978,
+                "residual": 0.007944086405687653,
+                "p": 0.61
+              },
+              "coupling_component": {
+                "observed": 0.022770965508149853,
+                "null_mean": 0.005192540475360498,
+                "residual": 0.017578425032789356,
+                "p": 0.05
+              }
+            }
+          },
+          "tropical_minus_north": {
+            "gate": false,
+            "metrics": {
+              "common_carriers": {
+                "observed": -0.09800949216246647,
+                "null_mean": -0.07513242425250748,
+                "residual": -0.022877067909958998,
+                "p": 0.21
+              },
+              "marginal_component": {
+                "observed": -0.06187548816764267,
+                "null_mean": -0.05385436450631915,
+                "residual": -0.008021123661323522,
+                "p": 0.53
+              },
+              "coupling_component": {
+                "observed": -0.03613400399482412,
+                "null_mean": -0.021278059746188314,
+                "residual": -0.014855944248635802,
+                "p": 0.11
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

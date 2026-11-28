@@ -1,0 +1,1128 @@
+{
+  "source_run": 45659571495,
+  "source_head": "d22a7d8b239a9fb4687debe27ea769688165ddb1",
+  "artifact_metadata": [
+    {
+      "id": 15043694555,
+      "digest": "sha256:4de4104dfc5e5005ea6493c648590c8250ec4151baadcff89a1733445ba3f881"
+    }
+  ],
+  "provenance": "complete anonymous job log; ZIP not independently verified",
+  "panels": {
+    "geo_k5__inclusive": {
+      "status": "estimated",
+      "islands": 2367,
+      "distinct_pair_species": 2175,
+      "coverage": {
+        "north": {
+          "islands": 1579,
+          "blocks": 102,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.0700250256284577,
+                "distinct_species": 157,
+                "color_documented_species": 57,
+                "movable_species": 95,
+                "movable_genera": 35,
+                "weighted_color_coverage": 0.24091374891401396,
+                "genus_grade_expected_coverage": 0.2816238688655897
+              },
+              "bilateral_deep": {
+                "pair_share": 0.05869610051803908,
+                "distinct_species": 123,
+                "color_documented_species": 45,
+                "movable_species": 63,
+                "movable_genera": 30,
+                "weighted_color_coverage": 0.27595636529545686,
+                "genus_grade_expected_coverage": 0.3970035408945394
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.05449853540611886,
+                "distinct_species": 161,
+                "color_documented_species": 57,
+                "movable_species": 98,
+                "movable_genera": 33,
+                "weighted_color_coverage": 0.3587937652961456,
+                "genus_grade_expected_coverage": 0.35157211099741925
+              },
+              "bilateral_deep": {
+                "pair_share": 0.05837637258075189,
+                "distinct_species": 122,
+                "color_documented_species": 39,
+                "movable_species": 58,
+                "movable_genera": 26,
+                "weighted_color_coverage": 0.2691397938222314,
+                "genus_grade_expected_coverage": 0.31969037876231143
+              }
+            }
+          }
+        },
+        "tropical": {
+          "islands": 670,
+          "blocks": 91,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.24501000299488418,
+                "distinct_species": 191,
+                "color_documented_species": 73,
+                "movable_species": 127,
+                "movable_genera": 42,
+                "weighted_color_coverage": 0.14898817272055406,
+                "genus_grade_expected_coverage": 0.2509114807447035
+              },
+              "bilateral_deep": {
+                "pair_share": 0.08383245376283642,
+                "distinct_species": 141,
+                "color_documented_species": 43,
+                "movable_species": 56,
+                "movable_genera": 26,
+                "weighted_color_coverage": 0.3900789513106685,
+                "genus_grade_expected_coverage": 0.46899544902098467
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.14065146925144656,
+                "distinct_species": 206,
+                "color_documented_species": 80,
+                "movable_species": 132,
+                "movable_genera": 42,
+                "weighted_color_coverage": 0.324878417340281,
+                "genus_grade_expected_coverage": 0.36528424165575263
+              },
+              "bilateral_deep": {
+                "pair_share": 0.09533408898575574,
+                "distinct_species": 177,
+                "color_documented_species": 56,
+                "movable_species": 76,
+                "movable_genera": 33,
+                "weighted_color_coverage": 0.3375660961963065,
+                "genus_grade_expected_coverage": 0.3522471464302783
+              }
+            }
+          }
+        },
+        "south": {
+          "islands": 118,
+          "blocks": 30,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.1587656542178969,
+                "distinct_species": 112,
+                "color_documented_species": 43,
+                "movable_species": 60,
+                "movable_genera": 27,
+                "weighted_color_coverage": 0.20238736308355473,
+                "genus_grade_expected_coverage": 0.2948287537764049
+              },
+              "bilateral_deep": {
+                "pair_share": 0.04206879650894524,
+                "distinct_species": 86,
+                "color_documented_species": 29,
+                "movable_species": 39,
+                "movable_genera": 17,
+                "weighted_color_coverage": 0.29381117986726146,
+                "genus_grade_expected_coverage": 0.3185997553331811
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.12049552406709856,
+                "distinct_species": 89,
+                "color_documented_species": 32,
+                "movable_species": 56,
+                "movable_genera": 23,
+                "weighted_color_coverage": 0.357588453112894,
+                "genus_grade_expected_coverage": 0.35609093294347566
+              },
+              "bilateral_deep": {
+                "pair_share": 0.07543047053851816,
+                "distinct_species": 79,
+                "color_documented_species": 32,
+                "movable_species": 40,
+                "movable_genera": 17,
+                "weighted_color_coverage": 0.44874534250948006,
+                "genus_grade_expected_coverage": 0.40386942092923067
+              }
+            }
+          }
+        }
+      },
+      "tests": {
+        "north__target": {
+          "observed_coverage_contrast": -0.035042616381442904,
+          "genus_grade_expected": -0.11537967202894969,
+          "residual": 0.08033705564750679,
+          "p_coherent": 0.684,
+          "null_interval": [
+            -0.35387090551790285,
+            0.17002371033228378
+          ],
+          "movable_weighted_species": 158,
+          "movable_weighted_genera": 64,
+          "gate": true
+        },
+        "north__donor": {
+          "observed_coverage_contrast": 0.0896539714739142,
+          "genus_grade_expected": 0.031881732235107846,
+          "residual": 0.05777223923880635,
+          "p_coherent": 0.482,
+          "null_interval": [
+            -0.10672146664353772,
+            0.17596517451965857
+          ],
+          "movable_weighted_species": 156,
+          "movable_weighted_genera": 59,
+          "gate": true
+        },
+        "north__target_minus_donor": {
+          "observed_coverage_contrast": -0.12469658785535712,
+          "genus_grade_expected": -0.14726140426405754,
+          "residual": 0.022564816408700422,
+          "p_coherent": 0.856,
+          "null_interval": [
+            -0.3221327445210149,
+            0.04656015887388304
+          ],
+          "movable_weighted_species": 187,
+          "movable_weighted_genera": 71,
+          "gate": true
+        },
+        "tropical__target": {
+          "observed_coverage_contrast": -0.24109077859011444,
+          "genus_grade_expected": -0.2180839682762812,
+          "residual": -0.023006810313833226,
+          "p_coherent": 0.71,
+          "null_interval": [
+            -0.34127475437452437,
+            -0.0858508982680917
+          ],
+          "movable_weighted_species": 183,
+          "movable_weighted_genera": 66,
+          "gate": true
+        },
+        "tropical__donor": {
+          "observed_coverage_contrast": -0.012687678856025604,
+          "genus_grade_expected": 0.013037095225474353,
+          "residual": -0.02572477408149996,
+          "p_coherent": 0.464,
+          "null_interval": [
+            -0.054890067445930404,
+            0.08849364734903807
+          ],
+          "movable_weighted_species": 208,
+          "movable_weighted_genera": 75,
+          "gate": true
+        },
+        "tropical__target_minus_donor": {
+          "observed_coverage_contrast": -0.22840309973408887,
+          "genus_grade_expected": -0.23112106350175554,
+          "residual": 0.00271796376766667,
+          "p_coherent": 0.992,
+          "null_interval": [
+            -0.33767764534797606,
+            -0.1318221439030778
+          ],
+          "movable_weighted_species": 241,
+          "movable_weighted_genera": 84,
+          "gate": true
+        },
+        "south__target": {
+          "observed_coverage_contrast": -0.09142381678370673,
+          "genus_grade_expected": -0.02377100155677618,
+          "residual": -0.06765281522693055,
+          "p_coherent": 0.448,
+          "null_interval": [
+            -0.187213960957928,
+            0.14788147604949273
+          ],
+          "movable_weighted_species": 99,
+          "movable_weighted_genera": 43,
+          "gate": false
+        },
+        "south__donor": {
+          "observed_coverage_contrast": -0.09115688939658606,
+          "genus_grade_expected": -0.047778487985754944,
+          "residual": -0.043378401410831116,
+          "p_coherent": 0.648,
+          "null_interval": [
+            -0.22061065656522197,
+            0.11730509650459625
+          ],
+          "movable_weighted_species": 96,
+          "movable_weighted_genera": 37,
+          "gate": false
+        },
+        "south__target_minus_donor": {
+          "observed_coverage_contrast": -0.0002669273871206794,
+          "genus_grade_expected": 0.02400748642897884,
+          "residual": -0.02427441381609952,
+          "p_coherent": 0.78,
+          "null_interval": [
+            -0.15322904356714634,
+            0.20153095273464483
+          ],
+          "movable_weighted_species": 137,
+          "movable_weighted_genera": 52,
+          "gate": false
+        },
+        "tropical_minus_north__target_minus_donor": {
+          "observed_coverage_contrast": -0.10370651187873173,
+          "genus_grade_expected": -0.08385965923769786,
+          "residual": -0.019846852641033863,
+          "p_coherent": 0.858,
+          "null_interval": [
+            -0.31284435376409475,
+            0.1281510022959504
+          ],
+          "movable_weighted_species": 259,
+          "movable_weighted_genera": 85,
+          "gate": true
+        }
+      }
+    },
+    "geo_k5__disjoint": {
+      "status": "estimated",
+      "islands": 2367,
+      "distinct_pair_species": 2175,
+      "coverage": {
+        "north": {
+          "islands": 1579,
+          "blocks": 102,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.0700250256284577,
+                "distinct_species": 157,
+                "color_documented_species": 57,
+                "movable_species": 95,
+                "movable_genera": 35,
+                "weighted_color_coverage": 0.24091374891401396,
+                "genus_grade_expected_coverage": 0.2816238688655897
+              },
+              "bilateral_deep": {
+                "pair_share": 0.05869610051803908,
+                "distinct_species": 123,
+                "color_documented_species": 45,
+                "movable_species": 63,
+                "movable_genera": 30,
+                "weighted_color_coverage": 0.27595636529545686,
+                "genus_grade_expected_coverage": 0.3970035408945394
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.05538299209289432,
+                "distinct_species": 161,
+                "color_documented_species": 57,
+                "movable_species": 98,
+                "movable_genera": 33,
+                "weighted_color_coverage": 0.37651148491979114,
+                "genus_grade_expected_coverage": 0.36087057470273465
+              },
+              "bilateral_deep": {
+                "pair_share": 0.05809462106399586,
+                "distinct_species": 122,
+                "color_documented_species": 39,
+                "movable_species": 58,
+                "movable_genera": 26,
+                "weighted_color_coverage": 0.26993026122455244,
+                "genus_grade_expected_coverage": 0.31181392440529426
+              }
+            }
+          }
+        },
+        "tropical": {
+          "islands": 670,
+          "blocks": 91,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.24501000299488418,
+                "distinct_species": 191,
+                "color_documented_species": 73,
+                "movable_species": 127,
+                "movable_genera": 42,
+                "weighted_color_coverage": 0.14898817272055406,
+                "genus_grade_expected_coverage": 0.2509114807447035
+              },
+              "bilateral_deep": {
+                "pair_share": 0.08383245376283642,
+                "distinct_species": 141,
+                "color_documented_species": 43,
+                "movable_species": 56,
+                "movable_genera": 26,
+                "weighted_color_coverage": 0.3900789513106685,
+                "genus_grade_expected_coverage": 0.46899544902098467
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.13627049526766793,
+                "distinct_species": 205,
+                "color_documented_species": 79,
+                "movable_species": 131,
+                "movable_genera": 41,
+                "weighted_color_coverage": 0.3410356049515615,
+                "genus_grade_expected_coverage": 0.37343532351018444
+              },
+              "bilateral_deep": {
+                "pair_share": 0.09806706022537275,
+                "distinct_species": 177,
+                "color_documented_species": 56,
+                "movable_species": 76,
+                "movable_genera": 33,
+                "weighted_color_coverage": 0.33377728308254373,
+                "genus_grade_expected_coverage": 0.3426300596256786
+              }
+            }
+          }
+        },
+        "south": {
+          "islands": 118,
+          "blocks": 30,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.1587656542178969,
+                "distinct_species": 112,
+                "color_documented_species": 43,
+                "movable_species": 60,
+                "movable_genera": 27,
+                "weighted_color_coverage": 0.20238736308355473,
+                "genus_grade_expected_coverage": 0.2948287537764049
+              },
+              "bilateral_deep": {
+                "pair_share": 0.04206879650894524,
+                "distinct_species": 86,
+                "color_documented_species": 29,
+                "movable_species": 39,
+                "movable_genera": 17,
+                "weighted_color_coverage": 0.29381117986726146,
+                "genus_grade_expected_coverage": 0.3185997553331811
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.11773812895160994,
+                "distinct_species": 89,
+                "color_documented_species": 32,
+                "movable_species": 56,
+                "movable_genera": 23,
+                "weighted_color_coverage": 0.368472068772887,
+                "genus_grade_expected_coverage": 0.3558857316987626
+              },
+              "bilateral_deep": {
+                "pair_share": 0.07978385603498955,
+                "distinct_species": 79,
+                "color_documented_species": 32,
+                "movable_species": 40,
+                "movable_genera": 17,
+                "weighted_color_coverage": 0.45789137315619777,
+                "genus_grade_expected_coverage": 0.4082771114856488
+              }
+            }
+          }
+        }
+      },
+      "tests": {
+        "north__target": {
+          "observed_coverage_contrast": -0.035042616381442904,
+          "genus_grade_expected": -0.11537967202894969,
+          "residual": 0.08033705564750679,
+          "p_coherent": 0.684,
+          "null_interval": [
+            -0.35387090551790285,
+            0.17002371033228378
+          ],
+          "movable_weighted_species": 158,
+          "movable_weighted_genera": 64,
+          "gate": true,
+          "primary_holm_p": 1
+        },
+        "north__donor": {
+          "observed_coverage_contrast": 0.10658122369523863,
+          "genus_grade_expected": 0.04905665029744043,
+          "residual": 0.05752457339779821,
+          "p_coherent": 0.406,
+          "null_interval": [
+            -0.0788444413686341,
+            0.18207001317883365
+          ],
+          "movable_weighted_species": 156,
+          "movable_weighted_genera": 59,
+          "gate": true,
+          "primary_holm_p": 1
+        },
+        "north__target_minus_donor": {
+          "observed_coverage_contrast": -0.14162384007668155,
+          "genus_grade_expected": -0.16443632232639008,
+          "residual": 0.022812482249708527,
+          "p_coherent": 0.854,
+          "null_interval": [
+            -0.36390560718907256,
+            0.054647924282280186
+          ],
+          "movable_weighted_species": 187,
+          "movable_weighted_genera": 71,
+          "gate": true,
+          "primary_holm_p": 1
+        },
+        "tropical__target": {
+          "observed_coverage_contrast": -0.24109077859011444,
+          "genus_grade_expected": -0.2180839682762812,
+          "residual": -0.023006810313833226,
+          "p_coherent": 0.71,
+          "null_interval": [
+            -0.34127475437452437,
+            -0.0858508982680917
+          ],
+          "movable_weighted_species": 183,
+          "movable_weighted_genera": 66,
+          "gate": true,
+          "primary_holm_p": 1
+        },
+        "tropical__donor": {
+          "observed_coverage_contrast": 0.007258321869017651,
+          "genus_grade_expected": 0.030805263884505836,
+          "residual": -0.023546942015488185,
+          "p_coherent": 0.484,
+          "null_interval": [
+            -0.037159301961406634,
+            0.10489666326832711
+          ],
+          "movable_weighted_species": 207,
+          "movable_weighted_genera": 74,
+          "gate": true,
+          "primary_holm_p": 1
+        },
+        "tropical__target_minus_donor": {
+          "observed_coverage_contrast": -0.24834910045913214,
+          "genus_grade_expected": -0.248889232160787,
+          "residual": 0.0005401317016548723,
+          "p_coherent": 0.988,
+          "null_interval": [
+            -0.3624035262149387,
+            -0.1395610926625405
+          ],
+          "movable_weighted_species": 241,
+          "movable_weighted_genera": 84,
+          "gate": true,
+          "primary_holm_p": 1
+        },
+        "south__target": {
+          "observed_coverage_contrast": -0.09142381678370673,
+          "genus_grade_expected": -0.02377100155677618,
+          "residual": -0.06765281522693055,
+          "p_coherent": 0.448,
+          "null_interval": [
+            -0.187213960957928,
+            0.14788147604949273
+          ],
+          "movable_weighted_species": 99,
+          "movable_weighted_genera": 43,
+          "gate": false
+        },
+        "south__donor": {
+          "observed_coverage_contrast": -0.08941930438331076,
+          "genus_grade_expected": -0.05239137978688625,
+          "residual": -0.03702792459642451,
+          "p_coherent": 0.676,
+          "null_interval": [
+            -0.22316444403727356,
+            0.11032712336314734
+          ],
+          "movable_weighted_species": 96,
+          "movable_weighted_genera": 37,
+          "gate": false
+        },
+        "south__target_minus_donor": {
+          "observed_coverage_contrast": -0.00200451240039597,
+          "genus_grade_expected": 0.028620378230110106,
+          "residual": -0.030624890630506076,
+          "p_coherent": 0.732,
+          "null_interval": [
+            -0.15202358594087428,
+            0.21559506043934296
+          ],
+          "movable_weighted_species": 137,
+          "movable_weighted_genera": 52,
+          "gate": false
+        },
+        "tropical_minus_north__target_minus_donor": {
+          "observed_coverage_contrast": -0.10672526038245064,
+          "genus_grade_expected": -0.08445290983439692,
+          "residual": -0.022272350548053724,
+          "p_coherent": 0.848,
+          "null_interval": [
+            -0.345969739537915,
+            0.14888302335419198
+          ],
+          "movable_weighted_species": 259,
+          "movable_weighted_genera": 85,
+          "gate": true,
+          "primary_holm_p": 1
+        }
+      }
+    },
+    "geo50_climate10__inclusive": {
+      "status": "estimated",
+      "islands": 2363,
+      "distinct_pair_species": 2179,
+      "coverage": {
+        "north": {
+          "islands": 1579,
+          "blocks": 102,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.0699872010586921,
+                "distinct_species": 163,
+                "color_documented_species": 60,
+                "movable_species": 99,
+                "movable_genera": 36,
+                "weighted_color_coverage": 0.2401775010713474,
+                "genus_grade_expected_coverage": 0.28074705947802525
+              },
+              "bilateral_deep": {
+                "pair_share": 0.05882529578504326,
+                "distinct_species": 132,
+                "color_documented_species": 48,
+                "movable_species": 71,
+                "movable_genera": 30,
+                "weighted_color_coverage": 0.2762614826457852,
+                "genus_grade_expected_coverage": 0.3970361565447294
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.07763147927207867,
+                "distinct_species": 187,
+                "color_documented_species": 69,
+                "movable_species": 116,
+                "movable_genera": 39,
+                "weighted_color_coverage": 0.3394318373211857,
+                "genus_grade_expected_coverage": 0.3454057169451864
+              },
+              "bilateral_deep": {
+                "pair_share": 0.06967629724413621,
+                "distinct_species": 157,
+                "color_documented_species": 49,
+                "movable_species": 71,
+                "movable_genera": 30,
+                "weighted_color_coverage": 0.2832976359408098,
+                "genus_grade_expected_coverage": 0.31947861497025576
+              }
+            }
+          }
+        },
+        "tropical": {
+          "islands": 666,
+          "blocks": 89,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.24505471712276106,
+                "distinct_species": 191,
+                "color_documented_species": 73,
+                "movable_species": 127,
+                "movable_genera": 42,
+                "weighted_color_coverage": 0.14816461114262577,
+                "genus_grade_expected_coverage": 0.24951658901366106
+              },
+              "bilateral_deep": {
+                "pair_share": 0.0842901631232627,
+                "distinct_species": 141,
+                "color_documented_species": 43,
+                "movable_species": 56,
+                "movable_genera": 26,
+                "weighted_color_coverage": 0.3872220995547664,
+                "genus_grade_expected_coverage": 0.4667553203924674
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.13861051961702336,
+                "distinct_species": 219,
+                "color_documented_species": 88,
+                "movable_species": 133,
+                "movable_genera": 43,
+                "weighted_color_coverage": 0.34037573228941886,
+                "genus_grade_expected_coverage": 0.374857636775591
+              },
+              "bilateral_deep": {
+                "pair_share": 0.10023455659959175,
+                "distinct_species": 198,
+                "color_documented_species": 65,
+                "movable_species": 95,
+                "movable_genera": 36,
+                "weighted_color_coverage": 0.3433433970015196,
+                "genus_grade_expected_coverage": 0.354195847510728
+              }
+            }
+          }
+        },
+        "south": {
+          "islands": 118,
+          "blocks": 30,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.1587656542178969,
+                "distinct_species": 112,
+                "color_documented_species": 43,
+                "movable_species": 60,
+                "movable_genera": 27,
+                "weighted_color_coverage": 0.2023873630835547,
+                "genus_grade_expected_coverage": 0.29482875377640483
+              },
+              "bilateral_deep": {
+                "pair_share": 0.04206879650894524,
+                "distinct_species": 86,
+                "color_documented_species": 29,
+                "movable_species": 39,
+                "movable_genera": 17,
+                "weighted_color_coverage": 0.29381117986726146,
+                "genus_grade_expected_coverage": 0.316607538561676
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.1365458890332023,
+                "distinct_species": 137,
+                "color_documented_species": 52,
+                "movable_species": 88,
+                "movable_genera": 32,
+                "weighted_color_coverage": 0.3033719060575135,
+                "genus_grade_expected_coverage": 0.33225003363031125
+              },
+              "bilateral_deep": {
+                "pair_share": 0.08471243241333382,
+                "distinct_species": 107,
+                "color_documented_species": 41,
+                "movable_species": 48,
+                "movable_genera": 19,
+                "weighted_color_coverage": 0.4436785397485207,
+                "genus_grade_expected_coverage": 0.43067157220466556
+              }
+            }
+          }
+        }
+      },
+      "tests": {
+        "north__target": {
+          "observed_coverage_contrast": -0.0360839815744379,
+          "genus_grade_expected": -0.11628909706670414,
+          "residual": 0.08020511549226624,
+          "p_coherent": 0.652,
+          "null_interval": [
+            -0.36530909203668904,
+            0.17708942161483102
+          ],
+          "movable_weighted_species": 170,
+          "movable_weighted_genera": 65,
+          "gate": true
+        },
+        "north__donor": {
+          "observed_coverage_contrast": 0.05613420138037585,
+          "genus_grade_expected": 0.025927101974930672,
+          "residual": 0.03020709940544518,
+          "p_coherent": 0.542,
+          "null_interval": [
+            -0.07953156954681334,
+            0.12698455091908872
+          ],
+          "movable_weighted_species": 187,
+          "movable_weighted_genera": 69,
+          "gate": true
+        },
+        "north__target_minus_donor": {
+          "observed_coverage_contrast": -0.09221818295481377,
+          "genus_grade_expected": -0.14221619904163488,
+          "residual": 0.04999801608682111,
+          "p_coherent": 0.758,
+          "null_interval": [
+            -0.35673187611999646,
+            0.10274928155968804
+          ],
+          "movable_weighted_species": 217,
+          "movable_weighted_genera": 75,
+          "gate": true
+        },
+        "tropical__target": {
+          "observed_coverage_contrast": -0.23905748841214064,
+          "genus_grade_expected": -0.21723873137880628,
+          "residual": -0.021818757033334357,
+          "p_coherent": 0.792,
+          "null_interval": [
+            -0.342445658217333,
+            -0.07962029776073096
+          ],
+          "movable_weighted_species": 183,
+          "movable_weighted_genera": 66,
+          "gate": true
+        },
+        "tropical__donor": {
+          "observed_coverage_contrast": -0.0029676647121006823,
+          "genus_grade_expected": 0.02066178926486294,
+          "residual": -0.023629453976963623,
+          "p_coherent": 0.488,
+          "null_interval": [
+            -0.04749505630201525,
+            0.0880689574091151
+          ],
+          "movable_weighted_species": 228,
+          "movable_weighted_genera": 77,
+          "gate": true
+        },
+        "tropical__target_minus_donor": {
+          "observed_coverage_contrast": -0.23608982370003992,
+          "genus_grade_expected": -0.23790052064366932,
+          "residual": 0.0018106969436293974,
+          "p_coherent": 0.988,
+          "null_interval": [
+            -0.3491556912564457,
+            -0.1295687899902361
+          ],
+          "movable_weighted_species": 258,
+          "movable_weighted_genera": 85,
+          "gate": true
+        },
+        "south__target": {
+          "observed_coverage_contrast": -0.09142381678370673,
+          "genus_grade_expected": -0.021778784785271114,
+          "residual": -0.06964503199843561,
+          "p_coherent": 0.44,
+          "null_interval": [
+            -0.17871615981178288,
+            0.13568769754996718
+          ],
+          "movable_weighted_species": 99,
+          "movable_weighted_genera": 43,
+          "gate": false
+        },
+        "south__donor": {
+          "observed_coverage_contrast": -0.14030663369100718,
+          "genus_grade_expected": -0.09842153857435432,
+          "residual": -0.041885095116652865,
+          "p_coherent": 0.57,
+          "null_interval": [
+            -0.236261573876393,
+            0.039212997357508515
+          ],
+          "movable_weighted_species": 136,
+          "movable_weighted_genera": 48,
+          "gate": false
+        },
+        "south__target_minus_donor": {
+          "observed_coverage_contrast": 0.04888281690730051,
+          "genus_grade_expected": 0.07664275378908324,
+          "residual": -0.02775993688178273,
+          "p_coherent": 0.77,
+          "null_interval": [
+            -0.0835494754898326,
+            0.23661586830279652
+          ],
+          "movable_weighted_species": 161,
+          "movable_weighted_genera": 60,
+          "gate": false
+        },
+        "tropical_minus_north__target_minus_donor": {
+          "observed_coverage_contrast": -0.14387164074522615,
+          "genus_grade_expected": -0.09568432160203433,
+          "residual": -0.048187319143191826,
+          "p_coherent": 0.744,
+          "null_interval": [
+            -0.3706880504101406,
+            0.14672037589360978
+          ],
+          "movable_weighted_species": 269,
+          "movable_weighted_genera": 86,
+          "gate": true
+        }
+      }
+    },
+    "geo50_climate10__disjoint": {
+      "status": "estimated",
+      "islands": 2363,
+      "distinct_pair_species": 2179,
+      "coverage": {
+        "north": {
+          "islands": 1579,
+          "blocks": 102,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.0699872010586921,
+                "distinct_species": 163,
+                "color_documented_species": 60,
+                "movable_species": 99,
+                "movable_genera": 36,
+                "weighted_color_coverage": 0.2401775010713474,
+                "genus_grade_expected_coverage": 0.28074705947802525
+              },
+              "bilateral_deep": {
+                "pair_share": 0.05882529578504326,
+                "distinct_species": 132,
+                "color_documented_species": 48,
+                "movable_species": 71,
+                "movable_genera": 30,
+                "weighted_color_coverage": 0.2762614826457852,
+                "genus_grade_expected_coverage": 0.3970361565447294
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.07858765237145357,
+                "distinct_species": 187,
+                "color_documented_species": 69,
+                "movable_species": 116,
+                "movable_genera": 39,
+                "weighted_color_coverage": 0.3473919213614381,
+                "genus_grade_expected_coverage": 0.3504922459732041
+              },
+              "bilateral_deep": {
+                "pair_share": 0.07143437725027973,
+                "distinct_species": 157,
+                "color_documented_species": 49,
+                "movable_species": 71,
+                "movable_genera": 30,
+                "weighted_color_coverage": 0.2870985313909953,
+                "genus_grade_expected_coverage": 0.3157522961337313
+              }
+            }
+          }
+        },
+        "tropical": {
+          "islands": 666,
+          "blocks": 89,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.24505471712276106,
+                "distinct_species": 191,
+                "color_documented_species": 73,
+                "movable_species": 127,
+                "movable_genera": 42,
+                "weighted_color_coverage": 0.14816461114262577,
+                "genus_grade_expected_coverage": 0.24951658901366106
+              },
+              "bilateral_deep": {
+                "pair_share": 0.0842901631232627,
+                "distinct_species": 141,
+                "color_documented_species": 43,
+                "movable_species": 56,
+                "movable_genera": 26,
+                "weighted_color_coverage": 0.3872220995547664,
+                "genus_grade_expected_coverage": 0.4667553203924674
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.1343661569378476,
+                "distinct_species": 219,
+                "color_documented_species": 88,
+                "movable_species": 133,
+                "movable_genera": 43,
+                "weighted_color_coverage": 0.3562651322807838,
+                "genus_grade_expected_coverage": 0.38350637100891666
+              },
+              "bilateral_deep": {
+                "pair_share": 0.1021026419216613,
+                "distinct_species": 196,
+                "color_documented_species": 63,
+                "movable_species": 94,
+                "movable_genera": 36,
+                "weighted_color_coverage": 0.33643457599057713,
+                "genus_grade_expected_coverage": 0.3451249924335934
+              }
+            }
+          }
+        },
+        "south": {
+          "islands": 118,
+          "blocks": 30,
+          "roles": {
+            "target": {
+              "radial_deep": {
+                "pair_share": 0.1587656542178969,
+                "distinct_species": 112,
+                "color_documented_species": 43,
+                "movable_species": 60,
+                "movable_genera": 27,
+                "weighted_color_coverage": 0.2023873630835547,
+                "genus_grade_expected_coverage": 0.29482875377640483
+              },
+              "bilateral_deep": {
+                "pair_share": 0.04206879650894524,
+                "distinct_species": 86,
+                "color_documented_species": 29,
+                "movable_species": 39,
+                "movable_genera": 17,
+                "weighted_color_coverage": 0.29381117986726146,
+                "genus_grade_expected_coverage": 0.316607538561676
+              }
+            },
+            "donor": {
+              "radial_deep": {
+                "pair_share": 0.13430212140802245,
+                "distinct_species": 136,
+                "color_documented_species": 52,
+                "movable_species": 87,
+                "movable_genera": 32,
+                "weighted_color_coverage": 0.30571551280832754,
+                "genus_grade_expected_coverage": 0.3303494535826268
+              },
+              "bilateral_deep": {
+                "pair_share": 0.08779038667053524,
+                "distinct_species": 106,
+                "color_documented_species": 41,
+                "movable_species": 47,
+                "movable_genera": 18,
+                "weighted_color_coverage": 0.44670715125429483,
+                "genus_grade_expected_coverage": 0.43260713159605296
+              }
+            }
+          }
+        }
+      },
+      "tests": {
+        "north__target": {
+          "observed_coverage_contrast": -0.0360839815744379,
+          "genus_grade_expected": -0.11628909706670414,
+          "residual": 0.08020511549226624,
+          "p_coherent": 0.652,
+          "null_interval": [
+            -0.36530909203668904,
+            0.17708942161483102
+          ],
+          "movable_weighted_species": 170,
+          "movable_weighted_genera": 65,
+          "gate": true
+        },
+        "north__donor": {
+          "observed_coverage_contrast": 0.06029338997044287,
+          "genus_grade_expected": 0.0347399498394728,
+          "residual": 0.025553440130970065,
+          "p_coherent": 0.598,
+          "null_interval": [
+            -0.06946978666655308,
+            0.1306455291378177
+          ],
+          "movable_weighted_species": 187,
+          "movable_weighted_genera": 69,
+          "gate": true
+        },
+        "north__target_minus_donor": {
+          "observed_coverage_contrast": -0.09637737154488073,
+          "genus_grade_expected": -0.151029046906177,
+          "residual": 0.05465167536129627,
+          "p_coherent": 0.75,
+          "null_interval": [
+            -0.37488445770713535,
+            0.1062981419612624
+          ],
+          "movable_weighted_species": 217,
+          "movable_weighted_genera": 75,
+          "gate": true
+        },
+        "tropical__target": {
+          "observed_coverage_contrast": -0.23905748841214064,
+          "genus_grade_expected": -0.21723873137880628,
+          "residual": -0.021818757033334357,
+          "p_coherent": 0.792,
+          "null_interval": [
+            -0.342445658217333,
+            -0.07962029776073096
+          ],
+          "movable_weighted_species": 183,
+          "movable_weighted_genera": 66,
+          "gate": true
+        },
+        "tropical__donor": {
+          "observed_coverage_contrast": 0.01983055629020662,
+          "genus_grade_expected": 0.03838137857532325,
+          "residual": -0.01855082228511663,
+          "p_coherent": 0.608,
+          "null_interval": [
+            -0.028804184070794752,
+            0.10423157027143765
+          ],
+          "movable_weighted_species": 227,
+          "movable_weighted_genera": 77,
+          "gate": true
+        },
+        "tropical__target_minus_donor": {
+          "observed_coverage_contrast": -0.2588880447023473,
+          "genus_grade_expected": -0.2556201099541297,
+          "residual": -0.0032679347482175714,
+          "p_coherent": 0.944,
+          "null_interval": [
+            -0.3734071733280671,
+            -0.13969127661013625
+          ],
+          "movable_weighted_species": 258,
+          "movable_weighted_genera": 85,
+          "gate": true
+        },
+        "south__target": {
+          "observed_coverage_contrast": -0.09142381678370673,
+          "genus_grade_expected": -0.021778784785271114,
+          "residual": -0.06964503199843561,
+          "p_coherent": 0.44,
+          "null_interval": [
+            -0.17871615981178288,
+            0.13568769754996718
+          ],
+          "movable_weighted_species": 99,
+          "movable_weighted_genera": 43,
+          "gate": false
+        },
+        "south__donor": {
+          "observed_coverage_contrast": -0.14099163844596732,
+          "genus_grade_expected": -0.10225767801342614,
+          "residual": -0.03873396043254118,
+          "p_coherent": 0.6,
+          "null_interval": [
+            -0.24062194735690212,
+            0.032467607039660853
+          ],
+          "movable_weighted_species": 134,
+          "movable_weighted_genera": 47,
+          "gate": false
+        },
+        "south__target_minus_donor": {
+          "observed_coverage_contrast": 0.0495678216622606,
+          "genus_grade_expected": 0.080478893228155,
+          "residual": -0.030911071565894406,
+          "p_coherent": 0.762,
+          "null_interval": [
+            -0.08354641203948872,
+            0.24671851679813603
+          ],
+          "movable_weighted_species": 161,
+          "movable_weighted_genera": 60,
+          "gate": false
+        },
+        "tropical_minus_north__target_minus_donor": {
+          "observed_coverage_contrast": -0.1625106731574665,
+          "genus_grade_expected": -0.10459106304795251,
+          "residual": -0.05791961010951399,
+          "p_coherent": 0.71,
+          "null_interval": [
+            -0.393272912123876,
+            0.14937713948118017
+          ],
+          "movable_weighted_species": 269,
+          "movable_weighted_genera": 86,
+          "gate": true
+        }
+      }
+    }
+  }
+}
