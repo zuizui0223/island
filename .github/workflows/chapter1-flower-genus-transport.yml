@@ -1,0 +1,63 @@
+name: Own DB tropical genus profile transport
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'scripts/chapter1_flower_genus_transport.py'
+      - '.github/workflows/chapter1-flower-genus-transport.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  diagnostic:
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'analysis/tropical-genus-profile-transport-20261128')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - run: python scripts/chapter1_flower_axis_decoupling.py --self-test && python scripts/chapter1_flower_genus_transport.py --self-test
+      - name: Restore pinned original sources and run held-out profile transport
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p /tmp/flower-transport/original
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir /tmp/flower-transport/original
+          FLORA="$(find /tmp/flower-transport/original -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$FLORA"
+          ROOT="${FLORA%/fixed/canonical/input/chapter1_status_flora.csv.gz}"
+          # The preserved tracked CSV has the identical frozen SHA256 (verified again by the Python runner).
+          cp results/geography_20260924/corrected_geography_covariates.csv /tmp/flower-transport/geography.csv
+          echo '08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7  /tmp/flower-transport/geography.csv' | sha256sum -c -
+          python -u scripts/chapter1_flower_genus_transport.py --flora "$FLORA" --ledger "$ROOT/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz" --geography /tmp/flower-transport/geography.csv --parent research/chapter1_fd_integration_20261125/FLORAL_AXIS_DECOUPLING_RESULTS.json --out /tmp/flower-transport/anonymous.json
+          python - <<'PY'
+          import json
+          a=json.load(open('/tmp/flower-transport/anonymous.json'))
+          assert len(a['panels'])==8 and a['owner']=='island'
+          forbidden={'island_id','accepted_species','genus_name','entity_ID','latitude','longitude','work_species'}
+          def audit(v):
+              if isinstance(v,dict):
+                  assert not forbidden.intersection(v)
+                  for x in v.values(): audit(x)
+              elif isinstance(v,list):
+                  for x in v:audit(x)
+          audit(a)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: own-db-floral-genus-transport-anonymous
+          path: /tmp/flower-transport/anonymous.json
+          if-no-files-found: error
+      - name: Delete temporary sources
+        if: always()
+        run: rm -rf /tmp/flower-transport
