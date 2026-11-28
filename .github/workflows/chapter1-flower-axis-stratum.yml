@@ -1,0 +1,60 @@
+name: Own DB tropical symmetry-depth stratum diagnostic
+on:
+  push:
+    branches: [analysis/tropical-symmetry-depth-stratum-20261128]
+    paths:
+      - 'scripts/chapter1_flower_axis_stratum.py'
+      - '.github/workflows/chapter1-flower-axis-stratum.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - run: python scripts/chapter1_flower_axis_decoupling.py --self-test && python scripts/chapter1_flower_axis_stratum.py --self-test
+      - name: Restore pinned original sources and run targeted diagnostic
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p /tmp/flower-stratum/original
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir /tmp/flower-stratum/original
+          FLORA="$(find /tmp/flower-stratum/original -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$FLORA"
+          ROOT="${FLORA%/fixed/canonical/input/chapter1_status_flora.csv.gz}"
+          curl --fail --silent --show-error --location 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o /tmp/flower-stratum/geography.csv
+          python -u scripts/chapter1_flower_axis_stratum.py --flora "$FLORA" --ledger "$ROOT/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz" --geography /tmp/flower-stratum/geography.csv --parent research/chapter1_fd_integration_20261125/FLORAL_AXIS_DECOUPLING_RESULTS.json --out /tmp/flower-stratum/anonymous.json
+          python - <<'PY'
+          import json
+          a=json.load(open('/tmp/flower-stratum/anonymous.json'))
+          assert len(a['panels'])==4 and a['owner']=='island'
+          forbidden={'island_id','accepted_species','genus_name','entity_ID','latitude','longitude','work_species'}
+          def audit(v):
+              if isinstance(v,dict):
+                  assert not forbidden.intersection(v)
+                  for x in v.values(): audit(x)
+              elif isinstance(v,list):
+                  for x in v:audit(x)
+          audit(a)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: own-db-floral-axis-stratum-anonymous
+          path: /tmp/flower-stratum/anonymous.json
+          if-no-files-found: error
+      - name: Delete temporary sources
+        if: always()
+        run: rm -rf /tmp/flower-stratum
