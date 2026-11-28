@@ -5,25 +5,33 @@ anonymous aggregate tables, figure derivatives and approved candidate prose;
 no restricted source ledger, no external publication or submission.
 """
 from __future__ import annotations
-import argparse, hashlib, json, math, re, shutil, subprocess, sys, zipfile
+
+import argparse
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import sys
+import zipfile
 from pathlib import Path
+
 import cairosvg
 import fitz
-from PIL import Image, ImageDraw
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
+from PIL import Image, ImageDraw
 
 ROOT=Path(__file__).resolve().parents[2]
 R=ROOT/"research/chapter1_fd_integration_20261125/geb_review"
 P=R.parent
 sys.path.insert(0,str(ROOT/"scripts/submission"))
-from build_chapter1_geb_review import anonymous_document, convert_review_pdfs
 from build_chapter1_editorial_review import _add_markdown, _setup_document
+from build_chapter1_geb_review import anonymous_document, convert_review_pdfs, counts
 from render_chapter1_geb_figures import render as render_geb
-from build_chapter1_geb_review import counts
 
 BANNED=re.compile(r"(?i)zuizui0223|zhang ruiqi|@gmail\.com|@tohoku|10\.5281/zenodo\.22704973")
 ORIGINAL_TABLES=("Table_S1_data_summary.csv","Table_S2_H1_traitwise.csv","Table_S3a_H2_all_finite_cluster.csv","Table_S3b_H2_direct_finite_cluster.csv","Table_S5_H3_pollen_limitation.csv","Table_S6a_H4_scores.csv")
@@ -61,7 +69,7 @@ def repeat_headers(doc):
             # widths remain renderer-controlled.
             row._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))
 def legend_groups(text):
-    parts=re.split(r"(?=^## Figure (?:[1-6]|S8) \|)",text,flags=re.M)
+    parts=re.split(r"(?=^## Figure (?:[1-6]|S8) \|)",text,flags=re.MULTILINE)
     groups={}
     for s in parts:
         a=re.match(r"^## Figure ([1-6]|S8) \|",s)

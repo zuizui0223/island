@@ -18,6 +18,10 @@
 8. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
 9. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
 
+## Research boundary with FD (source-first, 28 November 2026)
+
+All research dependent directly or transitively on the project GBIF flora, integrated traits or own-data cohort selection belongs to island, including floral FD, joint architecture, animal-channel models and GIFT mainland comparisons. FD hosts verified external-source-only studies. GloPL H3 remains independent supporting evidence in Chapter 1. See [source-first policy](docs/source_first_research_ownership_20261128.md) and [integrated evidence review](research/fd_own_db/current/functional_reassembly_20261128/INTEGRATION_REVIEW.md). This supersedes island #355 / fd #76. Frozen GEB unchanged.
+
 ## Current baseline
 
 - analysis universe: **8,264 island units**;

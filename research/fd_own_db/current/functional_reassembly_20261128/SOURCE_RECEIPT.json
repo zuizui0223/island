@@ -1,0 +1,447 @@
+{
+  "source_repo": "zuizui0223/fd",
+  "source_commit": "6c682098b52937f6cbfbfcdb4aa55e64640dae94",
+  "source_tree": "2310acdc58236de1cf9bc2d9ca2c02c3005c06a0",
+  "scope": "Pinned tracked shared-source research files; no raw source transfer. Local copies listed by path, remaining paths immutable reference, not physically migrated.",
+  "files": [
+    {
+      "source_path": "shared_db_research/FD_EVIDENCE_SPINE.md",
+      "blob": "a73349f966459972ecd2373183b3147fcfdef0ab",
+      "bytes": 9823,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/FD_EVIDENCE_SPINE.md"
+    },
+    {
+      "source_path": "shared_db_research/FD_FOUR_AXIS_SPACE_TEST_20261125.md",
+      "blob": "b78ed974efbff0687d9f552f4b07b92d3461903f",
+      "bytes": 12779,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/FD_FOUR_AXIS_SPACE_TEST_20261125.md"
+    },
+    {
+      "source_path": "shared_db_research/FD_REGIONAL_ARCHITECTURE_TEST_20261125.md",
+      "blob": "9441f0f8541b1eba13211112cc25dbfad552c1be",
+      "bytes": 6622,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/FD_REGIONAL_ARCHITECTURE_TEST_20261125.md"
+    },
+    {
+      "source_path": "shared_db_research/FD_SYNDROME_ARCHITECTURE_CONTRACT_20261125.md",
+      "blob": "09886792ec2aaab6bc5a8469851abd55e2f37d0e",
+      "bytes": 34836,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/FD_SYNDROME_ARCHITECTURE_CONTRACT_20261125.md"
+    },
+    {
+      "source_path": "shared_db_research/README.md",
+      "blob": "9315e3c4f979e0bab54b55c7f467efed9fa87bbf",
+      "bytes": 2780,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/fd/docs/CARIBBEAN_VERTEBRATE_SPECIFICITY_CONTRACT_20261125.md",
+      "blob": "4f2e7fd81052554005d9c72c16ed355eccd404f9",
+      "bytes": 16700,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/fd/docs/manuscript_20261124/ARCHITECTURE_DEPENDENT_REASSEMBLY.md",
+      "blob": "5624f28668eadccf5950bcdbd189bfa9729b3848",
+      "bytes": 6154,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/fd/results/20261113_discrete_categorical_hypervolume/GENUS_RICHNESS_15_PROFILE_CONTROL.md",
+      "blob": "16d75b8da998d01d3437145a4bd5e9f3060c4f1d",
+      "bytes": 11937,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/fd/results/20261113_pollinator_impact_functional_diversity/README.md",
+      "blob": "e054d1e94f08f4f37d22b75c103d38adb4e5086e",
+      "bytes": 12011,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/fd/results/20261124_tropical_pollinator_dual_null/POSITIVE_EVIDENCE_SYNTHESIS.md",
+      "blob": "09f4f02906e5739406bb07a9d7330830522a109e",
+      "bytes": 6147,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/fd/results/20261125_nectar_bat_public/original_gift_genus_null_from_verified_job_log.json",
+      "blob": "94f2ad620ec5d360d3e42cb31e00dc27c6f178c2",
+      "bytes": 43295,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/pr325/scripts/run_fd_euppollnet_island_mainland_preflight.py",
+      "blob": "58dda13af978f81b0564f6beb708d51fe16c6171",
+      "bytes": 10314,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/pr325/scripts/run_fd_euppollnet_v130_overlap.py",
+      "blob": "359b4a6a35e56fbc0f0850fa7f520f5cefce06fb",
+      "bytes": 8884,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/pr325/scripts/run_fd_gbif_temporal_apidae_pilot.py",
+      "blob": "13206a8d6af5cb22d05033b046b595f2f1d861bf",
+      "bytes": 10881,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/pr346/scripts/fd_original_dual_plant_bird_null.py",
+      "blob": "2388f9c9a25aae449fe37bfd0b222312c01c5cd6",
+      "bytes": 12609,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/pr346/scripts/fd_original_source_relative_pollinator.py",
+      "blob": "700cb7bef7fe72c2d3716e0f11cb37b695e12e65",
+      "bytes": 10674,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/pr346/scripts/fd_original_tubular_depth_diet_split.py",
+      "blob": "568f2aad2a8e3ea2a6491a783a46821fc8e7abb6",
+      "bytes": 14802,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/pr346/scripts/fd_original_tubular_taxonomy_decomposition.py",
+      "blob": "16a36905b5e3482c879b830cca48e51c3d79f8a7",
+      "bytes": 13542,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/pr348/scripts/fd_original_bat_genus_null.py",
+      "blob": "ffbe3581c401145c68d3ec295b0a16370a9764f4",
+      "bytes": 14131,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/historical/pr348/scripts/fd_original_bat_source_supply_interaction.py",
+      "blob": "b89f74674bf2590b264ad4d9718b967f6cc0a992",
+      "bytes": 16266,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/provenance/aggregate_report_sources.json",
+      "blob": "ff7c2c183525bcd72890fb1bee5c38cf1afa7815",
+      "bytes": 1197,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/provenance/evidence_ledger.csv",
+      "blob": "874ef082acadba22af639ea48aaf458461a74658",
+      "bytes": 18457,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/provenance/fd_self_db_integration_20261125.json",
+      "blob": "1e001753f0ed0fd6b9c39dc8567264c9829fd873",
+      "bytes": 2043,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/provenance/pr_inventory.csv",
+      "blob": "a3aa37e90a1956cf9bf93d6da0e839ae325c8af2",
+      "bytes": 25439,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_joint_cells/anonymous_job_log_panels.json",
+      "blob": "2da67380d06b867f87930214a643ff9379a70af5",
+      "bytes": 657431,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_joint_cells/genus_influence_run_45573904237.json",
+      "blob": "a1ad29e573c141868baeee521ec736b54cf07f98",
+      "bytes": 32676,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_all_on_native_eligible__geo50_climate10.json",
+      "blob": "14b1681daf20ad33ad9d36614d047cf79a51ba27",
+      "bytes": 155169,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_all_on_native_eligible__geo_k5.json",
+      "blob": "3e3e04d3866fdcf23fc688fef095e1f9b538bb73",
+      "bytes": 154626,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_all_recorded__geo50_climate10.json",
+      "blob": "3951fadb647e6830b7bd89a287094ed254f842a2",
+      "bytes": 205277,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_all_recorded__geo_k5.json",
+      "blob": "4ea7f98376d96660f7c93595b5e6b3b3af206005",
+      "bytes": 205094,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_high_quality_only__geo50_climate10.json",
+      "blob": "ade23e6790ab36596a35792a793c73175a67f245",
+      "bytes": 164733,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_high_quality_only__geo_k5.json",
+      "blob": "e487b7da3fcb19e50a4e4bbacf2cb7a3ddcbbf6e",
+      "bytes": 144770,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_original_native__geo50_climate10.json",
+      "blob": "153feb779c542bd00f0e8cbbe0c99348f53d31b3",
+      "bytes": 150215,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_original_native__geo_k5.json",
+      "blob": "8107d7870d9a72eb55152b1c91395cbca3570717",
+      "bytes": 149033,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "bytes": 258319,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "bytes": 548889,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "bytes": 183935,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/hierarchical_diversity_high_quality_only.json",
+      "blob": "8675c80654c90350fbba85e4e05f33d0e1b43e38",
+      "bytes": 183426,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/hierarchical_diversity_original_native.json",
+      "blob": "75d8f4eb7bc83e7f23b62fabc7cc12e4302ef545",
+      "bytes": 182977,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/pair_atlas_all_endpoint_robustness.json",
+      "blob": "1479bd5d2e3bd8aabdf3b0e51d7a1c6aef4e7220",
+      "bytes": 978783,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/rao_eligibility_all_recorded.json",
+      "blob": "0bb01687ddc602e3339fd197b84434894b08ce2e",
+      "bytes": 307978,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/rao_eligibility_high_quality_only.json",
+      "blob": "0b147609dd202c7659dfb51dbaea19dcf7d3a757",
+      "bytes": 306981,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/rao_eligibility_original_native.json",
+      "blob": "3fc2198e55a1297fd2482e4a190d1bdf1f6695cb",
+      "bytes": 300760,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "bytes": 334258,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/source_aggregation_high_quality_only.json",
+      "blob": "8045c2cc03bdf7b9f0626075411bd7ffc7f6b2c5",
+      "bytes": 332630,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/source_aggregation_original_native.json",
+      "blob": "9746a28a5bb6beb405f23d50012e0f2f7ecdd056",
+      "bytes": 321249,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/carrier_reversal_from_job_log.json",
+      "blob": "615cad4f1ffad39ea5f9c548315c8b630cb9232e",
+      "bytes": 275725,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/color_documentation_from_job_log.json",
+      "blob": "f5e28c29020e87cf7a61c2fc359a8e968019c68e",
+      "bytes": 40730,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/common_carrier_isolation_from_job_log.json",
+      "blob": "9d04a8271475dd6aee057280f1e5f2cc99c29c35",
+      "bytes": 99334,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/common_carrier_partner_contrast_from_job_log.json",
+      "blob": "07ac10192909e2ca0a9236ba732c15b627e0e1b7",
+      "bytes": 68062,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/pairwise_space_from_job_log.json",
+      "blob": "5ab4bde7f9816f2da7a88b54357fbcf8bf8555c9",
+      "bytes": 396013,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/panels_from_verified_job_log.json",
+      "blob": "ad525ece29be515451ab360e6b427ece04ccf352",
+      "bytes": 168072,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_global_source_architecture/panels_from_verified_job_log.json",
+      "blob": "0df5ecc30d40e92f6f47da72b0c97c3d394ff679",
+      "bytes": 125255,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_global_source_architecture/quality_genus_audit_from_job_log.json",
+      "blob": "91a55426c40daa9be06cdd7460296e780c818b1a",
+      "bytes": 412344,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/baseline_partition_from_verified_job_log.json",
+      "blob": "54c22654366f3406aae4dc21807a107ab388316b",
+      "bytes": 602208,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/baseline_partition_from_verified_job_log.json"
+    },
+    {
+      "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/cell_partition_from_verified_job_log.json",
+      "blob": "b75f562c1e88a212ac5749aafef5d507540710db",
+      "bytes": 2079324,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/cell_partition_from_verified_job_log.json"
+    },
+    {
+      "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/directional_heterogeneity_partition.json",
+      "blob": "5b16c954ca7a9ecd093eede58c42bd51b5c38499",
+      "bytes": 168697,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/directional_heterogeneity_partition.json"
+    },
+    {
+      "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/panels_from_verified_job_log.json",
+      "blob": "88dbbb149f34e55ad5831b0faabd956648bd4418",
+      "bytes": 521716,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/panels_from_verified_job_log.json"
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_color_documentation_audit.py",
+      "blob": "929cbae400b8a4cf49e775364ce187d97b2284b3",
+      "bytes": 9036,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_common_carrier_isolation_gradient.py",
+      "blob": "4d6707435375b980be7129ceb7e7037a1c1bc20e",
+      "bytes": 11335,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_common_carrier_partner_contrast.py",
+      "blob": "ab62c79f35c83087a6ea35baad447b5b8481c682",
+      "bytes": 13101,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_complete_case_reversal.py",
+      "blob": "4471dba69390b963ee3dcb2f94da8e0e37b06193",
+      "bytes": 9388,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_depth_conditional_architecture.py",
+      "blob": "e919803fd148f43424d1390de2233021662d15a0",
+      "bytes": 6912,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_four_axis_space.py",
+      "blob": "1fca00ddf8765bcc3aa72a96becc627f3196a3bb",
+      "bytes": 13307,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_global_source_architecture.py",
+      "blob": "d4ce66e83753dba940a039ecf468185095a764af",
+      "bytes": 12051,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_original_global_joint_margin.py",
+      "blob": "a02f0c86a2b6c1702934a0f97a63bf270beebb0c",
+      "bytes": 8993,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_original_joint_cells.py",
+      "blob": "cd016bbfdb5a63cf14772cdf3722c4043e370b88",
+      "bytes": 9729,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_original_joint_genus_influence.py",
+      "blob": "616ec46a68ac450123de6363cf5f9fe9642d2fb3",
+      "bytes": 12967,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_original_tropical_pollinator_bridge.py",
+      "blob": "da7d9a75711bfb1091b34c5ef9d800bf1d226e87",
+      "bytes": 14174,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_pairwise_flower_space.py",
+      "blob": "ac3cb3fab1591facd591c6c09c333e552eaa239d",
+      "bytes": 12582,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_repertoire_baseline_partition.py",
+      "blob": "f364030148b157551e5365cd1d8217bee7454ae4",
+      "bytes": 12895,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_repertoire_cell_partition.py",
+      "blob": "9de0041215fb46b35807f0f15d85dbd2761bc109",
+      "bytes": 11948,
+      "local_path": null
+    },
+    {
+      "source_path": "shared_db_research/scripts/fd_source_repertoire_turnover.py",
+      "blob": "37f5f8bcf0d994f2483e02b8ed90d4a16b997803",
+      "bytes": 12337,
+      "local_path": null
+    }
+  ],
+  "copy_attempt_errors": []
+}
