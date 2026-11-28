@@ -1,7 +1,7 @@
 name: Own DB tropical symmetry-depth stratum diagnostic
 on:
-  push:
-    branches: [analysis/tropical-symmetry-depth-stratum-20261128]
+  pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - 'scripts/chapter1_flower_axis_stratum.py'
       - '.github/workflows/chapter1-flower-axis-stratum.yml'
@@ -11,6 +11,7 @@ permissions:
   actions: read
 jobs:
   diagnostic:
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'analysis/tropical-symmetry-depth-stratum-20261128')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
