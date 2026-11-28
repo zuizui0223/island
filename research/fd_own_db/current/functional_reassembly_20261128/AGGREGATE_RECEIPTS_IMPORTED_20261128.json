@@ -1,0 +1,688 @@
+{
+  "date": "2026-11-28",
+  "source_commit": "6c682098b52937f6cbfbfcdb4aa55e64640dae94",
+  "import_head": "bb01c252d7e3779845879aee56d9362171135937",
+  "scope": "35 previously registered numerical JSON result receipts materialized; 31 newly byte-identical copies, four prior copies. Existing tracked aggregate results only; no protected raw rows or new biological fits. Other 34 registered source/code/provenance files retain pinned references. These are author-side provenance, not blinded reviewer attachments.",
+  "numeric_receipts": [
+    {
+      "source_path": "shared_db_research/historical/fd/results/20261125_nectar_bat_public/original_gift_genus_null_from_verified_job_log.json",
+      "blob": "94f2ad620ec5d360d3e42cb31e00dc27c6f178c2",
+      "bytes": 43295,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/historical/fd/results/20261125_nectar_bat_public/original_gift_genus_null_from_verified_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_joint_cells/anonymous_job_log_panels.json",
+      "blob": "2da67380d06b867f87930214a643ff9379a70af5",
+      "bytes": 657431,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_joint_cells/anonymous_job_log_panels.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_joint_cells/genus_influence_run_45573904237.json",
+      "blob": "a1ad29e573c141868baeee521ec736b54cf07f98",
+      "bytes": 32676,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_joint_cells/genus_influence_run_45573904237.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_all_on_native_eligible__geo50_climate10.json",
+      "blob": "14b1681daf20ad33ad9d36614d047cf79a51ba27",
+      "bytes": 155169,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_conditional_all_on_native_eligible__geo50_climate10.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_all_on_native_eligible__geo_k5.json",
+      "blob": "3e3e04d3866fdcf23fc688fef095e1f9b538bb73",
+      "bytes": 154626,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_conditional_all_on_native_eligible__geo_k5.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_all_recorded__geo50_climate10.json",
+      "blob": "3951fadb647e6830b7bd89a287094ed254f842a2",
+      "bytes": 205277,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_conditional_all_recorded__geo50_climate10.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_all_recorded__geo_k5.json",
+      "blob": "4ea7f98376d96660f7c93595b5e6b3b3af206005",
+      "bytes": 205094,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_conditional_all_recorded__geo_k5.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_high_quality_only__geo50_climate10.json",
+      "blob": "ade23e6790ab36596a35792a793c73175a67f245",
+      "bytes": 164733,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_conditional_high_quality_only__geo50_climate10.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_high_quality_only__geo_k5.json",
+      "blob": "e487b7da3fcb19e50a4e4bbacf2cb7a3ddcbbf6e",
+      "bytes": 144770,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_conditional_high_quality_only__geo_k5.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_original_native__geo50_climate10.json",
+      "blob": "153feb779c542bd00f0e8cbbe0c99348f53d31b3",
+      "bytes": 150215,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_conditional_original_native__geo50_climate10.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_conditional_original_native__geo_k5.json",
+      "blob": "8107d7870d9a72eb55152b1c91395cbca3570717",
+      "bytes": 149033,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_conditional_original_native__geo_k5.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "bytes": 258319,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "bytes": 548889,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "bytes": 183935,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/hierarchical_diversity_high_quality_only.json",
+      "blob": "8675c80654c90350fbba85e4e05f33d0e1b43e38",
+      "bytes": 183426,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/hierarchical_diversity_high_quality_only.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/hierarchical_diversity_original_native.json",
+      "blob": "75d8f4eb7bc83e7f23b62fabc7cc12e4302ef545",
+      "bytes": 182977,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/hierarchical_diversity_original_native.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/pair_atlas_all_endpoint_robustness.json",
+      "blob": "1479bd5d2e3bd8aabdf3b0e51d7a1c6aef4e7220",
+      "bytes": 978783,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/pair_atlas_all_endpoint_robustness.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/rao_eligibility_all_recorded.json",
+      "blob": "0bb01687ddc602e3339fd197b84434894b08ce2e",
+      "bytes": 307978,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/rao_eligibility_all_recorded.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/rao_eligibility_high_quality_only.json",
+      "blob": "0b147609dd202c7659dfb51dbaea19dcf7d3a757",
+      "bytes": 306981,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/rao_eligibility_high_quality_only.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/rao_eligibility_original_native.json",
+      "blob": "3fc2198e55a1297fd2482e4a190d1bdf1f6695cb",
+      "bytes": 300760,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/rao_eligibility_original_native.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "bytes": 334258,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/source_aggregation_high_quality_only.json",
+      "blob": "8045c2cc03bdf7b9f0626075411bd7ffc7f6b2c5",
+      "bytes": 332630,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/source_aggregation_high_quality_only.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_fd_syndrome_architecture/source_aggregation_original_native.json",
+      "blob": "9746a28a5bb6beb405f23d50012e0f2f7ecdd056",
+      "bytes": 321249,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_fd_syndrome_architecture/source_aggregation_original_native.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/carrier_reversal_from_job_log.json",
+      "blob": "615cad4f1ffad39ea5f9c548315c8b630cb9232e",
+      "bytes": 275725,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_four_axis_space/carrier_reversal_from_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/color_documentation_from_job_log.json",
+      "blob": "f5e28c29020e87cf7a61c2fc359a8e968019c68e",
+      "bytes": 40730,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_four_axis_space/color_documentation_from_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/common_carrier_isolation_from_job_log.json",
+      "blob": "9d04a8271475dd6aee057280f1e5f2cc99c29c35",
+      "bytes": 99334,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_four_axis_space/common_carrier_isolation_from_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/common_carrier_partner_contrast_from_job_log.json",
+      "blob": "07ac10192909e2ca0a9236ba732c15b627e0e1b7",
+      "bytes": 68062,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_four_axis_space/common_carrier_partner_contrast_from_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/pairwise_space_from_job_log.json",
+      "blob": "5ab4bde7f9816f2da7a88b54357fbcf8bf8555c9",
+      "bytes": 396013,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_four_axis_space/pairwise_space_from_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_four_axis_space/panels_from_verified_job_log.json",
+      "blob": "ad525ece29be515451ab360e6b427ece04ccf352",
+      "bytes": 168072,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_four_axis_space/panels_from_verified_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_global_source_architecture/panels_from_verified_job_log.json",
+      "blob": "0df5ecc30d40e92f6f47da72b0c97c3d394ff679",
+      "bytes": 125255,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_global_source_architecture/panels_from_verified_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261125_global_source_architecture/quality_genus_audit_from_job_log.json",
+      "blob": "91a55426c40daa9be06cdd7460296e780c818b1a",
+      "bytes": 412344,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/aggregate_receipts/results/20261125_global_source_architecture/quality_genus_audit_from_job_log.json",
+      "verification": "source blob matched, copied exact, destination blob readback matched before ref update"
+    },
+    {
+      "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/baseline_partition_from_verified_job_log.json",
+      "blob": "54c22654366f3406aae4dc21807a107ab388316b",
+      "bytes": 602208,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/baseline_partition_from_verified_job_log.json",
+      "verification": "previous source-first migration receipt"
+    },
+    {
+      "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/cell_partition_from_verified_job_log.json",
+      "blob": "b75f562c1e88a212ac5749aafef5d507540710db",
+      "bytes": 2079324,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/cell_partition_from_verified_job_log.json",
+      "verification": "previous source-first migration receipt"
+    },
+    {
+      "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/directional_heterogeneity_partition.json",
+      "blob": "5b16c954ca7a9ecd093eede58c42bd51b5c38499",
+      "bytes": 168697,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/directional_heterogeneity_partition.json",
+      "verification": "previous source-first migration receipt"
+    },
+    {
+      "source_path": "shared_db_research/results/20261127_source_repertoire_turnover/panels_from_verified_job_log.json",
+      "blob": "88dbbb149f34e55ad5831b0faabd956648bd4418",
+      "bytes": 521716,
+      "local_path": "research/fd_own_db/current/functional_reassembly_20261128/results/20261127_source_repertoire_turnover/panels_from_verified_job_log.json",
+      "verification": "previous source-first migration receipt"
+    }
+  ],
+  "rounded_claim_audit": [
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_conditional_all_recorded__geo50_climate10.json",
+      "blob": "3951fadb647e6830b7bd89a287094ed254f842a2",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__north/groupings/geographic_block/mean/99",
+      "archived_value": 0.17033427879052618,
+      "reported_rounded": 0.1703343,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_conditional_all_recorded__geo50_climate10.json",
+      "blob": "3951fadb647e6830b7bd89a287094ed254f842a2",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__tropical/groupings/geographic_block/mean/99",
+      "archived_value": 0.11656085926884907,
+      "reported_rounded": 0.1165609,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/0",
+      "archived_value": 0.05801277724689772,
+      "reported_rounded": 0.0580128,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/3",
+      "archived_value": 0.026318816054722634,
+      "reported_rounded": 0.0263188,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/6",
+      "archived_value": 0.03169396119217512,
+      "reported_rounded": 0.031694,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/0",
+      "archived_value": 0.10873072536869155,
+      "reported_rounded": 0.1087307,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/3",
+      "archived_value": 0.07306869281863253,
+      "reported_rounded": 0.0730687,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/6",
+      "archived_value": 0.03566203255005896,
+      "reported_rounded": 0.035662,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/2/0",
+      "archived_value": 0.05071794812179383,
+      "reported_rounded": 0.0507179,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/2/3",
+      "archived_value": 0.04674987676390989,
+      "reported_rounded": 0.0467499,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_factor_region_verified_job_log.json",
+      "blob": "f32b86b38181169d853f6043dffdd6b965bc17f6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/2/6",
+      "archived_value": 0.003968071357883837,
+      "reported_rounded": 0.0039681,
+      "absolute_tolerance": 5.1e-8
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__conditional_common/groupings/geographic_block/point/0/0",
+      "archived_value": 0.02483285129011879,
+      "reported_rounded": 0.02483285,
+      "absolute_tolerance": 5.1e-9
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__conditional_common/groupings/geographic_block/point/0/1",
+      "archived_value": 0.026712083624122043,
+      "reported_rounded": 0.02671208,
+      "absolute_tolerance": 5.1e-9
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__conditional_common/groupings/geographic_block/point/0/3",
+      "archived_value": -0.0018792323340032636,
+      "reported_rounded": -0.00187923,
+      "absolute_tolerance": 5.1e-9
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/point/0/0",
+      "archived_value": -0.03111389922176284,
+      "reported_rounded": -0.0311139,
+      "absolute_tolerance": 5.1e-9
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__conditional_common/groupings/geographic_block/point/1/0",
+      "archived_value": 0.017380037840844232,
+      "reported_rounded": 0.01738004,
+      "absolute_tolerance": 5.1e-9
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__conditional_common/groupings/geographic_block/point/1/1",
+      "archived_value": 0.007311177286963699,
+      "reported_rounded": 0.00731118,
+      "absolute_tolerance": 5.1e-9
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__conditional_common/groupings/geographic_block/point/1/3",
+      "archived_value": 0.010068860553880534,
+      "reported_rounded": 0.01006886,
+      "absolute_tolerance": 5.1e-9
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/depth_rao_verified_job_log.json",
+      "blob": "65e37daa82857827f7f2ead63c4cf8c98323292a",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/point/1/0",
+      "archived_value": 0.006518761583952333,
+      "reported_rounded": 0.00651876,
+      "absolute_tolerance": 5.1e-9
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/observed/delta/0/0 (pp)",
+      "archived_value": -8.13339248790853,
+      "reported_rounded": -8.133,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/observed/delta/0/1 (pp)",
+      "archived_value": 2.244389554192536,
+      "reported_rounded": 2.244,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/observed/delta/0/2 (pp)",
+      "archived_value": 4.024607566872218,
+      "reported_rounded": 4.025,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/observed/delta/0/3 (pp)",
+      "archived_value": -1.8643953668438074,
+      "reported_rounded": -1.864,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/observed/delta/1/0 (pp)",
+      "archived_value": -5.302236173792729,
+      "reported_rounded": -5.302,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/observed/delta/1/1 (pp)",
+      "archived_value": 2.891943400091062,
+      "reported_rounded": 2.892,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/observed/delta/1/2 (pp)",
+      "archived_value": 2.1770801175043264,
+      "reported_rounded": 2.177,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/observed/delta/1/3 (pp)",
+      "archived_value": -0.23321265619732356,
+      "reported_rounded": -0.233,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/matched_size_expected/delta/0/0 (pp)",
+      "archived_value": -2.6304964559169086,
+      "reported_rounded": -2.63,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/matched_size_expected/delta/0/1 (pp)",
+      "archived_value": -0.8690092610166358,
+      "reported_rounded": -0.869,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/matched_size_expected/delta/0/2 (pp)",
+      "archived_value": 1.658536793391574,
+      "reported_rounded": 1.659,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/matched_size_expected/delta/0/3 (pp)",
+      "archived_value": -1.840968923542019,
+      "reported_rounded": -1.841,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/matched_size_expected/delta/1/0 (pp)",
+      "archived_value": 0.6471490037828875,
+      "reported_rounded": 0.647,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/matched_size_expected/delta/1/1 (pp)",
+      "archived_value": -0.5247140076202906,
+      "reported_rounded": -0.525,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/matched_size_expected/delta/1/2 (pp)",
+      "archived_value": -0.3271900369681835,
+      "reported_rounded": -0.327,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/hierarchical_diversity_all_recorded.json",
+      "blob": "5c3446ed690abff8209d0f496cb6359c05b97a7e",
+      "field": "panels/all_recorded__geo50_climate10__disjoint__wide_common_n5/groupings/geographic_block/matched_size_expected/delta/1/3 (pp)",
+      "archived_value": -0.20475504080559315,
+      "reported_rounded": -0.205,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/6/0 (pp)",
+      "archived_value": -2.072953147705381,
+      "reported_rounded": -2.073,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/6/1 (pp)",
+      "archived_value": -0.7499454533692832,
+      "reported_rounded": -0.75,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/6/2 (pp)",
+      "archived_value": 1.4406665355408022,
+      "reported_rounded": 1.441,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/6/3 (pp)",
+      "archived_value": -1.3822320655338505,
+      "reported_rounded": -1.382,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/7/0 (pp)",
+      "archived_value": -0.8269023325388036,
+      "reported_rounded": -0.827,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/7/1 (pp)",
+      "archived_value": -0.2645484373121093,
+      "reported_rounded": -0.265,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/7/2 (pp)",
+      "archived_value": 1.1334374081499066,
+      "reported_rounded": 1.133,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/7/3 (pp)",
+      "archived_value": 0.041986638299007506,
+      "reported_rounded": 0.042,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/6/0 (pp)",
+      "archived_value": 0.7254946366498483,
+      "reported_rounded": 0.725,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/6/1 (pp)",
+      "archived_value": -0.533291074407205,
+      "reported_rounded": -0.533,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/6/2 (pp)",
+      "archived_value": -0.32339413211930346,
+      "reported_rounded": -0.323,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/6/3 (pp)",
+      "archived_value": -0.13119056987667133,
+      "reported_rounded": -0.131,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/7/0 (pp)",
+      "archived_value": 0.4913640713603229,
+      "reported_rounded": 0.491,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/7/1 (pp)",
+      "archived_value": -0.4191446425834806,
+      "reported_rounded": -0.419,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/7/2 (pp)",
+      "archived_value": -0.8115573151594946,
+      "reported_rounded": -0.812,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/7/3 (pp)",
+      "archived_value": -0.7393378863826627,
+      "reported_rounded": -0.739,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/0/8/3 (pp)",
+      "archived_value": 1.424218703832858,
+      "reported_rounded": 1.424,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_fd_syndrome_architecture/source_aggregation_all_recorded.json",
+      "blob": "67d428c6923ceacf3de71d9fa6cbe100580798b6",
+      "field": "panels/all_recorded__geo50_climate10__disjoint/groupings/geographic_block/point/1/8/3 (pp)",
+      "archived_value": -0.6081473165059914,
+      "reported_rounded": -0.608,
+      "absolute_tolerance": 0.000501
+    },
+    {
+      "source": "20261125_global_source_architecture/quality_genus_audit_from_job_log.json",
+      "blob": "91a55426c40daa9be06cdd7460296e780c818b1a",
+      "field": "panels/all_recorded__geo_k5__disjoint/regions/tropical_minus_north/endpoints/radial_minus_bilateral/observed_source_delta",
+      "archived_value": 0.10893356010823235,
+      "reported_rounded": 0.108934,
+      "absolute_tolerance": 5.1e-7
+    }
+  ],
+  "claim_audit_scope": "Exact field and rounding comparisons for additional S9.2/S9.3/S11.3 values and arithmetic identities; not all historical claims, no re-estimation or independent ecological replication."
+}
