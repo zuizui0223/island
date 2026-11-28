@@ -1,0 +1,265 @@
+# Island isolation is associated with recurrent reproductive assurance but regionally contingent floral change
+
+**Running title:** Island isolation and floral traits
+
+## Abstract
+
+**Aim:** To test whether reproductive traits show more recurrent isolation associations than floral phenotypes across island floras and whether these patterns are consistent with contemporary pollen limitation.
+
+**Location:** Global islands and continental and offshore pollen-supplementation sites.
+
+**Time period:** Contemporary observed island floras, compiled plant traits and published GloPL experiments.
+
+**Major taxa studied:** Angiosperms.
+
+**Methods:** We compiled trait data for 106,295 angiosperm species across 8,264 island units and modelled seven reproductive, colour and structural traits across 4,379 sampled islands in four regions, adjusting for area, climate and spatial clustering. We tested reproductive-conditioned floral responses and, post hoc, candidate-mainland contrasts, categorical diversity and taxonomic predictability. Published pollen-addition experiments provided complementary isolation gradients and exact-species trait associations.
+
+**Results:** Self-compatibility increased with isolation in all four regions, including the regional-native-compatible sensitivity; other traits varied. Selfing-adjusted accessibility was supported in northern high latitudes and tropical All evidence, but not tropical Direct-only after correction. On common reproductive carriers, island–source selfing contrasts exceeded compatibility contrasts (606 northern islands; +0.06981). Tropical radial–deep combinations were enriched relative to candidate mainland pools, and depth-dependent symmetry varied with isolation (257 islands; Holm p = 0.000221). Categorical diversity and rare-profile representation depended on region, taxonomic composition and reference construction; stronger genus-null and origin sensitivities often failed. Pollen limitation increased with isolation across 2,969 experimental rows (β = 0.0919, p = 0.0159). Reproductive-assurance and accessibility scores were negatively associated with current limitation in post-hoc exact-species comparisons.
+
+**Main conclusions:** Recurrent self-compatibility coexists with context-dependent floral reassembly. Reproductive constraints provide a coherent functional context, but neither uniform diversity loss nor historical pollinator-mediated evolution is established.
+
+**Keywords:** breeding systems, floral architecture, island biogeography, macroecology, pollen limitation, reproductive assurance, self-compatibility
+
+## Introduction
+
+Geographic isolation constrains dispersal, establishment and biotic interactions on islands, but repeated constraints need not produce identical flower phenotypes. The familiar idea of a floral island syndrome combines reproductive independence with less conspicuous or more accessible flowers. Yet the ability to reproduce when compatible pollen delivery is unreliable and the architecture through which visitors encounter flowers are distinct biological properties. A broadly recurrent association between isolation and reproductive traits could therefore coexist with region-specific changes in colour, symmetry or floral access. The relevant question is which components recur across island floras and whether trait combinations and diversity change together. A frequency shift in one trait does not determine rare-profile representation or diversity of joint states.
+
+Baker's law predicts an advantage for colonists capable of uniparental reproduction when mates or pollen donors are scarce (Baker 1955; Cheptou 2012; Pannell et al. 2015). Self-compatibility permits self-fertilization but does not necessarily entail autonomous selfing or reproductive assurance without a pollen vector. Earlier global comparisons established that self-compatibility and autofertility are overrepresented among island colonists (Grossenbacher et al. 2017; Razanajatovo et al. 2019). Breeding system, floral symmetry and arrival opportunity also jointly predict island occurrence (Zell et al. 2025), while mutualism dependence filters island plant richness (Delavaux et al. 2024). These findings make reproductive filtering an established expectation, not a novel result to rediscover. What remains less clear is how its association with continuous mainland isolation compares across reproductive and floral traits within contemporary island assemblages. Sister-taxon comparisons likewise caution against assuming uniform evolutionary reductions in floral size (Hetherington-Rauth & Johnson 2020).
+
+Floral phenotype has a related but nonidentical theoretical basis. The selfing syndrome describes associations between shifts toward self-fertilization and floral display or architecture (Sicard & Lenhard 2011). Pollination syndromes instead connect colour, symmetry, tube depth and other features to potential visitor interactions, without uniquely identifying effective pollinators (Fenster et al. 2004; Rosas-Guerrero et al. 2014). These perspectives yield a testable statistical contrast: if isolation-associated floral change is exhausted by measured reproductive-assurance traits, its association with isolation should diminish after conditioning on them. Persistent associations would indicate incomplete statistical explanation, but could also reflect different source floras, lineage composition, measurement error or unmeasured mating traits. They cannot by themselves identify a separate historical pollinator-driven pathway.
+
+A complementary question is whether continental isolation is associated with a current reproductive constraint. Pollen-addition experiments measure how much reproduction improves when pollen is supplemented, integrating pollen quantity and quality, mate availability and pollinator service (Knight et al. 2005; Harder & Aizen 2010). The published GloPL database provides geographically distributed experimental observations (Bennett et al. 2018a,b). Previous GloPL-based studies associated reproductive mode and floral generalization with pollen limitation (Burns et al. 2019; Bennett et al. 2020); these relationships are established prior work, not independent discoveries here. A global test using distance to the continental coast addresses a different geographical exposure from position within a species' range (Dawson-Glass & Hargreaves 2022). Importantly, pollen limitation is not a direct measure of pollinator abundance or historical change.
+
+We therefore compare seven separate reproductive, colour and structural traits across four geographic regions of GBIF-observed island floras, which are records of occurrence rather than complete floristic censuses. H1 examines trait-specific isolation associations and their regional recurrence without assuming one pooled floral syndrome. H2 asks whether floral accessibility and colour retain isolation associations after conditioning on measured reproductive assurance; this is not causal mediation. Exploratory extensions distinguish island–source composition, marginal and joint diversity, rare-profile representation and taxonomic prediction. As ecological context, H3 tests pollen-limitation gradients across continental and offshore experimental sites, including offshore sites alone. H4 makes a post-hoc exact-species comparison between the island-associated reproductive/accessibility states and current pollen limitation. These are complementary observational and experimental-data comparisons, not measurements of historical trait evolution or a shared population-level causal sequence. The central proposition is that reproductive-trait recurrence and geographically contingent floral composition can coexist under island isolation.
+
+## Materials and Methods
+
+### Global island plant database
+
+We used a corrected global analysis universe of **8,264 island units**. Candidate units originated from GSHHG 2.3.7 high-resolution island geometry. A geography audit identified one continental split component that had been retained as an island; excluding it yielded the corrected 8,264-unit universe and a broad H1 union of 4,379 islands. The trait database retained the same taxonomic and provenance structure, containing 106,295 accepted angiosperm species.
+
+Observed island floras were assembled from GBIF occurrence records assigned to island units. These are reports of presence, not standardized absence or abundance measurements. Trait evidence was assembled source by source from floras, monographs, public trait resources and primary literature. Every accepted record retained source provenance. Species-direct high- and medium-confidence evidence had priority, while validated lower-confidence evidence was used only where direct evidence was unavailable. Missing trait information was retained as missing rather than converted to trait absence, and family-level inference was not used as a general fill rule.
+
+The final trait dataset contained 222,688 resolved cells of 318,885 possible species-by-axis cells (69.83%) across three raw evidence axes: flower colour, floral structural complexity and reproductive assurance. The broad all-analysis-eligible evidence scope was used as the primary plant analysis, with species-direct high/medium evidence retained as a Direct-only sensitivity.
+
+The primary H1 sampling frame deliberately retained all observed island-flora records, irrespective of floristic origin, to avoid discarding the majority of records whose origin status was unresolved. Among 1,039,757 island-by-species records in the analysis ledger, 150,531 were source-backed native, 19,442 were source-backed introduced and 869,784 (83.65%) had unresolved origin status. The all-observed analysis therefore estimates trait composition in the contemporary observed flora; it is not, by itself, an analysis of native colonization or in-situ evolution. WCVP regional-native compatibility is the sole active floristic-origin sensitivity.
+
+Because those strict subsets were severely support-limited, we additionally performed a regional-native compatibility sensitivity using the World Checklist of Vascular Plants (WCVP; Govaerts et al. 2021). Accepted species were exact-matched to the WCVP bulk names table, and native distributions were read at TDWG level 3. An unresolved island-by-species record was upgraded to regional-native-compatible only when the focal island mapped unambiguously to one TDWG level-3 unit and WCVP listed that accepted species as native in the same unit. Source-backed introduced records were never overwritten. The WCVP archive used for this replay had SHA-256 `d32ea2b3a85e489b14e83bcc9eae7274532e1d113753f7be290d4b2dfde573fa`. This procedure establishes regional native compatibility rather than exact island-level nativeness. The earlier complementary-origin and TDWG-area analyses are archived provenance diagnostics and are not included as additional active flora partitions in this replay.
+
+### Geographic isolation and covariates
+
+The primary geographic exposure is the minimum separation between island and continental coastlines measured on a mean-radius sphere (R = 6371.0088 km). Island and continental geometries were taken from the same GSHHG 2.3.7 high-resolution archive. Continental siblings were reconstructed before distance calculation, artificial dateline split edges were omitted, and distance was calculated as the minimum minor-great-circle arc separation between coastline segments. This is a spherical coastline distance, not a WGS84 ellipsoidal distance.
+
+The geography audit identified 1,113 broad-H1 islands that had been assigned spurious zero distance when GSHHG island polygons were compared with a coarser Natural Earth continental geometry. Under the source-matched coastline metric, all 1,113 have positive distance. This correction is a post-hoc measurement repair selected as the primary submission baseline, not a new prospective confirmation.
+
+Plant models used standardized log distance, log island area and climate PC1-PC4. Spatial dependence was addressed with spatial-block cluster-robust covariance. Distance is interpreted as a composite gradient of source separation, connectivity and colonization opportunity rather than as a randomized treatment.
+
+Four predeclared geographic replication strata were analysed separately: northern mid-latitude, northern high-latitude, tropical and southern extratropical islands. These strata were used to assess recurrence of response structure, not to require identical coefficients among regions.
+
+For GloPL, geographic exposure was recomputed from each site's coordinates against the same continental geometry. Sites lying on seeded continental land were assigned zero distance; 996 of 1,248 sites are true continental zeros and remain zero in the corrected baseline.
+
+### H1: seven separate trait responses
+
+The primary analysis is broad contemporary island flora with All evidence. Each of seven binary traits is fitted separately in each of four regions by beta-binomial logit regression, adjusting for standardized corrected log isolation, log island area and climate PC1–4. Reproduction, colour and structure are labels, not aggregate scores. Spatial-block sandwich standard errors use a finite-cluster t reference with G−1 degrees of freedom and pointwise 95% intervals. All individual p values are two-sided and unadjusted; no Holm correction is applied. This final inferential specification was selected retrospectively on 4 October 2026 after comparison of alternatives and was not preregistered. Individual significance does not establish family-wise significance or formal differences between regional slopes.
+
+WCVP regional-native-compatible flora is the sole active origin sensitivity; Direct-only is a separate evidence-quality sensitivity. Both use the identical model and inference rule. WCVP compatibility retains existing source-native records and upgrades unresolved records only under accepted TDWG-L3 native-range compatibility; introduced records are not overwritten. This establishes regional compatibility rather than exact focal-island nativity. H2–H4 and their previously defined functional covariates are unchanged.
+
+A post-hoc extension tested paired, single-state species-Direct symmetry and depth records. Within each island, we contrasted radial prevalence among deep versus shallow/open flowers, requiring ≥5 species per depth group, and estimated the difference's slope against the same log-isolation exposure using equal-island regression with area, climate, carrier count and coverage. Eight regional contrast slots received Holm adjustment. We decomposed the difference into its two depth-specific slopes and assessed High-only, literal-native and joint genus/geography reweighting sensitivities (Appendix S8). Post-hoc diagnostics compared local genus-margin expectations with held-block, species-disjoint genus-profile predictions. Unique donor species provided smoothed four-cell trait probabilities; the observed target genus roster and its species counts supplied mixture weights. Donor-supported and unsupported residual components were assessed by evaluation-only replacement of predicted cell proportions (Appendix S8.7–S8.9).
+
+### H1 extension: candidate mainland composition
+
+We compared species-level Direct states in the project's observed island floras with candidate mainland native floras from GIFT (Weigelt et al. 2020; Appendix S9). These are geographic reference pools, not identified ancestors or GIFT island checklists. Geographic nearest-five and geographically filtered climate-nearest pools, inclusive and focal-name-excluded donors, and source and spatial-block weighting follow each archived exploratory design. For reproductive strategy, common carriers had both compatibility and mating-system states plus the required morphology; equal samples of 20 species per side yielded the difference between two island-minus-source contrasts. For paired morphology, we distinguished joint prevalence from symmetry conditional on depth and partitioned joint differences into marginal and covariance components. Eligibility and origin/grade sensitivities differ among comparisons.
+
+### H2: separating reproductive assurance from additional floral change
+
+We first defined a species-level reproductive-assurance score, `selfing_core`, using self-incompatibility/compatibility, mating system and autonomous-selfing capacity only. Flower colour, form, symmetry, tube depth and flower size were excluded from this score.
+
+The reproductive-assurance response was evaluated as:
+
+`selfing_core ~ isolation + island area + climate`.
+
+We then asked whether floral responses persisted after reproductive assurance was conditioned on:
+
+`plain_colour ~ isolation + selfing_core + island area + climate`
+
+and
+
+`generalized_accessible ~ isolation + selfing_core + island area + climate`.
+
+The `generalized_accessible` score summarizes open/generalized floral form, actinomorphy and shallow/open tube depth. Persistence of an isolation coefficient after adjustment for `selfing_core` was interpreted as evidence that the floral response is not reducible to measured reproductive assurance. This is a conditional decomposition rather than a formal causal mediation analysis.
+
+As a reliability sensitivity to incomplete mediator measurement, we rebuilt the Direct-only `selfing_core` score using only species for which self-incompatibility/compatibility, mating system and autonomous-selfing capacity were all observed and informative. This complete-three-component score was available for 564 Direct-only species and produced island-level scores on 2,610 islands before model covariate filtering. We then refitted the same `generalized_accessible ~ isolation + selfing_core + island area + climate` model. This sensitivity tests whether missing selfing components explain the conditional accessibility signal; it is not a formal errors-in-variables correction.
+
+To avoid assigning plants to named pollinator syndromes from a single composite score, we additionally analysed raw reported colour states and raw architecture. Five colour states were analysed after adjustment for `selfing_core`: white, red/pink, yellow/orange, blue/purple and green/brown/inconspicuous. We then tested raw colour × floral-form and colour × tube-depth combinations both as joint prevalence and as conditional architecture given colour. These analyses evaluate display-architecture reorganization but do not identify realized pollinator identity.
+
+For the tropical paired-trait response we compared identical island masks before and after adjusting for the original Direct selfing_core or separate reproductive traits, using whole-flora means or the reproductive-known subset of morphology carriers. Holm adjustment retained all eight planned score/roster slots per evidence scope. Repeated genus contributions to both trait aggregates were reweighted coherently with spatial blocks; these ranges are sensitivity distributions, not confidence intervals (Appendix S8).
+
+### H2 extension: functional assembly and taxonomic dependence
+
+On endpoint-specific, single-state Direct carriers, we evaluated marginal and joint nominal Rao diversity (distinct categorical states in a distinct-species pair), mutual information and Hamming-neighbourhood coverage of rare versus common recorded profiles. Fixed species and genus counts and common genus identities distinguish richness from taxonomic representation. Corrected-isolation regressions assessed measured coverage and reproductive conditioning; coherent whole-profile genus exchanges retained repeated species assignments. Source-relative repertoire comparisons used expected profile occupancy in matched finite samples, separating within-roster sampling mismatch from squared between-roster occupancy differences. Hierarchical with-replacement categorical diversity separated local alpha, within-group beta, between-group beta and gamma; matched-size and first-ranked versus pooled source analyses tested reference sensitivity. These post-hoc analyses retain their original cohorts, corrections, nulls and unsupported panels (Appendices S10–S12), not independent tests of evolutionary change.
+
+### H3: experimental pollen limitation
+
+We used the version-pinned GloPL database of pollen-supplementation experiments (Bennett et al. 2018a,b). Pollen limitation was represented by the log response ratio of reproduction after supplemental pollen addition to reproduction under natural pollen receipt; positive values therefore indicate that reproduction increases when pollen is added.
+
+Across 2,969 experimental rows (1,408 measurement cells; 1,248 sites; 919 publications), repeated measurements were aggregated by publication, coordinate and measurement. Each publication had total weight one. The primary model related pollen limitation to standardized corrected log distance, adjusting for geographic context and experimental conditions, with publication-cluster-robust uncertainty.
+
+With 996 of 1,248 GloPL sites correctly assigned continental zero distance, we report the full-sample gradient and a post-hoc offshore gradient restricted to positive-distance measurements. Each model standardizes log distance within its own analytic sample, so coefficient magnitudes cannot be directly compared; positive-distance sites are not independently verified island sites. The offshore fit tests a continuous gradient beyond a mainland/offshore contrast. Binary mainland/offshore, leave-one-publication-out and measurement-definition checks remain in Supplementary Table S5. These are robustness analyses, not separate confirmations. Pollen addition measures reproductive constraint, not pollinator abundance, richness, visitation or decline.
+
+### H4: functional bridge from H2 traits to current pollen limitation
+
+H4 was an explicitly post-hoc functional triangulation analysis. Species in the H2 trait dataset were exact-matched to GloPL species after only case normalization and underscore/space normalization; synonym rescue and genus fallback were not used.
+
+The primary H4 predictors were the literal Direct-only species-level H2 scores used in the plant analysis: `selfing_core` and `generalized_accessible`. Both are soft-membership scores scaled from 0 to 1, with higher values representing stronger concordance with reproductive assurance or generalized accessibility, respectively. Missing component traits were not coded as zero.
+
+For each H2 score, we fitted:
+
+`pollen limitation ~ H2 trait score + standardized distance + geographic context + measurement conditions`.
+
+Each publication again received total weight one and uncertainty was publication-cluster robust. A negative H2-score coefficient indicates that species expressing the island-associated trait state more strongly tend to experience lower current experimental pollen limitation, conditional on geographic distance and measured study structure.
+
+We also retained atomic-trait sensitivities. Because the global colour response was geographically heterogeneous and lacked a single directional functional prediction, colour was not promoted into the global H4 bridge.
+
+## Results
+
+### H1: recurrent reproductive responses with regional floral differences
+
+All 112 fits converged. Primary All evidence supports 17 of 28 individual associations at nominal two-sided P < 0.05. Self-compatibility increases with isolation in all four regions (P = 0.00569, 0.00671, 0.01812 and 0.01123 in northern mid-latitude, northern high-latitude, tropical and southern extratropical floras, respectively). Selfing mating system increases in the first three regions. Autonomous selfing increases in northern high latitudes and the tropics. Generalized form increases in northern mid-latitudes, the tropics and southern extratropics; actinomorphy increases in northern high latitudes and the tropics. Shallow/open tubes increase in northern high latitudes but decrease in southern extratropics. Plain colour increases in southern extratropics.
+
+In WCVP All, 10 of 28 individual associations meet the same nominal threshold. Increasing self-compatibility remains supported in all four regions. Northern-high autonomous selfing, actinomorphy and shallow/open tubes remain positive and supported; tropical actinomorphy remains supported. Plain colour increases in both tropical and southern extratropical WCVP floras. Several broad-flora associations, including the southern shallow/open-tube decrease, no longer meet the threshold. This can reflect changed composition, precision and coverage, rather than proving an introduced-species mechanism. Direct-only yields 15/28 supported associations in broad flora and 11/28 in WCVP flora. Complete coefficients, intervals and unadjusted P values are reported in Supplementary Table S2.
+
+The exploratory tropical paired-trait contrast was positive (257 islands, 718 species; slope 0.02762, 95% spatial-cluster interval 0.01539–0.03985; Holm p = 0.000221). Radial prevalence increased among deep flowers (+0.01988) but decreased among shallow/open flowers (−0.00774). The deep component and paired difference retained positive joint genus/geography sensitivity ranges; the shallow component did not. High-only (62 islands) did not reproduce the contrast; literal-native support was insufficient (44 islands). Thus this is a documented tropical assemblage response, not a demonstrated cross-region difference (Figure S8; Tables S8a,c,d). Local genus margins reproduced the slope exactly, but no genus–grade stratum supported a coherent joint-variation test. Held-out non-tropical genus profiles improved conditional-contrast RMSE (0.251 to 0.160), yet predicted a slope of only 0.00397; other tropical donors gave 0.00371. Residual accounting assigned positive components to both donor-supported and unsupported genera (Appendix S8.7–S8.9).
+
+Candidate-mainland comparisons add a distinct reproductive contrast. On identical trait-known carrier sets in 606 northern-midlatitude islands, the source-relative mating-system selfing contrast exceeded the compatibility contrast by 0.06981 (block interval 0.04827–0.09228); the difference was also positive for 45 strict recorded-native islands (0.06057, 0.01080–0.10930). Absolute compatibility contrasts reversed across origin scopes. In 666 tropical islands, radial–deep joint prevalence exceeded candidate mainland pools by 10.99 percentage points, whereas bilateral–deep prevalence was lower by 1.37 points; the 96-island literal-native subset had the same raw directions (+12.63, −6.58 points). A later regional genus-grade null family did not support residual effects after correction. Conditional prevalence and joint prevalence also depended on depth eligibility and donor definitions (Appendix S9). These are source comparisons, not further isolation slopes.
+
+### H2: floral accessibility is not reducible to reproductive assurance
+
+The `selfing_core` isolation slope was positive in all four regions in the primary analysis, although nominal support remained concentrated in the tropical and southern strata.
+
+After conditioning on `selfing_core`, the isolation coefficient for `generalized_accessible` remained positive in all four primary strata. With finite-cluster t references and the retained eight-test BH family, q-values were 0.1764 in northern mid-latitudes, 0.00243 in northern high latitudes, 0.01913 in the tropics and 0.2977 in southern extratropical islands. Thus the primary evidence for a selfing-adjusted accessibility response is strongest in northern high latitudes and the tropics. In the Direct-only sensitivity, the tropical accessibility estimate remained nominally positive (finite-cluster p = 0.0475) but did not survive FDR correction (q = 0.1267); it is therefore not treated as a replicated FDR-supported result.
+
+The complete-three-component Direct-only sensitivity reduced the selfing mediator to 564 species but retained a positive isolation coefficient for `generalized_accessible` in all four regions. FDR-adjusted q-values were 0.0508 in northern mid-latitudes, 0.0376 in northern high latitudes, 0.0376 in the tropics and 0.2706 in southern extratropical islands. The corresponding fitted island counts were 1,725, 221, 438 and 157. Thus the conditional accessibility signal in northern high latitudes and the tropics persists when every species contributing to the reproductive-assurance score has all three selfing components directly observed, which weakens a missing-component explanation without eliminating general measurement-error concerns.
+
+Colour responses remained more heterogeneous. Southern adjusted plain colour remained supported after finite-cluster correction (q = 0.00243 in all-analysis and 1.8 × 10^-5 in Direct-only). Raw colour, architecture and colour-conditioned architecture analyses showed region-specific response patterns, including negative northern-high-latitude blue/purple architecture associations and a positive tropical Direct yellow/orange × butterfly/deep-tube pattern. These raw pattern analyses are descriptive and do not establish realized pollinator identity.
+
+The corrected H2 results therefore support a partially separable floral response: accessibility estimates remained positive after reproductive-assurance adjustment in all four regions, but FDR support was concentrated in northern high latitudes and the tropics. The strength and detailed form of the additional floral response are geographically contingent (Figure 5).
+
+On 244 matched tropical islands, adjustment for whole-flora selfing_core reduced the paired slope from 0.02796 to 0.01967 (Holm p = 0.00361); its joint genus/geography range crossed zero. Four separate SC/autonomy adjustments retained positive contrasts under joint reweighting, including reproductive-known morphology-carrier subsets (188 and 106 islands; adjusted slopes 0.02463 and 0.02089). The additional response is not absorbed by these measured atomic reproductive traits, although High-only and native robustness remain unresolved (Figure S8; Table S8b).
+
+Exploratory functional-space analyses further distinguished composition from diversity. Relative to candidate mainland pools, northern-midlatitude floras had lower marginal and joint nominal Rao Q (−0.02571 and −0.01420; 743 islands). Tropical rare-minus-common profile coverage was lower even at equal 15 species and genera (−0.03669; 106 islands); a separate identical-five-genus cohort did not retain a negative contrast. Under corrected isolation and coverage adjustment, northern mutual information increased (+0.02003, BY q = 0.02353; 742 islands) and tropical marginal Q decreased (−0.01108, q = 0.00850; 105 islands). These directions persisted after same-morphology-roster reproductive adjustment, but baseline slopes lacked BY support and coherent genus-null tests did not support the focal residuals (Appendix S10).
+
+Matched-size repertoire mismatch with candidate sources was greater in tropical than northern floras for colour–form and symmetry–depth (+0.13458 and +0.12907). All four original primary genus-grade tests were unsupported. A subsequent sampling-baseline partition yielded a positive symmetry–depth systematic-distance regional residual (+0.01296, Holm p = 0.028 within two post-result endpoints), without native or High-only confirmation. Hierarchical diversity offsets between alpha and beta changed when sampling size and pooled versus first-ranked references were controlled. Four-axis and six-pair primary null families were unsupported, and requiring complete morphology reversed the broad tropical joint architecture contrast. Thus neither uniform contraction nor a robust change in trait coupling was established (Appendices S10–S11). Earlier conditional forecasts and plant-defined syndrome diagnostics retained taxonomic and documentation constraints; direct animal-channel tests did not identify a mechanism (Appendix S12).
+
+### H3: independent pollen-limitation context for island isolation
+
+Across 2,969 experiments, pollen limitation increased with corrected isolation (**β = 0.09191, SE = 0.03806; finite-publication two-sided p = 0.01594**). The post-hoc offshore-only gradient was also positive (**276 cells; 153 publications; 252 sites**; **β = 0.22031, SE = 0.09704; finite-publication p = 0.02459**; Figure 6A). Both slopes are positive, but their magnitudes are not directly comparable because distance was standardized separately.
+
+The binary mainland/offshore indicator was unsupported; all 153 offshore leave-one-publication-out slopes were positive. Measurement-definition sensitivities were mixed, including an unsupported supplemental-only subset (Supplementary Table S5; Figure S5). These associations support possible pollen-supply constraints, not fewer pollinators or historical decline.
+
+### H4: island-associated response traits are linked to lower current pollen limitation
+
+At the atomic-trait level, autonomous selfing provided the strongest functional association. This contrast has a direct reproductive-assurance prediction: a plant capable of setting seed through autonomous self-pollination can gain less from experimentally added external pollen than a plant requiring pollen delivery. Species with autonomous or delayed selfing had lower current pollen limitation after adjustment for distance, broad context and measurement structure (beta = -0.44492, finite-publication p = 4.85 × 10^-8). The direction remained negative in supplemental-only and within-publication analyses (Supplementary Information). This is positive functional evidence, but autonomous-selfing capacity was not experimentally assigned, so it cannot establish that selfing evolved in response to island isolation. Actinomorphy was also strongly negative (beta = -0.38076, finite-publication p = 1.47 × 10^-5), generalized form was weaker but supported (beta = -0.18448, finite-publication p = 0.04543), and self-compatibility was negative but imprecise (beta = -0.11885, finite-publication p = 0.1502).
+
+The literal H2-to-H4 bridge gave the same overall interpretation. The Direct-only `selfing_core` score matched 455 GloPL species across 409 publications and was negatively associated with current pollen limitation (**beta = -0.29830, SE = 0.10352, finite-publication p = 0.00417**). The association remained supported in the no-zero-constant sensitivity, whereas the supplemental-only subset remained negative but unsupported (finite-publication p = 0.2907).
+
+The Direct-only `generalized_accessible` score matched 143 GloPL species across 143 publications. Higher accessibility was associated with lower current pollen limitation (**beta = -0.29566, SE = 0.12896, finite-publication p = 0.02334**). The supplemental-only sensitivity was also negative (finite-publication p = 0.04239), and the no-zero-constant sensitivity remained supported (p = 0.02082).
+
+Thus the same two response families enriched along the island-isolation gradient are associated, in exact-species overlap, with lower current pollen limitation (Figure 6B-C). This functional alignment does not establish that historical pollen limitation caused the observed trait distributions.
+
+A further exact-species symmetry-by-depth H4 comparison failed all four support gates before model fitting (32 global, eight tropical matched species). The original H4 score bridge therefore does not test the new combination-specific response (Table S8e).
+
+## Discussion
+
+### Reproductive recurrence does not imply a single floral syndrome
+
+Self-compatibility was the only individual trait with positive nominal isolation associations in every region under both broad All and WCVP-compatible analyses. This accords with reproductive filtering during establishment (Baker 1955; Pannell et al. 2015; Grossenbacher et al. 2017; Zell et al. 2025). Compatibility permits self-fertilization but does not guarantee autonomous seed production. The distinct source-relative representation of mating-system selfing and compatibility on common carriers reinforces that distinction, even though their absolute source contrasts depend on recorded origin. These comparisons do not show transitions between breeding systems or predict the phenotype of a particular colonist.
+
+### Floral reassembly and dependence on taxonomic representation
+
+The selfing syndrome provides one explanation for changes in display and visitor access, yet selected accessibility associations persisted after reproductive conditioning. The tropical paired result illustrates why one accessibility-related attribute need not covary with another: radial symmetry can accompany a deep tube. The candidate-source contrast supplies complementary evidence for that combination, not an independent replication of its isolation slope. Symmetry, tube length, floral rewards and orientation can jointly influence visits (Trethowan et al. 2024; Keasar & Bodner 2025; Jirgal & Ohashi 2023). Our categorical states do not measure access or effective pollinator identity. High-only and native support limitations and the absence of robust regional slope contrasts preclude a general tropical mechanism.
+
+Marginal diversity, diversity of joint states, rare-profile coverage and repertoire mismatch can move in different directions. Equal richness did not remove the recorded tropical rare-profile gap, whereas the common-genus comparison lacked a negative direction. This is consistent with the importance of which genera occur, not merely their count, but the cohorts differ. Local genus margins reconstructed the paired contrast, yet held-out profiles transferred composition much better than its isolation slope. Coverage-adjusted MI and Q results also lacked robust coherent genus-null residuals. Neither reconstruction nor predictive skill identifies within-lineage change. Limited donor coverage, shrinkage, recording and regional composition remain alternatives.
+
+Raw local alpha deficits and positive beta offsets changed after matching sample sizes; complete-case and donor-pool choices altered directions. The post-result repertoire residual is a limited signal of additional systematic mismatch, not general selection beyond taxonomy. These findings motivate separate measurements of joint composition, diversity and reference dependence in functional island biogeography (Schrader et al. 2021), rather than asserting that islands invariably lose functional space. Classical syndrome proxies offer hypotheses, not animal assignments (Fenster et al. 2004; Rosas-Guerrero et al. 2014). Local guild and network diagnostics cannot establish replacement of birds, butterflies or bees.
+
+### A contemporary reproductive constraint and functional compatibility
+
+GloPL provides ecological context distinct from compiled trait composition. Pollen limitation increased with isolation in full and offshore models; unsupported binary and supplemental-only tests qualify the finding. Continental distance differs from range-edge position (Dawson-Glass & Hargreaves 2022). Reduced service can reflect altered interactions rather than fewer visitors (Traveset et al. 2016; Hiraiwa & Ushimaru 2017, 2024). Pollen supplementation integrates pollen quantity and quality and mate availability, not measured pollinator decline.
+
+Both H4 score associations agree with earlier trait–limitation studies (Burns et al. 2019; Bennett et al. 2020). Autonomous selfing showed the strongest atomic association, while compatibility alone was imprecise. This is consistent with reproductive autonomy reducing the gain from added pollen. H1–H2 establish composition associations, H3 a contemporary constraint gradient, and H4 functional compatibility (Figure 3). The historical edge remains unobserved: H4 is post hoc, shares the GloPL source, and neither moderation nor the new joint morphology bridge supports a buffering mechanism. The distinct FD–GloPL island comparison also lacks support. Functional associations of component traits do not establish that repertoire mismatch reduces pollen limitation.
+
+### Limitations and inferential boundary
+
+Species-wide traits and recorded assemblages cannot separate lineage sorting, founder variation and local evolution. Candidate mainland pools are not ancestral populations. GBIF records are opportunistic presences, not abundance or complete inventories; effort, digitization, taxonomic interest and coordinate uncertainty may vary with isolation (Meyer et al. 2016; Daru et al. 2018). Spatial inference does not remove coverage bias. Trait coverage of 69.83% does not establish representative coverage of each endpoint, and Direct evidence does not eliminate nonrandom documentation. Origin is unresolved for 83.65% of island-by-species records; WCVP establishes regional compatibility, not island nativeness. Nested cohorts cannot identify introduction effects.
+
+H1 is retrospective and pointwise, not a family-wise syndrome or region-interaction test. The geography correction is post hoc. Source, grade, carrier and functional-space extensions are outcome-motivated comparisons from overlapping observations, not independent confirmations. We retain unsupported nulls, direction reversals and insufficient-support panels. Matched population and source histories, measured visitor effectiveness and reproductive experiments would be required to identify historical filtering or evolution.
+
+## Conclusion
+
+Reproductive traits and floral phenotypes respond at different levels of island assemblage organization. Recurrent self-compatibility coexists with conditional floral associations and changes in joint profiles, whose diversity and predictability depend on taxonomic representation, documentation and the chosen comparison pool. Pollen-limitation gradients and functional associations support a reproductive-constraint interpretation without identifying historical selection, universal functional contraction or pollinator replacement.
+
+## References
+
+Abe, T. (2006). Threatened pollination systems in native flora of the Ogasawara (Bonin) Islands. *Ann. Bot.*, 98, 317–334.
+
+Baker, H.G. (1955). Self-compatibility and establishment after ‘long-distance’ dispersal. *Evolution*, 9, 347–349.
+
+Bennett, J.M., Steets, J.A., Burns, J.H., Burkle, L.A., Vamosi, J.C., Wolowski, M. et al. (2020). Land use and pollinator dependency drives global patterns of pollen limitation in the Anthropocene. *Nat. Commun.*, 11, 3999.
+
+Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018a). Data from: GloPL, a global data base on pollen limitation of plant reproduction. Dryad Digital Repository. Available at: https://doi.org/10.5061/dryad.dt437.
+
+Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018b). GloPL, a global data base on pollen limitation of plant reproduction. *Sci. Data*, 5, 180249.
+
+Burns, J.H., Bennett, J.M., Li, J., Xia, J., Arceo-Gómez, G., Burd, M. et al. (2019). Plant traits moderate pollen limitation of introduced and native plants: a phylogenetic meta-analysis of global scale. *New Phytol.*, 223, 2063–2075.
+
+Cheptou, P.-O. (2012). Clarifying Baker's Law. *Ann. Bot.*, 109, 633–641.
+
+Daru, B.H., Park, D.S., Primack, R.B., Willis, C.G., Barrington, D.S., Whitfeld, T.J.S. et al. (2018). Widespread sampling biases in herbaria revealed from large-scale digitization. *New Phytol.*, 217, 939–955.
+
+Dawson-Glass, E. & Hargreaves, A.L. (2022). Does pollen limitation limit plant ranges? Evidence and implications. *Philos. Trans. R. Soc. B*, 377, 20210014.
+
+Delavaux, C.S., Crowther, T.W., Bever, J.D., Weigelt, P. & Gora, E.M. (2024). Mutualisms weaken the latitudinal diversity gradient among oceanic islands. *Nature*, 627, 335–339.
+
+Fenster, C.B., Armbruster, W.S., Wilson, P., Dudash, M.R. & Thomson, J.D. (2004). Pollination syndromes and floral specialization. *Annu. Rev. Ecol. Evol. Syst.*, 35, 375–403.
+
+Govaerts, R., Nic Lughadha, E., Black, N., Turner, R. & Paton, A. (2021). The World Checklist of Vascular Plants, a continuously updated resource for exploring global plant diversity. *Sci. Data*, 8, 215.
+
+Grossenbacher, D.L., Brandvain, Y., Auld, J.R., Burd, M., Cheptou, P.-O., Conner, J.K. et al. (2017). Self-compatibility is over-represented on islands. *New Phytol.*, 215, 469–478.
+
+Harder, L.D. & Aizen, M.A. (2010). Floral adaptation and diversification under pollen limitation. *Philos. Trans. R. Soc. B*, 365, 529–543.
+
+Hetherington-Rauth, M.C. & Johnson, M.T.J. (2020). Floral trait evolution of angiosperms on Pacific islands. *Am. Nat.*, 196, 87–100.
+
+Hiraiwa, M.K. & Ushimaru, A. (2017). Low functional diversity promotes niche changes in natural island pollinator communities. *Proc. R. Soc. B*, 284, 20162218.
+
+Hiraiwa, M.K. & Ushimaru, A. (2024). Loss of functional diversity rather than species diversity of pollinators decreases community-wide trait matching and pollination function. *Funct. Ecol.*, 38, 1296–1308.
+
+Jirgal, N. & Ohashi, K. (2023). Effects of floral symmetry and orientation on the consistency of pollinator entry angle. *Sci. Nat.*, 110, 19. https://doi.org/10.1007/s00114-023-01845-w
+
+Keasar, T. & Bodner, L. (2025). Do flowers with specialized morphologies produce more nectar and pollen? *Am. J. Bot.*, 112, e70125. https://doi.org/10.1002/ajb2.70125
+
+Knight, T.M., Steets, J.A., Vamosi, J.C., Mazer, S.J., Burd, M., Campbell, D.R. et al. (2005). Pollen limitation of plant reproduction: pattern and process. *Annu. Rev. Ecol. Evol. Syst.*, 36, 467–497.
+
+Meyer, C., Weigelt, P. & Kreft, H. (2016). Multidimensional biases, gaps and uncertainties in global plant occurrence information. *Ecol. Lett.*, 19, 992–1006.
+
+Pannell, J.R., Auld, J.R., Brandvain, Y., Burd, M., Busch, J.W., Cheptou, P.-O. et al. (2015). The scope of Baker's law. *New Phytol.*, 208, 656–667.
+
+Razanajatovo, M., van Kleunen, M., Kreft, H., Dawson, W., Essl, F., Pergl, J., Pyšek, P., Winter, M. & Weigelt, P. (2019). Autofertility and self-compatibility moderately benefit island colonization of plants. *Glob. Ecol. Biogeogr.*, 28, 341–352.
+
+Rosas-Guerrero, V., Aguilar, R., Martén-Rodríguez, S., Ashworth, L., Lopezaraiza-Mikel, M., Bastida, J.M. et al. (2014). A quantitative review of pollination syndromes: do floral traits predict effective pollinators? *Ecol. Lett.*, 17, 388–400.
+
+Schrader, J., Wright, I.J., Kreft, H. & Westoby, M. (2021). A roadmap to plant functional island biogeography. *Biol. Rev.*, 96, 2851–2870.
+
+Sicard, A. & Lenhard, M. (2011). The selfing syndrome: a model for studying the genetic and evolutionary basis of morphological adaptation in plants. *Ann. Bot.*, 107, 1433–1443.
+
+Traveset, A., Tur, C., Trøjelsgaard, K., Heleno, R., Castro-Urgal, R. & Olesen, J.M. (2016). Global patterns of mainland and insular pollination networks. *Glob. Ecol. Biogeogr.*, 25, 880–890.
+
+Trethowan, L.A., Jennings, L., Bramley, G., Briggs, M., Clark, R., Dawson, S. et al. (2024). Island area, isolation and climate effects upon flower traits in a megadiverse archipelago. *J. Biogeogr.*, 51, 1659–1669. https://doi.org/10.1111/jbi.14751
+
+Weigelt, P., König, C. & Kreft, H. (2020). GIFT – A Global Inventory of Floras and Traits for macroecology and biogeography. *J. Biogeogr.*, 47, 16–43. https://doi.org/10.1111/jbi.13623
+
+Zell, A.N., Miranda, C.H., Grady, E.L., Grossenbacher, D.L. & Igić, B. (2025). Island colonization in flowering plants is determined by the interplay of breeding system, lifespan, floral symmetry, and arrival opportunity. *New Phytol.*, 245, 420–432.
+
+## Data and Code Availability Statement — double-anonymous review draft
+
+The occurrence, geographical and pollen-supplementation source datasets are documented in the study provenance and cited references. The island trait analysis used 222,688 resolved species-by-trait-axis cells. A rights-filtered subset of 46,274 cells can be redistributed; the remaining 176,414 cells contain third-party source material whose redistribution is restricted or requires additional permissions. A subset deposit is **not** a copy of the full analysed database. Source-level provenance and version receipts, corrected derived results, analysis scripts and a rights manifest will be supplied through a reviewer-access arrangement to be agreed with the editor; the exact anonymous review URL and release DOI are **PENDING**. Public redistribution will be limited to materials legally eligible for sharing. This statement does not imply that reviewers currently have access to the complete restricted ledger. No identifiable author or repository profile link is included in this blinded draft.
