@@ -67,6 +67,46 @@ def donor_rosters(f, v, geo, scope):
                for mode in MODES}
     return embargo, rosters
 
+def coverage_partition(pk, pu, qk, qu):
+    """Evaluation-only two-factor Shapley split of the nonlinear contrast error."""
+    p = pk + pu
+    q = qk + qu
+    base = contrast(p)
+    obs = contrast(q)
+    known_first = contrast(qk + pu) - base
+    unknown_first = contrast(pk + qu) - base
+    known_last = obs - contrast(pk + qu)
+    unknown_last = obs - contrast(qk + pu)
+    known = (known_first + known_last) / 2
+    unknown = (unknown_first + unknown_last) / 2
+    if not np.allclose(obs-base, known+unknown, atol=1e-12):
+        raise ValueError("coverage partition closure failed")
+    ek, eu = qk-pk, qu-pu
+    total = ek+eu
+    signed = np.column_stack([np.sum(ek*total,axis=1),np.sum(eu*total,axis=1)])
+    if not np.allclose(signed.sum(1), np.sum(total**2,axis=1)):
+        raise ValueError("category error closure failed")
+    return np.column_stack([obs-base, known, unknown, known_first, known_last, unknown_first, unknown_last]), signed
+
+
+def replay_equal(actual, expected, path="root"):
+    """Verify every archived original field; permit additional diagnostic keys."""
+    if isinstance(expected, dict):
+        if not isinstance(actual,dict):
+            raise ValueError("replay type "+path)
+        for k,v in expected.items():
+            replay_equal(actual[k],v,path+"."+k)
+    elif isinstance(expected,list):
+        if not isinstance(actual,list) or len(actual)!=len(expected):
+            raise ValueError("replay list "+path)
+        for i,(a,b) in enumerate(zip(actual,expected)):
+            replay_equal(a,b,path+"."+str(i))
+    elif isinstance(expected,(int,float)) and not isinstance(expected,bool):
+        if not np.isclose(actual,expected,atol=1e-10,rtol=0):
+            raise ValueError("replay numeric "+path)
+    elif actual!=expected:
+        raise ValueError("replay value "+path)
+
 def panel(f, ledger, geo, parent, scope, nmin):
     v = trait_pairs(ledger, scope=="high_only")
     d, M, C, genus = make_frame(f, v, geo, scope)
@@ -94,6 +134,8 @@ def panel(f, ledger, geo, parent, scope, nmin):
     for mode in MODES:
         ps=np.full((n,3,4), np.nan); unseen=np.full((n,2),np.nan)
         support=[]; failed=0
+        pk=np.full((n,4),np.nan); pu=pk.copy(); qk=pk.copy(); qu=pk.copy()
+        donor_support_mass=np.full((n,4),np.nan)
         for b in np.unique(blocks):
             test=np.flatnonzero(blocks==b)
             ban=embargo[b]
@@ -110,7 +152,16 @@ def panel(f, ledger, geo, parent, scope, nmin):
             assert not np.intersect1d(allowed,target).size
             support.append([len(allowed),len(donor_groups)])
             for i in test:
-                ps[i],unseen[i,0],unseen[i,1]=predict(prior,profiles,counts,genus[ix[i]])
+                ids=ix[i]
+                gs=genus[ids]
+                ps[i],unseen[i,0],unseen[i,1]=predict(prior,profiles,counts,gs)
+                k=counts[gs]>0
+                pk[i]=profiles[gs[k]].sum(0)/len(ids)
+                pu[i]=profiles[gs[~k]].sum(0)/len(ids)
+                qk[i]=C[ids[k]].sum(0)/len(ids)
+                qu[i]=C[ids[~k]].sum(0)/len(ids)
+                c=counts[gs]
+                donor_support_mass[i]=[np.mean(c==0),np.mean(c==1),np.mean((c>=2)&(c<=4)),np.mean(c>=5)]
         mask=np.isfinite(ps).all(axis=(1,2))
         out=base|{"mode":mode,"scored_islands":int(mask.sum()),"failed_folds":failed,
                   "status":"fit" if mask.all() else "incomplete_fold_support"}
@@ -154,6 +205,29 @@ def panel(f, ledger, geo, parent, scope, nmin):
         assert np.allclose(gain(np.sum(ps**2,axis=2)-2*np.sum(ps*q[:,None,:],axis=2)+1),gain(sq))
         out["conditional_rmse_by_model"]=dict(zip(MODELS,np.sqrt(ce.mean(0)).tolist()))
         out["category_mse_by_model"]=dict(zip(MODELS,sq.mean(0).tolist()))
+        # New evaluation-only coverage split, without changing original predictions.
+        assert np.allclose(pk+pu,ps[:,2,:]) and np.allclose(qk+qu,q)
+        assert np.allclose(donor_support_mass.sum(1),1)
+        assert np.allclose(donor_support_mass[:,0],unseen[:,0])
+        parts, projections=coverage_partition(pk,pu,qk,qu)
+        names=("total_residual","supported_genus","unsupported_genus",
+               "supported_first","supported_last","unsupported_first","unsupported_last")
+        yy=np.column_stack([parts,donor_support_mass])
+        diagnostic_fit=estimate(X,yy,blocks,j)
+        if diagnostic_fit is None:
+            raise ValueError("coverage split design failed")
+        bs={k:float(diagnostic_fit[str(i)]["beta"]) for i,k in enumerate(names)}
+        assert np.isclose(bs["total_residual"],slopes["residual"],atol=1e-10,rtol=0)
+        assert np.isclose(bs["total_residual"],bs["supported_genus"]+bs["unsupported_genus"],atol=1e-10,rtol=0)
+        snames=("zero_donor_species","one_donor_species","two_to_four","five_or_more")
+        out["coverage_audit"]={
+            "conditional_residual_slopes":bs,
+            "donor_support_mass_mean":dict(zip(snames,donor_support_mass.mean(0).tolist())),
+            "donor_support_mass_slopes":dict(zip(snames,[float(diagnostic_fit[str(i+len(names))]["beta"]) for i in range(4)])),
+            "category_squared_error_signed_projections":dict(zip(("supported_genus","unsupported_genus"),projections.mean(0).tolist())),
+            "category_squared_error_total":float(projections.sum(1).mean()),
+            "warning":"Evaluation-only oracle replacements with observed target categories, not improved forecasts. Shapley terms sum to the nonlinear contrast error; signed vector projections sum to squared error. Neither is causal, and supported-genus error includes shrinkage, limited congener samples and documentation."
+        }
         panels.append(out)
     return panels
 
@@ -171,12 +245,22 @@ def self_test():
     assert np.isclose(u,.25) and np.isclose(e,1/3)
     assert not np.allclose(p[1],p[2])
     assert np.isclose(contrast(np.array([.375,.125,.125,.375])),.5)
+    pk=np.array([[.15,.10,.10,.15],[0,0,0,0]])
+    pu=np.array([[.10,.15,.15,.10],[.25,.25,.25,.25]])
+    qk=np.array([[.20,.05,.10,.15],[0,0,0,0]])
+    qu=np.array([[.15,.10,.05,.20],[.40,.10,.10,.40]])
+    parts,projections=coverage_partition(pk,pu,qk,qu)
+    assert np.allclose(parts[:,0],parts[:,1]+parts[:,2])
+    assert abs(parts[1,1])<1e-12 and abs(projections[1,0])<1e-12
+    assert np.allclose(projections.sum(1),np.sum((qk+qu-pk-pu)**2,axis=1))
+    replay_equal({"a":[1,2],"extra":3},{"a":[1,2]})
     print("FLORAL_GENUS_TRANSPORT_SELF_TEST_PASS")
 
 def main():
     p=argparse.ArgumentParser()
     for k in ("flora","ledger","geography","parent","out"):
         p.add_argument("--"+k,type=Path)
+    p.add_argument("--transport-receipt",type=Path)
     p.add_argument("--self-test",action="store_true")
     a=p.parse_args()
     if a.self_test:
@@ -190,11 +274,16 @@ def main():
     geo=pd.read_csv(a.geography,dtype={"island_id":str,"spatial_block":str})
     assert len(f)==1039757 and f.island_id.nunique()==4505 and len(geo)==8264
     assert not f.duplicated(["island_id","accepted_species"]).any() and geo.island_id.is_unique
+    receipt_path=a.transport_receipt or Path(__file__).resolve().parents[1]/"research/chapter1_fd_integration_20261125/FLORAL_GENUS_TRANSPORT_RESULT_20261128.json"
+    receipt=json.loads(receipt_path.read_text())
+    assert receipt["run"]==46106237400 and len(receipt["panels"])==8
+    originals={(r["scope"],r["nmin"],r["mode"]):r for r in receipt["panels"]}
     rows=[]
     for scope,nmin in SCOPES:
         for r in panel(f,ledger,geo,parent,scope,nmin):
+            replay_equal(r,originals[(r["scope"],r["nmin"],r["mode"])])
             rows.append(r)
-            print("FLORAL_GENUS_TRANSPORT_PANEL "+json.dumps(r,allow_nan=False),flush=True)
+            print("FLORAL_GENUS_TRANSPORT_COVERAGE_PANEL "+json.dumps(r,allow_nan=False),flush=True)
     assert len(rows)==8
     result={"owner":"island","parent_run":45579499069,"source_hashes":LOCK,
             "primary":"all_recorded n10 external; loading versus blind category squared-error gain",
@@ -204,6 +293,6 @@ def main():
             "warning":"Post-outcome known-genus conditional prediction with full accepted paired-species block embargo. Observed target genus and inherited eligibility supplied; not prospective establishment. Bootstrap with frozen folds descriptive. No first-source grouping or independent biological replication. No raw exports."}
     a.out.parent.mkdir(parents=True,exist_ok=True)
     a.out.write_text(json.dumps(result,indent=2,allow_nan=False)+"\n")
-    print("FLORAL_GENUS_TRANSPORT_COMPLETE 8",flush=True)
+    print("FLORAL_GENUS_TRANSPORT_COVERAGE_COMPLETE 8; ORIGINAL_FIELDS_REPLAYED",flush=True)
 
 if __name__=="__main__":main()
