@@ -1,0 +1,42 @@
+name: Chapter 1 exact axis versus atomic evidence audit
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'research/chapter1_fd_integration_20261125/rights_review/axis_atomic_scope_audit.py'
+      - '.github/workflows/chapter1-axis-atomic-scope.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas
+      - name: Exact original source snapshot crosswalk
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/scope-private" "$RUNNER_TEMP/scope-public"
+          gh api repos/zuizui0223/island/actions/artifacts/10058653212/zip > "$RUNNER_TEMP/scope-private/10058653212-chapter1-progressive-analysis-34232450884.zip"
+          gh api repos/zuizui0223/island/actions/artifacts/10042377593/zip > "$RUNNER_TEMP/scope-private/10042377593-source-scale-batch-integration-34191508045.zip"
+          gh api repos/zuizui0223/island/actions/artifacts/10186293306/zip > "$RUNNER_TEMP/scope-private/10186293306-chapter1-database-v1-cell-rights-34566271397.zip"
+          python research/chapter1_fd_integration_20261125/rights_review/axis_atomic_scope_audit.py --source-dir "$RUNNER_TEMP/scope-private" --out "$RUNNER_TEMP/scope-public/aggregate.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-axis-atomic-scope-aggregate-only
+          path: ${{ runner.temp }}/scope-public/aggregate.json
+          if-no-files-found: error
+      - name: Remove temporary input bytes
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/scope-private"

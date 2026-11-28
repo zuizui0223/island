@@ -1,0 +1,71 @@
+{
+  "owner": "island",
+  "run": 45579727333,
+  "job": 139086429719,
+  "head": "52787882e31b4c29f7a51aa0fbb239f9e104e567",
+  "artifact": 15006171674,
+  "reported_zip_digest": "sha256:669eb64ef350e3615b6167b455937635d5cd8eb947f5cef6a8501c33b2d4cc3c",
+  "retrieval": "Successful job log JSON; ZIP metadata checked, not downloaded",
+  "result": {
+    "scope": "tropical conditional symmetry difference",
+    "full_n": 257,
+    "matched_n": 62,
+    "matched_blocks": 30,
+    "all_full": {
+      "beta": 0.027620206725441746,
+      "se": 0.006121448296054724,
+      "interval": [
+        0.01539483027912922,
+        0.039845583171754274
+      ],
+      "p": 0.000027574552916015636,
+      "status": "fit"
+    },
+    "all_common_islands": {
+      "beta": 0.009698396458975512,
+      "se": 0.004970780769852256,
+      "interval": [
+        -0.00046799171606953967,
+        0.01986478463402056
+      ],
+      "p": 0.060768273002993964,
+      "status": "fit"
+    },
+    "high_common_islands_all_covariates": {
+      "beta": 0.001474521449804634,
+      "se": 0.008670508077650753,
+      "interval": [
+        -0.016258658682957724,
+        0.019207701582566992
+      ],
+      "p": 0.8661424613494969,
+      "status": "fit"
+    },
+    "high_minus_all_matched_paired": {
+      "beta": -0.008223875009170874,
+      "se": 0.008517373094593036,
+      "interval": [
+        -0.025643858935336102,
+        0.009196108916994353
+      ],
+      "p": 0.3422571744510344,
+      "status": "fit"
+    },
+    "high_original_covariates": {
+      "beta": -0.0007223441697008564,
+      "se": 0.008341596137608242,
+      "interval": [
+        -0.0177828238530369,
+        0.016338135513635187
+      ],
+      "p": 0.9315882444848992,
+      "status": "fit"
+    },
+    "signed_change_decomposition": {
+      "island_selection_and_design_shift": -0.017921810266466234,
+      "carrier_change_same_islands_same_covariates": -0.008223875009170878,
+      "coverage_covariate_shift": -0.0021968656195054904
+    },
+    "warning": "Post-outcome matched-cohort diagnostic. High-only vs High/Medium compares different documented species, not repeat measurements; composition, documentation, and geography can differ. All intervals pointwise conditional; no causal measurement-bias conclusion."
+  }
+}

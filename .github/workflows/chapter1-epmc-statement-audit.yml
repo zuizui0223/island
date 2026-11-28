@@ -1,0 +1,51 @@
+name: Chapter 1 targeted Europe PMC license statements
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'research/chapter1_fd_integration_20261125/rights_review/europe_pmc_statement_audit.py'
+      - '.github/workflows/chapter1-epmc-statement-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  article-statements:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas requests cryptography
+      - run: python research/chapter1_fd_integration_20261125/rights_review/europe_pmc_statement_audit.py --self-test
+      - name: Restore original rights snapshots and inspect only targeted article statements
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/epmc-private" "$RUNNER_TEMP/epmc-public" "$RUNNER_TEMP/epmc-sealed"
+          gh api repos/zuizui0223/island/actions/artifacts/10042377593/zip > "$RUNNER_TEMP/epmc-private/10042377593-source-scale-batch-integration-34191508045.zip"
+          gh api repos/zuizui0223/island/actions/artifacts/10154261753/zip > "$RUNNER_TEMP/epmc-private/10154261753-chapter1-database-v1-rights-audit-34482428564.zip"
+          gh api repos/zuizui0223/island/actions/artifacts/10186293306/zip > "$RUNNER_TEMP/epmc-private/10186293306-chapter1-database-v1-cell-rights-34566271397.zip"
+          python research/chapter1_fd_integration_20261125/rights_review/europe_pmc_statement_audit.py --source-dir "$RUNNER_TEMP/epmc-private" --out "$RUNNER_TEMP/epmc-public/aggregate.json" --public-key research/chapter1_fd_integration_20261125/rights_review/epmc_statement_transport_public.pem --sealed-out "$RUNNER_TEMP/epmc-sealed/metadata.sealed.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-epmc-statement-aggregate-only
+          path: ${{ runner.temp }}/epmc-public/aggregate.json
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-epmc-statement-custodian-sealed
+          path: ${{ runner.temp }}/epmc-sealed/metadata.sealed.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Remove temporary source files
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/epmc-private"

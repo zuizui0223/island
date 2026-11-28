@@ -1,0 +1,60 @@
+name: Own DB tropical floral-axis component decomposition
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'scripts/chapter1_flower_axis_components.py'
+      - '.github/workflows/chapter1-flower-axis-components.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  paired-axes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy
+      - run: python scripts/chapter1_flower_axis_decoupling.py --self-test && python scripts/chapter1_flower_axis_h2.py --self-test && python scripts/chapter1_flower_axis_components.py --self-test
+      - name: Restore original protected sources and run paired contrasts
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p /tmp/flower-decoupling/original
+          gh run download 34232450884 --repo zuizui0223/island --name chapter1-progressive-analysis-34232450884 --dir /tmp/flower-decoupling/original
+          FLORA="$(find /tmp/flower-decoupling/original -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
+          test -s "$FLORA"
+          ROOT="${FLORA%/fixed/canonical/input/chapter1_status_flora.csv.gz}"
+          curl --fail --silent --show-error --location 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o /tmp/flower-decoupling/geography.csv
+          python -u scripts/chapter1_flower_axis_components.py --flora "$FLORA" --ledger "$ROOT/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz" --geography /tmp/flower-decoupling/geography.csv --state-audit "$ROOT/snapshot/chapter1_trait_state_audit_direct.csv.gz" --h1-parent research/chapter1_fd_integration_20261125/FLORAL_AXIS_DECOUPLING_RESULTS.json --h2-parent research/chapter1_fd_integration_20261125/FLORAL_AXIS_H2_RESULT.json --out /tmp/flower-decoupling/anonymous.json
+          python - <<'PY'
+          import json
+          a=json.load(open('/tmp/flower-decoupling/anonymous.json'))
+          assert len(a['panels'])==4 and a['owner']=='island'
+          forbidden={'island_id','accepted_species','genus_name','entity_ID','latitude','longitude','work_species'}
+          def audit(v):
+              if isinstance(v,dict):
+                  assert not forbidden.intersection(v)
+                  for x in v.values(): audit(x)
+              elif isinstance(v,list):
+                  for x in v:audit(x)
+          audit(a)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: own-db-floral-axis-components-anonymous
+          path: /tmp/flower-decoupling/anonymous.json
+          if-no-files-found: error
+      - name: Delete temporary source files
+        if: always()
+        run: rm -rf /tmp/flower-decoupling

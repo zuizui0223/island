@@ -1,0 +1,77 @@
+{
+  "owner": "island",
+  "status": "editorial_review_not_submission_freeze",
+  "base": {
+    "commit": "a450afe16bf7a01a1a33bdddef0368c6e0fb799b",
+    "manuscript_blob": "967932837c447b825223b843a9bdd80400385cfd",
+    "SI_blob": "19fc7b2d30718bdeef84111a7dd712fe9b3bcef5",
+    "captions_blob": "3691685e313146f3d03be559e173b45b5af4e7b3"
+  },
+  "receipts": [
+    {
+      "path": "FLORAL_AXIS_DECOUPLING_RESULTS.json",
+      "git_blob_sha": "41ac695984b233140732988906bccee0939e5026",
+      "run": 45579499069,
+      "artifact": 15005608324,
+      "reported_zip_digest": "sha256:f7d7f3aac76a6a52dce851beea5e78d7f363dcab183549a417c9f8952e99cf8b"
+    },
+    {
+      "path": "FLORAL_AXIS_GRADE_COHORT_RESULT.json",
+      "git_blob_sha": "f64d920d3b9192239a9881b27b5f64044395f9df",
+      "run": 45579727333,
+      "artifact": 15006171674,
+      "reported_zip_digest": "sha256:669eb64ef350e3615b6167b455937635d5cd8eb947f5cef6a8501c33b2d4cc3c"
+    },
+    {
+      "path": "FLORAL_AXIS_H2_RESULT.json",
+      "git_blob_sha": "a551055b0ad5aecf3ea0eebd0a6dfeae45744f96",
+      "run": 45584985080,
+      "artifact": 15007004555,
+      "reported_zip_digest": "sha256:d93314f3a8a60790970dd982efd900c02e081c5405a8b5b50a4f01ef79ae77fa"
+    },
+    {
+      "path": "FLORAL_AXIS_H2_WEIGHTS_RESULT.json",
+      "git_blob_sha": "f8902973ab0594431a8d08623e6ab2fe5ba3941c",
+      "run": 45589460154,
+      "artifact": 15009638240,
+      "reported_zip_digest": "sha256:0763c189ba9c124be95dc8fad79ea8cdb95d7082ab10918e0f36ea7e223cb204"
+    },
+    {
+      "path": "FLORAL_AXIS_H4_RESULT.json",
+      "git_blob_sha": "db681c4a259b190c3da23df1bb2d3a6460c365fd",
+      "run": 45590543285,
+      "artifact": 15009509483,
+      "reported_zip_digest": "sha256:0f2215ee21ae06e8c744970ddf6a112b551a2a0986bd4609253fef339863003b"
+    },
+    {
+      "path": "FLORAL_AXIS_COMPONENT_RESULT.json",
+      "git_blob_sha": "84db4a4a287398ced1c12eeecb8195714b1af876",
+      "run": 45590946804,
+      "artifact": 15010139232,
+      "reported_zip_digest": "sha256:90bce772adff0d7881da9f7c0954d929f61b5f3f720f0927324f0ffbeaaa6c4e"
+    }
+  ],
+  "tables": [
+    {
+      "path": "supplement/Table_S8a_flower_pair_isolation.csv",
+      "rows": 60
+    },
+    {
+      "path": "supplement/Table_S8b_reproductive_conditioning.csv",
+      "rows": 24
+    },
+    {
+      "path": "supplement/Table_S8c_depth_specific_components.csv",
+      "rows": 12
+    },
+    {
+      "path": "supplement/Table_S8d_grade_matched_diagnostic.csv",
+      "rows": 5
+    },
+    {
+      "path": "supplement/Table_S8e_GloPL_joint_support.csv",
+      "rows": 16
+    }
+  ],
+  "claim_boundary": "Exploratory recorded-flora H1/H2; no new H4 estimate; frozen selector unchanged"
+}

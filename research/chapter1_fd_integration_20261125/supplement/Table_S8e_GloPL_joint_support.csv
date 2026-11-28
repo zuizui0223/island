@@ -1,0 +1,17 @@
+region,conditioned,overall_species,overall_publications,overall_effect_rows,radial,deep,cell_species,cell_publications,cell_sites,cell_effect_rows,support_pass,status
+global,false,32,36,114,0,0,1,1,1,1,false,insufficient_support
+global,false,32,36,114,0,1,7,12,13,20,false,insufficient_support
+global,false,32,36,114,1,0,10,11,14,69,false,insufficient_support
+global,false,32,36,114,1,1,14,14,19,24,false,insufficient_support
+global,true,17,22,89,0,0,0,0,0,0,false,insufficient_support
+global,true,17,22,89,0,1,2,5,6,13,false,insufficient_support
+global,true,17,22,89,1,0,6,8,11,57,false,insufficient_support
+global,true,17,22,89,1,1,9,9,14,19,false,insufficient_support
+tropical,false,8,9,18,0,0,0,0,0,0,false,insufficient_support
+tropical,false,8,9,18,0,1,3,3,3,3,false,insufficient_support
+tropical,false,8,9,18,1,0,2,3,5,8,false,insufficient_support
+tropical,false,8,9,18,1,1,3,3,3,7,false,insufficient_support
+tropical,true,6,7,16,0,0,0,0,0,0,false,insufficient_support
+tropical,true,6,7,16,0,1,1,1,1,1,false,insufficient_support
+tropical,true,6,7,16,1,0,2,3,5,8,false,insufficient_support
+tropical,true,6,7,16,1,1,3,3,3,7,false,insufficient_support

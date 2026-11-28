@@ -1,0 +1,47 @@
+name: Chapter 1 strict atomic H4 exact-score sensitivity
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'research/chapter1_fd_integration_20261125/rights_review/atomic_h4_sensitivity.py'
+      - '.github/workflows/chapter1-atomic-h4-sensitivity.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  sensitivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e ".[dev]"
+      - name: Retrieve exact state and atomic source ledgers
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/h4-private" "$RUNNER_TEMP/h4-aggregate"
+          gh api repos/zuizui0223/island/actions/artifacts/10058653212/zip > "$RUNNER_TEMP/h4-private/analysis.zip"
+          gh api repos/zuizui0223/island/actions/artifacts/10042377593/zip > "$RUNNER_TEMP/h4-private/ledger.zip"
+      - name: Replay original H4 before strict scores and common species comparison
+        run: python research/chapter1_fd_integration_20261125/rights_review/atomic_h4_sensitivity.py --analysis "$RUNNER_TEMP/h4-private/analysis.zip" --ledger "$RUNNER_TEMP/h4-private/ledger.zip" --out "$RUNNER_TEMP/h4-aggregate"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-atomic-h4-sensitivity-aggregate-only
+          path: ${{ runner.temp }}/h4-aggregate/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Remove temporary inputs
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/h4-private"

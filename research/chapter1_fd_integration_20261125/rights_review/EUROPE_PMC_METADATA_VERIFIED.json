@@ -1,0 +1,150 @@
+{
+  "run": 45720415465,
+  "job": 139577038889,
+  "head": "dc6bfef808bd8bb7e484f0672fb016183bae0ba8",
+  "artifact": 15071757630,
+  "reported_zip_digest": "sha256:c80164f8aca468e316ecbb1fbe857b0bc8348f40e2aa60f6f4530d2c1234da12",
+  "retrieval": "Anonymous aggregate parsed from successful official metadata job; artifact digest metadata checked, bytes not retrieved.",
+  "result": {
+    "affected_cells": {
+      "by_axis": {
+        "floral_structural_complexity": 1337,
+        "flower_colour": 2194,
+        "reproductive_assurance": 15295
+      },
+      "by_quality": {
+        "high": 1266,
+        "low": 17551,
+        "medium": 9
+      },
+      "cells": 18826,
+      "derived_cells": 8431
+    },
+    "all_required_epmc_ids_are_metadata_candidates": {
+      "by_axis": {
+        "floral_structural_complexity": 134,
+        "flower_colour": 214,
+        "reproductive_assurance": 669
+      },
+      "by_quality": {
+        "high": 133,
+        "low": 883,
+        "medium": 1
+      },
+      "cells": 1017,
+      "derived_cells": 445
+    },
+    "candidate_explicit_version_count": 0,
+    "candidate_normalized_license_labels": {
+      "cc-by": 369,
+      "cc0": 1
+    },
+    "candidate_touched_cells": {
+      "by_axis": {
+        "floral_structural_complexity": 134,
+        "flower_colour": 585,
+        "reproductive_assurance": 4965
+      },
+      "by_quality": {
+        "high": 277,
+        "low": 5406,
+        "medium": 1
+      },
+      "cells": 5684,
+      "derived_cells": 1318
+    },
+    "historical_article_ids": 2024,
+    "historical_ids_by_source": {
+      "AGR": 537,
+      "CBA": 25,
+      "ETH": 21,
+      "MED": 1302,
+      "PAT": 10,
+      "PMC": 1,
+      "PPR": 128
+    },
+    "hypothetical_sole_family_cell_ceiling": {
+      "by_axis": {
+        "floral_structural_complexity": 1,
+        "flower_colour": 10,
+        "reproductive_assurance": 76
+      },
+      "by_quality": {
+        "high": 86,
+        "medium": 1
+      },
+      "cells": 87,
+      "derived_cells": 0
+    },
+    "input_archive_sha256": {
+      "ledger": "5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd",
+      "provenance": "5d3e5ea80e1cf9757cc7b3bbb64db2ca67f0b8ecce7f7f52668472511f07ad36",
+      "rights": "6c5f2577e85e95e841b8659427e27c72ce631f59a3da5a335f54f505de5ea32a"
+    },
+    "interpretation": "Current article metadata only. Exact historical source ID match is not proof of the exact acquisition version or applicable source-data rights. CC-BY/CC0/CC-BY-SA candidates require version, license statement, third-party content, attribution and actual evidence scope review. For derived cells every upstream lineage is required; other original source-family blockers and semantic gates remain in force. No permission is granted by this audit.",
+    "new_cells_authorized": 0,
+    "policy_changed": false,
+    "public_release": false,
+    "records_by_metadata_status": {
+      "nc_or_nd_metadata": 91,
+      "no_explicit_license": 1490,
+      "not_returned": 1,
+      "oa_license_missing": 7,
+      "permissive_label_scope_unverified": 17,
+      "permissive_metadata_candidate": 370,
+      "version_or_source_review": 48
+    },
+    "request_summary": {
+      "conflicting_matches": 0,
+      "failed_batches": 0,
+      "successful_batches": 62,
+      "unexpected_returned_records": 0
+    },
+    "sole_family_blocked_cells": {
+      "by_axis": {
+        "floral_structural_complexity": 21,
+        "flower_colour": 81,
+        "reproductive_assurance": 781
+      },
+      "by_quality": {
+        "high": 715,
+        "low": 159,
+        "medium": 9
+      },
+      "cells": 883,
+      "derived_cells": 73
+    },
+    "source_by_status": {
+      "AGR": {
+        "nc_or_nd_metadata": 2,
+        "no_explicit_license": 527,
+        "version_or_source_review": 8
+      },
+      "CBA": {
+        "no_explicit_license": 25
+      },
+      "ETH": {
+        "no_explicit_license": 21
+      },
+      "MED": {
+        "nc_or_nd_metadata": 70,
+        "no_explicit_license": 838,
+        "oa_license_missing": 7,
+        "permissive_label_scope_unverified": 17,
+        "permissive_metadata_candidate": 370
+      },
+      "PAT": {
+        "no_explicit_license": 10
+      },
+      "PMC": {
+        "not_returned": 1
+      },
+      "PPR": {
+        "nc_or_nd_metadata": 19,
+        "no_explicit_license": 69,
+        "version_or_source_review": 40
+      }
+    },
+    "timestamp_utc": "2026-11-25T23:22:58.675354+00:00"
+  }
+}

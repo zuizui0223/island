@@ -1,0 +1,1118 @@
+{
+  "owner": "island",
+  "run": 45589460154,
+  "job": 139119491832,
+  "head": "0c18dbd6f8a91465c35308f614fbd64ecc1e9c38",
+  "artifact": 15009638240,
+  "reported_zip_digest": "sha256:0763c189ba9c124be95dc8fad79ea8cdb95d7082ab10918e0f36ea7e223cb204",
+  "retrieval": "24 unique anonymous panel JSON payloads from successful job stdout; source/parent reconstruction gates passed; reported ZIP digest metadata, ZIP bytes not retrieved",
+  "panels": [
+    {
+      "scope": "all_recorded",
+      "score": "min2",
+      "roster": "whole_flora",
+      "n": 244,
+      "blocks": 66,
+      "status": "fit",
+      "parent_holm_p": 0.003613268759355747,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 888,
+        "unparsed_score_species": 0,
+        "observed": [
+          0.027956062478874683,
+          0.019674674584449714,
+          -0.00828138789442497,
+          0.345236066820784
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.014395771016183868,
+              0.03990617720180111
+            ],
+            [
+              0.0065167762427725115,
+              0.03032892249874472
+            ],
+            [
+              -0.016233188783169185,
+              -0.002445373653998999
+            ],
+            [
+              0.1948118397603423,
+              0.5112076098161952
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.012553866125095944,
+              0.045323793978750866
+            ],
+            [
+              0.005421916456851716,
+              0.03999859501992333
+            ],
+            [
+              -0.011764761728810835,
+              -0.0016718050658345936
+            ],
+            [
+              0.08499984838500212,
+              0.41251665797395837
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.006013332478988898,
+              0.05128877223383536
+            ],
+            [
+              -0.001233455476180547,
+              0.045649329839605055
+            ],
+            [
+              -0.01607704212168846,
+              0.00002962629760433327
+            ],
+            [
+              0.022630025248576296,
+              0.49075845699658216
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": false
+    },
+    {
+      "scope": "all_recorded",
+      "score": "complete3",
+      "roster": "whole_flora",
+      "n": 72,
+      "blocks": 36,
+      "status": "fit",
+      "parent_holm_p": 0.12202402373646629,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 454,
+        "unparsed_score_species": 0,
+        "observed": [
+          0.011934050206789832,
+          0.012132734007743931,
+          0.00019868380095409977,
+          -0.01950563321102607
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.002683651126598917,
+              0.02670364174375122
+            ],
+            [
+              -0.003228203061950216,
+              0.02692368639664181
+            ],
+            [
+              -0.0033389767134201914,
+              0.003884458565142743
+            ],
+            [
+              -0.19023872653430587,
+              0.2542680306420289
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.000886249449792843,
+              0.024617021654629815
+            ],
+            [
+              -0.0011873842403126418,
+              0.025139937641538948
+            ],
+            [
+              -0.003578863761051949,
+              0.003573002338042465
+            ],
+            [
+              -0.26491058411580615,
+              0.21983886315215104
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.011499222110640698,
+              0.040201763427198695
+            ],
+            [
+              -0.013566747846343015,
+              0.03882796374801869
+            ],
+            [
+              -0.00781450433013558,
+              0.007082249516407413
+            ],
+            [
+              -0.35175020755266734,
+              0.41843831422996286
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": false
+    },
+    {
+      "scope": "all_recorded",
+      "score": "SC",
+      "roster": "whole_flora",
+      "n": 257,
+      "blocks": 66,
+      "status": "fit",
+      "parent_holm_p": 0.0011151643562171197,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 1467,
+        "unparsed_score_species": 2,
+        "observed": [
+          0.027620206725441784,
+          0.023562304262358474,
+          -0.00405790246308331,
+          0.2937346531162433
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.014290169183287535,
+              0.0400674062507167
+            ],
+            [
+              0.010999261336967612,
+              0.03480944072333055
+            ],
+            [
+              -0.009792017537630664,
+              -0.000352956984967245
+            ],
+            [
+              0.11099753531942717,
+              0.4851144645493163
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.012074305558826947,
+              0.04432707757089035
+            ],
+            [
+              0.008652993625106745,
+              0.040294317124559824
+            ],
+            [
+              -0.007533221222413975,
+              0.0003513049337522079
+            ],
+            [
+              -0.02741339392667057,
+              0.4930868816536661
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.005091049988616055,
+              0.05062163188206644
+            ],
+            [
+              0.001923131065303905,
+              0.047267062231458275
+            ],
+            [
+              -0.011215193063992365,
+              0.0014549390257750702
+            ],
+            [
+              -0.10848680077413632,
+              0.5784068820799741
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": true
+    },
+    {
+      "scope": "all_recorded",
+      "score": "autonomy",
+      "roster": "whole_flora",
+      "n": 257,
+      "blocks": 66,
+      "status": "fit",
+      "parent_holm_p": 0.003613268759355747,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 1218,
+        "unparsed_score_species": 1,
+        "observed": [
+          0.027620206725441784,
+          0.020427986921895937,
+          -0.007192219803545848,
+          0.2304367305676038
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.013528302929565366,
+              0.038771067810604985
+            ],
+            [
+              0.008365233768749506,
+              0.030898712562743815
+            ],
+            [
+              -0.012458178339351323,
+              -0.0017706680033026877
+            ],
+            [
+              0.08167343069279054,
+              0.3740248223181606
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.013050379348127175,
+              0.043142155160813385
+            ],
+            [
+              0.009160040434151745,
+              0.038504661123498665
+            ],
+            [
+              -0.01049384913991791,
+              -0.001211342321321831
+            ],
+            [
+              0.045675136238590784,
+              0.3242232561318834
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.0041709612133285215,
+              0.051922739207550715
+            ],
+            [
+              0.00018981598241966393,
+              0.0454544917532665
+            ],
+            [
+              -0.012886721796558835,
+              0.0009637023644966417
+            ],
+            [
+              -0.03417516276052859,
+              0.3832137851221199
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": true
+    },
+    {
+      "scope": "all_recorded",
+      "score": "min2",
+      "roster": "pair_carriers",
+      "n": 62,
+      "blocks": 31,
+      "status": "fit",
+      "parent_holm_p": 0.19785915881365715,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 330,
+        "unparsed_score_species": 0,
+        "observed": [
+          0.006892697478746244,
+          0.005608476363540955,
+          -0.0012842211152052883,
+          0.12125863263757009
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.0025121103611302005,
+              0.012811076376243083
+            ],
+            [
+              -0.0030449039457076314,
+              0.012571584130726132
+            ],
+            [
+              -0.004061242557705606,
+              0.002755954752644449
+            ],
+            [
+              -0.01744708167185828,
+              0.28599800839793915
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.005144640109316232,
+              0.01810853394937897
+            ],
+            [
+              -0.005710566564188819,
+              0.017203680485037683
+            ],
+            [
+              -0.004289873758721745,
+              0.0013820073755379967
+            ],
+            [
+              -0.15821385120473036,
+              0.2651765690751466
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.016181948287140546,
+              0.0262782314749689
+            ],
+            [
+              -0.017252702688176195,
+              0.024529980297495653
+            ],
+            [
+              -0.007483540745335986,
+              0.0042847683675813295
+            ],
+            [
+              -0.1953296050982252,
+              0.35917161400256625
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": false
+    },
+    {
+      "scope": "all_recorded",
+      "score": "complete3",
+      "roster": "pair_carriers",
+      "n": 2,
+      "blocks": 2,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "all_recorded",
+      "score": "SC",
+      "roster": "pair_carriers",
+      "n": 188,
+      "blocks": 59,
+      "status": "fit",
+      "parent_holm_p": 0.00004177431272502911,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 363,
+        "unparsed_score_species": 0,
+        "observed": [
+          0.028888439289901827,
+          0.024632971070610965,
+          -0.004255468219290862,
+          0.2581405011087433
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.01567465382403541,
+              0.03823556480781884
+            ],
+            [
+              0.012874615890042134,
+              0.03307560110290056
+            ],
+            [
+              -0.008944325351038283,
+              -0.00006147976708887513
+            ],
+            [
+              0.12840149413585072,
+              0.41394172609858926
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.014330350451290117,
+              0.04751818635684064
+            ],
+            [
+              0.012096448360997037,
+              0.041387368862382264
+            ],
+            [
+              -0.009859327350186027,
+              0.00031960372237278725
+            ],
+            [
+              -0.043093963926392996,
+              0.4268975713630029
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.006409498292381259,
+              0.0519283369102374
+            ],
+            [
+              0.0027332264677609654,
+              0.04587505293220413
+            ],
+            [
+              -0.013205570295457289,
+              0.001843581715976853
+            ],
+            [
+              -0.05777349388008843,
+              0.49245837427119227
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": true
+    },
+    {
+      "scope": "all_recorded",
+      "score": "autonomy",
+      "roster": "pair_carriers",
+      "n": 106,
+      "blocks": 47,
+      "status": "fit",
+      "parent_holm_p": 0.00005184167901084432,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 344,
+        "unparsed_score_species": 0,
+        "observed": [
+          0.022256358365358515,
+          0.02089425245876618,
+          -0.0013621059065923348,
+          0.17634835657571313
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.01051484405340632,
+              0.02975558218882119
+            ],
+            [
+              0.01040764900993339,
+              0.029933144989042003
+            ],
+            [
+              -0.005683322759344381,
+              0.003781162864364463
+            ],
+            [
+              0.04415745444972155,
+              0.2922097568790275
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.009270288471145936,
+              0.040138979816903
+            ],
+            [
+              0.008523934749834611,
+              0.03870373308522255
+            ],
+            [
+              -0.0051171494555485135,
+              0.0019784151196695176
+            ],
+            [
+              -0.028214595437437314,
+              0.28665927403586733
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              0.0021750321189305272,
+              0.04272462987795146
+            ],
+            [
+              0.0008675431160012701,
+              0.04293895728394008
+            ],
+            [
+              -0.00748033353469952,
+              0.00616817078639416
+            ],
+            [
+              -0.0669433248466532,
+              0.3356478835995873
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": true
+    },
+    {
+      "scope": "high_only",
+      "score": "min2",
+      "roster": "whole_flora",
+      "n": 62,
+      "blocks": 30,
+      "status": "fit",
+      "parent_holm_p": 1,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 609,
+        "unparsed_score_species": 0,
+        "observed": [
+          -0.0007223441697008694,
+          -0.007997062357062278,
+          -0.007274718187361409,
+          0.48919225728228083
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.02413236037925314,
+              0.01753514859001177
+            ],
+            [
+              -0.03279160407216239,
+              0.013211087013979276
+            ],
+            [
+              -0.018338943382813097,
+              0.0014201214123790735
+            ],
+            [
+              0.11301389406382306,
+              0.8999045000742061
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.018368000858100586,
+              0.017306603224739897
+            ],
+            [
+              -0.024456133073650473,
+              0.013627525964627503
+            ],
+            [
+              -0.01652114375391427,
+              0.0020167518977164036
+            ],
+            [
+              -0.1490876878359904,
+              0.8593194937257902
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.04189344785699103,
+              0.03644907782653207
+            ],
+            [
+              -0.05394215690459353,
+              0.03482674006976564
+            ],
+            [
+              -0.023420583159978088,
+              0.008678254933928967
+            ],
+            [
+              -0.40652269105494315,
+              1.134619662004258
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": false
+    },
+    {
+      "scope": "high_only",
+      "score": "complete3",
+      "roster": "whole_flora",
+      "n": 49,
+      "blocks": 27,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "SC",
+      "roster": "whole_flora",
+      "n": 62,
+      "blocks": 30,
+      "status": "fit",
+      "parent_holm_p": 1,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 1158,
+        "unparsed_score_species": 2,
+        "observed": [
+          -0.0007223441697008694,
+          -0.003907760844025223,
+          -0.0031854166743243532,
+          0.3842090206502795
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.02174437567993464,
+              0.020314297420737166
+            ],
+            [
+              -0.027481944896671096,
+              0.017876048179380124
+            ],
+            [
+              -0.014603470413402951,
+              0.002333372547899988
+            ],
+            [
+              -0.11261185039594708,
+              1.139534182133649
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.017759572915415574,
+              0.01714523358364981
+            ],
+            [
+              -0.023319715554679373,
+              0.014728126303186642
+            ],
+            [
+              -0.010813735437618844,
+              0.002813903253522197
+            ],
+            [
+              -0.3984916816343207,
+              1.0826932419021043
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.0376287285795687,
+              0.03668573172611312
+            ],
+            [
+              -0.04504759558287411,
+              0.035422344111116034
+            ],
+            [
+              -0.021151667081596624,
+              0.007725397942513462
+            ],
+            [
+              -0.6102514805295187,
+              1.4944950652194229
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": false
+    },
+    {
+      "scope": "high_only",
+      "score": "autonomy",
+      "roster": "whole_flora",
+      "n": 62,
+      "blocks": 30,
+      "status": "fit",
+      "parent_holm_p": 1,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 921,
+        "unparsed_score_species": 1,
+        "observed": [
+          -0.0007223441697008694,
+          -0.010993604257192136,
+          -0.010271260087491267,
+          0.5624737713646715
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.023607686717041464,
+              0.01814222631742159
+            ],
+            [
+              -0.03392931513969698,
+              0.009887239954315495
+            ],
+            [
+              -0.020269056551556877,
+              0.000500438036986533
+            ],
+            [
+              0.1630079387252937,
+              0.9423187659844664
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.016959022024818162,
+              0.01884190095899635
+            ],
+            [
+              -0.024773882928355976,
+              0.012016000102995843
+            ],
+            [
+              -0.017764061966313298,
+              0.0006462346000066454
+            ],
+            [
+              -0.039350226710868914,
+              0.9022562385563695
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.038423340906755914,
+              0.035925205071860304
+            ],
+            [
+              -0.047607079195437906,
+              0.02921021629948027
+            ],
+            [
+              -0.028635914492007832,
+              0.008769605141504301
+            ],
+            [
+              -0.35353020556566084,
+              1.1537010244759034
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": false
+    },
+    {
+      "scope": "high_only",
+      "score": "min2",
+      "roster": "pair_carriers",
+      "n": 20,
+      "blocks": 14,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "complete3",
+      "roster": "pair_carriers",
+      "n": 1,
+      "blocks": 1,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "SC",
+      "roster": "pair_carriers",
+      "n": 54,
+      "blocks": 26,
+      "status": "fit",
+      "parent_holm_p": 1,
+      "sensitivity": {
+        "metric_order": [
+          "unadjusted_isolation",
+          "conditioned_isolation",
+          "signed_slope_change",
+          "reproduction_score"
+        ],
+        "weight_groups": 90,
+        "unparsed_score_species": 0,
+        "observed": [
+          -0.0009934765896027903,
+          -0.0006459740205203611,
+          0.00034750256908242915,
+          0.24879545962058464
+        ],
+        "geography_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.02993161757826757,
+              0.022640120960715732
+            ],
+            [
+              -0.023710452464467537,
+              0.019923829870759333
+            ],
+            [
+              -0.009607471394596239,
+              0.014957501762666024
+            ],
+            [
+              0.013274883160678182,
+              0.5236742427263932
+            ]
+          ]
+        },
+        "genus_only": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.01986118957820248,
+              0.0200820242398061
+            ],
+            [
+              -0.020592015399784173,
+              0.020160643358481785
+            ],
+            [
+              -0.006562933159129724,
+              0.009294540815284361
+            ],
+            [
+              -0.02917225277116844,
+              0.566499402432181
+            ]
+          ]
+        },
+        "joint": {
+          "valid_draws": 499,
+          "range_025_975": [
+            [
+              -0.046639660244479665,
+              0.038151529473843294
+            ],
+            [
+              -0.04024688214051042,
+              0.03680720712230915
+            ],
+            [
+              -0.01758451383053177,
+              0.02620003167729152
+            ],
+            [
+              -0.07069823216511721,
+              0.6873699648723812
+            ]
+          ]
+        },
+        "not_calibrated_ci": true
+      },
+      "positive_parent_and_joint_sensitivity": false
+    },
+    {
+      "scope": "high_only",
+      "score": "autonomy",
+      "roster": "pair_carriers",
+      "n": 25,
+      "blocks": 16,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "min2",
+      "roster": "whole_flora",
+      "n": 40,
+      "blocks": 15,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "complete3",
+      "roster": "whole_flora",
+      "n": 6,
+      "blocks": 6,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "SC",
+      "roster": "whole_flora",
+      "n": 44,
+      "blocks": 17,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "autonomy",
+      "roster": "whole_flora",
+      "n": 44,
+      "blocks": 17,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "min2",
+      "roster": "pair_carriers",
+      "n": 2,
+      "blocks": 2,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "complete3",
+      "roster": "pair_carriers",
+      "n": 0,
+      "blocks": 0,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "SC",
+      "roster": "pair_carriers",
+      "n": 28,
+      "blocks": 11,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "autonomy",
+      "roster": "pair_carriers",
+      "n": 13,
+      "blocks": 9,
+      "status": "insufficient_support",
+      "parent_holm_p": 1
+    }
+  ]
+}

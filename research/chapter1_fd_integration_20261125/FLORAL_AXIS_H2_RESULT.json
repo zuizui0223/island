@@ -1,0 +1,654 @@
+{
+  "owner": "island",
+  "run": 45584985080,
+  "job": 139104181238,
+  "head": "030eee67e86f376d44be128ccdc9ceff39b1a809",
+  "artifact": 15007004555,
+  "reported_zip_digest": "sha256:d93314f3a8a60790970dd982efd900c02e081c5405a8b5b50a4f01ef79ae77fa",
+  "retrieval": "All 24 unique anonymous panels and support census recovered from successful original job stdout; reported artifact digest metadata verified, ZIP bytes not fetched.",
+  "support": [
+    {
+      "scope": "all_recorded",
+      "morphology_islands": 257,
+      "morphology_pair_species": 1112,
+      "min2_species": 2651,
+      "complete3_species": 564,
+      "same_pair_min2_species": 124
+    },
+    {
+      "scope": "high_only",
+      "morphology_islands": 62,
+      "morphology_pair_species": 305,
+      "min2_species": 2651,
+      "complete3_species": 564,
+      "same_pair_min2_species": 89
+    },
+    {
+      "scope": "literal_native",
+      "morphology_islands": 44,
+      "morphology_pair_species": 1112,
+      "min2_species": 2651,
+      "complete3_species": 564,
+      "same_pair_min2_species": 124
+    }
+  ],
+  "panels": [
+    {
+      "scope": "all_recorded",
+      "score": "min2",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 244,
+      "blocks": 66,
+      "status": "fit",
+      "p": 0.00072301668598095,
+      "unadjusted_same_islands": {
+        "beta": 0.027956062478874735,
+        "se": 0.0062205954972201,
+        "interval": [
+          0.015532675398603868,
+          0.0403794495591456
+        ],
+        "p": 0.000029404140064074374,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": 0.019674674584449745,
+        "se": 0.005542882107413362,
+        "interval": [
+          0.008604774605986762,
+          0.030744574562912727
+        ],
+        "p": 0.00072301668598095,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.34523606682078345,
+        "se": 0.07494477236298208,
+        "interval": [
+          0.19556102089886257,
+          0.49491111274270433
+        ],
+        "p": 0.000019615806097088644,
+        "status": "fit"
+      },
+      "median_scored_species": 39.5,
+      "signed_slope_change": -0.00828138789442499,
+      "holm_p": 0.003613268759355747
+    },
+    {
+      "scope": "all_recorded",
+      "score": "complete3",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 72,
+      "blocks": 36,
+      "status": "fit",
+      "p": 0.040674674578822095,
+      "unadjusted_same_islands": {
+        "beta": 0.01193405020678984,
+        "se": 0.005761228237569086,
+        "interval": [
+          0.00023813508524108892,
+          0.02362996532833859
+        ],
+        "p": 0.04575206978103234,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": 0.012132734007743944,
+        "se": 0.005708107094096592,
+        "interval": [
+          0.0005446605407164254,
+          0.02372080747477146
+        ],
+        "p": 0.040674674578822095,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": -0.01950563321102615,
+        "se": 0.08939755649480681,
+        "interval": [
+          -0.2009923214173414,
+          0.1619810549952891
+        ],
+        "p": 0.8285484478179729,
+        "status": "fit"
+      },
+      "median_scored_species": 19,
+      "signed_slope_change": 0.00019868380095410323,
+      "holm_p": 0.12202402373646629
+    },
+    {
+      "scope": "all_recorded",
+      "score": "SC",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 257,
+      "blocks": 66,
+      "status": "fit",
+      "p": 0.00018586072603618661,
+      "unadjusted_same_islands": {
+        "beta": 0.027620206725441746,
+        "se": 0.006121448296054724,
+        "interval": [
+          0.01539483027912922,
+          0.039845583171754274
+        ],
+        "p": 0.000027574552916015636,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": 0.023562304262358492,
+        "se": 0.005943781003470385,
+        "interval": [
+          0.011691753901147522,
+          0.03543285462356946
+        ],
+        "p": 0.00018586072603618661,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.2937346531162434,
+        "se": 0.10065856186218258,
+        "interval": [
+          0.09270562341705696,
+          0.4947636828154299
+        ],
+        "p": 0.004831699706507339,
+        "status": "fit"
+      },
+      "median_scored_species": 95,
+      "signed_slope_change": -0.004057902463083254,
+      "holm_p": 0.0011151643562171197
+    },
+    {
+      "scope": "all_recorded",
+      "score": "autonomy",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 257,
+      "blocks": 66,
+      "status": "fit",
+      "p": 0.0007226537518711494,
+      "unadjusted_same_islands": {
+        "beta": 0.027620206725441746,
+        "se": 0.006121448296054724,
+        "interval": [
+          0.01539483027912922,
+          0.039845583171754274
+        ],
+        "p": 0.000027574552916015636,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": 0.020427986921895912,
+        "se": 0.005754854085479814,
+        "interval": [
+          0.008934749670519578,
+          0.03192122417327225
+        ],
+        "p": 0.0007226537518711494,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.23043673056760372,
+        "se": 0.07622320705020007,
+        "interval": [
+          0.07820847426843652,
+          0.3826649868667709
+        ],
+        "p": 0.003577340546966929,
+        "status": "fit"
+      },
+      "median_scored_species": 66,
+      "signed_slope_change": -0.007192219803545834,
+      "holm_p": 0.003613268759355747
+    },
+    {
+      "scope": "all_recorded",
+      "score": "min2",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 62,
+      "blocks": 31,
+      "status": "fit",
+      "p": 0.09892957940682857,
+      "unadjusted_same_islands": {
+        "beta": 0.006892697478746252,
+        "se": 0.003371221738058101,
+        "interval": [
+          0.000007744179026206686,
+          0.013777650778466297
+        ],
+        "p": 0.04975884564935859,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": 0.0056084763635410075,
+        "se": 0.003293505920481793,
+        "interval": [
+          -0.0011177600625240135,
+          0.012334712789606028
+        ],
+        "p": 0.09892957940682857,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.12125863263756984,
+        "se": 0.06421004319576493,
+        "interval": [
+          -0.009875769999053569,
+          0.2523930352741932
+        ],
+        "p": 0.06866679645794972,
+        "status": "fit"
+      },
+      "median_scored_species": 15,
+      "signed_slope_change": -0.001284221115205245,
+      "holm_p": 0.19785915881365715
+    },
+    {
+      "scope": "all_recorded",
+      "score": "complete3",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 2,
+      "blocks": 2,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "all_recorded",
+      "score": "SC",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 188,
+      "blocks": 59,
+      "status": "fit",
+      "p": 0.000005221789090628639,
+      "unadjusted_same_islands": {
+        "beta": 0.028888439289901785,
+        "se": 0.005174655515610634,
+        "interval": [
+          0.018530240869875397,
+          0.03924663770992817
+        ],
+        "p": 6.570761814767198e-7,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": 0.024632971070610944,
+        "se": 0.004906763755334289,
+        "interval": [
+          0.014811016270988162,
+          0.03445492587023373
+        ],
+        "p": 0.000005221789090628639,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.2581405011087434,
+        "se": 0.07066386052400157,
+        "interval": [
+          0.11669141600064917,
+          0.3995895862168377
+        ],
+        "p": 0.0005584672526829076,
+        "status": "fit"
+      },
+      "median_scored_species": 20,
+      "signed_slope_change": -0.004255468219290841,
+      "holm_p": 0.00004177431272502911
+    },
+    {
+      "scope": "all_recorded",
+      "score": "autonomy",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 106,
+      "blocks": 47,
+      "status": "fit",
+      "p": 0.0000074059541444063314,
+      "unadjusted_same_islands": {
+        "beta": 0.022256358365358508,
+        "se": 0.003944219774146499,
+        "interval": [
+          0.014317055740808035,
+          0.03019566098990898
+        ],
+        "p": 9.901774503537574e-7,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": 0.02089425245876616,
+        "se": 0.004136652013760143,
+        "interval": [
+          0.012567603826007172,
+          0.029220901091525146
+        ],
+        "p": 0.0000074059541444063314,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.176348356575713,
+        "se": 0.06015347240134,
+        "interval": [
+          0.05526569671933436,
+          0.29743101643209163
+        ],
+        "p": 0.005237709028260337,
+        "status": "fit"
+      },
+      "median_scored_species": 16,
+      "signed_slope_change": -0.0013621059065923487,
+      "holm_p": 0.00005184167901084432
+    },
+    {
+      "scope": "high_only",
+      "score": "min2",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 62,
+      "blocks": 30,
+      "status": "fit",
+      "p": 0.37739366286708237,
+      "unadjusted_same_islands": {
+        "beta": -0.0007223441697008564,
+        "se": 0.008341596137608242,
+        "interval": [
+          -0.0177828238530369,
+          0.016338135513635187
+        ],
+        "p": 0.9315882444848992,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": -0.007997062357062292,
+        "se": 0.008920804538914254,
+        "interval": [
+          -0.026242156231721686,
+          0.010248031517597102
+        ],
+        "p": 0.37739366286708237,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.48919225728228005,
+        "se": 0.20156191951392335,
+        "interval": [
+          0.07695184476723793,
+          0.9014326697973222
+        ],
+        "p": 0.02166727367363416,
+        "status": "fit"
+      },
+      "median_scored_species": 113.5,
+      "signed_slope_change": -0.007274718187361436,
+      "holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "complete3",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 49,
+      "blocks": 27,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "SC",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 62,
+      "blocks": 30,
+      "status": "fit",
+      "p": 0.6705958956949493,
+      "unadjusted_same_islands": {
+        "beta": -0.0007223441697008564,
+        "se": 0.008341596137608242,
+        "interval": [
+          -0.0177828238530369,
+          0.016338135513635187
+        ],
+        "p": 0.9315882444848992,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": -0.0039077608440252,
+        "se": 0.009094336969457393,
+        "interval": [
+          -0.022507768389502754,
+          0.014692246701452354
+        ],
+        "p": 0.6705958956949493,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.384209020650279,
+        "se": 0.26271547011612756,
+        "interval": [
+          -0.15310444627805336,
+          0.9215224875786114
+        ],
+        "p": 0.15437088562432852,
+        "status": "fit"
+      },
+      "median_scored_species": 275.5,
+      "signed_slope_change": -0.0031854166743243437,
+      "holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "autonomy",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 62,
+      "blocks": 30,
+      "status": "fit",
+      "p": 0.2105659107217862,
+      "unadjusted_same_islands": {
+        "beta": -0.0007223441697008564,
+        "se": 0.008341596137608242,
+        "interval": [
+          -0.0177828238530369,
+          0.016338135513635187
+        ],
+        "p": 0.9315882444848992,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": -0.010993604257192112,
+        "se": 0.00858635113203722,
+        "interval": [
+          -0.028554664110194326,
+          0.0065674555958101025
+        ],
+        "p": 0.2105659107217862,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.5624737713646712,
+        "se": 0.1562667023959378,
+        "interval": [
+          0.2428724795461698,
+          0.8820750631831726
+        ],
+        "p": 0.0011725643810463929,
+        "status": "fit"
+      },
+      "median_scored_species": 197,
+      "signed_slope_change": -0.010271260087491255,
+      "holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "min2",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 20,
+      "blocks": 14,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "complete3",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 1,
+      "blocks": 1,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "SC",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 54,
+      "blocks": 26,
+      "status": "fit",
+      "p": 0.9417224451733606,
+      "unadjusted_same_islands": {
+        "beta": -0.0009934765896027218,
+        "se": 0.011360712749071447,
+        "interval": [
+          -0.024391302483071264,
+          0.022404349303865822
+        ],
+        "p": 0.9310117667076774,
+        "status": "fit"
+      },
+      "adjusted_same_islands": {
+        "beta": -0.0006459740205204201,
+        "se": 0.00874785758265042,
+        "interval": [
+          -0.018662523965984223,
+          0.017370575924943385
+        ],
+        "p": 0.9417224451733606,
+        "status": "fit"
+      },
+      "reproduction_coefficient": {
+        "beta": 0.24879545962058436,
+        "se": 0.10505569525692628,
+        "interval": [
+          0.03242920505264299,
+          0.4651617141885257
+        ],
+        "p": 0.025916629357767576,
+        "status": "fit"
+      },
+      "median_scored_species": 15,
+      "signed_slope_change": 0.00034750256908230165,
+      "holm_p": 1
+    },
+    {
+      "scope": "high_only",
+      "score": "autonomy",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 25,
+      "blocks": 16,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "min2",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 40,
+      "blocks": 15,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "complete3",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 6,
+      "blocks": 6,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "SC",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 44,
+      "blocks": 17,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "autonomy",
+      "roster": "whole_flora",
+      "min_scored": 10,
+      "n": 44,
+      "blocks": 17,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "min2",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 2,
+      "blocks": 2,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "complete3",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 0,
+      "blocks": 0,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "SC",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 28,
+      "blocks": 11,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "scope": "literal_native",
+      "score": "autonomy",
+      "roster": "pair_carriers",
+      "min_scored": 10,
+      "n": 13,
+      "blocks": 9,
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    }
+  ],
+  "claim": "Positive broad Direct tropical conditional floral-axis slope after whole-flora min2, SC and autonomy conditioning, and after pair-carrier SC/autonomy conditioning. Not robust across High-only or native support; no mediation."
+}

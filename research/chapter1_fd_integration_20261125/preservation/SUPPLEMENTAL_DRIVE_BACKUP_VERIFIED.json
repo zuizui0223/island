@@ -1,0 +1,51 @@
+{
+  "checkpoint": "2026-11-26 JST",
+  "status": "additional_private_backup_and_offline_restore_verified",
+  "storage": "private My Drive, owner-only; separate developmental and author-review folders; identifiers omitted",
+  "archives": [
+    {
+      "id": 10288721725,
+      "role": "developmental alpha1, not active scientific DB",
+      "bytes": 83300729,
+      "sha256": "3a5af33e60f9eb4156b94f4d5e0f91cf36fc417ee55074af2c042a1378b28a40"
+    },
+    {
+      "id": 15012142877,
+      "role": "GEB integrated author review artifact",
+      "bytes": 3708112,
+      "sha256": "82475038124d174b0c3b45f6e5b772da2853ef1ade207df6a21faa141b7e1afb"
+    },
+    {
+      "id": 15013135181,
+      "role": "GEB all-page QA artifact",
+      "bytes": 9023416,
+      "sha256": "5e7e09041f97a77c21c5c0739ccd9543f30d95c4ab2edac7230ebd92f5fe17da"
+    }
+  ],
+  "additional_bytes": 96032257,
+  "all_three_drive_readback_size_sha256_crc_verified": true,
+  "offline_restore": {
+    "source_archive": 10058653212,
+    "bytes": 105740636,
+    "sha256": "b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999",
+    "parts_verified": 2,
+    "network_used": false,
+    "crc_verified": true,
+    "idempotent_replay_passed": true,
+    "reversed_order_rejected": true,
+    "restore_script_saved_to_private_drive": true,
+    "restore_script_local_sha256": "2dbb756e11deefa7d0746c73e42139dbf63785738596310ec7b62053c1a0c4c0"
+  },
+  "historical_inputs": {
+    "drive_exact_filename_queries": [
+      "wcvp_native_range_summary.csv.gz",
+      "island_tdwg_l3_mapping.csv",
+      "chapter1-wcvp-native-corrected-37093097826",
+      "official-wcvp-corroborated-status-32559322028"
+    ],
+    "results": 0,
+    "exact_historical_inputs_recovered": false
+  },
+  "public_release": false,
+  "scientific_selector_changed": false
+}

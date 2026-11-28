@@ -1,0 +1,200 @@
+{
+  "owner": "island",
+  "run": 45590543285,
+  "job": 139123303345,
+  "head": "42d8a12c626f9cb0d0e77f23f2954837a51a33a8",
+  "artifact": 15009509483,
+  "reported_zip_digest": "sha256:0f2215ee21ae06e8c744970ddf6a112b551a2a0986bd4609253fef339863003b",
+  "retrieval": "Four predeclared anonymous support panels from successful job stdout; artifact digest metadata checked, ZIP bytes not retrieved.",
+  "panels": [
+    {
+      "region": "global",
+      "conditioned": false,
+      "support": {
+        "species": 32,
+        "publications": 36,
+        "rows": 114,
+        "four_cells": [
+          {
+            "radial": 0,
+            "deep": 0,
+            "species": 1,
+            "publications": 1,
+            "sites": 1,
+            "effect_rows": 1
+          },
+          {
+            "radial": 0,
+            "deep": 1,
+            "species": 7,
+            "publications": 12,
+            "sites": 13,
+            "effect_rows": 20
+          },
+          {
+            "radial": 1,
+            "deep": 0,
+            "species": 10,
+            "publications": 11,
+            "sites": 14,
+            "effect_rows": 69
+          },
+          {
+            "radial": 1,
+            "deep": 1,
+            "species": 14,
+            "publications": 14,
+            "sites": 19,
+            "effect_rows": 24
+          }
+        ],
+        "pass": false
+      },
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "region": "global",
+      "conditioned": true,
+      "support": {
+        "species": 17,
+        "publications": 22,
+        "rows": 89,
+        "four_cells": [
+          {
+            "radial": 0,
+            "deep": 0,
+            "species": 0,
+            "publications": 0,
+            "sites": 0,
+            "effect_rows": 0
+          },
+          {
+            "radial": 0,
+            "deep": 1,
+            "species": 2,
+            "publications": 5,
+            "sites": 6,
+            "effect_rows": 13
+          },
+          {
+            "radial": 1,
+            "deep": 0,
+            "species": 6,
+            "publications": 8,
+            "sites": 11,
+            "effect_rows": 57
+          },
+          {
+            "radial": 1,
+            "deep": 1,
+            "species": 9,
+            "publications": 9,
+            "sites": 14,
+            "effect_rows": 19
+          }
+        ],
+        "pass": false
+      },
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "region": "tropical",
+      "conditioned": false,
+      "support": {
+        "species": 8,
+        "publications": 9,
+        "rows": 18,
+        "four_cells": [
+          {
+            "radial": 0,
+            "deep": 0,
+            "species": 0,
+            "publications": 0,
+            "sites": 0,
+            "effect_rows": 0
+          },
+          {
+            "radial": 0,
+            "deep": 1,
+            "species": 3,
+            "publications": 3,
+            "sites": 3,
+            "effect_rows": 3
+          },
+          {
+            "radial": 1,
+            "deep": 0,
+            "species": 2,
+            "publications": 3,
+            "sites": 5,
+            "effect_rows": 8
+          },
+          {
+            "radial": 1,
+            "deep": 1,
+            "species": 3,
+            "publications": 3,
+            "sites": 3,
+            "effect_rows": 7
+          }
+        ],
+        "pass": false
+      },
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    },
+    {
+      "region": "tropical",
+      "conditioned": true,
+      "support": {
+        "species": 6,
+        "publications": 7,
+        "rows": 16,
+        "four_cells": [
+          {
+            "radial": 0,
+            "deep": 0,
+            "species": 0,
+            "publications": 0,
+            "sites": 0,
+            "effect_rows": 0
+          },
+          {
+            "radial": 0,
+            "deep": 1,
+            "species": 1,
+            "publications": 1,
+            "sites": 1,
+            "effect_rows": 1
+          },
+          {
+            "radial": 1,
+            "deep": 0,
+            "species": 2,
+            "publications": 3,
+            "sites": 5,
+            "effect_rows": 8
+          },
+          {
+            "radial": 1,
+            "deep": 1,
+            "species": 3,
+            "publications": 3,
+            "sites": 3,
+            "effect_rows": 7
+          }
+        ],
+        "pass": false
+      },
+      "status": "insufficient_support",
+      "p": 1,
+      "holm_p": 1
+    }
+  ],
+  "decision": "All four panels insufficient support before outcomes. No model fitted. Frozen H4 remains unchanged."
+}

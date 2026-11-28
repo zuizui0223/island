@@ -1,0 +1,22 @@
+name: Chapter 1 integration review package
+on:
+  push:
+    branches: [docs/chapter1-h1-h4-own-db-fd-integration-20261125]
+    paths:
+      - 'research/chapter1_fd_integration_20261125/**'
+      - '.github/workflows/check-chapter1-integration-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python research/chapter1_fd_integration_20261125/verify_review_package.py
+      - run: python research/chapter1_fd_integration_20261125/geb_review/check_geb_candidate.py
