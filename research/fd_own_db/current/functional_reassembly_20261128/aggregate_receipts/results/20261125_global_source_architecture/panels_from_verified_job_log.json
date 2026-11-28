@@ -1,0 +1,3729 @@
+{
+  "source_run": 45590431591,
+  "source_head": "499453c1092a679360e32e5bd69bfbc9742385ec",
+  "artifact_id": 15010317989,
+  "artifact_digest_from_metadata": "sha256:9b2bc5184ad9825c27c2913f9840fd5fead90060ec4bb0369f1c80adc4e3ca5b",
+  "provenance": "complete anonymous job log; ZIP digest not independently verified",
+  "panels": {
+    "all_recorded__geo_k5__inclusive": {
+      "status": "estimated",
+      "islands": 2367,
+      "blocks": 211,
+      "species": 2175,
+      "median_target": 26,
+      "median_source": 200,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 1579,
+            "blocks": 102,
+            "movable_taxa": 379
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.015526490222338856,
+              "genus_grade_expected_delta": 0.017204036382155195,
+              "residual": -0.0016775461598163392,
+              "residual_ci": [
+                -0.004484296279516065,
+                0.0010946781574070201
+              ],
+              "leave_range": [
+                -0.002011193514297274,
+                -0.00125112661864592
+              ],
+              "coherent_p": 0.693,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": 0.0003197279372871874,
+              "genus_grade_expected_delta": 0.0038955148559673006,
+              "residual": -0.0035757869186801134,
+              "residual_ci": [
+                -0.01308250320787388,
+                0.005484270811730103
+              ],
+              "leave_range": [
+                -0.005097239354418621,
+                -0.0017526935644358967
+              ],
+              "coherent_p": 0.804,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.01569849961261709,
+              "genus_grade_expected_delta": 0.021258557172939736,
+              "residual": -0.005560057560322646,
+              "residual_ci": [
+                -0.015591401908857128,
+                0.004236653942884403
+              ],
+              "leave_range": [
+                -0.007173163440757884,
+                -0.0036954054804532684
+              ],
+              "coherent_p": 0.721,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.015206762285051644,
+              "genus_grade_expected_delta": 0.013308521526187923,
+              "residual": 0.0018982407588637208,
+              "residual_ci": [
+                -0.006956387011762163,
+                0.01203353390179021
+              ],
+              "leave_range": [
+                0.00011974300630236895,
+                0.003331076625963201
+              ],
+              "coherent_p": 0.903,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 670,
+            "blocks": 91,
+            "movable_taxa": 501
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.10435853374343756,
+              "genus_grade_expected_delta": 0.0918091007521224,
+              "residual": 0.012549432991315168,
+              "residual_ci": [
+                0.0032067445116961447,
+                0.023316217695067417
+              ],
+              "leave_range": [
+                0.009210237081362134,
+                0.014539983244233789
+              ],
+              "coherent_p": 0.176,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.011501635222919334,
+              "genus_grade_expected_delta": -0.010997776492621502,
+              "residual": -0.000503858730297832,
+              "residual_ci": [
+                -0.0021681133508418744,
+                0.0011870329421920882
+              ],
+              "leave_range": [
+                -0.0007277866150830277,
+                -0.00008257373918379483
+              ],
+              "coherent_p": 0.84,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.08953331324111874,
+              "genus_grade_expected_delta": 0.07955914177965157,
+              "residual": 0.009974171461467174,
+              "residual_ci": [
+                0.0001861101111478961,
+                0.02098045219192253
+              ],
+              "leave_range": [
+                0.006671491095963558,
+                0.011942617717436238
+              ],
+              "coherent_p": 0.306,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.11586016896635698,
+              "genus_grade_expected_delta": 0.10280687724474392,
+              "residual": 0.013053291721613056,
+              "residual_ci": [
+                0.0037711139242412417,
+                0.023732474811915844
+              ],
+              "leave_range": [
+                0.009670738059167646,
+                0.01505468817435504
+              ],
+              "coherent_p": 0.162,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 118,
+            "blocks": 30,
+            "movable_taxa": 223
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.038270130150798366,
+              "genus_grade_expected_delta": 0.02895104630555128,
+              "residual": 0.009319083845247086,
+              "residual_ci": [
+                -0.002884591747323362,
+                0.020810796381889225
+              ],
+              "leave_range": [
+                0.006018364577434416,
+                0.01252985681052019
+              ],
+              "coherent_p": 0.462,
+              "valid_bootstrap": 999,
+              "valid_leave": 211
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.03336167402957293,
+              "genus_grade_expected_delta": -0.025783438961588478,
+              "residual": -0.0075782350679844505,
+              "residual_ci": [
+                -0.013262220344245151,
+                -0.0020379240421007434
+              ],
+              "leave_range": [
+                -0.00903518606130689,
+                -0.0067406816705972246
+              ],
+              "coherent_p": 0.266,
+              "valid_bootstrap": 999,
+              "valid_leave": 211
+            },
+            "deep_any": {
+              "observed_source_delta": 0.002058570835223511,
+              "genus_grade_expected_delta": 0.0012062152462169052,
+              "residual": 0.0008523555890066058,
+              "residual_ci": [
+                -0.010806800713900125,
+                0.013468683707489167
+              ],
+              "leave_range": [
+                -0.0021649959071208986,
+                0.0035728402010670375
+              ],
+              "coherent_p": 0.947,
+              "valid_bootstrap": 999,
+              "valid_leave": 211
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.07163180418037125,
+              "genus_grade_expected_delta": 0.0547344852671398,
+              "residual": 0.01689731891323145,
+              "residual_ci": [
+                0.0025452175637393102,
+                0.03156117433050393
+              ],
+              "leave_range": [
+                0.012866364899937926,
+                0.020567742535570574
+              ],
+              "coherent_p": 0.231,
+              "valid_bootstrap": 999,
+              "valid_leave": 211
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.0888320435210987,
+              "genus_grade_expected_delta": 0.0746050643699672,
+              "residual": 0.01422697915113151,
+              "residual_ci": [
+                0.004619172894418274,
+                0.025003298414368488
+              ],
+              "leave_range": [
+                0.01088778324117851,
+                0.016217529404050163
+              ],
+              "coherent_p": 0.148,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.011821363160206521,
+              "genus_grade_expected_delta": -0.014893291348588803,
+              "residual": 0.003071928188382282,
+              "residual_ci": [
+                -0.0060992408290927395,
+                0.01274567896869659
+              ],
+              "leave_range": [
+                0.0012488348341380697,
+                0.004593380624120794
+              ],
+              "coherent_p": 0.834,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.07383481362850165,
+              "genus_grade_expected_delta": 0.05830058460671183,
+              "residual": 0.015534229021789824,
+              "residual_ci": [
+                0.002356459248538127,
+                0.031618352519136785
+              ],
+              "leave_range": [
+                0.012231548656286204,
+                0.017502675277758884
+              ],
+              "coherent_p": 0.397,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.10065340668130533,
+              "genus_grade_expected_delta": 0.089498355718556,
+              "residual": 0.011155050962749338,
+              "residual_ci": [
+                -0.002017768256182422,
+                0.024259215312315677
+              ],
+              "leave_range": [
+                0.0077724973003039065,
+                0.0131564474154913
+              ],
+              "coherent_p": 0.523,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            }
+          }
+        }
+      }
+    },
+    "all_recorded__geo_k5__disjoint": {
+      "status": "estimated",
+      "islands": 2367,
+      "blocks": 211,
+      "species": 2175,
+      "median_target": 26,
+      "median_source": 170,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 1579,
+            "blocks": 102,
+            "movable_taxa": 379
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.014642033535563346,
+              "genus_grade_expected_delta": 0.016776398899803667,
+              "residual": -0.002134365364240321,
+              "residual_ci": [
+                -0.005301554757983193,
+                0.000911358721189224
+              ],
+              "leave_range": [
+                -0.002493186610123361,
+                -0.001730203697042789
+              ],
+              "coherent_p": 0.647,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": 0.0006014794540432153,
+              "genus_grade_expected_delta": 0.003699435508612821,
+              "residual": -0.003097956054569606,
+              "residual_ci": [
+                -0.013377226953099326,
+                0.00665734852079055
+              ],
+              "leave_range": [
+                -0.00477979400330472,
+                -0.0012361658309636727
+              ],
+              "coherent_p": 0.837,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.015090219818984825,
+              "genus_grade_expected_delta": 0.020625842707482404,
+              "residual": -0.00553562288849758,
+              "residual_ci": [
+                -0.01617755026697268,
+                0.005076960599065892
+              ],
+              "leave_range": [
+                -0.007321604153220181,
+                -0.003635402900041637
+              ],
+              "coherent_p": 0.737,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.01404055408152017,
+              "genus_grade_expected_delta": 0.013076963391190867,
+              "residual": 0.0009635906903293027,
+              "residual_ci": [
+                -0.008683440612599841,
+                0.011658842794764496
+              ],
+              "leave_range": [
+                -0.000856766783578256,
+                0.0025442883079252925
+              ],
+              "coherent_p": 0.95,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 670,
+            "blocks": 91,
+            "movable_taxa": 501
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.10873950772721616,
+              "genus_grade_expected_delta": 0.09567174310472405,
+              "residual": 0.013067764622492109,
+              "residual_ci": [
+                0.003547203916239454,
+                0.024535589312215812
+              ],
+              "leave_range": [
+                0.00972607745078607,
+                0.015093930762669596
+              ],
+              "coherent_p": 0.194,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.01423460646253633,
+              "genus_grade_expected_delta": -0.013412489438511569,
+              "residual": -0.000822117024024762,
+              "residual_ci": [
+                -0.0025908581164280297,
+                0.0010270272461247614
+              ],
+              "leave_range": [
+                -0.0010757163685740155,
+                -0.000381360590086908
+              ],
+              "coherent_p": 0.745,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.09093911456223566,
+              "genus_grade_expected_delta": 0.08093368729331415,
+              "residual": 0.010005427268921507,
+              "residual_ci": [
+                0.00004445172946965812,
+                0.02121390215596087
+              ],
+              "leave_range": [
+                0.006695417516803192,
+                0.012004182458875887
+              ],
+              "coherent_p": 0.338,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.12297411418975253,
+              "genus_grade_expected_delta": 0.10908423254323556,
+              "residual": 0.013889881646516972,
+              "residual_ci": [
+                0.004609165900328447,
+                0.025086046498319144
+              ],
+              "leave_range": [
+                0.010507941593574844,
+                0.015930514831224762
+              ],
+              "coherent_p": 0.178,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 118,
+            "blocks": 30,
+            "movable_taxa": 223
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.04102752526628698,
+              "genus_grade_expected_delta": 0.03134417281691171,
+              "residual": 0.009683352449375272,
+              "residual_ci": [
+                -0.003777586917587322,
+                0.022154006520554295
+              ],
+              "leave_range": [
+                0.006362089577013215,
+                0.013426657206323984
+              ],
+              "coherent_p": 0.447,
+              "valid_bootstrap": 999,
+              "valid_leave": 211
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.03771505952604431,
+              "genus_grade_expected_delta": -0.02983106545675738,
+              "residual": -0.007883994069286929,
+              "residual_ci": [
+                -0.013849712149033298,
+                -0.002109663455863461
+              ],
+              "leave_range": [
+                -0.00937561520275571,
+                -0.006989921525860892
+              ],
+              "coherent_p": 0.268,
+              "valid_bootstrap": 999,
+              "valid_leave": 211
+            },
+            "deep_any": {
+              "observed_source_delta": 0.00046451037220107385,
+              "genus_grade_expected_delta": -0.00047064042007309966,
+              "residual": 0.0009351507922741735,
+              "residual_ci": [
+                -0.011822121412658473,
+                0.014393357361583587
+              ],
+              "leave_range": [
+                -0.002272833446211732,
+                0.004164294630495464
+              ],
+              "coherent_p": 0.94,
+              "valid_bootstrap": 999,
+              "valid_leave": 211
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.07874258479233127,
+              "genus_grade_expected_delta": 0.06117523827366911,
+              "residual": 0.017567346518662166,
+              "residual_ci": [
+                0.0016144587684505877,
+                0.033188713215193254
+              ],
+              "leave_range": [
+                0.013527834987179212,
+                0.02179501193268956
+              ],
+              "coherent_p": 0.23,
+              "valid_bootstrap": 999,
+              "valid_leave": 211
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.09409747419165282,
+              "genus_grade_expected_delta": 0.07889534420492039,
+              "residual": 0.015202129986732427,
+              "residual_ci": [
+                0.005311769031622861,
+                0.026309137484338226
+              ],
+              "leave_range": [
+                0.011860442815026405,
+                0.01722829612690993
+              ],
+              "coherent_p": 0.152,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.014836085916579545,
+              "genus_grade_expected_delta": -0.01711192494712439,
+              "residual": 0.0022758390305448444,
+              "residual_ci": [
+                -0.007524023376758397,
+                0.01271859339063967
+              ],
+              "leave_range": [
+                0.0004140488069389114,
+                0.003957676979279959
+              ],
+              "coherent_p": 0.879,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.07584889474325084,
+              "genus_grade_expected_delta": 0.06030784458583175,
+              "residual": 0.015541050157419085,
+              "residual_ci": [
+                0.0014644243478307147,
+                0.032478904336293885
+              ],
+              "leave_range": [
+                0.01223104040530077,
+                0.017539805347373465
+              ],
+              "coherent_p": 0.43,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.10893356010823235,
+              "genus_grade_expected_delta": 0.09600726915204469,
+              "residual": 0.012926290956187664,
+              "residual_ci": [
+                -0.0010350394774643014,
+                0.027037325011884387
+              ],
+              "leave_range": [
+                0.00954435090324557,
+                0.01496692414089549
+              ],
+              "coherent_p": 0.485,
+              "valid_bootstrap": 999,
+              "valid_leave": 211,
+              "holm_p": 1
+            }
+          }
+        }
+      }
+    },
+    "all_recorded__geo50_climate10__inclusive": {
+      "status": "estimated",
+      "islands": 2363,
+      "blocks": 209,
+      "species": 2179,
+      "median_target": 27,
+      "median_source": 267,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 1579,
+            "blocks": 102,
+            "movable_taxa": 440
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.007644278213386599,
+              "genus_grade_expected_delta": -0.0034946897337612224,
+              "residual": -0.004149588479625377,
+              "residual_ci": [
+                -0.006887545469570535,
+                -0.001092533845495802
+              ],
+              "leave_range": [
+                -0.004527979368294452,
+                -0.0037547721869309486
+              ],
+              "coherent_p": 0.381,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.010851001459092971,
+              "genus_grade_expected_delta": -0.001777021872152413,
+              "residual": -0.009073979586940558,
+              "residual_ci": [
+                -0.018816535138233614,
+                0.0003350969007179716
+              ],
+              "leave_range": [
+                -0.010346335135764186,
+                -0.007237698411678795
+              ],
+              "coherent_p": 0.564,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": -0.01894488965214321,
+              "genus_grade_expected_delta": -0.005264543162069668,
+              "residual": -0.013680346490073544,
+              "residual_ci": [
+                -0.02405838720736974,
+                -0.003489542955089259
+              ],
+              "leave_range": [
+                -0.014864332267506632,
+                -0.011880388608441433
+              ],
+              "coherent_p": 0.417,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.0032067232457063705,
+              "genus_grade_expected_delta": -0.0017176678616087876,
+              "residual": 0.004924391107315158,
+              "residual_ci": [
+                -0.004343129278095176,
+                0.01526438579092374
+              ],
+              "leave_range": [
+                0.003056309197072357,
+                0.006373114914715328
+              ],
+              "coherent_p": 0.773,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 666,
+            "blocks": 89,
+            "movable_taxa": 533
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.10644419750573779,
+              "genus_grade_expected_delta": 0.09627338598182597,
+              "residual": 0.010170811523911819,
+              "residual_ci": [
+                0.0005148943996215465,
+                0.01999124838551526
+              ],
+              "leave_range": [
+                0.006725065165376021,
+                0.012173115291392434
+              ],
+              "coherent_p": 0.283,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.015944393476329005,
+              "genus_grade_expected_delta": -0.01565534777962236,
+              "residual": -0.00028904569670664543,
+              "residual_ci": [
+                -0.0019898613313100054,
+                0.0012830165879855865
+              ],
+              "leave_range": [
+                -0.0006304072110125378,
+                0.00006491865329364427
+              ],
+              "coherent_p": 0.904,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.08838131291743033,
+              "genus_grade_expected_delta": 0.0801441321239926,
+              "residual": 0.008237180793437729,
+              "residual_ci": [
+                -0.0015585838452027588,
+                0.01849110401009571
+              ],
+              "leave_range": [
+                0.004831693086672675,
+                0.010249377461176405
+              ],
+              "coherent_p": 0.4,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.1223885909820668,
+              "genus_grade_expected_delta": 0.11192873376144837,
+              "residual": 0.01045985722061843,
+              "residual_ci": [
+                0.0009304113985726278,
+                0.020597220508582027
+              ],
+              "leave_range": [
+                0.0070037262925816465,
+                0.01244044172080161
+              ],
+              "coherent_p": 0.289,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 118,
+            "blocks": 30,
+            "movable_taxa": 278
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.02221976518469458,
+              "genus_grade_expected_delta": 0.015914705056312258,
+              "residual": 0.006305060128382323,
+              "residual_ci": [
+                -0.0056371824163270415,
+                0.01715876523726972
+              ],
+              "leave_range": [
+                0.004277950777715717,
+                0.009971141540279053
+              ],
+              "coherent_p": 0.631,
+              "valid_bootstrap": 999,
+              "valid_leave": 209
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.04264363590438855,
+              "genus_grade_expected_delta": -0.03879549321396695,
+              "residual": -0.0038481426904216007,
+              "residual_ci": [
+                -0.009422390028404247,
+                0.0016475103654895948
+              ],
+              "leave_range": [
+                -0.005079991606917589,
+                -0.002822354263230312
+              ],
+              "coherent_p": 0.521,
+              "valid_bootstrap": 999,
+              "valid_leave": 209
+            },
+            "deep_any": {
+              "observed_source_delta": -0.02261105607160924,
+              "genus_grade_expected_delta": -0.024517532785623124,
+              "residual": 0.0019064767140138834,
+              "residual_ci": [
+                -0.009075720386039418,
+                0.012518345701082366
+              ],
+              "leave_range": [
+                -0.0008934343578703657,
+                0.005275222187507488
+              ],
+              "coherent_p": 0.898,
+              "valid_bootstrap": 999,
+              "valid_leave": 209
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.06486340108908314,
+              "genus_grade_expected_delta": 0.054710198270279196,
+              "residual": 0.010153202818803948,
+              "residual_ci": [
+                -0.0044829051252893125,
+                0.024539962254738666
+              ],
+              "leave_range": [
+                0.007309713743102498,
+                0.013955735098021206
+              ],
+              "coherent_p": 0.466,
+              "valid_bootstrap": 999,
+              "valid_leave": 209
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.1140884757191244,
+              "genus_grade_expected_delta": 0.0997680757155872,
+              "residual": 0.014320400003537195,
+              "residual_ci": [
+                0.00446416949039813,
+                0.0247875932437741
+              ],
+              "leave_range": [
+                0.010874653645001401,
+                0.016322703771017816
+              ],
+              "coherent_p": 0.153,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.005093392017236034,
+              "genus_grade_expected_delta": -0.013878325907469947,
+              "residual": 0.008784933890233913,
+              "residual_ci": [
+                -0.0008625851219426543,
+                0.01882465633046038
+              ],
+              "leave_range": [
+                0.00694865271497215,
+                0.01005728943905754
+              ],
+              "coherent_p": 0.583,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.10732620256957354,
+              "genus_grade_expected_delta": 0.08540867528606227,
+              "residual": 0.021917527283511262,
+              "residual_ci": [
+                0.008124189159199728,
+                0.036195089631390856
+              ],
+              "leave_range": [
+                0.018512039576746218,
+                0.023929723951249947
+              ],
+              "coherent_p": 0.256,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.11918186773636043,
+              "genus_grade_expected_delta": 0.11364640162305716,
+              "residual": 0.005535466113303272,
+              "residual_ci": [
+                -0.008088626844708081,
+                0.020380449695851986
+              ],
+              "leave_range": [
+                0.0020793351852664644,
+                0.007516050613486427
+              ],
+              "coherent_p": 0.758,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            }
+          }
+        }
+      }
+    },
+    "all_recorded__geo50_climate10__disjoint": {
+      "status": "estimated",
+      "islands": 2363,
+      "blocks": 209,
+      "species": 2179,
+      "median_target": 27,
+      "median_source": 241,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 1579,
+            "blocks": 102,
+            "movable_taxa": 440
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.008600451312761463,
+              "genus_grade_expected_delta": -0.004091036638673116,
+              "residual": -0.0045094146740883466,
+              "residual_ci": [
+                -0.007467807621003431,
+                -0.0012214079399585811
+              ],
+              "leave_range": [
+                -0.00490513085425742,
+                -0.00410896914110436
+              ],
+              "coherent_p": 0.381,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.012609081465236453,
+              "genus_grade_expected_delta": -0.002977039183059644,
+              "residual": -0.009632042282176808,
+              "residual_ci": [
+                -0.01953295126882108,
+                -0.00008839331866373074
+              ],
+              "leave_range": [
+                -0.010936974181891919,
+                -0.007776347580853803
+              ],
+              "coherent_p": 0.546,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": -0.021690807354634325,
+              "genus_grade_expected_delta": -0.007067940942849879,
+              "residual": -0.014622866411784445,
+              "residual_ci": [
+                -0.025198872847162483,
+                -0.004100991555600384
+              ],
+              "leave_range": [
+                -0.015840913711193803,
+                -0.012807156444104673
+              ],
+              "coherent_p": 0.402,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.004008630152475008,
+              "genus_grade_expected_delta": -0.0011139974556134892,
+              "residual": 0.005122627608088497,
+              "residual_ci": [
+                -0.004315757711745931,
+                0.0158365591596184
+              ],
+              "leave_range": [
+                0.0032317146033748923,
+                0.006605339552527302
+              ],
+              "coherent_p": 0.771,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 666,
+            "blocks": 89,
+            "movable_taxa": 533
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.1106885601849135,
+              "genus_grade_expected_delta": 0.09992955520696378,
+              "residual": 0.010759004977949724,
+              "residual_ci": [
+                0.0009804606706645782,
+                0.020748169410074093
+              ],
+              "leave_range": [
+                0.007307155777474456,
+                0.012785238889593346
+              ],
+              "coherent_p": 0.284,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.01781247879839857,
+              "genus_grade_expected_delta": -0.017328717395083366,
+              "residual": -0.00048376140331520337,
+              "residual_ci": [
+                -0.0022103254500681025,
+                0.0011894988289426374
+              ],
+              "leave_range": [
+                -0.0008483972920826865,
+                -0.00011054818000667017
+              ],
+              "coherent_p": 0.835,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.0907070350903233,
+              "genus_grade_expected_delta": 0.08216983319621488,
+              "residual": 0.00853720189410842,
+              "residual_ci": [
+                -0.0012690395199439245,
+                0.01903613115212273
+              ],
+              "leave_range": [
+                0.00512355688953593,
+                0.010570345299671269
+              ],
+              "coherent_p": 0.403,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.12850103898331214,
+              "genus_grade_expected_delta": 0.11725827260204716,
+              "residual": 0.01124276638126498,
+              "residual_ci": [
+                0.0013657034881954463,
+                0.021504527174749235
+              ],
+              "leave_range": [
+                0.007782477266641682,
+                0.013249265149456483
+              ],
+              "coherent_p": 0.28,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 118,
+            "blocks": 30,
+            "movable_taxa": 278
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.02446353280987447,
+              "genus_grade_expected_delta": 0.01742122582477855,
+              "residual": 0.00704230698509592,
+              "residual_ci": [
+                -0.006059840586994442,
+                0.01851603536889857
+              ],
+              "leave_range": [
+                0.00488996199448873,
+                0.010972677932364018
+              ],
+              "coherent_p": 0.592,
+              "valid_bootstrap": 999,
+              "valid_leave": 209
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.045721590161590005,
+              "genus_grade_expected_delta": -0.04182793946937423,
+              "residual": -0.0038936506922157763,
+              "residual_ci": [
+                -0.009557071182997312,
+                0.0016209083635992294
+              ],
+              "leave_range": [
+                -0.005130465584225022,
+                -0.0028634435265138887
+              ],
+              "coherent_p": 0.523,
+              "valid_bootstrap": 999,
+              "valid_leave": 209
+            },
+            "deep_any": {
+              "observed_source_delta": -0.023395613130564825,
+              "genus_grade_expected_delta": -0.025967484155549416,
+              "residual": 0.0025718710249845907,
+              "residual_ci": [
+                -0.008855290288683867,
+                0.0132939825911699
+              ],
+              "leave_range": [
+                -0.00021375742149399104,
+                0.006198740748510283
+              ],
+              "coherent_p": 0.864,
+              "valid_bootstrap": 999,
+              "valid_leave": 209
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.07018512297146444,
+              "genus_grade_expected_delta": 0.05924916529415278,
+              "residual": 0.010935957677311661,
+              "residual_ci": [
+                -0.004750463275030591,
+                0.02598442846889262
+              ],
+              "leave_range": [
+                0.007969910385525272,
+                0.015004443829336156
+              ],
+              "coherent_p": 0.44,
+              "valid_bootstrap": 999,
+              "valid_leave": 209
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.11928901149767497,
+              "genus_grade_expected_delta": 0.1040205918456369,
+              "residual": 0.015268419652038068,
+              "residual_ci": [
+                0.005130737032264463,
+                0.025954594968753186
+              ],
+              "leave_range": [
+                0.0118165704515628,
+                0.017294653563681688
+              ],
+              "coherent_p": 0.152,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.005203397333162116,
+              "genus_grade_expected_delta": -0.014351678212023721,
+              "residual": 0.009148280878861605,
+              "residual_ci": [
+                -0.0007615434976520723,
+                0.019328729707749397
+              ],
+              "leave_range": [
+                0.007292586177538599,
+                0.010453212778576713
+              ],
+              "coherent_p": 0.586,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.11239784244495762,
+              "genus_grade_expected_delta": 0.08923777413906475,
+              "residual": 0.023160068305892872,
+              "residual_ci": [
+                0.00891028922630419,
+                0.03808648433296754
+              ],
+              "leave_range": [
+                0.019746423301320367,
+                0.025193211711455707
+              ],
+              "coherent_p": 0.248,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.12449240883083713,
+              "genus_grade_expected_delta": 0.11837227005766064,
+              "residual": 0.006120138773176492,
+              "residual_ci": [
+                -0.007857209205149552,
+                0.02121173321639207
+              ],
+              "leave_range": [
+                0.0026598496585532013,
+                0.008126637541368002
+              ],
+              "coherent_p": 0.748,
+              "valid_bootstrap": 999,
+              "valid_leave": 209,
+              "holm_p": 1
+            }
+          }
+        }
+      }
+    },
+    "original_native__geo_k5__inclusive": {
+      "status": "estimated",
+      "islands": 304,
+      "blocks": 79,
+      "species": 1956,
+      "median_target": 18,
+      "median_source": 219,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 194,
+            "blocks": 33,
+            "movable_taxa": 269
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.00021570395691597276,
+              "genus_grade_expected_delta": 0.0016359321349550928,
+              "residual": -0.00142022817803912,
+              "residual_ci": [
+                -0.004855621276451107,
+                0.001862093007343033
+              ],
+              "leave_range": [
+                -0.0022631294989374044,
+                -0.000704085701310694
+              ],
+              "coherent_p": 0.663,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "bilateral_deep": {
+              "observed_source_delta": 0.008349922520393354,
+              "genus_grade_expected_delta": -0.005318311441786382,
+              "residual": 0.013668233962179737,
+              "residual_ci": [
+                0.0017266736583079166,
+                0.026919577228575166
+              ],
+              "leave_range": [
+                0.010427822521357166,
+                0.015663809026779125
+              ],
+              "coherent_p": 0.2,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "deep_any": {
+              "observed_source_delta": 0.00819422178839641,
+              "genus_grade_expected_delta": -0.004028138546569647,
+              "residual": 0.012222360334966056,
+              "residual_ci": [
+                -0.0010580369745481011,
+                0.027298544140917386
+              ],
+              "leave_range": [
+                0.00893676534329306,
+                0.014933276456007165
+              ],
+              "coherent_p": 0.27,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": -0.008134218563477387,
+              "genus_grade_expected_delta": 0.0069542435767414555,
+              "residual": -0.015088462140218842,
+              "residual_ci": [
+                -0.02732796170889642,
+                -0.0030606766655074057
+              ],
+              "leave_range": [
+                -0.01676678408776137,
+                -0.01189243282995999
+              ],
+              "coherent_p": 0.187,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 96,
+            "blocks": 37,
+            "movable_taxa": 384
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.11088006708935376,
+              "genus_grade_expected_delta": 0.10446939176064665,
+              "residual": 0.006410675328707108,
+              "residual_ci": [
+                -0.006868380536909376,
+                0.01937740153335085
+              ],
+              "leave_range": [
+                0.003944389399545379,
+                0.010374020008731255
+              ],
+              "coherent_p": 0.698,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.0560427248128377,
+              "genus_grade_expected_delta": -0.04964310361833604,
+              "residual": -0.006399621194501659,
+              "residual_ci": [
+                -0.01082465982726128,
+                -0.0025440487542476194
+              ],
+              "leave_range": [
+                -0.0068904650694412055,
+                -0.005385681041653923
+              ],
+              "coherent_p": 0.026,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "deep_any": {
+              "observed_source_delta": 0.05099956418285406,
+              "genus_grade_expected_delta": 0.05502524865775212,
+              "residual": -0.00402568447489806,
+              "residual_ci": [
+                -0.017650583410672084,
+                0.00977845447188816
+              ],
+              "leave_range": [
+                -0.006589674650854215,
+                -0.00035844252682895865
+              ],
+              "coherent_p": 0.824,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.16692279190219148,
+              "genus_grade_expected_delta": 0.15411249537898267,
+              "residual": 0.012810296523208808,
+              "residual_ci": [
+                -0.002032664932980431,
+                0.02779375830910903
+              ],
+              "leave_range": [
+                0.010329583212810793,
+                0.016986821326902598
+              ],
+              "coherent_p": 0.462,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 14,
+            "blocks": 9,
+            "movable_taxa": 52
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.0853206659673479,
+              "genus_grade_expected_delta": 0.03682222782097544,
+              "residual": 0.04849843814637246,
+              "residual_ci": [
+                0.0139414420524242,
+                0.08885584730082877
+              ],
+              "leave_range": [
+                0.03583711422268591,
+                0.06051885032949792
+              ],
+              "coherent_p": 0.032,
+              "valid_bootstrap": 998,
+              "valid_leave": 79
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.03827091229854264,
+              "genus_grade_expected_delta": -0.030926379919189246,
+              "residual": -0.007344532379353393,
+              "residual_ci": [
+                -0.03293456089178945,
+                0.013016380376714405
+              ],
+              "leave_range": [
+                -0.014370553472227116,
+                0.0022928578871005195
+              ],
+              "coherent_p": 0.33,
+              "valid_bootstrap": 998,
+              "valid_leave": 79
+            },
+            "deep_any": {
+              "observed_source_delta": 0.040536273750322926,
+              "genus_grade_expected_delta": 0.0025591198624753675,
+              "residual": 0.03797715388784756,
+              "residual_ci": [
+                -0.00945073396477611,
+                0.08141976017389016
+              ],
+              "leave_range": [
+                0.026769656773617548,
+                0.05357299284176253
+              ],
+              "coherent_p": 0.109,
+              "valid_bootstrap": 998,
+              "valid_leave": 79
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.12359157826589058,
+              "genus_grade_expected_delta": 0.06774860774016468,
+              "residual": 0.0558429705257259,
+              "residual_ci": [
+                0.01837905527823223,
+                0.09824875430530373
+              ],
+              "leave_range": [
+                0.04238557812836146,
+                0.06725172897655024
+              ],
+              "coherent_p": 0.013,
+              "valid_bootstrap": 998,
+              "valid_leave": 79
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.11066436313243778,
+              "genus_grade_expected_delta": 0.10283345962569156,
+              "residual": 0.007830903506746228,
+              "residual_ci": [
+                -0.006845972204148325,
+                0.021008580756829383
+              ],
+              "leave_range": [
+                0.005364617577584498,
+                0.011794248186770374
+              ],
+              "coherent_p": 0.645,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.06439264733323105,
+              "genus_grade_expected_delta": -0.04432479217654966,
+              "residual": -0.020067855156681393,
+              "residual_ci": [
+                -0.03432433936987972,
+                -0.007386024183397826
+              ],
+              "leave_range": [
+                -0.0220634302212808,
+                -0.016827443715858842
+              ],
+              "coherent_p": 0.087,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "deep_any": {
+              "observed_source_delta": 0.04280534239445765,
+              "genus_grade_expected_delta": 0.05905338720432177,
+              "residual": -0.016248044809864116,
+              "residual_ci": [
+                -0.03487756660905411,
+                0.0027448690561325626
+              ],
+              "leave_range": [
+                -0.01895896093090527,
+                -0.012580802861795016
+              ],
+              "coherent_p": 0.46,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.17505701046566885,
+              "genus_grade_expected_delta": 0.1471582518022412,
+              "residual": 0.027898758663427642,
+              "residual_ci": [
+                0.008104233055308508,
+                0.047899703631296614
+              ],
+              "leave_range": [
+                0.024702729353168765,
+                0.032075283467121435
+              ],
+              "coherent_p": 0.165,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            }
+          }
+        }
+      }
+    },
+    "original_native__geo_k5__disjoint": {
+      "status": "estimated",
+      "islands": 304,
+      "blocks": 79,
+      "species": 1953,
+      "median_target": 18,
+      "median_source": 180,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 194,
+            "blocks": 33,
+            "movable_taxa": 266
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.0010517591851961535,
+              "genus_grade_expected_delta": 0.002373268066910839,
+              "residual": -0.0013215088817146853,
+              "residual_ci": [
+                -0.005230848485266002,
+                0.0026533992716963714
+              ],
+              "leave_range": [
+                -0.002094465558168096,
+                -0.0005094151682414835
+              ],
+              "coherent_p": 0.735,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "bilateral_deep": {
+              "observed_source_delta": 0.007454050138072197,
+              "genus_grade_expected_delta": -0.008647064994019892,
+              "residual": 0.01610111513209209,
+              "residual_ci": [
+                0.002169958561932335,
+                0.03132258985021884
+              ],
+              "leave_range": [
+                0.012424494888164814,
+                0.01821336354907766
+              ],
+              "coherent_p": 0.221,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "deep_any": {
+              "observed_source_delta": 0.008121439818697425,
+              "genus_grade_expected_delta": -0.006702939799786063,
+              "residual": 0.014824379618483489,
+              "residual_ci": [
+                -0.0003984755548810625,
+                0.031773807625586514
+              ],
+              "leave_range": [
+                0.011107861389755936,
+                0.017750120916695568
+              ],
+              "coherent_p": 0.255,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": -0.006402290952876049,
+              "genus_grade_expected_delta": 0.011020333060930717,
+              "residual": -0.017422624013806766,
+              "residual_ci": [
+                -0.03165572777851002,
+                -0.0037303584837815686
+              ],
+              "leave_range": [
+                -0.01907405296375042,
+                -0.01378730092243307
+              ],
+              "coherent_p": 0.213,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 96,
+            "blocks": 37,
+            "movable_taxa": 380
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.12634794661044774,
+              "genus_grade_expected_delta": 0.11816971954064379,
+              "residual": 0.00817822706980395,
+              "residual_ci": [
+                -0.0064307015865861,
+                0.021933583027234325
+              ],
+              "leave_range": [
+                0.0056227652056814025,
+                0.012263607689138123
+              ],
+              "coherent_p": 0.668,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.06583989641847006,
+              "genus_grade_expected_delta": -0.05809733975068852,
+              "residual": -0.007742556667781536,
+              "residual_ci": [
+                -0.012340543898016745,
+                -0.00367774908743442
+              ],
+              "leave_range": [
+                -0.008276396608041135,
+                -0.006705196578061639
+              ],
+              "coherent_p": 0.023,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "deep_any": {
+              "observed_source_delta": 0.05579419391101313,
+              "genus_grade_expected_delta": 0.059937990934030634,
+              "residual": -0.004143797023017502,
+              "residual_ci": [
+                -0.01859991482658246,
+                0.010442220809872225
+              ],
+              "leave_range": [
+                -0.006804834465880998,
+                -0.0004074762989175565
+              ],
+              "coherent_p": 0.838,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.19218784302891773,
+              "genus_grade_expected_delta": 0.17626705929133232,
+              "residual": 0.015920783737585403,
+              "residual_ci": [
+                -0.00044160173754627114,
+                0.03209699580752396
+              ],
+              "leave_range": [
+                0.013343690023730623,
+                0.020259945303884957
+              ],
+              "coherent_p": 0.424,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 14,
+            "blocks": 9,
+            "movable_taxa": 52
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.10418732471803865,
+              "genus_grade_expected_delta": 0.04420642937613308,
+              "residual": 0.05998089534190557,
+              "residual_ci": [
+                0.020733290924831352,
+                0.10245122859631693
+              ],
+              "leave_range": [
+                0.04751322948186598,
+                0.07386255736044918
+              ],
+              "coherent_p": 0.019,
+              "valid_bootstrap": 998,
+              "valid_leave": 79
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.0456773632384922,
+              "genus_grade_expected_delta": -0.03968838192962408,
+              "residual": -0.005988981308868116,
+              "residual_ci": [
+                -0.03562521304455239,
+                0.01967676924330148
+              ],
+              "leave_range": [
+                -0.014550103972476624,
+                0.005033849400539249
+              ],
+              "coherent_p": 0.595,
+              "valid_bootstrap": 998,
+              "valid_leave": 79
+            },
+            "deep_any": {
+              "observed_source_delta": 0.05097279539043412,
+              "genus_grade_expected_delta": 0.0009558550877810439,
+              "residual": 0.05001694030265307,
+              "residual_ci": [
+                -0.005147947174178947,
+                0.09955686059460932
+              ],
+              "leave_range": [
+                0.039558988396040266,
+                0.06801039500034864
+              ],
+              "coherent_p": 0.073,
+              "valid_bootstrap": 998,
+              "valid_leave": 79
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.14986468795653085,
+              "genus_grade_expected_delta": 0.08389481130575717,
+              "residual": 0.06596987665077368,
+              "residual_ci": [
+                0.026789906309546967,
+                0.1093514321882779
+              ],
+              "leave_range": [
+                0.05215303252841668,
+                0.07886405022181471
+              ],
+              "coherent_p": 0.015,
+              "valid_bootstrap": 998,
+              "valid_leave": 79
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.1252961874252516,
+              "genus_grade_expected_delta": 0.11579645147373295,
+              "residual": 0.009499735951518637,
+              "residual_ci": [
+                -0.006197426515229647,
+                0.02389766816778458
+              ],
+              "leave_range": [
+                0.00694427408739609,
+                0.013585116570852809
+              ],
+              "coherent_p": 0.623,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.07329394655654226,
+              "genus_grade_expected_delta": -0.04945027475666863,
+              "residual": -0.023843671799873623,
+              "residual_ci": [
+                -0.03960295865300903,
+                -0.009655201256661297
+              ],
+              "leave_range": [
+                -0.02595592021685921,
+                -0.020167051555946364
+              ],
+              "coherent_p": 0.09,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "deep_any": {
+              "observed_source_delta": 0.04767275409231571,
+              "genus_grade_expected_delta": 0.0666409307338167,
+              "residual": -0.018968176641500994,
+              "residual_ci": [
+                -0.03952347446441833,
+                0.002226577857363899
+              ],
+              "leave_range": [
+                -0.021893917939713067,
+                -0.015231855917401045
+              ],
+              "coherent_p": 0.418,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.1985901339817938,
+              "genus_grade_expected_delta": 0.1652467262304016,
+              "residual": 0.03334340775139219,
+              "residual_ci": [
+                0.011149003696488167,
+                0.05517045385890972
+              ],
+              "leave_range": [
+                0.02970808466001851,
+                0.03768256931769172
+              ],
+              "coherent_p": 0.163,
+              "valid_bootstrap": 999,
+              "valid_leave": 79
+            }
+          }
+        }
+      }
+    },
+    "original_native__geo50_climate10__inclusive": {
+      "status": "estimated",
+      "islands": 304,
+      "blocks": 78,
+      "species": 2038,
+      "median_target": 18,
+      "median_source": 306,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 194,
+            "blocks": 32,
+            "movable_taxa": 343
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.01873239428781812,
+              "genus_grade_expected_delta": -0.015821705347448756,
+              "residual": -0.002910688940369364,
+              "residual_ci": [
+                -0.006531112308345087,
+                0.0004771712237080648
+              ],
+              "leave_range": [
+                -0.003745761835865843,
+                -0.0019217114257161375
+              ],
+              "coherent_p": 0.443,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.004496904011355558,
+              "genus_grade_expected_delta": -0.011726813297041968,
+              "residual": 0.00722990928568641,
+              "residual_ci": [
+                -0.004291239840316136,
+                0.01916473213645585
+              ],
+              "leave_range": [
+                0.0043877949260060205,
+                0.009321835409706597
+              ],
+              "coherent_p": 0.628,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "deep_any": {
+              "observed_source_delta": -0.023912203861870245,
+              "genus_grade_expected_delta": -0.028069360713430157,
+              "residual": 0.0041571568515599115,
+              "residual_ci": [
+                -0.009063184163151293,
+                0.017459524248740803
+              ],
+              "leave_range": [
+                0.0011305992021647456,
+                0.007220034936294874
+              ],
+              "coherent_p": 0.808,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": -0.014235490276462546,
+              "genus_grade_expected_delta": -0.00409489205040676,
+              "residual": -0.010140598226055786,
+              "residual_ci": [
+                -0.022317969734737927,
+                0.0006985368097367536
+              ],
+              "leave_range": [
+                -0.011481591817513914,
+                -0.007438781272101744
+              ],
+              "coherent_p": 0.487,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 96,
+            "blocks": 37,
+            "movable_taxa": 444
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.11147409891319118,
+              "genus_grade_expected_delta": 0.10715132796983046,
+              "residual": 0.004322770943360726,
+              "residual_ci": [
+                -0.009452492024577649,
+                0.017024838157212327
+              ],
+              "leave_range": [
+                0.0017868001105346605,
+                0.008285774875558994
+              ],
+              "coherent_p": 0.789,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.061674195983623246,
+              "genus_grade_expected_delta": -0.056183308497865854,
+              "residual": -0.0054908874857573925,
+              "residual_ci": [
+                -0.009872322240443487,
+                -0.0016605725548951124
+              ],
+              "leave_range": [
+                -0.006011048017523222,
+                -0.004450829542048169
+              ],
+              "coherent_p": 0.05,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "deep_any": {
+              "observed_source_delta": 0.047421313424231434,
+              "genus_grade_expected_delta": 0.05183424269621746,
+              "residual": -0.004412929271986027,
+              "residual_ci": [
+                -0.01810957099862305,
+                0.008703314616094691
+              ],
+              "leave_range": [
+                -0.0070760887589854165,
+                -0.0006778886476511638
+              ],
+              "coherent_p": 0.793,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.17314829489681435,
+              "genus_grade_expected_delta": 0.1633346364676963,
+              "residual": 0.00981365842911805,
+              "residual_ci": [
+                -0.005618445414260347,
+                0.02446444450506668
+              ],
+              "leave_range": [
+                0.007303065170087272,
+                0.013930239021803336
+              ],
+              "coherent_p": 0.564,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 14,
+            "blocks": 9,
+            "movable_taxa": 53
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.07357773843040935,
+              "genus_grade_expected_delta": 0.017778987788134096,
+              "residual": 0.055798750642275255,
+              "residual_ci": [
+                0.019779177590927868,
+                0.09837383348261491
+              ],
+              "leave_range": [
+                0.0427447896605916,
+                0.06823574145256381
+              ],
+              "coherent_p": 0.009,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.04432586220132298,
+              "genus_grade_expected_delta": -0.0387608860268791,
+              "residual": -0.005564976174443882,
+              "residual_ci": [
+                -0.027219264075797684,
+                0.014820571788948264
+              ],
+              "leave_range": [
+                -0.01318611752985694,
+                0.0028473724000192017
+              ],
+              "coherent_p": 0.381,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "deep_any": {
+              "observed_source_delta": 0.02419939260063761,
+              "genus_grade_expected_delta": -0.02364891877267448,
+              "residual": 0.047848311373312094,
+              "residual_ci": [
+                0.0006506709980468371,
+                0.09626751352255941
+              ],
+              "leave_range": [
+                0.034413290581047265,
+                0.06212081103967747
+              ],
+              "coherent_p": 0.066,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.11790360063173239,
+              "genus_grade_expected_delta": 0.056539873815013214,
+              "residual": 0.06136372681671917,
+              "residual_ci": [
+                0.02494236217746352,
+                0.1045451494150966
+              ],
+              "leave_range": [
+                0.04867608947081991,
+                0.07396018768802887
+              ],
+              "coherent_p": 0.009,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.1302064932010093,
+              "genus_grade_expected_delta": 0.12297303331727921,
+              "residual": 0.007233459883730087,
+              "residual_ci": [
+                -0.006831475414087493,
+                0.020323221144613372
+              ],
+              "leave_range": [
+                0.004697489050904022,
+                0.011196463815928356
+              ],
+              "coherent_p": 0.662,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.05717729197226769,
+              "genus_grade_expected_delta": -0.044456495200823884,
+              "residual": -0.012720796771443804,
+              "residual_ci": [
+                -0.025609887164480472,
+                -0.0005172436087634037
+              ],
+              "leave_range": [
+                -0.014812722895463988,
+                -0.009878682411763411
+              ],
+              "coherent_p": 0.364,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "deep_any": {
+              "observed_source_delta": 0.07133351728610168,
+              "genus_grade_expected_delta": 0.07990360340964761,
+              "residual": -0.008570086123545928,
+              "residual_ci": [
+                -0.02756426449250456,
+                0.010719958074587446
+              ],
+              "leave_range": [
+                -0.011632964208280892,
+                -0.004835045499211087
+              ],
+              "coherent_p": 0.701,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.1873837851732769,
+              "genus_grade_expected_delta": 0.16742952851810305,
+              "residual": 0.019954256655173835,
+              "residual_ci": [
+                0.000808343894659816,
+                0.038728948443238834
+              ],
+              "leave_range": [
+                0.017252439701219792,
+                0.024070837247859127
+              ],
+              "coherent_p": 0.37,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            }
+          }
+        }
+      }
+    },
+    "original_native__geo50_climate10__disjoint": {
+      "status": "estimated",
+      "islands": 304,
+      "blocks": 78,
+      "species": 2037,
+      "median_target": 18,
+      "median_source": 274.5,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 194,
+            "blocks": 32,
+            "movable_taxa": 343
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.01686322272899506,
+              "genus_grade_expected_delta": -0.014126326328853762,
+              "residual": -0.0027368964001412976,
+              "residual_ci": [
+                -0.006851475214220647,
+                0.0012061749280823026
+              ],
+              "leave_range": [
+                -0.003560436638549898,
+                -0.0017135351186168865
+              ],
+              "coherent_p": 0.528,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.009702621618147998,
+              "genus_grade_expected_delta": -0.016042969489933088,
+              "residual": 0.00634034787178509,
+              "residual_ci": [
+                -0.005748167274115549,
+                0.018700242901504443
+              ],
+              "leave_range": [
+                0.0034098426067450754,
+                0.008435661074388512
+              ],
+              "coherent_p": 0.665,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "deep_any": {
+              "observed_source_delta": -0.02732147676301404,
+              "genus_grade_expected_delta": -0.03074816291375905,
+              "residual": 0.0034266861507450085,
+              "residual_ci": [
+                -0.010736105971446022,
+                0.01694073183393678
+              ],
+              "leave_range": [
+                0.0003114188768949596,
+                0.006526375603633726
+              ],
+              "coherent_p": 0.813,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": -0.007160601110847096,
+              "genus_grade_expected_delta": 0.0019166431610793087,
+              "residual": -0.009077244271926405,
+              "residual_ci": [
+                -0.021754914514120104,
+                0.002436772003455404
+              ],
+              "leave_range": [
+                -0.010689724231574275,
+                -0.0062846986829025306
+              ],
+              "coherent_p": 0.568,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 96,
+            "blocks": 37,
+            "movable_taxa": 443
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.12421279398440743,
+              "genus_grade_expected_delta": 0.11810159301941824,
+              "residual": 0.006111200964989197,
+              "residual_ci": [
+                -0.008210000906962571,
+                0.019312080665687934
+              ],
+              "leave_range": [
+                0.0034373470038187933,
+                0.01014765463651842
+              ],
+              "coherent_p": 0.759,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.06814174467319427,
+              "genus_grade_expected_delta": -0.06157459840839564,
+              "residual": -0.00656714626479863,
+              "residual_ci": [
+                -0.011105626089944932,
+                -0.002446789347296338
+              ],
+              "leave_range": [
+                -0.0071862130217672454,
+                -0.005493739667581319
+              ],
+              "coherent_p": 0.045,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "deep_any": {
+              "observed_source_delta": 0.053547878503170755,
+              "genus_grade_expected_delta": 0.057501378637622856,
+              "residual": -0.003953500134452101,
+              "residual_ci": [
+                -0.017678862203986956,
+                0.00937741336070698
+              ],
+              "leave_range": [
+                -0.006774653993887492,
+                -0.00018119171043867095
+              ],
+              "coherent_p": 0.824,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.1923545386576017,
+              "genus_grade_expected_delta": 0.1796761914278138,
+              "residual": 0.01267834722978789,
+              "residual_ci": [
+                -0.003228904937430562,
+                0.027813482949687506
+              ],
+              "leave_range": [
+                0.010088888505307713,
+                0.01689832623940482
+              ],
+              "coherent_p": 0.532,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 14,
+            "blocks": 9,
+            "movable_taxa": 52
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.08435442435989571,
+              "genus_grade_expected_delta": 0.020456104311147222,
+              "residual": 0.06389832004874849,
+              "residual_ci": [
+                0.025111567890098427,
+                0.10873625232787322
+              ],
+              "leave_range": [
+                0.051135722951537683,
+                0.07764734280332977
+              ],
+              "coherent_p": 0.005,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.050555102690766233,
+              "genus_grade_expected_delta": -0.044744335483886635,
+              "residual": -0.005810767206879598,
+              "residual_ci": [
+                -0.029161377991746357,
+                0.016124301536097004
+              ],
+              "leave_range": [
+                -0.014084907225386602,
+                0.0031930350431387377
+              ],
+              "coherent_p": 0.441,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "deep_any": {
+              "observed_source_delta": 0.02802247113711065,
+              "genus_grade_expected_delta": -0.027361683107759487,
+              "residual": 0.055384154244870136,
+              "residual_ci": [
+                0.005967089129854954,
+                0.10470316508027172
+              ],
+              "leave_range": [
+                0.04231770749707933,
+                0.07064901294155725
+              ],
+              "coherent_p": 0.037,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.13490952705066195,
+              "genus_grade_expected_delta": 0.06520043979503387,
+              "residual": 0.06970908725562808,
+              "residual_ci": [
+                0.02913074894138129,
+                0.11518636709406169
+              ],
+              "leave_range": [
+                0.05721217517621896,
+                0.08358794247125631
+              ],
+              "coherent_p": 0.004,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.1410760167134025,
+              "genus_grade_expected_delta": 0.132227919348272,
+              "residual": 0.008848097365130508,
+              "residual_ci": [
+                -0.005868376345548137,
+                0.022388168729326894
+              ],
+              "leave_range": [
+                0.0061742434039600905,
+                0.012884551036659718
+              ],
+              "coherent_p": 0.66,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.05843912305504627,
+              "genus_grade_expected_delta": -0.04553162891846255,
+              "residual": -0.012907494136583722,
+              "residual_ci": [
+                -0.026123314434530538,
+                0.00011500186302581637
+              ],
+              "leave_range": [
+                -0.015002807339187157,
+                -0.009976988871543722
+              ],
+              "coherent_p": 0.385,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "deep_any": {
+              "observed_source_delta": 0.0808693552661848,
+              "genus_grade_expected_delta": 0.0882495415513819,
+              "residual": -0.007380186285197099,
+              "residual_ci": [
+                -0.026505657505843067,
+                0.012158070171773961
+              ],
+              "leave_range": [
+                -0.010479875738085839,
+                -0.0036078778611836892
+              ],
+              "coherent_p": 0.76,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.19951513976844878,
+              "genus_grade_expected_delta": 0.17775954826673449,
+              "residual": 0.0217555915017143,
+              "residual_ci": [
+                0.0015121293314119034,
+                0.040971566674424434
+              ],
+              "leave_range": [
+                0.018963045912690397,
+                0.025975570511331217
+              ],
+              "coherent_p": 0.35,
+              "valid_bootstrap": 999,
+              "valid_leave": 78
+            }
+          }
+        }
+      }
+    },
+    "high_quality_only__geo_k5__inclusive": {
+      "status": "estimated",
+      "islands": 1823,
+      "blocks": 178,
+      "species": 600,
+      "median_target": 23,
+      "median_source": 132,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 1382,
+            "blocks": 82,
+            "movable_taxa": 123
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.016107581989780923,
+              "genus_grade_expected_delta": 0.01552038386261966,
+              "residual": 0.000587198127161263,
+              "residual_ci": [
+                -0.00376290698568863,
+                0.004782621592062284
+              ],
+              "leave_range": [
+                -0.00009051489029078053,
+                0.0014689330834636576
+              ],
+              "coherent_p": 0.905,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.015158298941367328,
+              "genus_grade_expected_delta": -0.010061918177367634,
+              "residual": -0.005096380763999694,
+              "residual_ci": [
+                -0.009218990043345584,
+                -0.001320616422904211
+              ],
+              "leave_range": [
+                -0.005729844201902082,
+                -0.004433573319311008
+              ],
+              "coherent_p": 0.283,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.000419698004271476,
+              "genus_grade_expected_delta": 0.005701572867987267,
+              "residual": -0.005281874863715791,
+              "residual_ci": [
+                -0.01142266256364726,
+                0.0008541950036303665
+              ],
+              "leave_range": [
+                -0.006572823096766918,
+                -0.004336829036790454
+              ],
+              "coherent_p": 0.43,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.031265880931148265,
+              "genus_grade_expected_delta": 0.025582302039987296,
+              "residual": 0.0056835788911609696,
+              "residual_ci": [
+                0.00010684463046164225,
+                0.010981089411030985
+              ],
+              "leave_range": [
+                0.004962060203073167,
+                0.00673945446194495
+              ],
+              "coherent_p": 0.37,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 338,
+            "blocks": 76,
+            "movable_taxa": 105
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.06844139776883507,
+              "genus_grade_expected_delta": 0.03801228837478528,
+              "residual": 0.03042910939404979,
+              "residual_ci": [
+                0.020264952919265743,
+                0.040177301370891566
+              ],
+              "leave_range": [
+                0.028981605077842722,
+                0.03162607664388294
+              ],
+              "coherent_p": 0.016,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.04141947823832464,
+              "genus_grade_expected_delta": -0.033707301054340354,
+              "residual": -0.007712177183984287,
+              "residual_ci": [
+                -0.014053663006458748,
+                -0.002063338589563612
+              ],
+              "leave_range": [
+                -0.008269551667649538,
+                -0.006565006213104086
+              ],
+              "coherent_p": 0.323,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.008277227426645628,
+              "genus_grade_expected_delta": -0.005253913614192986,
+              "residual": 0.013531141040838614,
+              "residual_ci": [
+                0.0033244009165773053,
+                0.024603839923475104
+              ],
+              "leave_range": [
+                0.012393034278024554,
+                0.015130443467721329
+              ],
+              "coherent_p": 0.408,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.10986087600715969,
+              "genus_grade_expected_delta": 0.07171958942912565,
+              "residual": 0.038141286578034034,
+              "residual_ci": [
+                0.025155499633115475,
+                0.05128074980834289
+              ],
+              "leave_range": [
+                0.036662182744753545,
+                0.039895628311532455
+              ],
+              "coherent_p": 0.006,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 0.5700000000000001
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 103,
+            "blocks": 30,
+            "movable_taxa": 99
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.024409201357000997,
+              "genus_grade_expected_delta": -0.04144585705502393,
+              "residual": 0.017036655698022936,
+              "residual_ci": [
+                0.0008152025009654298,
+                0.03479302614076142
+              ],
+              "leave_range": [
+                0.012407889386856177,
+                0.021118148714086432
+              ],
+              "coherent_p": 0.507,
+              "valid_bootstrap": 999,
+              "valid_leave": 178
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.09221625593525408,
+              "genus_grade_expected_delta": -0.07305317063275721,
+              "residual": -0.01916308530249687,
+              "residual_ci": [
+                -0.031744340165391634,
+                -0.008033938077803554
+              ],
+              "leave_range": [
+                -0.02052885393295687,
+                -0.015205654746425346
+              ],
+              "coherent_p": 0.219,
+              "valid_bootstrap": 999,
+              "valid_leave": 178
+            },
+            "deep_any": {
+              "observed_source_delta": -0.1306861491033578,
+              "genus_grade_expected_delta": -0.12439516888831743,
+              "residual": -0.006290980215040362,
+              "residual_ci": [
+                -0.027982265905956958,
+                0.015571623113405273
+              ],
+              "leave_range": [
+                -0.011213292081319125,
+                -0.0006581568727018368
+              ],
+              "coherent_p": 0.825,
+              "valid_bootstrap": 999,
+              "valid_leave": 178
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.06780705457825306,
+              "genus_grade_expected_delta": 0.03160731357773323,
+              "residual": 0.036199741000519835,
+              "residual_ci": [
+                0.01497132290325495,
+                0.05636697385950122
+              ],
+              "leave_range": [
+                0.031082345446910426,
+                0.040942030061497006
+              ],
+              "coherent_p": 0.218,
+              "valid_bootstrap": 999,
+              "valid_leave": 178
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.052333815779054146,
+              "genus_grade_expected_delta": 0.022491904512165616,
+              "residual": 0.02984191126688853,
+              "residual_ci": [
+                0.01852163067673782,
+                0.041622050409020846
+              ],
+              "leave_range": [
+                0.028394406950681468,
+                0.03103887851672169
+              ],
+              "coherent_p": 0.027,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.026261179296957312,
+              "genus_grade_expected_delta": -0.02364538287697272,
+              "residual": -0.0026157964199845923,
+              "residual_ci": [
+                -0.009941546939672606,
+                0.004544049859454515
+              ],
+              "leave_range": [
+                -0.0032786038646732876,
+                -0.001468625449104386
+              ],
+              "coherent_p": 0.779,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.007857529422374152,
+              "genus_grade_expected_delta": -0.010955486482180254,
+              "residual": 0.018813015904554406,
+              "residual_ci": [
+                0.005557467675521882,
+                0.03188477843758003
+              ],
+              "leave_range": [
+                0.01767490914174033,
+                0.020412318331437106
+              ],
+              "coherent_p": 0.299,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.07859499507601142,
+              "genus_grade_expected_delta": 0.04613728738913836,
+              "residual": 0.03245770768687306,
+              "residual_ci": [
+                0.01900540984097703,
+                0.04665267018393093
+              ],
+              "leave_range": [
+                0.030978603853592586,
+                0.034212049420371496
+              ],
+              "coherent_p": 0.044,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            }
+          }
+        }
+      }
+    },
+    "high_quality_only__geo_k5__disjoint": {
+      "status": "estimated",
+      "islands": 1823,
+      "blocks": 178,
+      "species": 600,
+      "median_target": 23,
+      "median_source": 98,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 1382,
+            "blocks": 82,
+            "movable_taxa": 123
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.014759315773643278,
+              "genus_grade_expected_delta": 0.014854541590300422,
+              "residual": -0.00009522581665714382,
+              "residual_ci": [
+                -0.004809965318337009,
+                0.00458968037455034
+              ],
+              "leave_range": [
+                -0.0008466329495198631,
+                0.0007780841526845307
+              ],
+              "coherent_p": 0.985,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.018803269683922597,
+              "genus_grade_expected_delta": -0.012447053824118828,
+              "residual": -0.006356215859803768,
+              "residual_ci": [
+                -0.010781324365518714,
+                -0.002113761834841562
+              ],
+              "leave_range": [
+                -0.007031722326003032,
+                -0.005712600048527163
+              ],
+              "coherent_p": 0.252,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": -0.0046025002404750095,
+              "genus_grade_expected_delta": 0.002672825950399162,
+              "residual": -0.007275326190874171,
+              "residual_ci": [
+                -0.01416276086067649,
+                -0.000697825686555935
+              ],
+              "leave_range": [
+                -0.00863494911719853,
+                -0.006286009908803213
+              ],
+              "coherent_p": 0.357,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.03356258545756585,
+              "genus_grade_expected_delta": 0.027301595414419257,
+              "residual": 0.006260990043146595,
+              "residual_ci": [
+                0.00009091026641181131,
+                0.012137593094475936
+              ],
+              "leave_range": [
+                0.005517472834260819,
+                0.007350098609804432
+              ],
+              "coherent_p": 0.402,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 338,
+            "blocks": 76,
+            "movable_taxa": 105
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.08747650430963105,
+              "genus_grade_expected_delta": 0.05190600309533523,
+              "residual": 0.03557050121429582,
+              "residual_ci": [
+                0.024510786109605977,
+                0.046275140009891004
+              ],
+              "leave_range": [
+                0.034224107299092525,
+                0.03696095390105173
+              ],
+              "coherent_p": 0.016,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.06033103238789788,
+              "genus_grade_expected_delta": -0.04970202249407612,
+              "residual": -0.010629009893821761,
+              "residual_ci": [
+                -0.01818572724965781,
+                -0.0037618549762423125
+              ],
+              "leave_range": [
+                -0.011297045815213125,
+                -0.009274857414338877
+              ],
+              "coherent_p": 0.254,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.005155308807437622,
+              "genus_grade_expected_delta": -0.008976724035972985,
+              "residual": 0.014132032843410608,
+              "residual_ci": [
+                0.001536742648201543,
+                0.026616062870971204
+              ],
+              "leave_range": [
+                0.012918109338477684,
+                0.015796102649514476
+              ],
+              "coherent_p": 0.457,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.14780753669752902,
+              "genus_grade_expected_delta": 0.10160802558941137,
+              "residual": 0.04619951110811765,
+              "residual_ci": [
+                0.0315019872192553,
+                0.06043819870477977
+              ],
+              "leave_range": [
+                0.04451703391786292,
+                0.04825799971626486
+              ],
+              "coherent_p": 0.004,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 0.384
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 103,
+            "blocks": 30,
+            "movable_taxa": 99
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.021243306455626117,
+              "genus_grade_expected_delta": -0.038835433385030184,
+              "residual": 0.017592126929404067,
+              "residual_ci": [
+                -0.0009342776811259566,
+                0.03657988679864208
+              ],
+              "leave_range": [
+                0.012982514798629762,
+                0.02276532958482521
+              ],
+              "coherent_p": 0.498,
+              "valid_bootstrap": 999,
+              "valid_leave": 178
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.09666145845648229,
+              "genus_grade_expected_delta": -0.07782752085680457,
+              "residual": -0.01883393759967772,
+              "residual_ci": [
+                -0.03152571830673618,
+                -0.007479483002316657
+              ],
+              "leave_range": [
+                -0.020263188684829785,
+                -0.014865157122819328
+              ],
+              "coherent_p": 0.262,
+              "valid_bootstrap": 999,
+              "valid_leave": 178
+            },
+            "deep_any": {
+              "observed_source_delta": -0.13246643669316943,
+              "genus_grade_expected_delta": -0.1268901771938516,
+              "residual": -0.005576259499317837,
+              "residual_ci": [
+                -0.029000081424268312,
+                0.01820191054461798
+              ],
+              "leave_range": [
+                -0.010473925823675127,
+                0.00008120938494215927
+              ],
+              "coherent_p": 0.849,
+              "valid_bootstrap": 999,
+              "valid_leave": 178
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.07541815200085616,
+              "genus_grade_expected_delta": 0.03899208747177432,
+              "residual": 0.03642606452908184,
+              "residual_ci": [
+                0.01356138515767121,
+                0.05786224383735191
+              ],
+              "leave_range": [
+                0.03131647323507801,
+                0.04224871330862978
+              ],
+              "coherent_p": 0.221,
+              "valid_bootstrap": 999,
+              "valid_leave": 178
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.07271718853598777,
+              "genus_grade_expected_delta": 0.03705146150503481,
+              "residual": 0.03566572703095296,
+              "residual_ci": [
+                0.02298279958926613,
+                0.047774555676388365
+              ],
+              "leave_range": [
+                0.034319333115749674,
+                0.03705617971770888
+              ],
+              "coherent_p": 0.021,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.041527762703975284,
+              "genus_grade_expected_delta": -0.03725496866995729,
+              "residual": -0.004272794034017993,
+              "residual_ci": [
+                -0.012636233166040844,
+                0.004223844265582596
+              ],
+              "leave_range": [
+                -0.0049408299554093565,
+                -0.0029186415545351084
+              ],
+              "coherent_p": 0.711,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.009757809047912631,
+              "genus_grade_expected_delta": -0.011649549986372148,
+              "residual": 0.021407359034284777,
+              "residual_ci": [
+                0.006281301434604673,
+                0.036198710742383546
+              ],
+              "leave_range": [
+                0.020193435529351853,
+                0.023071428840388646
+              ],
+              "coherent_p": 0.304,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.11424495123996317,
+              "genus_grade_expected_delta": 0.07430643017499211,
+              "residual": 0.03993852106497106,
+              "residual_ci": [
+                0.024571479596964922,
+                0.0557350290007072
+              ],
+              "leave_range": [
+                0.0382560438747163,
+                0.041997009673118244
+              ],
+              "coherent_p": 0.035,
+              "valid_bootstrap": 999,
+              "valid_leave": 178,
+              "holm_p": 1
+            }
+          }
+        }
+      }
+    },
+    "high_quality_only__geo50_climate10__inclusive": {
+      "status": "estimated",
+      "islands": 1822,
+      "blocks": 177,
+      "species": 603,
+      "median_target": 23,
+      "median_source": 179.5,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 1382,
+            "blocks": 82,
+            "movable_taxa": 136
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.0016253207072528173,
+              "genus_grade_expected_delta": -0.0017337163586252328,
+              "residual": 0.00010839565137241549,
+              "residual_ci": [
+                -0.004192972256085052,
+                0.004618786529850494
+              ],
+              "leave_range": [
+                -0.0005562982660310726,
+                0.0011253697413408461
+              ],
+              "coherent_p": 0.975,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.02612450638317181,
+              "genus_grade_expected_delta": -0.020618216413921333,
+              "residual": -0.005506289969250476,
+              "residual_ci": [
+                -0.008927655886733258,
+                -0.002191818449447066
+              ],
+              "leave_range": [
+                -0.006188225106320929,
+                -0.004846339093759119
+              ],
+              "coherent_p": 0.291,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": -0.029354331687300696,
+              "genus_grade_expected_delta": -0.022652572514117633,
+              "residual": -0.006701759173183063,
+              "residual_ci": [
+                -0.01211056054862679,
+                -0.0006582487990700961
+              ],
+              "leave_range": [
+                -0.008047556727043156,
+                -0.005828502030115272
+              ],
+              "coherent_p": 0.359,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.024499185675918987,
+              "genus_grade_expected_delta": 0.018884500055296113,
+              "residual": 0.005614685620622874,
+              "residual_ci": [
+                0.0004981421201537065,
+                0.010838882383028277
+              ],
+              "leave_range": [
+                0.004753797099034681,
+                0.0067592795605128835
+              ],
+              "coherent_p": 0.409,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 337,
+            "blocks": 75,
+            "movable_taxa": 137
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.07077203626365877,
+              "genus_grade_expected_delta": 0.04156038055787853,
+              "residual": 0.029211655705780243,
+              "residual_ci": [
+                0.021189312029115316,
+                0.03750393071584523
+              ],
+              "leave_range": [
+                0.02780131776952827,
+                0.030166644090523817
+              ],
+              "coherent_p": 0.015,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.05160602160481087,
+              "genus_grade_expected_delta": -0.04299362364193839,
+              "residual": -0.008612397962872477,
+              "residual_ci": [
+                -0.013490953446976763,
+                -0.004246632061570996
+              ],
+              "leave_range": [
+                -0.009195449044347485,
+                -0.007755567239721093
+              ],
+              "coherent_p": 0.252,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.0079344550561821,
+              "genus_grade_expected_delta": -0.006882398708648407,
+              "residual": 0.014816853764830508,
+              "residual_ci": [
+                0.006271536169463832,
+                0.02363835259502621
+              ],
+              "leave_range": [
+                0.013799321755388066,
+                0.01650891566595279
+              ],
+              "coherent_p": 0.292,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.1223780578684697,
+              "genus_grade_expected_delta": 0.08455400419981689,
+              "residual": 0.03782405366865281,
+              "residual_ci": [
+                0.0273345777802297,
+                0.04750297940319144
+              ],
+              "leave_range": [
+                0.036471599430155724,
+                0.03909064646085996
+              ],
+              "coherent_p": 0.009,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 0.837
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 103,
+            "blocks": 30,
+            "movable_taxa": 109
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.014461042546549256,
+              "genus_grade_expected_delta": -0.019856844481601427,
+              "residual": 0.0053958019350521715,
+              "residual_ci": [
+                -0.010396247432115582,
+                0.01887571403342802
+              ],
+              "leave_range": [
+                0.003148811434851239,
+                0.009835154298261279
+              ],
+              "coherent_p": 0.828,
+              "valid_bootstrap": 999,
+              "valid_leave": 177
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.09240834272891027,
+              "genus_grade_expected_delta": -0.078131190812924,
+              "residual": -0.014277151915986275,
+              "residual_ci": [
+                -0.022255385188105825,
+                -0.006458477807759235
+              ],
+              "leave_range": [
+                -0.01541601922343411,
+                -0.012416842642134118
+              ],
+              "coherent_p": 0.361,
+              "valid_bootstrap": 999,
+              "valid_leave": 177
+            },
+            "deep_any": {
+              "observed_source_delta": -0.11692197195878681,
+              "genus_grade_expected_delta": -0.10474204505800795,
+              "residual": -0.012179926900778862,
+              "residual_ci": [
+                -0.029889521987423465,
+                0.004573291652726923
+              ],
+              "leave_range": [
+                -0.015823922137335,
+                -0.008561141875561283
+              ],
+              "coherent_p": 0.659,
+              "valid_bootstrap": 999,
+              "valid_leave": 177
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.07794730018236103,
+              "genus_grade_expected_delta": 0.058274346331322543,
+              "residual": 0.019672953851038483,
+              "residual_ci": [
+                0.0005783912609584844,
+                0.037729390526009036
+              ],
+              "leave_range": [
+                0.016692457053585404,
+                0.024604621797557454
+              ],
+              "coherent_p": 0.489,
+              "valid_bootstrap": 999,
+              "valid_leave": 177
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.07239735697091158,
+              "genus_grade_expected_delta": 0.04329409691650376,
+              "residual": 0.029103260054407824,
+              "residual_ci": [
+                0.019672258922235543,
+                0.03833062071434715
+              ],
+              "leave_range": [
+                0.02769292211815586,
+                0.030058248439151405
+              ],
+              "coherent_p": 0.018,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.02548151522163906,
+              "genus_grade_expected_delta": -0.02237540722801706,
+              "residual": -0.003106107993622001,
+              "residual_ci": [
+                -0.008723335147021376,
+                0.0025006723451269936
+              ],
+              "leave_range": [
+                -0.003766058869113375,
+                -0.0022492772704706164
+              ],
+              "coherent_p": 0.754,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.037288786743482794,
+              "genus_grade_expected_delta": 0.015770173805469224,
+              "residual": 0.02151861293801357,
+              "residual_ci": [
+                0.011318713829855529,
+                0.0320751882383318
+              ],
+              "leave_range": [
+                0.020501080928571138,
+                0.02321067483913586
+              ],
+              "coherent_p": 0.195,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.0978788721925507,
+              "genus_grade_expected_delta": 0.06566950414452077,
+              "residual": 0.03220936804802993,
+              "residual_ci": [
+                0.019991849360293894,
+                0.04318407671306277
+              ],
+              "leave_range": [
+                0.03085691380953284,
+                0.03347596084023707
+              ],
+              "coherent_p": 0.049,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            }
+          }
+        }
+      }
+    },
+    "high_quality_only__geo50_climate10__disjoint": {
+      "status": "estimated",
+      "islands": 1822,
+      "blocks": 177,
+      "species": 603,
+      "median_target": 23,
+      "median_source": 129,
+      "regions": {
+        "north": {
+          "support": {
+            "islands": 1382,
+            "blocks": 82,
+            "movable_taxa": 136
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.003015386849894634,
+              "genus_grade_expected_delta": -0.002902240853724111,
+              "residual": -0.00011314599617052307,
+              "residual_ci": [
+                -0.004719852403620353,
+                0.004956040645040124
+              ],
+              "leave_range": [
+                -0.0008488388506647975,
+                0.0009170702091726041
+              ],
+              "coherent_p": 0.979,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.03023101897613351,
+              "genus_grade_expected_delta": -0.023459945196597536,
+              "residual": -0.006771073779535973,
+              "residual_ci": [
+                -0.010541436359321999,
+                -0.0030816061433328523
+              ],
+              "leave_range": [
+                -0.007494326674729351,
+                -0.006107519792083725
+              ],
+              "coherent_p": 0.262,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": -0.03503152960219938,
+              "genus_grade_expected_delta": -0.026682885230812543,
+              "residual": -0.008348644371386837,
+              "residual_ci": [
+                -0.014162639308010429,
+                -0.0018184423696837226
+              ],
+              "leave_range": [
+                -0.009775206930373967,
+                -0.007438617707828307
+              ],
+              "coherent_p": 0.315,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.027215632126238856,
+              "genus_grade_expected_delta": 0.020557704342873444,
+              "residual": 0.006657927783365412,
+              "residual_ci": [
+                0.0011814818066421672,
+                0.012251267596946861
+              ],
+              "leave_range": [
+                0.005766533211023438,
+                0.007838129382069028
+              ],
+              "coherent_p": 0.391,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            }
+          }
+        },
+        "tropical": {
+          "support": {
+            "islands": 337,
+            "blocks": 75,
+            "movable_taxa": 137
+          },
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.08241629064390261,
+              "genus_grade_expected_delta": 0.04825148159748795,
+              "residual": 0.03416480904641467,
+              "residual_ci": [
+                0.024938867521146223,
+                0.04298769702711562
+              ],
+              "leave_range": [
+                0.03266886279445169,
+                0.0352044326607831
+              ],
+              "coherent_p": 0.016,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.06477427413673549,
+              "genus_grade_expected_delta": -0.05459917667176658,
+              "residual": -0.010175097464968912,
+              "residual_ci": [
+                -0.015361239739503941,
+                -0.005123119393279723
+              ],
+              "leave_range": [
+                -0.010961092102970221,
+                -0.009278609883022858
+              ],
+              "coherent_p": 0.236,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.005702042010711336,
+              "genus_grade_expected_delta": -0.012029674122061303,
+              "residual": 0.017731716132772638,
+              "residual_ci": [
+                0.008260179493314387,
+                0.027696696044408962
+              ],
+              "leave_range": [
+                0.01622430484028277,
+                0.01952859938815481
+              ],
+              "coherent_p": 0.265,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.14719056478063816,
+              "genus_grade_expected_delta": 0.10285065826925452,
+              "residual": 0.04433990651138364,
+              "residual_ci": [
+                0.03255253870995836,
+                0.05496431326530997
+              ],
+              "leave_range": [
+                0.04291801785109924,
+                0.0459136547536711
+              ],
+              "coherent_p": 0.008,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 0.752
+            }
+          }
+        },
+        "south": {
+          "support": {
+            "islands": 103,
+            "blocks": 30,
+            "movable_taxa": 109
+          },
+          "gate": false,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": -0.00964438921965984,
+              "genus_grade_expected_delta": -0.016019863280303474,
+              "residual": 0.006375474060643633,
+              "residual_ci": [
+                -0.010761335701217269,
+                0.02149614815440348
+              ],
+              "leave_range": [
+                0.003935863407336998,
+                0.011465081991322321
+              ],
+              "coherent_p": 0.8,
+              "valid_bootstrap": 999,
+              "valid_leave": 177
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.09751890874334337,
+              "genus_grade_expected_delta": -0.08359211144235176,
+              "residual": -0.013926797300991611,
+              "residual_ci": [
+                -0.02196218904819096,
+                -0.006105034809312084
+              ],
+              "leave_range": [
+                -0.015145947946838599,
+                -0.012054406833518902
+              ],
+              "coherent_p": 0.404,
+              "valid_bootstrap": 999,
+              "valid_leave": 177
+            },
+            "deep_any": {
+              "observed_source_delta": -0.11727498923047915,
+              "genus_grade_expected_delta": -0.10632201664997784,
+              "residual": -0.010952972580501305,
+              "residual_ci": [
+                -0.030395570831386078,
+                0.007397233291434283
+              ],
+              "leave_range": [
+                -0.01510734437720168,
+                -0.006820092694919566
+              ],
+              "coherent_p": 0.697,
+              "valid_bootstrap": 999,
+              "valid_leave": 177
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.0878745195236835,
+              "genus_grade_expected_delta": 0.06757224816204827,
+              "residual": 0.020302271361635232,
+              "residual_ci": [
+                -0.000580591267892608,
+                0.03924321775248904
+              ],
+              "leave_range": [
+                0.016906113488822552,
+                0.025872113682003272
+              ],
+              "coherent_p": 0.484,
+              "valid_bootstrap": 999,
+              "valid_leave": 177
+            }
+          }
+        },
+        "tropical_minus_north": {
+          "support": null,
+          "gate": true,
+          "endpoints": {
+            "radial_deep": {
+              "observed_source_delta": 0.08543167749379725,
+              "genus_grade_expected_delta": 0.05115372245121206,
+              "residual": 0.03427795504258519,
+              "residual_ci": [
+                0.023741028086314196,
+                0.04417529514545917
+              ],
+              "leave_range": [
+                0.03278200879062222,
+                0.03531757865695363
+              ],
+              "coherent_p": 0.017,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "bilateral_deep": {
+              "observed_source_delta": -0.034543255160601985,
+              "genus_grade_expected_delta": -0.031139231475169043,
+              "residual": -0.003404023685432942,
+              "residual_ci": [
+                -0.009625548346799248,
+                0.002689988588691049
+              ],
+              "leave_range": [
+                -0.004190018323434262,
+                -0.002507536103486899
+              ],
+              "coherent_p": 0.765,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "deep_any": {
+              "observed_source_delta": 0.04073357161291072,
+              "genus_grade_expected_delta": 0.01465321110875124,
+              "residual": 0.02608036050415948,
+              "residual_ci": [
+                0.014365563101975502,
+                0.03770285638261537
+              ],
+              "leave_range": [
+                0.024572949211669602,
+                0.027877243759541648
+              ],
+              "coherent_p": 0.171,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            },
+            "radial_minus_bilateral": {
+              "observed_source_delta": 0.1199749326543993,
+              "genus_grade_expected_delta": 0.08229295392638107,
+              "residual": 0.037681978728018234,
+              "residual_ci": [
+                0.02432974611143865,
+                0.04993728995791594
+              ],
+              "leave_range": [
+                0.036260090067733806,
+                0.03925572697030567
+              ],
+              "coherent_p": 0.05,
+              "valid_bootstrap": 999,
+              "valid_leave": 177,
+              "holm_p": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}
