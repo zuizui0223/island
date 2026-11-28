@@ -1,0 +1,7 @@
+# Source-first research ownership — 2026-11-28
+
+This policy supersedes the theme-first assignment in island #355 / fd #76. Own GBIF roster, integrated floral/reproductive traits, derived summaries and outcome/cohort selection using them are island-owned, even with external GIFT mainland donors, animal traits/ranges/networks or GloPL. FD hosts independently retrieved publisher-only GIFT island checklists, NHM/Wang/AusTraits and independent animal/network studies. Shared mathematical methods and outcome-blind geography are neutral. Unverified ancestry is quarantined. External-only input files do not guarantee independent underlying observations.
+
+The frozen GloPL-only H3 is an explicit supporting-evidence exception retained in island; H4 is mixed. No scientific selector or frozen manuscript changes. No new credentials, raw rows or rights changes; do not auto-merge legacy branches or delete provenance.
+
+Route island PR352, 354, 356–360 to island. Historical fd PR77–79 and 81 are own/mixed; archive and cross-reference original run heads. fd PR72, 75, 80, 82 external-only subject to input-chain audit. Existing 53-entry registry is historical; use ancestry rather than old theme labels. See [snapshot index](../research/fd_own_db/current/functional_reassembly_20261128/SOURCE_RECEIPT.json) and [review](../research/fd_own_db/current/functional_reassembly_20261128/INTEGRATION_REVIEW.md). Do not claim shared-source replication or double-publish findings.

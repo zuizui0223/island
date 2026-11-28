@@ -1,0 +1,1264 @@
+{
+  "date": "2026-11-28",
+  "parent_registry": "research/result_input_provenance_20261125.json",
+  "parent_blob": "9a3ae4116d41ae9f5b7f9a1d941442b84a04ff76",
+  "scope": "Reclassification only; source family is not per-file verification. Do not activate incomplete dependencies. Frozen H3 exception.",
+  "results": [
+    {
+      "id": "legacy-001",
+      "title": "H1 existing",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "wcvp",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits",
+        "wcvp"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "4,379 H1 union",
+      "result": "SC positive in all four regions; 17/28 nominal broad All traitwise associations",
+      "claim_limit": "not a universal seven-trait syndrome",
+      "source_url": "https://github.com/zuizui0223/island/blob/c662411bd1f18541cbe8531e4b1b7b14ff62f028/submission/chapter1_current/H1_H4_EVIDENCE_MAP.md"
+    },
+    {
+      "id": "legacy-002",
+      "title": "profile concentration",
+      "inputs": [
+        "own_gbif",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "geography",
+        "own_gbif",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "669 northern midlat Direct islands",
+      "result": "−11.4% vs genus-fixed permutation median, q=.016",
+      "claim_limit": "single-state only; multistate no adjusted support",
+      "source_url": "https://github.com/zuizui0223/island/pull/321"
+    },
+    {
+      "id": "legacy-003",
+      "title": "profile differentiation",
+      "inputs": [
+        "own_gbif",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "geography",
+        "own_gbif",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "16 overlapping comparisons",
+      "result": "12/16 BY fixed binary margins, lower Jaccard",
+      "claim_limit": "shared species included; genus-fixed shared-name-exclusive 0/16 supported",
+      "source_url": "https://github.com/zuizui0223/island/pull/321"
+    },
+    {
+      "id": "legacy-004",
+      "title": "floral recurrence",
+      "inputs": [
+        "own_gbif",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "geography",
+        "own_gbif",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "2,000 sampled island pairs",
+      "result": "median taxon Jaccard .0350; profile .2845; after shared taxa removed .2124",
+      "claim_limit": "not above-null adaptive convergence",
+      "source_url": "https://github.com/zuizui0223/island/blob/d4a5dafab5f0737ea6c1c1c0263fc20decf6035c/results/floral_space_20261106/README.md"
+    },
+    {
+      "id": "legacy-005",
+      "title": "local prediction",
+      "inputs": [
+        "own_plant_aggregate",
+        "geography"
+      ],
+      "ancestry": [
+        "geography",
+        "own_gbif",
+        "own_plant_aggregate",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "606 islands / 44 archipelagos",
+      "result": "Direct exact error .007351→.005473; kernel .011137→.006574, BY≈.00093",
+      "claim_limit": "geography-only nearest equally good; shared taxa possible",
+      "source_url": "https://github.com/zuizui0223/fd/pull/12"
+    },
+    {
+      "id": "legacy-006",
+      "title": "colour-architecture pairing",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "928 islands / 2234 Direct species",
+      "result": "909/928 positive excess MI; northern mid median .182 nats, tropical .066",
+      "claim_limit": "not formal region contrast; genus shuffle low opportunity; native 83/87",
+      "source_url": "https://github.com/zuizui0223/fd/blob/4309409d0285bd963589dcacbfb5ecc60cd0333a/results/20261111_floral_syndrome_coupling/README.md"
+    },
+    {
+      "id": "legacy-007",
+      "title": "source-relative FD",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "743 north-midlat islands",
+      "result": "marginal Q −.02571 [−.03707,−.01508]; joint Q −.01420 [−.02189,−.00687]; open form +.04582 [+ .02357,+.06756]",
+      "claim_limit": "source comparison not distance slope; same native-supported 67 do not reproduce broad contraction",
+      "source_url": "https://github.com/zuizui0223/fd/blob/4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf/results/20261113_pollinator_impact_functional_diversity/README.md"
+    },
+    {
+      "id": "legacy-008",
+      "title": "finite category geometry",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "106 tropical islands",
+      "result": "disjoint-source k-conditioned −.02469 [−.03207,−.01766]; source-equal −.02435 [−.03257,−.01638]",
+      "claim_limit": "uniform reference; species-weighted and native no robust support; not KDE or realized function",
+      "source_url": "https://github.com/zuizui0223/fd/blob/819b8138a8c577754c81ee40a618d058b23aabd2/results/20261113_discrete_categorical_hypervolume/README.md"
+    },
+    {
+      "id": "legacy-009",
+      "title": "rare profiles equal genus counts",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "106 tropical, fixed 15 genera",
+      "result": "rare−common gap −.03669 [−.05308,−.01896]; same five genus identities 81 islands +.00261 [−.01579,+.01982]",
+      "claim_limit": "which genera vs number; same-genus, family, native filters limit claim",
+      "source_url": "https://github.com/zuizui0223/fd/blob/819b8138a8c577754c81ee40a618d058b23aabd2/results/20261113_discrete_categorical_hypervolume/GENUS_RICHNESS_15_PROFILE_CONTROL.md"
+    },
+    {
+      "id": "legacy-010",
+      "title": "rare profile genus bookkeeping",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "106 tropical",
+      "result": "rare total −.02970; shared genus +.00945; one-sided genera −.03914",
+      "claim_limit": "Shapley accounting not causal; source richer",
+      "source_url": "https://github.com/zuizui0223/fd/blob/819b8138a8c577754c81ee40a618d058b23aabd2/results/20261113_discrete_categorical_hypervolume/GENUS_SHAPLEY_MACRO_928.md"
+    },
+    {
+      "id": "legacy-011",
+      "title": "GEB regional-native coverage sensitivity",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "wcvp",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits",
+        "wcvp"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "928, strict native 87, WCVP compatible 357",
+      "result": "north-mid all−source rare gap −.02627; WCVP +.01851; same-island WCVP−all +.02256 [.01186,.03462]",
+      "claim_limit": "regional compatibility not exact nativeness; no universal native contraction",
+      "source_url": "https://github.com/zuizui0223/fd/blob/819b8138a8c577754c81ee40a618d058b23aabd2/results/20261114_native_provenance/WCVP_REGIONAL_NATIVE_EXACT_FLORAL_VOLUME.md"
+    },
+    {
+      "id": "legacy-012",
+      "title": "SC vs mating system",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "606 north-mid all and 45 strict native islands, same Direct carriers",
+      "result": "difference of source contrasts +.06981 [.04827,.09228] and +.06057 [.01080,.10930]",
+      "claim_limit": "SC and mating system distinct; not historical adaptation",
+      "source_url": "https://github.com/zuizui0223/fd/blob/4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf/results/20261113_pollinator_impact_functional_diversity/REPRODUCTIVE_ASSURANCE_COMMON_CARRIER.md"
+    },
+    {
+      "id": "legacy-013",
+      "title": "genus dependence",
+      "inputs": [
+        "own_traits"
+      ],
+      "ancestry": [
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "32039 Direct symmetry names",
+      "result": "81/2200 variable multi-species genera; heldout Brier .2381→.01768",
+      "claim_limit": "tau posthoc; no lineage-independent adaptation",
+      "source_url": "https://github.com/zuizui0223/fd/pull/13"
+    },
+    {
+      "id": "legacy-014",
+      "title": "matched donor support",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "9 source components",
+      "result": "Direct same donor/target symmetry wins 9/9; SC 5/9 (source ledger)",
+      "claim_limit": "~55 common donors; low same-genus coverage; All imputation circular",
+      "source_url": "https://github.com/zuizui0223/fd/pull/13"
+    },
+    {
+      "id": "legacy-015",
+      "title": "canonical 4505 profile overlap",
+      "inputs": [
+        "own_status_flora",
+        "own_traits"
+      ],
+      "ancestry": [
+        "external_status",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "2324 colour-form floras",
+      "result": "mean TV overlap .386901; species disjoint .247183; genus disjoint .214879",
+      "claim_limit": "same canonical DB lineage verified; not above-null convergence",
+      "source_url": "https://github.com/zuizui0223/fd/blob/dbea01d985a4ad6c4e72a8d4bc4225e07baaed07/results/20261124_tropical_pollinator_dual_null/POSITIVE_EVIDENCE_SYNTHESIS.md"
+    },
+    {
+      "id": "legacy-016",
+      "title": "canonical 4505 joint architecture",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "666 tropical / 96 native subset",
+      "result": "radial×deep +10.99 pp, bilateral×deep −1.37 pp; native +12.63 / −6.58 pp",
+      "claim_limit": "candidate GIFT mainland source only; no inferred pollinator identity",
+      "source_url": "https://github.com/zuizui0223/fd/blob/dbea01d985a4ad6c4e72a8d4bc4225e07baaed07/docs/manuscript_20261124/ARCHITECTURE_DEPENDENT_REASSEMBLY.md"
+    },
+    {
+      "id": "legacy-017",
+      "title": "canonical 4505 covariance",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "666 tropical",
+      "result": "Δcov +4.01790 pp = between genera +4.05652 and within −.03862",
+      "claim_limit": "not causal variance partition; fixed species-wide traits",
+      "source_url": "https://github.com/zuizui0223/fd/blob/dbea01d985a4ad6c4e72a8d4bc4225e07baaed07/docs/manuscript_20261124/ARCHITECTURE_DEPENDENT_REASSEMBLY.md"
+    },
+    {
+      "id": "legacy-018",
+      "title": "canonical 4505 known-genus transfer",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "13 endpoints × 3 regions",
+      "result": "7/13 robust geographic-training-exclusion gains vs external blind",
+      "claim_limit": "genus supplied, no prospective assembly; no three-region native replication",
+      "source_url": "https://github.com/zuizui0223/fd/pull/35"
+    },
+    {
+      "id": "legacy-019",
+      "title": "canonical 4505 geography→genus",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "1773 / 992 / 204 regions",
+      "result": "candidate-source incremental Brier gains +.000390/.000122/.000348",
+      "claim_limit": "not actual colonization; geography-only better north",
+      "source_url": "https://github.com/zuizui0223/fd/pull/37"
+    },
+    {
+      "id": "legacy-020",
+      "title": "canonical 4505 error partition",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "59 qualified panels",
+      "result": "59/59 largest signed projection congener-profile mismatch",
+      "claim_limit": "not causal variance; genus-equal triple-reference forecast wins 0/39",
+      "source_url": "https://github.com/zuizui0223/fd/pull/60"
+    },
+    {
+      "id": "legacy-021",
+      "title": "canonical 4505 evidence grade",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "55 support panels",
+      "result": "43/55 grade/category association beyond genus permuted null",
+      "claim_limit": "different species, not repeat measurements; not adaptation",
+      "source_url": "https://github.com/zuizui0223/fd/pull/63"
+    },
+    {
+      "id": "legacy-022",
+      "title": "GloPL existing",
+      "inputs": [
+        "glopl",
+        "geography"
+      ],
+      "ancestry": [
+        "geography",
+        "glopl"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "frozen H3 exception",
+      "support": "2969 experiments / 1248 sites",
+      "result": "distance beta +.09191 p=.01594; offshore +.22031 p=.02459",
+      "claim_limit": "supplement-only not supported; no measured animal abundance loss",
+      "source_url": "https://github.com/zuizui0223/island/blob/c662411bd1f18541cbe8531e4b1b7b14ff62f028/submission/chapter1_current/H1_H4_EVIDENCE_MAP.md"
+    },
+    {
+      "id": "legacy-023",
+      "title": "qualified pollinator support",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "animal_sources",
+        "geography"
+      ],
+      "ancestry": [
+        "animal_sources",
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "928 islands",
+      "result": "0/20 qualified region×guild contrasts",
+      "claim_limit": "unresolved is not zero; no local causal guild effect",
+      "source_url": "https://github.com/zuizui0223/fd/pull/15"
+    },
+    {
+      "id": "legacy-024",
+      "title": "hypothetical network removal",
+      "inputs": [
+        "euppollnet",
+        "own_plant_aggregate",
+        "geography"
+      ],
+      "ancestry": [
+        "euppollnet",
+        "geography",
+        "own_gbif",
+        "own_plant_aggregate",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "76 networks / 11 islands / 4 blocks",
+      "result": "all-bee median excess disconnection +9.36 pp vs equal-species random removal",
+      "claim_limit": "external EuPPollNet; not observed pollinator decline or fitness",
+      "source_url": "https://github.com/zuizui0223/fd/blob/4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf/results/20261113_pollinator_impact_functional_diversity/EUPPOLLNET_GUILD_LOSS_SIMULATION.md"
+    },
+    {
+      "id": "legacy-025",
+      "title": "bird, Bombus, bat public bridge",
+      "inputs": [
+        "own_plant_aggregate",
+        "animal_sources",
+        "geography"
+      ],
+      "ancestry": [
+        "animal_sources",
+        "geography",
+        "own_gbif",
+        "own_plant_aggregate",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "nested public aggregate subsets",
+      "result": "birds tubular 11/11 positive; Bombus +.0148 interval crosses 0; bat tubular exploratory subset +.1406",
+      "claim_limit": "bird genus null no support; four-guild overlap 7 islands; bat gate fails",
+      "source_url": "https://github.com/zuizui0223/fd/actions/runs/45538885701"
+    },
+    {
+      "id": "legacy-026",
+      "title": "GloPL exact species existing",
+      "inputs": [
+        "own_traits",
+        "glopl",
+        "geography"
+      ],
+      "ancestry": [
+        "geography",
+        "glopl",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "455 assurance / 143 access species",
+      "result": "−.29830 p=.00417; −.29566 p=.02334",
+      "claim_limit": "not mediation; SC alone imprecise",
+      "source_url": "https://github.com/zuizui0223/island/blob/c662411bd1f18541cbe8531e4b1b7b14ff62f028/submission/chapter1_current/H1_H4_EVIDENCE_MAP.md"
+    },
+    {
+      "id": "legacy-027",
+      "title": "GloPL FD bridge",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "glopl",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "glopl",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "30 islands, 26 blocks",
+      "result": "all three Q/open-form intervals include zero; supplemental-only n19 fails gate",
+      "claim_limit": "zero same-island same-species match; no mediation",
+      "source_url": "https://github.com/zuizui0223/fd/blob/4b94fcc8239a31540b66f4f7ccf59290a8a1bfcf/results/20261113_pollinator_impact_functional_diversity/GLOPL_EXPERIMENTAL_ISLAND_FD_ASSOCIATION.md"
+    },
+    {
+      "id": "legacy-028",
+      "title": "17D projected KDE / geological contrast",
+      "inputs": [
+        "own_plant_aggregate",
+        "geography",
+        "unknown"
+      ],
+      "ancestry": [
+        "geography",
+        "own_gbif",
+        "own_plant_aggregate",
+        "own_traits",
+        "unknown"
+      ],
+      "owner": "island",
+      "ancestry_review": "incomplete_hold",
+      "reason": "own biological input ancestry",
+      "support": "37 pairs",
+      "result": "profile-count-adjusted intervals cross zero; geography disjoint no adjusted support",
+      "claim_limit": "not total functional volume; do not revive positive earlier geology claims",
+      "source_url": "https://github.com/zuizui0223/fd/pull/11"
+    },
+    {
+      "id": "legacy-029",
+      "title": "endpoint-specific Direct support (canonical)",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "4505 parent; 10 marginal and 3 two-trait endpoints",
+      "result": "colour 3132, form 2806, symmetry 3145, SC 2958; colour-form 2324, colour-symmetry 2699, form-symmetry 2611 islands (>=5 Direct)",
+      "claim_limit": "same GBIF roster; endpoint-specific sample, not independent GIFT census",
+      "source_url": "https://github.com/zuizui0223/fd/blob/819b8138a8c577754c81ee40a618d058b23aabd2/results/20261114_global_partial_traits/MAIN_GLOBAL_NO_COMPLETE_CASE_4505.md"
+    },
+    {
+      "id": "legacy-030",
+      "title": "historical directional sector slopes",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "954 tropical islands / 101 blocks",
+      "result": "zygomorphic -0.559 pp per log2(1+km) doubling, Holm .0295; genus residual -0.0178 pp [-0.0799,+0.0406]",
+      "claim_limit": "different original distance/covariates than corrected H1; strict native direction not reproduced; no loss of pollinator guild",
+      "source_url": "https://github.com/zuizui0223/fd/blob/819b8138a8c577754c81ee40a618d058b23aabd2/results/20261115_global_island_functional_beta/DIRECTIONAL_FLORAL_ISOLATION_GRADIENTS.md"
+    },
+    {
+      "id": "legacy-031",
+      "title": "historical SC vs autonomous isolation slopes",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "775 tropical SC /580 autonomous; distinct carrier sets",
+      "result": "SC +0.593 pp; genus residual +0.297 [+0.101,+0.505], Holm .0476; autonomous +1.053 pp, genus residual +0.058 [-0.211,+0.334]",
+      "claim_limit": "older geometry and different controls; native SC residual crosses zero; cannot claim same-species response or selection",
+      "source_url": "https://github.com/zuizui0223/fd/blob/819b8138a8c577754c81ee40a618d058b23aabd2/results/20261115_global_island_functional_beta/REPRODUCTIVE_SC_VS_AUTONOMOUS_ISOLATION_GRADIENTS.md"
+    },
+    {
+      "id": "legacy-032",
+      "title": "specialist sector missingness null",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "1593 north-mid,697 tropical",
+      "result": "genus-null missing bilateral tubular/bell slopes +.00443 and +.00110 both intervals cross zero",
+      "claim_limit": "no unusual specialist profile depletion under genus null; open profile nominal posthoc only",
+      "source_url": "https://github.com/zuizui0223/fd/blob/819b8138a8c577754c81ee40a618d058b23aabd2/results/20261115_global_island_functional_beta/DIRECTIONAL_MISSING_FLORAL_PROFILE_SPACE_NULLS.md"
+    },
+    {
+      "id": "legacy-033",
+      "title": "trait documentation by geological origin",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography",
+        "unknown"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits",
+        "unknown"
+      ],
+      "owner": "island",
+      "ancestry_review": "incomplete_hold",
+      "reason": "own biological input ancestry",
+      "support": "tropical 160 oceanic/43 continental",
+      "result": "Direct coverage oceanic minus continental form +.07619, symmetry +.05708, autonomous +.05522, display +.11546",
+      "claim_limit": "exploratory; observation opportunity varies; cannot identify mechanism of FD contrast",
+      "source_url": "https://github.com/zuizui0223/fd/blob/819b8138a8c577754c81ee40a618d058b23aabd2/results/20261114_global_partial_traits/MAIN_GLOBAL_NO_COMPLETE_CASE_4505.md"
+    },
+    {
+      "id": "legacy-034",
+      "title": "corrected-isolation FD source replay",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "4505 target, 928 triple eligible, 927 matched geography; strict native 87",
+      "result": "5 tests passed; 384 aggregate model slots; same frozen Direct ledger and corrected H1 covariates",
+      "claim_limit": "new exploratory design; shared original DB, not an independent replication",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45542455705"
+    },
+    {
+      "id": "legacy-035",
+      "title": "corrected distance triple baseline",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "742 northern-mid and 105 tropical; other regions insufficient",
+      "result": "no BY-supported triple baseline slope; northern MI +.01914 pointwise CI [.00278,.03551], tropical marginal Q -.00946 [-.01548,-.00345]",
+      "claim_limit": "not multiplicity robust; no universal FD decline",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45542455705"
+    },
+    {
+      "id": "legacy-036",
+      "title": "corrected distance coverage-adjusted MI",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "742 northern-mid /52 blocks",
+      "result": "distance beta +.02003 [.00825,.03180], BY .02353",
+      "claim_limit": "not baseline BY supported; measured coverage conditional, not trait selection",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45542455705"
+    },
+    {
+      "id": "legacy-037",
+      "title": "corrected distance coverage-adjusted marginal Q",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "105 tropical /41 blocks",
+      "result": "distance beta -.01108 [-.01661,-.00555], BY .00850",
+      "claim_limit": "joint Q not supported; not baseline BY supported; strict native insufficient",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45542455705"
+    },
+    {
+      "id": "legacy-038",
+      "title": "same-morphology-roster selfing conditioning",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "739 northern-mid /52 blocks; 68 tropical /36 blocks",
+      "result": "MI +.01770 [.00699,.02840], BY .03109; marginal Q -.01087 [-.01662,-.00512], BY .01846",
+      "claim_limit": "selfing carriers subset of morphological roster; not causal mediation; all-flora H2 conditioning BY .05051 for both",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45542455705"
+    },
+    {
+      "id": "legacy-039",
+      "title": "strict native triple FD",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "67 northern-mid;17 tropical;3 south",
+      "result": "north-mid baseline all 3 intervals cross zero; tropical and southern below gate",
+      "claim_limit": "same-parent nonrandom native ascertainment; not evidence of no effect",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45542455705"
+    },
+    {
+      "id": "legacy-040",
+      "title": "coherent regional genus whole-profile null",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "399 coherent draws, 144 slots; 54 parent fits reproduced",
+      "result": "9 tests pass; max parent beta delta 2.78e-17",
+      "claim_limit": "within-region genus token exchange, not phylogeny or causal source ancestry",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45544038800"
+    },
+    {
+      "id": "legacy-041",
+      "title": "north-mid FD pairing conditional genus residual",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "742 islands / 52 blocks",
+      "result": "observed +.020026; null +.012683; residual +.007343 [.002634,.012053]; permutation p=.05, focal Holm=.10; residual BY=.05378",
+      "claim_limit": "numerical expected slope ratio .633; not fraction causally explained",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45544038800"
+    },
+    {
+      "id": "legacy-042",
+      "title": "tropical FD marginal Q conditional genus residual",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "105 islands / 41 blocks",
+      "result": "observed -.011084; null -.008676; residual -.002408 [-.003845,-.000971]; permutation p=.09, focal Holm=.10; residual BY=.05378",
+      "claim_limit": "numerical expected slope ratio .783; not fraction causally explained",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45544038800"
+    },
+    {
+      "id": "legacy-043",
+      "title": "genus null with parent same-roster selfing covariate",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "739 north-mid / 68 tropical",
+      "result": "MI residual +.006585 BY=.04837; Q residual -.002353 BY=.04782; both coherent permutation p=.055, BY=.68271",
+      "claim_limit": "coherent label-exchange inference not supported; morphology-reproduction coupling not preserved by null",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45544038800"
+    },
+    {
+      "id": "legacy-044",
+      "title": "native origin and genus exchange opportunity",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "67 north-mid,17 tropical strict-native triple",
+      "result": "north-mid/tropical broad median variable-genus carrier fractions .489/.381; native 18 fitted, 0 BY supported",
+      "claim_limit": "not native global equivalence or independent lineage evolution",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45544038800"
+    },
+    {
+      "id": "legacy-045",
+      "title": "held-out species genus prediction",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "1435 north-mid / 902 tropical target names",
+      "result": "Brier .9380→.6479 and .9597→.8356; logloss 3.5984→2.5026 and 3.8737→3.2662; two seeds/two shrinkages positive",
+      "claim_limit": "known genus and observed incidence; no geographic or phylogenetic holdout; source dependent",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45546558379"
+    },
+    {
+      "id": "legacy-046",
+      "title": "held-out north-mid MI prediction",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "742 islands/52 blocks",
+      "result": "tau1 forecast +.00979/+ .00862 vs observed +.02003; MSE reduction 54.6%/51.2%; both block gain intervals positive",
+      "claim_limit": "incomplete slope reproduction; 72–74% mean donor coverage; not causal explained fraction",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45546558379"
+    },
+    {
+      "id": "legacy-047",
+      "title": "held-out tropical marginal Q prediction",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "105 islands/41 blocks",
+      "result": "tau1 forecast -.00444/-.00399 vs observed -.01108; MSE reduction 53.0%/49.5%; both block gain intervals positive",
+      "claim_limit": "45–47% mean donor coverage; forecast draw ranges cross zero; residual not proof of adaptation",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45546558379"
+    },
+    {
+      "id": "legacy-048",
+      "title": "held-out native MI and validation",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "67 strict-native north-mid; 108 parent model replays",
+      "result": "tau1 MSE reduction 39.3%/25.5%; native observed slope +.00484 weak; 12 tests pass; 324 model rows, 84 proper-score rows",
+      "claim_limit": "native tropical below fit gate; no independent biological replication",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45546558379"
+    },
+    {
+      "id": "legacy-049",
+      "title": "own GBIF reproduction-capacity coverage",
+      "inputs": [
+        "own_gbif",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "geography",
+        "own_gbif",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "4505 raw observed islands; 1039757 island-species rows; 576 slots/335 fits",
+      "result": "5 tests passed; no GIFT island/mainland/status inputs",
+      "claim_limit": "potential capacity, not measured service or reproduction",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45551835472"
+    },
+    {
+      "id": "legacy-050",
+      "title": "autonomy-known triple profile exact coverage",
+      "inputs": [
+        "own_gbif",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "geography",
+        "own_gbif",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "132 global names; 307 north-mid/58 tropical islands n>=10",
+      "result": "median supported share .88505/.70036; median fixed-m excess +.03247/-.07002",
+      "claim_limit": "not a formal region comparison; no autonomous slope BY supported",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45551835472"
+    },
+    {
+      "id": "legacy-051",
+      "title": "SC-known colour support",
+      "inputs": [
+        "own_gbif",
+        "own_traits",
+        "geography"
+      ],
+      "ancestry": [
+        "geography",
+        "own_gbif",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "171 north-high islands",
+      "result": "beta +.02635 [.01491,.03778], BY .01738; only one of 576 slots BY supported",
+      "claim_limit": "SC is not autonomous capacity; no actual pollinator-free reproduction claim",
+      "source_url": "https://github.com/zuizui0223/island/actions/runs/45551835472"
+    },
+    {
+      "id": "island-plant-syndrome-q1-q4",
+      "title": "Plant-defined syndrome Q1–Q4, pair atlas, size and colour-taxon sensitivity",
+      "inputs": [
+        "own_status_flora",
+        "own_traits",
+        "gift_mainland",
+        "geography"
+      ],
+      "ancestry": [
+        "external_status",
+        "geography",
+        "gift_mainland",
+        "own_gbif",
+        "own_status_flora",
+        "own_traits"
+      ],
+      "owner": "island",
+      "ancestry_review": "known_source_family",
+      "reason": "own biological input ancestry",
+      "support": "Endpoint-specific cohorts; not island count as ownership rule",
+      "claim_limit": "No measured guild identity or causal adaptation.",
+      "source_url": "https://github.com/zuizui0223/island/pull/351"
+    },
+    {
+      "id": "fd-official-gift-pilot",
+      "title": "Publisher GIFT native-list and trait-overlap coverage pilot",
+      "inputs": [
+        "gift_island",
+        "gift_traits"
+      ],
+      "ancestry": [
+        "gift_island",
+        "gift_traits"
+      ],
+      "owner": "fd",
+      "ancestry_review": "known_source_family",
+      "reason": "external-only source family; require exact audit before activation",
+      "support": "24 island and 24 mainland selected lists; strict colour×length 404 work_ID overlaps globally, 2/24 island lists with any overlap, max 4",
+      "claim_limit": "No fitted ecological contrast, no assertion of independent underlying botanical observations.",
+      "source_url": "https://github.com/zuizui0223/fd/actions/runs/45560668861"
+    }
+  ],
+  "additional_routing": [
+    {
+      "refs": [
+        "island#352",
+        "island#354",
+        "island#356",
+        "island#357",
+        "island#358",
+        "island#359",
+        "island#360",
+        "fd#77",
+        "fd#78",
+        "fd#79",
+        "fd#81"
+      ],
+      "owner": "island",
+      "reason": "own GBIF/trait data or cohort dependency"
+    },
+    {
+      "refs": [
+        "fd#72",
+        "fd#75",
+        "fd#80",
+        "fd#82"
+      ],
+      "owner": "fd",
+      "reason": "external-source candidate; retain external-only audit"
+    }
+  ]
+}
