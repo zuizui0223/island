@@ -36,7 +36,9 @@ jobs:
           FLORA="$(find /tmp/flower-stratum/original -path '*/fixed/canonical/input/chapter1_status_flora.csv.gz' -type f -print -quit)"
           test -s "$FLORA"
           ROOT="${FLORA%/fixed/canonical/input/chapter1_status_flora.csv.gz}"
-          curl --fail --silent --show-error --location 'https://raw.githubusercontent.com/zuizui0223/island/d4a5dafab5f0737ea6c1c0263fc20decf6035c/results/geography_20260924/corrected_geography_covariates.csv' -o /tmp/flower-stratum/geography.csv
+          # The preserved tracked CSV has the identical frozen SHA256 (verified again by the Python runner).
+          cp results/geography_20260924/corrected_geography_covariates.csv /tmp/flower-stratum/geography.csv
+          echo '08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7  /tmp/flower-stratum/geography.csv' | sha256sum -c -
           python -u scripts/chapter1_flower_axis_stratum.py --flora "$FLORA" --ledger "$ROOT/fixed/source/current/evidence/direct_only_trait_ledger.csv.gz" --geography /tmp/flower-stratum/geography.csv --parent research/chapter1_fd_integration_20261125/FLORAL_AXIS_DECOUPLING_RESULTS.json --out /tmp/flower-stratum/anonymous.json
           python - <<'PY'
           import json
