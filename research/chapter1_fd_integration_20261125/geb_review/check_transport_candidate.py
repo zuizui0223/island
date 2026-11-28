@@ -88,7 +88,8 @@ def check(out):
     for marker in ("0.02762","0.01967","0.02463","0.02089","0.000221","0.00397","0.00371","32 global","eight tropical"):
         assert marker in m,marker
     for n in TABLES:assert n in si,n
-    for n in ("S8.7","S8.8","S8.9"):assert n in si and n in m
+    for n in ("S8.7","S8.8","S8.9"):assert n in si
+    assert "S8.7–S8.9" in m
     g,prior,latest=[load(n) for n in PINS]
     assert sum(x["status"]=="fit" for x in g)==3
     assert sum(x["status"]=="fit" for x in latest)==5
